@@ -20,7 +20,7 @@ From `ProjectAegisRTS`:
 dotnet run --project src/Rts.Core.Tests
 ```
 
-The current machine did not have `dotnet` on PATH during Stage 0 creation, so this command still needs to be run after installing or exposing a .NET SDK.
+Stage 0 tests are now passing with the installed .NET SDK.
 
 To publish the local test executable and refresh the desktop shortcut after changes:
 

@@ -4,19 +4,20 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")
+$repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
 $project = Join-Path $repoRoot "src/Rts.Core.Tests/Rts.Core.Tests.csproj"
 $output = Join-Path $repoRoot "build/stage0-test-runner"
 $desktop = [Environment]::GetFolderPath("DesktopDirectory")
 $shortcutPath = Join-Path $desktop "ProjectAegisRTS Stage 0 Tests.lnk"
 
-$dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
+$dotnetCommand = Get-Command dotnet -ErrorAction SilentlyContinue
+$dotnet = if ($null -ne $dotnetCommand) { $dotnetCommand.Source } elseif (Test-Path -LiteralPath "C:\Program Files\dotnet\dotnet.exe") { "C:\Program Files\dotnet\dotnet.exe" } else { $null }
 if ($null -eq $dotnet) {
     throw "dotnet SDK is required to publish the Stage 0 test runner. Install or expose a .NET SDK on PATH, then rerun this script."
 }
 
 New-Item -ItemType Directory -Force -Path $output | Out-Null
-& $dotnet.Source publish $project --configuration $Configuration --runtime win-x64 --self-contained false -p:PublishSingleFile=true --output $output
+& $dotnet publish $project --configuration $Configuration --runtime win-x64 --self-contained false -p:PublishSingleFile=true --output $output
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
