@@ -1,0 +1,30 @@
+# Technical Architecture
+
+## Simulation Core
+
+`src/Rts.Core` is the authoritative gameplay model. It owns actor definitions, actor instances, grid occupancy, production queues, building placement, power state, pathfinding, deterministic movement, command handling, and snapshots. It targets `netstandard2.1` and does not reference UnityEngine.
+
+## Unity Client
+
+Unity will later render `WorldSnapshot` data and submit explicit command DTOs. Unity GameObjects, controller poses, physics, animation rigs, and floats are presentation/input concerns only. They must not become authoritative gameplay state.
+
+## Command and Snapshot Bridge
+
+The bridge is intentionally simple:
+
+- Client submits commands such as `BeginProductionCommand`, `PlaceBuildingCommand`, and `IssueMoveOrderCommand`.
+- Core validates commands and returns `CommandResult`.
+- Core advances in fixed ticks.
+- Client reads `WorldSnapshot`, `ActorSnapshot`, `ProductionSnapshot`, `PowerSnapshot`, and `PlacementPreviewSnapshot`.
+
+## Deterministic Tick Loop
+
+The current loop updates power, advances production, advances movement, and refreshes actor flags. State uses integers and fixed cell-scaled positions. The smoke test compares deterministic summaries after replaying the same command sequence twice.
+
+## OpenRA Reference Boundary
+
+OpenRA is used as an architecture reference for concepts such as actors, traits, orders, production queues, placement previews, power state, and right-side production palettes. Stage 0 does not port the OpenRA renderer, SDL input, OpenGL platform layer, or YAML chrome UI.
+
+## Future OpenRA-Derived Systems
+
+If future stages copy or derive OpenRA code, the project must preserve GPL headers, document obligations, and treat the codebase as GPL-compatible. Stage 0 avoids that by implementing a clean prototype from scratch.
