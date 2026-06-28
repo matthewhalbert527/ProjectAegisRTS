@@ -422,7 +422,7 @@ namespace ProjectAegisRTS.Simulation
         void TickProduction()
         {
             var completedUnits = new List<ProductionQueueItem>();
-            foreach (var player in players.Values)
+            foreach (var player in SortedPlayers())
             {
                 foreach (var item in player.MutableProductionQueue)
                 {
@@ -495,7 +495,7 @@ namespace ProjectAegisRTS.Simulation
 
         void TickMovement()
         {
-            foreach (var actor in actors.Values)
+            foreach (var actor in SortedActors())
             {
                 var definition = Rules.GetDefinition(actor.TypeId) as UnitDefinition;
                 if (definition == null || actor.Path.Count == 0)
@@ -547,11 +547,11 @@ namespace ProjectAegisRTS.Simulation
 
         void UpdatePowerAndActorFlags()
         {
-            foreach (var player in players.Values)
+            foreach (var player in SortedPlayers())
             {
                 var generated = 0;
                 var consumed = 0;
-                foreach (var actor in actors.Values)
+                foreach (var actor in SortedActors())
                 {
                     if (actor.OwnerPlayerId != player.PlayerId || actor.ManuallyPoweredOff)
                         continue;
@@ -576,7 +576,7 @@ namespace ProjectAegisRTS.Simulation
                     player.PowerState = PlayerPowerState.Normal;
             }
 
-            foreach (var actor in actors.Values)
+            foreach (var actor in SortedActors())
             {
                 var definition = Rules.GetDefinition(actor.TypeId);
                 var player = players[actor.OwnerPlayerId];
@@ -662,7 +662,7 @@ namespace ProjectAegisRTS.Simulation
 
         bool IsInsideConstructionRadius(int playerId, IReadOnlyList<Int2> footprintCells)
         {
-            foreach (var provider in actors.Values)
+            foreach (var provider in SortedActors())
             {
                 if (provider.OwnerPlayerId != playerId || !provider.IsPowered)
                     continue;
