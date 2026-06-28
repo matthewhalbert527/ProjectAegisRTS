@@ -60,6 +60,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var cameraObject = new GameObject("Main Camera");
             cameraObject.tag = "MainCamera";
             var camera = cameraObject.AddComponent<Camera>();
+            camera.orthographic = true;
+            camera.orthographicSize = 28f;
+            camera.nearClipPlane = 0.1f;
+            camera.farClipPlane = 1000f;
+            cameraObject.transform.position = new Vector3(16f, 38f, -26f);
+            cameraObject.transform.rotation = Quaternion.Euler(60f, 0f, 0f);
             var cameraController = cameraObject.AddComponent<RtsCameraController>();
 
             var lightObject = new GameObject("Directional Light");

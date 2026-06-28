@@ -10,8 +10,11 @@ namespace ProjectAegisRTS.UnityClient.CameraControls
         public float rotateSpeed = 75f;
         public float minHeight = 7f;
         public float maxHeight = 38f;
+        public bool useOrthographicStage1View = true;
+        public float orthographicSize = 28f;
 
         BoardCoordinateMapper mapper;
+        Camera controlledCamera;
         Vector3 lastMousePosition;
 
         public void Configure(BoardCoordinateMapper coordinateMapper)
@@ -21,8 +24,18 @@ namespace ProjectAegisRTS.UnityClient.CameraControls
                 return;
 
             var center = mapper.BoardCenterWorld;
-            transform.position = center + new Vector3(0f, 23f, -25f);
-            transform.LookAt(center);
+            controlledCamera = GetComponent<Camera>();
+            if (controlledCamera != null)
+            {
+                controlledCamera.nearClipPlane = 0.1f;
+                controlledCamera.farClipPlane = 1000f;
+                controlledCamera.orthographic = useOrthographicStage1View;
+                if (controlledCamera.orthographic)
+                    controlledCamera.orthographicSize = orthographicSize;
+            }
+
+            transform.position = new Vector3(center.x, maxHeight, center.z - 42f);
+            transform.rotation = Quaternion.Euler(60f, 0f, 0f);
         }
 
         void Update()
@@ -76,6 +89,12 @@ namespace ProjectAegisRTS.UnityClient.CameraControls
             var scroll = Input.GetAxis("Mouse ScrollWheel");
             if (Mathf.Abs(scroll) < 0.001f)
                 return;
+
+            if (controlledCamera != null && controlledCamera.orthographic)
+            {
+                controlledCamera.orthographicSize = Mathf.Clamp(controlledCamera.orthographicSize - scroll * zoomSpeed, 8f, 42f);
+                return;
+            }
 
             transform.position += transform.forward * scroll * zoomSpeed;
             var position = transform.position;
