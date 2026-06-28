@@ -94,14 +94,13 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                     var cameraObject = new GameObject("Main Camera");
                     cameraObject.tag = "MainCamera";
                     sceneCamera = cameraObject.AddComponent<Camera>();
-                    cameraObject.AddComponent<AudioListener>();
                 }
             }
 
             if (cameraController == null)
                 cameraController = GetOrAdd<RtsCameraController>(sceneCamera.gameObject);
 
-            if (FindObjectOfType<Light>() == null)
+            if (FindAnyObjectByType<Light>() == null)
             {
                 var lightObject = new GameObject("Directional Light");
                 var light = lightObject.AddComponent<Light>();

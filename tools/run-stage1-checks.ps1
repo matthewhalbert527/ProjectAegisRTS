@@ -22,6 +22,7 @@ function Find-DotNet {
 
 function Find-UnityEditor {
     $patterns = @(
+        'E:\Unity\Hub\Editor\*\Editor\Unity.exe',
         'C:\Program Files\Unity\Hub\Editor\*\Editor\Unity.exe',
         'C:\Program Files\Unity\Editor\Unity.exe',
         'C:\Program Files (x86)\Unity\Editor\Unity.exe'
@@ -68,10 +69,48 @@ if (-not $unityEditor) {
 }
 
 New-Item -ItemType Directory -Force -Path (Split-Path -Parent $unityLog) | Out-Null
+if (Test-Path -LiteralPath $unityLog) {
+    Remove-Item -LiteralPath $unityLog -Force
+}
+
 Write-Host "Running Unity batchmode scene creation and compile check with $unityEditor"
-& $unityEditor -batchmode -quit -projectPath $unityProject -executeMethod ProjectAegisRTS.UnityClient.EditorTools.Stage1SceneCreator.CreateStage1SceneBatch -logFile $unityLog
-if ($LASTEXITCODE -ne 0) {
-    throw "Unity batchmode failed with exit code $LASTEXITCODE. See $unityLog"
+$arguments = "-batchmode -quit -projectPath `"$unityProject`" -executeMethod ProjectAegisRTS.UnityClient.EditorTools.Stage1SceneCreator.CreateStage1SceneBatch -logFile `"$unityLog`""
+Start-Process -FilePath $unityEditor -ArgumentList $arguments -WindowStyle Hidden | Out-Null
+
+$deadline = (Get-Date).AddMinutes(5)
+$sawCompletion = $false
+do {
+    Start-Sleep -Seconds 2
+
+    if (Test-Path -LiteralPath $unityLog) {
+        $compilerErrorDuringRun = Select-String -LiteralPath $unityLog -Pattern 'Scripts have compiler errors', 'error CS', 'Script Compilation Error' -Quiet
+        if ($compilerErrorDuringRun) {
+            break
+        }
+
+        $sawCompletion = Select-String -LiteralPath $unityLog -Pattern 'Created Stage 1 scene at Assets/Rts/Scenes/Stage1_DesktopBoard.unity' -Quiet
+        if ($sawCompletion) {
+            break
+        }
+    }
+} while ((Get-Date) -lt $deadline)
+
+if (-not (Test-Path -LiteralPath $unityLog)) {
+    throw "Unity batchmode did not create a log within the timeout. Expected log: $unityLog"
+}
+
+$compilerError = Select-String -LiteralPath $unityLog -Pattern 'Scripts have compiler errors', 'error CS', 'Script Compilation Error' -Quiet
+if ($compilerError) {
+    throw "Unity batchmode logged compiler errors. See $unityLog"
+}
+
+if (-not $sawCompletion) {
+    throw "Unity batchmode did not log Stage 1 scene creation before the timeout. See $unityLog"
+}
+
+$stage1Scene = Join-Path $unityProject 'Assets\Rts\Scenes\Stage1_DesktopBoard.unity'
+if (-not (Test-Path -LiteralPath $stage1Scene)) {
+    throw "Unity batchmode completed but did not create the Stage 1 scene: $stage1Scene. See $unityLog"
 }
 
 Write-Host "Unity batchmode completed successfully. Log: $unityLog"

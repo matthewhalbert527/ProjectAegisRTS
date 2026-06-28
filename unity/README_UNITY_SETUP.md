@@ -22,11 +22,11 @@ unity\Assets\Rts\Plugins\RtsCore\Rts.Core.dll
 .\tools\open-unity-project.ps1
 ```
 
-If Unity Editor is not installed, open Unity Hub manually, add/open the `unity` folder, and let Unity import the project.
+The helper searches the custom local install path `E:\Unity\Hub\Editor\*\Editor\Unity.exe` as well as common Unity Hub locations. If Unity Editor is not found, open Unity Hub manually, add/open the `unity` folder, and let Unity import the project.
 
 ## Create the Stage 1 Scene
 
-In Unity, run:
+The Stage 1 check script can create this scene in batchmode. To recreate it manually in Unity, run:
 
 ```text
 ProjectAegisRTS > Create Stage 1 Desktop Board Scene
@@ -53,7 +53,8 @@ This creates `Assets/Rts/Scenes/Stage1_DesktopBoard.unity` with `RtsGame`, `Boar
 - No Quest, OpenXR, Meta XR, hand tracking, or MR board placement packages are included.
 - The HUD is an IMGUI debug surface, not the final PC sidebar.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
-- Unity Editor was not available during local implementation, so Unity compile/play validation must be run after opening the project.
+- Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.
+- Play mode interaction validation should still be checked interactively after opening the generated scene.
 
 ## Later Stages
 

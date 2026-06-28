@@ -5,6 +5,7 @@ $ErrorActionPreference = 'Stop'
 
 function Find-UnityEditor {
     $patterns = @(
+        'E:\Unity\Hub\Editor\*\Editor\Unity.exe',
         'C:\Program Files\Unity\Hub\Editor\*\Editor\Unity.exe',
         'C:\Program Files\Unity\Editor\Unity.exe',
         'C:\Program Files (x86)\Unity\Editor\Unity.exe'
@@ -48,7 +49,7 @@ $unityEditor = Find-UnityEditor
 
 if ($unityEditor) {
     Write-Host "Opening Unity project with $unityEditor"
-    Start-Process -FilePath $unityEditor -ArgumentList @('-projectPath', $unityProject)
+    Start-Process -FilePath $unityEditor -ArgumentList "-projectPath `"$unityProject`""
     return
 }
 
