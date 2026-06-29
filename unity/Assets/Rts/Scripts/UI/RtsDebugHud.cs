@@ -8,6 +8,8 @@ namespace ProjectAegisRTS.UnityClient.UI
     {
         RtsSimulationDriver driver;
         string lastCommand = "No commands yet.";
+        public bool visible = true;
+        public KeyCode toggleKey = KeyCode.BackQuote;
 
         public void Initialize(RtsSimulationDriver simulationDriver)
         {
@@ -20,9 +22,15 @@ namespace ProjectAegisRTS.UnityClient.UI
             Debug.Log(lastCommand);
         }
 
+        void Update()
+        {
+            if (Input.GetKeyDown(toggleKey))
+                visible = !visible;
+        }
+
         void OnGUI()
         {
-            if (driver == null || driver.LatestSnapshot == null)
+            if (!visible || driver == null || driver.LatestSnapshot == null)
                 return;
 
             var snapshot = driver.LatestSnapshot;

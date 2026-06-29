@@ -6,11 +6,11 @@ Deterministic core, concept extraction/registry, OpenRA audit, docs, and no-depe
 
 ## Stage 1
 
-Unity desktop board prototype with placeholder meshes driven by `WorldSnapshot` and commands submitted to `Rts.Core`.
+Unity desktop board prototype with placeholder meshes driven by `WorldSnapshot` and commands submitted to `Rts.Core`. Completed with batchmode scene generation, validation, camera framing, runtime board rendering, placeholder actors, selection, move orders, pause, step, and low-power demo controls.
 
 ## Stage 2
 
-PC right-side OpenRA-style production panel using original UI implementation and Stage 0 command/snapshot APIs.
+PC right-side OpenRA-style production panel using original UI implementation and Stage 0 command/snapshot APIs. Stage 2 now provides `Assets/Rts/Scenes/Stage2_PCSidebar.unity`, a uGUI right sidebar, production tabs/grid, queue cancellation, placement readout, selection details, command bar, minimap placeholder, status log, hidden-by-default debug overlay, and batchmode validation scripts.
 
 ## Stage 3
 

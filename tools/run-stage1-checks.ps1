@@ -57,10 +57,35 @@ function Get-UnityProcessesForProject {
         }
 }
 
+function Remove-TrailingWhitespace {
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return
+    }
+
+    $resolved = (Resolve-Path -LiteralPath $Path).Path
+    $lines = [System.IO.File]::ReadAllLines($resolved)
+    $changed = $false
+    for ($i = 0; $i -lt $lines.Length; $i++) {
+        $trimmed = $lines[$i].TrimEnd()
+        if ($trimmed.Length -ne $lines[$i].Length) {
+            $changed = $true
+            $lines[$i] = $trimmed
+        }
+    }
+
+    if ($changed) {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding -ArgumentList $false
+        [System.IO.File]::WriteAllLines($resolved, [string[]]$lines, $utf8NoBom)
+    }
+}
+
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $dotnet = Find-DotNet
 $unityProject = Join-Path $repoRoot 'unity'
 $unityLog = Join-Path $repoRoot 'build\stage1-unity-batchmode.log'
+$stage1Scene = Join-Path $unityProject 'Assets\Rts\Scenes\Stage1_DesktopBoard.unity'
 
 Write-Host 'Running Rts.Core tests.'
 & $dotnet run --project (Join-Path $repoRoot 'src\Rts.Core.Tests')
@@ -89,6 +114,7 @@ if ($openUnity.Count -gt 0) {
     if ($LASTEXITCODE -ne 0) {
         throw "run-unity-stage1-validation.ps1 failed with exit code $LASTEXITCODE."
     }
+    Remove-TrailingWhitespace -Path $stage1Scene
     exit 0
 }
 
@@ -132,9 +158,9 @@ if (-not $sawCompletion) {
     throw "Unity batchmode did not log Stage 1 scene creation before the timeout. See $unityLog"
 }
 
-$stage1Scene = Join-Path $unityProject 'Assets\Rts\Scenes\Stage1_DesktopBoard.unity'
 if (-not (Test-Path -LiteralPath $stage1Scene)) {
     throw "Unity batchmode completed but did not create the Stage 1 scene: $stage1Scene. See $unityLog"
 }
 
+Remove-TrailingWhitespace -Path $stage1Scene
 Write-Host "Unity batchmode completed successfully. Log: $unityLog"

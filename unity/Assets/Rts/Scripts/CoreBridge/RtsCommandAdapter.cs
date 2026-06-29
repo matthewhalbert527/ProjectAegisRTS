@@ -77,6 +77,20 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 world.IssueCommand(new PlaceBuildingCommand(playerId, typeId, topLeftCell)));
         }
 
+        public static RtsCommandResult CancelProduction(RtsWorld world, int playerId, int queueItemId)
+        {
+            return RtsCommandResult.FromCore(
+                "Cancel production",
+                world.IssueCommand(new CancelProductionCommand(playerId, queueItemId)));
+        }
+
+        public static RtsCommandResult StopActors(RtsWorld world, int playerId, IReadOnlyList<int> actorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Stop",
+                world.IssueCommand(new StopCommand(playerId, ToActorIds(actorIds))));
+        }
+
         public static RtsCommandResult TogglePower(RtsWorld world, int playerId, int actorId)
         {
             return RtsCommandResult.FromCore(

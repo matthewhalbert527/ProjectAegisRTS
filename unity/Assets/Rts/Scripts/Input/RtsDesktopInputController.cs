@@ -1,7 +1,9 @@
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.UI;
+using ProjectAegisRTS.UnityClient.UI.Desktop;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace ProjectAegisRTS.UnityClient.InputControls
 {
@@ -11,6 +13,7 @@ namespace ProjectAegisRTS.UnityClient.InputControls
         BoardCoordinateMapper mapper;
         RtsSimulationDriver driver;
         RtsDebugHud debugHud;
+        DesktopUiCommandRouter commandRouter;
         Int2 hoveredCell;
         bool hasHoveredCell;
 
@@ -20,6 +23,11 @@ namespace ProjectAegisRTS.UnityClient.InputControls
             mapper = coordinateMapper;
             driver = simulationDriver;
             debugHud = hud;
+        }
+
+        public void SetCommandRouter(DesktopUiCommandRouter router)
+        {
+            commandRouter = router;
         }
 
         void Update()
@@ -50,47 +58,87 @@ namespace ProjectAegisRTS.UnityClient.InputControls
 
         void HandleMouse()
         {
-            if (!hasHoveredCell || IsPointerLikelyOverHud())
+            if (!hasHoveredCell || IsPointerOverUi())
                 return;
 
             if (Input.GetMouseButtonDown(0))
             {
-                var result = driver.HasPlacementMode
-                    ? driver.TryPlacePendingBuildingAtCell(hoveredCell)
-                    : driver.TrySelectActorAtCell(hoveredCell);
-                Record(result);
+                if (commandRouter != null)
+                {
+                    if (driver.HasPlacementMode)
+                        commandRouter.PlaceAtHoveredCell();
+                    else if (commandRouter.CurrentMode == DesktopCommandMode.Move)
+                        commandRouter.IssueMoveToCell(hoveredCell);
+                    else if (commandRouter.CurrentMode == DesktopCommandMode.AttackPlaceholder)
+                        commandRouter.Placeholder("Attack");
+                    else
+                        commandRouter.SelectAtCell(hoveredCell);
+                }
+                else
+                {
+                    var result = driver.HasPlacementMode
+                        ? driver.TryPlacePendingBuildingAtCell(hoveredCell)
+                        : driver.TrySelectActorAtCell(hoveredCell);
+                    Record(result);
+                }
             }
 
             if (Input.GetMouseButtonDown(1))
-                Record(driver.TryIssueMoveSelectedToCell(hoveredCell));
+            {
+                if (commandRouter != null)
+                    commandRouter.IssueMoveToCell(hoveredCell);
+                else
+                    Record(driver.TryIssueMoveSelectedToCell(hoveredCell));
+            }
         }
 
         void HandleKeyboard()
         {
             if (Input.GetKeyDown(KeyCode.Space))
-                Record(driver.TogglePause());
+                RouteOrRecord(() => driver.TogglePause(), r => r.TogglePause());
             if (Input.GetKeyDown(KeyCode.Period) || Input.GetKeyDown(KeyCode.N))
-                Record(driver.StepOneTick());
+                RouteOrRecord(() => driver.StepOneTick(), r => r.StepTick());
             if (Input.GetKeyDown(KeyCode.Escape))
-                Record(driver.HasPlacementMode ? driver.TryCancelPlacement() : driver.ClearSelection());
+            {
+                if (commandRouter != null)
+                    commandRouter.CancelActiveMode();
+                else
+                    Record(driver.HasPlacementMode ? driver.TryCancelPlacement() : driver.ClearSelection());
+            }
             if (Input.GetKeyDown(KeyCode.P))
-                Record(driver.TryQueueProduction("power_plant"));
+                Queue("power_plant");
             if (Input.GetKeyDown(KeyCode.B))
-                Record(driver.TryQueueProduction("barracks"));
+                Queue("barracks");
             if (Input.GetKeyDown(KeyCode.W))
-                Record(driver.TryQueueProduction("war_factory"));
+                Queue("war_factory");
             if (Input.GetKeyDown(KeyCode.R))
-                Record(driver.TryQueueProduction("refinery"));
+                Queue("refinery");
             if (Input.GetKeyDown(KeyCode.G))
-                Record(driver.TryQueueProduction("gun_tower"));
+                Queue("gun_tower");
             if (Input.GetKeyDown(KeyCode.I))
-                Record(driver.TryQueueProduction("rifle_infantry"));
+                Queue("rifle_infantry");
             if (Input.GetKeyDown(KeyCode.T))
-                Record(driver.TryQueueProduction("light_tank"));
+                Queue("light_tank");
             if (Input.GetKeyDown(KeyCode.H))
-                Record(driver.TryQueueProduction("harvester"));
+                Queue("harvester");
             if (Input.GetKeyDown(KeyCode.L))
-                Record(driver.TryForceLowPowerOrCreateLowPowerDemoCondition());
+                RouteOrRecord(() => driver.TryForceLowPowerOrCreateLowPowerDemoCondition(), r => r.TriggerLowPowerDemo());
+        }
+
+        void Queue(string typeId)
+        {
+            if (commandRouter != null)
+                commandRouter.QueueProduction(typeId);
+            else
+                Record(driver.TryQueueProduction(typeId));
+        }
+
+        void RouteOrRecord(System.Func<RtsCommandResult> fallback, System.Action<DesktopUiCommandRouter> routed)
+        {
+            if (commandRouter != null)
+                routed(commandRouter);
+            else
+                Record(fallback());
         }
 
         void Record(RtsCommandResult result)
@@ -101,9 +149,12 @@ namespace ProjectAegisRTS.UnityClient.InputControls
                 Debug.Log(result.ToString());
         }
 
-        static bool IsPointerLikelyOverHud()
+        static bool IsPointerOverUi()
         {
-            return Input.mousePosition.x < 340f && Input.mousePosition.y > Screen.height - 560f;
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return true;
+
+            return false;
         }
     }
 }

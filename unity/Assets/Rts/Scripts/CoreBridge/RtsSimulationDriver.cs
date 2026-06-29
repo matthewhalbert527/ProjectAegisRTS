@@ -230,6 +230,36 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return RtsCommandResult.Ok("Placement mode cancelled.");
         }
 
+        public RtsCommandResult TryCancelProduction(int queueItemId)
+        {
+            if (world == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            var result = RtsCommandAdapter.CancelProduction(world, playerId, queueItemId);
+            RefreshSnapshot();
+            return result;
+        }
+
+        public RtsCommandResult TryStopSelected()
+        {
+            if (selectedActorIds.Count == 0)
+                return RtsCommandResult.Fail("NoSelection", "Select actors before issuing Stop.");
+
+            var result = RtsCommandAdapter.StopActors(world, playerId, selectedActorIds);
+            RefreshSnapshot();
+            return result;
+        }
+
+        public RtsCommandResult TryTogglePowerSelected()
+        {
+            if (selectedActorIds.Count != 1)
+                return RtsCommandResult.Fail("SelectionRequiresOne", "Select one building before toggling power.");
+
+            var result = RtsCommandAdapter.TogglePower(world, playerId, selectedActorIds[0]);
+            RefreshSnapshot();
+            return result;
+        }
+
         public RtsCommandResult TryForceLowPowerOrCreateLowPowerDemoCondition()
         {
             if (world == null)
@@ -284,6 +314,30 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return Rules != null && Rules.TryGetDefinition(typeId, out definition);
         }
 
+        public bool TryGetActorSnapshot(int actorId, out ActorSnapshot snapshot)
+        {
+            snapshot = null;
+            if (latestSnapshot == null)
+                return false;
+
+            for (var i = 0; i < latestSnapshot.Actors.Count; i++)
+            {
+                if (latestSnapshot.Actors[i].ActorId == actorId)
+                {
+                    snapshot = latestSnapshot.Actors[i];
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool HasOwnedActorOfType(string typeId)
+        {
+            int actorId;
+            return TryFindOwnedActorOfType(typeId, out actorId);
+        }
+
         void RefreshSnapshot()
         {
             latestSnapshot = world == null ? null : world.CreateSnapshot();
@@ -322,24 +376,6 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                    cell.Y >= actor.CellPosition.Y &&
                    cell.X < actor.CellPosition.X + building.FootprintCells.X &&
                    cell.Y < actor.CellPosition.Y + building.FootprintCells.Y;
-        }
-
-        bool TryGetActorSnapshot(int actorId, out ActorSnapshot snapshot)
-        {
-            snapshot = null;
-            if (latestSnapshot == null)
-                return false;
-
-            for (var i = 0; i < latestSnapshot.Actors.Count; i++)
-            {
-                if (latestSnapshot.Actors[i].ActorId == actorId)
-                {
-                    snapshot = latestSnapshot.Actors[i];
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         bool TryFindOwnedActorOfType(string typeId, out int actorId)
