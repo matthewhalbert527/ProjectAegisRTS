@@ -1,12 +1,13 @@
 # Rts Unity Assets
 
-Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`.
+Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls.
 
 ## Folder Roles
 
 - `Scripts/Bootstrap`: scene startup and reference wiring.
+- `Scripts/Board`: Stage 3 board transform model and placement controller.
 - `Scripts/CoreBridge`: Unity-to-core adapters, command helpers, and board coordinate mapping.
-- `Scripts/Input`: desktop mouse and keyboard input.
+- `Scripts/Input`: desktop mouse/keyboard input plus XR-safe placement adapters and placeholders.
 - `Scripts/Rendering`: board, actor, selection, low-power, production, and interpolation visuals.
 - `Scripts/UI`: Stage 1 IMGUI debug HUD plus Stage 2 uGUI common and desktop sidebar controllers.
 - `Scripts/Camera`: desktop camera controls.
@@ -33,4 +34,17 @@ The actor view layer tracks previous and target snapshot positions, facing, norm
 - `Scripts/UI/Desktop/MinimapPlaceholderController.cs`: compact actor-dot minimap placeholder.
 - `Scripts/UI/Common/RtsStatusLog.cs`: deduplicated command/result log.
 
-`Editor/Stage2SceneCreator.cs` creates the scene, and `Editor/Stage2SceneValidator.cs` validates that the scene contains the board, camera, UI systems, event system, and safe orthographic camera framing.
+`Editor/Stage2SceneCreator.cs` creates the scene, and `Editor/Stage2SceneValidator.cs` validates that the scene contains the board, camera, UI systems, event system, and safe orthographic camera framing. `Editor/Stage2PlayModeSmokeValidator.cs` adds runtime smoke coverage for bootstrap, board visuals, actor visuals, ticks, pause, step, production, low power, and UI command routing.
+
+## Stage 3 Board Placement
+
+- `Scripts/Board/BoardTransformModel.cs`: serializable presentation transform data with reset, save/load, recenter, height, yaw, scale, and meters-per-cell controls.
+- `Scripts/Board/BoardPlacementController.cs`: applies the transform to `BoardRoot` and refreshes `BoardCoordinateMapper` without mutating deterministic simulation state.
+- `Scripts/Input/Desktop/DesktopBoardPlacementInput.cs`: desktop fallback controls for moving, rotating, scaling, saving, and cancelling placement.
+- `Scripts/Input/XR/XrBoardPlacementInputAdapter.cs`: package-independent Quest/OpenXR adapter placeholder.
+- `Scripts/Input/XR/Stage3XrRigPlaceholder.cs`: fallback rig root, head/camera, controller, and ray placeholders.
+- `Scripts/UI/XR/BoardPlacementHud.cs`: Stage 3 placement HUD with status readout and buttons.
+- `Editor/Stage3SceneCreator.cs`: creates `Stage3_XRBoardPlacement.unity`.
+- `Editor/Stage3SceneValidator.cs`: validates the Stage 3 scene structure.
+- `Editor/Stage3PlayModeSmokeValidator.cs`: validates runtime board visuals, actors, ticking, transform controls, save/load, and coordinate mapping.
+- `Editor/Stage3OpenXrSetupReporter.cs`: reports package status and writes `docs/STAGE3_XR_SETUP_STATUS.md`.

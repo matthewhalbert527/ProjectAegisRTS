@@ -229,7 +229,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
 
             var collider = primitive.GetComponent<Collider>();
             if (collider != null)
-                Destroy(collider);
+                DestroyObject(collider);
 
             generatedObjects.Add(primitive);
             return primitive;
@@ -239,7 +239,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         {
             for (var i = generatedObjects.Count - 1; i >= 0; i--)
                 if (generatedObjects[i] != null)
-                    Destroy(generatedObjects[i]);
+                    DestroyObject(generatedObjects[i]);
 
             generatedObjects.Clear();
             body = null;
@@ -256,6 +256,14 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             var renderer = target.GetComponent<Renderer>();
             if (renderer != null)
                 renderer.sharedMaterial = material;
+        }
+
+        static void DestroyObject(Object target)
+        {
+            if (Application.isPlaying)
+                Destroy(target);
+            else
+                DestroyImmediate(target);
         }
 
         static float MarkerHeight(ActorDefinition definition)

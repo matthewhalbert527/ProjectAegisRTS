@@ -57,6 +57,35 @@ To validate it from PowerShell:
 
 The Stage 2 scene uses uGUI via `com.unity.ugui`, keeps the Stage 1 board/runtime bridge, and adds a screen-space canvas with the right sidebar, command bar, status log, production panels, selection panel, and minimap placeholder.
 
+## Create or Validate the Stage 3 Scene
+
+Stage 3 adds the Quest/OpenXR-ready board placement prototype:
+
+```text
+Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity
+```
+
+To create or refresh it manually in Unity, run:
+
+```text
+ProjectAegisRTS > Create Stage 3 XR Board Placement Scene
+```
+
+To report XR package status manually in Unity, run:
+
+```text
+ProjectAegisRTS > Report Stage 3 XR Setup Status
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage3-validation.ps1
+.\tools\run-stage3-checks.ps1
+```
+
+Stage 3 installs or verifies Unity Registry packages for XR Plug-in Management, OpenXR, and Input System when batchmode can safely run. The runtime scene remains package-independent: if XR packages are absent or incomplete, the desktop fallback and placeholder XR rig still compile and run.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -76,10 +105,25 @@ The Stage 2 scene uses uGUI via `com.unity.ugui`, keeps the Stage 1 board/runtim
 
 Stage 2 also exposes these actions through buttons in the sidebar and bottom command bar: production, queue cancel, placement cancel, stop, move, attack placeholder, guard/patrol/deploy/repair/sell placeholders, power toggle, pause, step, and low-power demo.
 
+## Stage 3 Board Placement Controls
+
+- Tab: toggle board placement mode.
+- Enter: confirm placement and save settings.
+- Escape: cancel placement mode and restore the starting transform.
+- R: reset placement to defaults while placement mode is active.
+- Arrow keys or WASD: move the board horizontally while placement mode is active.
+- Q/E: adjust board yaw.
+- PageUp/PageDown or Z/X: adjust height.
+- Shift or Ctrl plus mouse wheel: adjust board scale.
+- HUD buttons: toggle placement, confirm, cancel, reset, save, load, and recenter.
+
+Placement settings save through `PlayerPrefs` under the Stage 3 board placement key. The transform affects only Unity presentation and coordinate mapping; `Rts.Core` simulation state is not mutated.
+
 ## Known Limits
 
-- No Quest, OpenXR, Meta XR, hand tracking, or MR board placement packages are included.
+- Meta XR Core/Interaction SDK packages are not imported automatically.
 - Stage 2 is still placeholder-art PC UI, not final visual art.
+- Stage 3 uses a placeholder XR rig until a proper XR Origin/controller rig is added in a later stage.
 - The attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

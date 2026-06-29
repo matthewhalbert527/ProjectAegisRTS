@@ -8,6 +8,12 @@
 
 Unity will later render `WorldSnapshot` data and submit explicit command DTOs. Unity GameObjects, controller poses, physics, animation rigs, and floats are presentation/input concerns only. They must not become authoritative gameplay state.
 
+## Stage 3 Board Placement Boundary
+
+Stage 3 introduces a Unity-only board transform layer for Quest/OpenXR-style placement. `BoardTransformModel` owns position, height, yaw, scale, meters-per-cell, save/load, reset, and recenter state. `BoardPlacementController` applies those values to `BoardRoot` and refreshes `BoardCoordinateMapper` so ray-to-cell and cell-to-world math follow the visible board. This does not mutate `Rts.Core` actor state, command streams, pathfinding, occupancy, production, power, or deterministic ticks.
+
+The XR adapter scripts are package-independent placeholders. OpenXR, XR Interaction Toolkit, or Meta SDK objects can later feed placement rays and confirm/cancel/adjust inputs into the controller without changing the simulation bridge.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

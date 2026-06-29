@@ -55,12 +55,6 @@ if ($LASTEXITCODE -ne 0) {
     throw "build-rts-core-for-unity.ps1 failed with exit code $LASTEXITCODE."
 }
 
-Write-Host 'Running Stage 1 Unity checks.'
-& (Join-Path $repoRoot 'tools\run-stage1-checks.ps1')
-if ($LASTEXITCODE -ne 0) {
-    throw "run-stage1-checks.ps1 failed with exit code $LASTEXITCODE."
-}
-
 Write-Host 'Running Stage 1 live/file validation.'
 & (Join-Path $repoRoot 'tools\run-unity-stage1-validation.ps1')
 if ($LASTEXITCODE -ne 0) {
@@ -79,6 +73,12 @@ if ($LASTEXITCODE -ne 0) {
     throw "run-stage2-playmode-smoke.ps1 failed with exit code $LASTEXITCODE."
 }
 
+Write-Host 'Running Stage 3 Unity validation.'
+& (Join-Path $repoRoot 'tools\run-unity-stage3-validation.ps1')
+if ($LASTEXITCODE -ne 0) {
+    throw "run-unity-stage3-validation.ps1 failed with exit code $LASTEXITCODE."
+}
+
 Write-Host 'Checking Rts.Core for UnityEngine references.'
 $unityEngineHits = Find-UnityEngineReferences -CorePath $corePath
 if ($unityEngineHits.Count -gt 0) {
@@ -93,4 +93,4 @@ if ($LASTEXITCODE -ne 0) {
     throw "git diff --check failed with exit code $LASTEXITCODE."
 }
 
-Write-Host 'Stage 2 checks passed.'
+Write-Host 'Stage 3 checks passed.'

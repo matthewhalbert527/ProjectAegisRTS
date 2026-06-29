@@ -12,7 +12,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             get
             {
                 if (cachedFont == null)
-                    cachedFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
+                    cachedFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
                 return cachedFont;
             }
