@@ -161,6 +161,35 @@ To validate it from PowerShell:
 
 Stage 6 preserves the Stage 5 dual-hand command scene and adds `VisualMotionProfileLibrary`, movement profile assets, actor visual motion controllers, vehicle/infantry/aircraft/turret placeholders, movement path preview, movement debug HUD, and a small visual-only showcase for categories not present in the default demo world.
 
+## Create or Validate the Stage 7 Scene
+
+Stage 7 adds the building power, production, and damage visualization scene:
+
+```text
+Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity
+```
+
+To create or refresh it manually in Unity, run:
+
+```text
+ProjectAegisRTS > Create Stage 7 Building Power Production Scene
+```
+
+To create or refresh the default building visual profiles manually in Unity, run:
+
+```text
+ProjectAegisRTS > Create Stage 7 Building Visual Profiles
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage7-validation.ps1
+.\tools\run-stage7-checks.ps1
+```
+
+Stage 7 preserves the Stage 6 movement scene and adds `BuildingVisualProfileLibrary`, building visual profile assets, generated placeholder building parts, light/machinery/production/door/damage/type-specific controllers, `BuildingPowerDemoController`, and `BuildingAnimationDebugHud`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -210,6 +239,16 @@ Stage 2 also exposes these actions through buttons in the sidebar and bottom com
 - F9: toggle the movement debug HUD.
 - Right-hand/desktop move commands continue to show the Stage 5 target marker and now may also draw a Stage 6 path preview.
 
+## Stage 7 Building Animation Controls
+
+- F10: toggle the building animation debug HUD.
+- Trigger Low Power: force the existing low-power demo path.
+- Clear Low Power: clear the demo low-power state.
+- Power Plant, Barracks, War Factory, Refinery, Gun Tower: send demo production requests through `RtsSimulationDriver`.
+- Force Visual Production: apply an isolated visual-only production override for presentation validation.
+- Clear Overrides: clear visual demo overrides.
+- Toggle Visual Debug: toggle debug state on the selected or first building visual.
+
 ## Stage 3 Board Placement Controls
 
 - Tab: toggle board placement mode.
@@ -232,6 +271,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 4 uses generated placeholder wrist/radial UI and a compile-safe no-op XR adapter until physical Quest input is connected.
 - Stage 5 uses generated placeholder right-hand command UI and a compile-safe no-op XR adapter until physical Quest input is connected.
 - Stage 6 uses placeholder primitives and profile-driven visual motion controllers; it is not final art, physics, combat animation, or skeletal animation.
+- Stage 7 uses placeholder building parts, simple materials, and transform loops; it is not final building art, VFX, sound, combat damage, or destruction.
 - The attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

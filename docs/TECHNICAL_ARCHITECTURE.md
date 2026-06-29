@@ -36,6 +36,12 @@ Stage 6 adds Unity-only movement presentation. `VisualMotionProfileLibrary` reso
 
 These controllers do not submit commands, update `Rts.Core`, use Unity physics authority, or write pathfinding/position data back to the simulation. The Stage 6 showcase exists only to exercise presentation controllers for actor categories not spawned by the current demo world.
 
+## Stage 7 Building Visualization Boundary
+
+Stage 7 adds Unity-only building animation and state presentation. `BuildingVisualProfileLibrary` resolves profile data by actor type id, and `BuildingVisualStateController` derives visual power, animation, production, and damage states from `ActorSnapshot` values. Child controllers then drive generated or authored Unity presentation parts such as lights, turbines, radar dishes, doors, production pulses, repair arms, refinery pumps, warning markers, and damage placeholders.
+
+The building visual layer does not own gameplay power, production, health, placement, repair, or destruction rules. It may call existing `RtsSimulationDriver` demo command paths from the debug controller, but it never mutates `Rts.Core` internals or writes animation state back to the simulation. Any forced production visual state is isolated as a Unity-only debug override for presentation validation.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

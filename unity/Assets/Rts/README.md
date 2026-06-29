@@ -1,6 +1,6 @@
 # Rts Unity Assets
 
-Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface. Stage 6 adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` for visual-only movement profiles, controllers, path preview, and debug HUD.
+Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface. Stage 6 adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` for visual-only movement profiles, controllers, path preview, and debug HUD. Stage 7 adds `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity` for visual-only building animation, power, production, and damage-state presentation.
 
 ## Folder Roles
 
@@ -8,8 +8,8 @@ Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and sub
 - `Scripts/Board`: Stage 3 board transform model and placement controller.
 - `Scripts/CoreBridge`: Unity-to-core adapters, command helpers, and board coordinate mapping.
 - `Scripts/Input`: desktop mouse/keyboard input plus XR-safe placement, left-hand, and right-hand adapters/placeholders.
-- `Scripts/Rendering`: board, actor, selection, low-power, production, interpolation, movement profile, vehicle, infantry, aircraft, turret, and path-preview visuals.
-- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, Stage 5 right-hand command UI, and Stage 6 movement debug HUD.
+- `Scripts/Rendering`: board, actor, selection, low-power, production, interpolation, movement profile, vehicle, infantry, aircraft, turret, path-preview, and building animation visuals.
+- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, Stage 5 right-hand command UI, Stage 6 movement debug HUD, and Stage 7 building animation debug HUD.
 - `Scripts/Camera`: desktop camera controls.
 - `Scripts/Utilities`: generated runtime materials.
 - `Editor`: scene generator menu item and batchmode entry point.
@@ -20,6 +20,8 @@ Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and sub
 Unity does not own gameplay state. It smooths visual transforms between snapshots, but actor position, power state, production state, placement validation, and move orders come from `Rts.Core`.
 
 The actor view layer tracks previous and target snapshot positions, facing, normalized speed, visual motion profile id, and actor category. Stage 6 consumes those values through visual-only controllers for acceleration/braking presentation, turning arcs, tracks/wheels, suspension, turret lag, infantry locomotion placeholders, aircraft banking, and path previews without faking gameplay movement.
+
+Stage 7 consumes building snapshot values through visual-only controllers for lights, machinery, production indicators, doors, damage placeholders, and type-specific loops. It does not write power, production, health, or animation presentation state back into `Rts.Core`.
 
 ## Stage 2 UI
 
@@ -96,3 +98,22 @@ The actor view layer tracks previous and target snapshot positions, facing, norm
 - `Editor/Stage6SceneCreator.cs`: creates `Stage6_MovementVisualization.unity`.
 - `Editor/Stage6SceneValidator.cs`: validates the Stage 6 scene structure.
 - `Editor/Stage6PlayModeSmokeValidator.cs`: validates runtime actor motion, path preview, showcase controllers, pause/resume, single-step, low-power state, and red console errors.
+
+## Stage 7 Building Animation And Power Visualization
+
+- `Scripts/Rendering/Buildings/BuildingVisualProfile.cs`: ScriptableObject tuning data for placeholder building lights, machinery, doors, production bays, type-specific loops, and damage thresholds.
+- `Scripts/Rendering/Buildings/BuildingVisualProfileLibrary.cs`: building profile lookup by actor type id with generated safe defaults.
+- `Scripts/Rendering/Buildings/BuildingVisualStateController.cs`: main snapshot-driven visual state controller for building power, animation, production progress, and health.
+- `Scripts/Rendering/Buildings/BuildingLightVisualController.cs`: powered, low-power, offline, and warning-light placeholder behavior.
+- `Scripts/Rendering/Buildings/BuildingMachineryVisualController.cs`: turbine, core, radar, crane, repair arm, dock pump, and generic machinery loops.
+- `Scripts/Rendering/Buildings/BuildingProductionVisualController.cs`: production pulse/progress placeholder behavior and future event hook surface.
+- `Scripts/Rendering/Buildings/BuildingDoorVisualController.cs`: bay/door open-close placeholder animation.
+- `Scripts/Rendering/Buildings/BuildingDamageVisualController.cs`: damaged and destroyed placeholder markers.
+- `Scripts/Rendering/Buildings/BuildingSpecificLoopController.cs`: type/category-specific loops for power, production, refinery, comms, repair, defense, airfield, and support buildings.
+- `Scripts/Rendering/Buildings/BuildingPlaceholderPartFactory.cs`: generated primitive child parts for Stage 7 placeholder visuals.
+- `Scripts/Rendering/Buildings/BuildingPowerDemoController.cs`: Stage 7 demo controls through existing simulation driver paths plus isolated visual-only override support.
+- `Scripts/UI/Common/BuildingAnimationDebugHud.cs`: F10 debug HUD for selected/first building visual state.
+- `Editor/Stage7BuildingProfileAssetCreator.cs`: creates default building profile assets.
+- `Editor/Stage7SceneCreator.cs`: creates `Stage7_BuildingPowerProduction.unity`.
+- `Editor/Stage7SceneValidator.cs`: validates the Stage 7 scene structure.
+- `Editor/Stage7PlayModeSmokeValidator.cs`: validates runtime board/actor visuals, building controllers, profile lookup, low-power demo, production visual state, damage placeholder, HUD, and red console errors.

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.Rendering.Buildings;
 using ProjectAegisRTS.UnityClient.Rendering.Motion;
 using ProjectAegisRTS.UnityClient.Utilities;
 using UnityEngine;
@@ -45,6 +46,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         public InfantryVisualMotionController InfantryMotion { get; private set; }
         public AircraftVisualMotionController AircraftMotion { get; private set; }
         public TurretVisualAimController TurretAim { get; private set; }
+        public BuildingVisualStateController BuildingVisual { get; private set; }
         public string MotionControllerSummary
         {
             get
@@ -76,10 +78,12 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             bool enableSmoothVisuals,
             int simulationTicksPerSecond,
             int snapshotTick,
-            VisualMotionProfile motionProfile)
+            VisualMotionProfile motionProfile,
+            BuildingVisualProfile buildingProfile)
         {
             EnsureVisuals(definition, materials);
             EnsureMotionControllers(definition, motionProfile);
+            EnsureBuildingVisualController(definition, buildingProfile);
 
             var target = mapper.ActorToWorldPosition(snapshot, definition) + Vector3.up * BaseElevation(definition, snapshot.TypeId);
             smoothVisuals = enableSmoothVisuals;
@@ -115,6 +119,8 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             UpdateMaterials(definition, materials, snapshot);
             UpdateHealth(definition, snapshot);
             UpdateStateMarkers(definition, materials, snapshot);
+            if (BuildingVisual != null && BuildingVisual.enabled)
+                BuildingVisual.ApplySnapshot(snapshot, definition.MaxHealth);
         }
 
         public void TickVisual(float deltaTime)
@@ -152,6 +158,9 @@ namespace ProjectAegisRTS.UnityClient.Rendering
 
             if (producing && productionMarker != null)
                 productionMarker.transform.Rotate(Vector3.up, 180f * deltaTime, Space.Self);
+
+            if (BuildingVisual != null && BuildingVisual.enabled)
+                BuildingVisual.TickVisual(deltaTime);
         }
 
         void EnsureVisuals(ActorDefinition definition, Stage1MaterialLibrary materials)
@@ -266,6 +275,24 @@ namespace ProjectAegisRTS.UnityClient.Rendering
                 TurretAim.enabled = false;
         }
 
+        void EnsureBuildingVisualController(ActorDefinition definition, BuildingVisualProfile buildingProfile)
+        {
+            var building = definition as BuildingDefinition;
+            if (building == null)
+            {
+                if (BuildingVisual != null)
+                    BuildingVisual.enabled = false;
+                return;
+            }
+
+            if (BuildingVisual == null)
+                BuildingVisual = GetOrAdd<BuildingVisualStateController>();
+
+            BuildingVisual.enabled = true;
+            var activeProfile = buildingProfile != null ? buildingProfile : BuildingVisualProfile.CreateRuntimeDefault(definition.TypeId, BuildingVisualProfileLibrary.CategoryForActor(definition.TypeId));
+            BuildingVisual.Initialize(ActorId, definition.TypeId, activeProfile);
+        }
+
         void CreateCommonMarkers(ActorDefinition definition, Stage1MaterialLibrary materials)
         {
             var radius = definition is BuildingDefinition ? Mathf.Max(((BuildingDefinition)definition).FootprintCells.X, ((BuildingDefinition)definition).FootprintCells.Y) * 0.55f : 0.58f;
@@ -353,6 +380,8 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             productionMarker = null;
             leftTrackMarker = null;
             rightTrackMarker = null;
+            if (BuildingVisual != null)
+                BuildingVisual.ResetVisualState();
         }
 
         T GetOrAdd<T>() where T : Component

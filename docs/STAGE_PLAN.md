@@ -30,7 +30,7 @@ Complete. High-quality movement visualization layered on deterministic simulatio
 
 ## Stage 7
 
-Building animation and power states: powered idle, production active, low power, offline, damaged, and destroyed.
+Complete. Building animation, power, production, and damage-state visualization layered on deterministic snapshots. Adds `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity`, profile-driven building visual ScriptableObjects, generated placeholder building parts, light/machinery/production/door/damage/type-specific controllers, F10 building debug HUD, low-power and production demo controls, and automated scene/play-mode validation.
 
 ## Stage 8
 
@@ -38,4 +38,8 @@ Concept art to production 3D asset pipeline with licensing, naming, import, rigg
 
 ## Stage 9
 
-Later stage: combat/economy/fog expansion, skirmish AI, multiplayer, replays, deterministic checksums, desync reporting, and command stream validation.
+Combat, weapons, projectiles, damage, death, and destruction presentation.
+
+## Later Stages
+
+Economy/fog expansion, skirmish AI, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.
