@@ -3,6 +3,8 @@ param()
 
 $ErrorActionPreference = 'Stop'
 
+. (Join-Path $PSScriptRoot 'common-validation.ps1')
+
 function Find-DotNet {
     $command = Get-Command dotnet -ErrorAction SilentlyContinue
     if ($command) {
@@ -98,7 +100,7 @@ $dotnet = Find-DotNet
 $corePath = Join-Path $repoRoot 'src\Rts.Core'
 
 Write-Host 'Running Rts.Core tests.'
-& $dotnet run --project (Join-Path $repoRoot 'src\Rts.Core.Tests')
+Invoke-DotNetRunNoRestore -DotNetPath $dotnet -ProjectPath (Join-Path $repoRoot 'src\Rts.Core.Tests')
 if ($LASTEXITCODE -ne 0) {
     throw "Rts.Core.Tests failed with exit code $LASTEXITCODE."
 }

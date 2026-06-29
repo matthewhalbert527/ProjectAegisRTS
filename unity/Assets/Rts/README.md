@@ -26,6 +26,16 @@ Stage 7 consumes building snapshot values through visual-only controllers for li
 
 Stage 8 consumes actor type IDs through Unity-only visual definition assets. It can replace generated primitives with blockout or production prefabs through `ActorVisualPrefabResolver`, but it never writes prefab, socket, icon, or concept state back into `Rts.Core`.
 
+## Validation Tiers
+
+Stage 8.1 adds tiered validation commands from the repository root:
+
+- `tools/run-stage8-fast-checks.ps1`: current Stage 8 art pipeline iteration only.
+- `tools/run-stage8-medium-checks.ps1`: core tests, Unity DLL build, direct Stage 7 Unity validation, and Stage 8 validation before local commits.
+- `tools/run-stage8-checks.ps1`: slow full acceptance gate from Stage 0 through Stage 8.
+
+The fast and medium tiers do not weaken acceptance coverage; they make day-to-day Unity asset and tooling edits cheaper to validate.
+
 ## Stage 2 UI
 
 - `Scripts/UI/Desktop/DesktopRtsHudRoot.cs`: root initializer for the Stage 2 canvas and command router.

@@ -64,5 +64,7 @@ Author simple non-authoritative presentation colliders only when useful for pick
 - Preserve `ActorPrefabDescriptor`.
 - Preserve all required `ActorPrefabSocket` children.
 - Assign icon and concept reference.
-- Run `.\tools\run-unity-stage8-validation.ps1`.
-- Run `.\tools\run-stage8-checks.ps1` before committing.
+- Run `.\tools\run-stage8-fast-checks.ps1` after small Stage 8 art, prefab, socket, icon, or showcase changes.
+- Run `.\tools\run-stage8-medium-checks.ps1` before committing local Stage 8 fixes.
+- Run `.\tools\run-stage8-checks.ps1` for the slow full Stage 0-through-Stage 8 acceptance gate.
+- If Unity is already open and batchmode cannot take the project lock, use the reported live/file/log fallback for iteration, then close Unity and rerun when full batch Play Mode evidence is needed.

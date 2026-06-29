@@ -36,6 +36,10 @@ Complete. Building animation, power, production, and damage-state visualization 
 
 Complete. Art pipeline / concept art to production prefabs. Adds `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity`, concept import/copy tooling, 27 concept reference assets, 27 actor visual definition assets, 27 generated blockout prefabs, generated icons, prefab socket/descriptors, runtime prefab resolver integration, F11 art pipeline debug HUD, generated validation reports, and automated scene/play-mode smoke validation.
 
+## Stage 8.1
+
+Complete. Validation tier tooling and hardening. Adds fast, medium, and full Stage 8 validation entrypoints, shared restore-if-needed/no-restore validation helpers, broader generated Unity YAML whitespace normalization, explicit live-editor fallback guidance, and documentation requiring future stages to include fast, medium, and full validation tiers where practical.
+
 ## Stage 9
 
 Combat, weapons, projectiles, damage, death, and destruction presentation.

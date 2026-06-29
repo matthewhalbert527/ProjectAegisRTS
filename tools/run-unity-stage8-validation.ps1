@@ -59,6 +59,7 @@ function Invoke-UnityBatch {
 
     $arguments = "-batchmode -quit -projectPath `"$UnityProject`" -executeMethod $ExecuteMethod -logFile `"$LogPath`""
     Write-Host "Running Unity batch method: $ExecuteMethod"
+    Write-Host "Log: $LogPath"
     $process = Start-Process -FilePath $UnityEditor -ArgumentList $arguments -WindowStyle Hidden -PassThru
 
     $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
@@ -176,13 +177,15 @@ function Normalize-Stage8GeneratedFiles {
 
     $roots = @(
         'unity\Assets\Rts\ScriptableObjects\Art',
-        'unity\Assets\Rts\Art\Validation'
+        'unity\Assets\Rts\Art\Validation',
+        'unity\Assets\Rts\Art\Materials',
+        'unity\Assets\Rts\Art\Prefabs\Actors\GeneratedBlockouts'
     )
 
     foreach ($relativeRoot in $roots) {
         $path = Join-Path $RepoRoot $relativeRoot
         if (Test-Path -LiteralPath $path) {
-            Get-ChildItem -LiteralPath $path -Recurse -File -Include *.asset,*.meta,*.json |
+            Get-ChildItem -LiteralPath $path -Recurse -File -Include *.asset,*.json,*.mat,*.meta,*.prefab |
                 ForEach-Object { Remove-TrailingWhitespace -Path $_.FullName }
         }
     }
@@ -212,7 +215,7 @@ $openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject)
 if ($openUnity.Count -gt 0) {
     Write-Warning 'Unity Editor is already open for this project. Using Stage 8 live scene/log validation fallback; full batch Play Mode automation is skipped because Unity owns the project lock.'
     Test-Stage8SceneFileLive -ScenePath $scenePath
-    Remove-TrailingWhitespace -Path $scenePath
+    Normalize-Stage8GeneratedFiles -RepoRoot $repoRoot
     $editorLog = Join-Path $unityProject 'Logs\Editor.log'
     if (Test-Path -LiteralPath $editorLog) {
         $error = Select-String -LiteralPath $editorLog -Pattern 'NullReferenceException', 'MissingMethodException', 'TypeLoadException', 'FileNotFoundException', 'Scripts have compiler errors', 'error CS[0-9]+' -Quiet

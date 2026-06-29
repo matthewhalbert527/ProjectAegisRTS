@@ -3,6 +3,8 @@ param()
 
 $ErrorActionPreference = 'Stop'
 
+. (Join-Path $PSScriptRoot 'common-validation.ps1')
+
 function Find-DotNet {
     $command = Get-Command dotnet -ErrorAction SilentlyContinue
     if ($command) {
@@ -55,8 +57,11 @@ $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $dotnet = Find-DotNet
 $corePath = Join-Path $repoRoot 'src\Rts.Core'
 
+Write-Host 'Stage 8 full acceptance gate: validates Stage 0 through Stage 8.'
+Write-Warning 'This is the slow full acceptance gate and can take a long time. Use run-stage8-fast-checks.ps1 or run-stage8-medium-checks.ps1 for normal iteration.'
+
 Write-Host 'Running Rts.Core tests.'
-& $dotnet run --project (Join-Path $repoRoot 'src\Rts.Core.Tests')
+Invoke-DotNetRunNoRestore -DotNetPath $dotnet -ProjectPath (Join-Path $repoRoot 'src\Rts.Core.Tests')
 if ($LASTEXITCODE -ne 0) {
     throw "Rts.Core.Tests failed with exit code $LASTEXITCODE."
 }

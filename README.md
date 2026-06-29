@@ -17,7 +17,7 @@ ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a 
 From `ProjectAegisRTS`:
 
 ```powershell
-dotnet run --project src/Rts.Core.Tests
+dotnet run --no-restore --project src/Rts.Core.Tests
 ```
 
 Stage 0 tests are now passing with the installed .NET SDK.
@@ -90,8 +90,12 @@ Run Stage 8 checks:
 
 ```powershell
 .\tools\run-unity-stage8-validation.ps1
+.\tools\run-stage8-fast-checks.ps1
+.\tools\run-stage8-medium-checks.ps1
 .\tools\run-stage8-checks.ps1
 ```
+
+Stage 8.1 adds validation tiers. Use `run-stage8-fast-checks.ps1` for current Stage 8 iteration, `run-stage8-medium-checks.ps1` before local commits, and `run-stage8-checks.ps1` as the slow full Stage 0-through-Stage 8 acceptance gate. See `docs/VALIDATION_TIERS.md`.
 
 Open the Unity project:
 

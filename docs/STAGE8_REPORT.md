@@ -9,6 +9,8 @@ Stage 8 creates the Unity-side art pipeline layer for replacing placeholder visu
 - Branch: `codex/stage-8-art-pipeline-prefabs`
 - Base Stage 7 implementation commit: `0b399dee35a6be291608b644a91f9b10f673d824`
 - Stage 8 implementation commit: `7f60b7cc22fe2dbb15d437f83c26b20d0ac41102`
+- Stage 8.1 validation-tier branch: `codex/stage-8-1-validation-tiers`
+- Stage 8.1 validation-tier implementation commit: recorded after the local commit is created.
 
 ## Systems Created
 
@@ -41,6 +43,16 @@ Stage 8 is Unity presentation only. `Rts.Core` remains deterministic and UnityEn
 - Rts.Core UnityEngine-free check: passed with the PowerShell fallback scan.
 - `git diff --check`: passed after normalizing Unity-generated whitespace.
 
+## Stage 8.1 Validation Tiering
+
+Stage 8.1 preserves `tools/run-stage8-checks.ps1` as the slow full final acceptance gate and adds faster iteration tools:
+
+- `tools/run-stage8-fast-checks.ps1`: current Stage 8 generation, prefab validation, scene validation, Play Mode smoke or live fallback, `Rts.Core` UnityEngine-free scan, and `git diff --check`.
+- `tools/run-stage8-medium-checks.ps1`: `Rts.Core` tests, Unity DLL build, direct Stage 7 Unity validation, Stage 8 validation, Play Mode smoke or live fallback, `Rts.Core` UnityEngine-free scan, and `git diff --check`.
+- `tools/common-validation.ps1`: shared helper for restore-if-needed/no-restore .NET runs, Unity editor discovery, UnityEngine-free scanning with ripgrep fallback, generated YAML whitespace normalization, and diff checks.
+
+Repeated validation now avoids unnecessary NuGet/network restore work where project assets already exist. Clean-machine runs still restore once and print why.
+
 ## Manual Play Mode Checklist
 
 Open `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity`, press Play, and verify:
@@ -68,8 +80,10 @@ Open `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity`, press Play, and verif
 Acceptance commands:
 
 ```powershell
-dotnet run --project src/Rts.Core.Tests
+dotnet run --no-restore --project src/Rts.Core.Tests
 .\tools\build-rts-core-for-unity.ps1
+.\tools\run-stage8-fast-checks.ps1
+.\tools\run-stage8-medium-checks.ps1
 .\tools\run-stage1-checks.ps1
 .\tools\run-stage2-checks.ps1
 .\tools\run-stage2-playmode-smoke.ps1
@@ -83,7 +97,7 @@ dotnet run --project src/Rts.Core.Tests
 git diff --check
 ```
 
-`tools/run-stage8-checks.ps1` remains the full final acceptance gate. It can take a long time because the current stage scripts recursively replay earlier stage checks; a future validation-tier pass should add faster Stage 8 iteration checks without weakening final acceptance.
+`tools/run-stage8-checks.ps1` remains the full final acceptance gate. It can take a long time because the current stage scripts recursively replay earlier stage checks; use the fast and medium tiers for normal Stage 8 iteration without weakening final acceptance.
 
 ## Stage 9 Recommendation
 

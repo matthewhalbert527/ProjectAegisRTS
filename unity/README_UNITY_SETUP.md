@@ -208,10 +208,14 @@ To validate it from PowerShell:
 
 ```powershell
 .\tools\run-unity-stage8-validation.ps1
+.\tools\run-stage8-fast-checks.ps1
+.\tools\run-stage8-medium-checks.ps1
 .\tools\run-stage8-checks.ps1
 ```
 
 Stage 8 preserves the Stage 7 building scene and adds `ActorVisualDefinitionLibrary`, `ConceptArtReferenceLibrary`, `ActorVisualPrefabResolver`, generated blockout prefabs, icon generation, prefab socket validation, `ArtPipelineShowcaseController`, and `ArtPipelineDebugHud`.
+
+Stage 8.1 adds validation tiers for faster iteration. Use the fast tier after small Stage 8 art/prefab/script changes, the medium tier before committing, and the full Stage 8 checks for final acceptance. The full gate remains the slow Stage 0-through-Stage 8 chain. See `..\docs\VALIDATION_TIERS.md`.
 
 ## Controls
 

@@ -6,19 +6,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-function Find-DotNet {
-    $command = Get-Command dotnet -ErrorAction SilentlyContinue
-    if ($command) {
-        return $command.Source
-    }
-
-    $defaultPath = 'C:\Program Files\dotnet\dotnet.exe'
-    if (Test-Path -LiteralPath $defaultPath) {
-        return $defaultPath
-    }
-
-    throw 'dotnet was not found on PATH or at C:\Program Files\dotnet\dotnet.exe.'
-}
+. (Join-Path $PSScriptRoot 'common-validation.ps1')
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $dotnet = Find-DotNet
@@ -29,9 +17,9 @@ $sourceDll = Join-Path $sourceDir 'Rts.Core.dll'
 $sourcePdb = Join-Path $sourceDir 'Rts.Core.pdb'
 
 Write-Host "Building Rts.Core for Unity with $dotnet"
-& $dotnet build $coreProject -c $Configuration
+Invoke-DotNetBuildNoRestore -DotNetPath $dotnet -ProjectPath $coreProject -Configuration $Configuration
 if ($LASTEXITCODE -ne 0) {
-    throw "dotnet build failed with exit code $LASTEXITCODE."
+    throw "dotnet build --no-restore failed with exit code $LASTEXITCODE."
 }
 
 if (-not (Test-Path -LiteralPath $sourceDll)) {

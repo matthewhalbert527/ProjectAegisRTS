@@ -6,6 +6,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+. (Join-Path $PSScriptRoot 'common-validation.ps1')
+
 function Find-DotNet {
     $command = Get-Command dotnet -ErrorAction SilentlyContinue
     if ($command) {
@@ -88,7 +90,7 @@ $unityLog = Join-Path $repoRoot 'build\stage1-unity-batchmode.log'
 $stage1Scene = Join-Path $unityProject 'Assets\Rts\Scenes\Stage1_DesktopBoard.unity'
 
 Write-Host 'Running Rts.Core tests.'
-& $dotnet run --project (Join-Path $repoRoot 'src\Rts.Core.Tests')
+Invoke-DotNetRunNoRestore -DotNetPath $dotnet -ProjectPath (Join-Path $repoRoot 'src\Rts.Core.Tests')
 if ($LASTEXITCODE -ne 0) {
     throw "Rts.Core.Tests failed with exit code $LASTEXITCODE."
 }
