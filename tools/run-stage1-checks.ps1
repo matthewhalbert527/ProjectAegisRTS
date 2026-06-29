@@ -125,7 +125,7 @@ if (Test-Path -LiteralPath $unityLog) {
 
 Write-Host "Running Unity batchmode scene creation and compile check with $unityEditor"
 $arguments = "-batchmode -quit -projectPath `"$unityProject`" -executeMethod ProjectAegisRTS.UnityClient.EditorTools.Stage1SceneCreator.CreateStage1SceneBatch -logFile `"$unityLog`""
-Start-Process -FilePath $unityEditor -ArgumentList $arguments -WindowStyle Hidden | Out-Null
+$process = Start-Process -FilePath $unityEditor -ArgumentList $arguments -WindowStyle Hidden -PassThru
 
 $deadline = (Get-Date).AddMinutes(5)
 $sawCompletion = $false
@@ -156,6 +156,16 @@ if ($compilerError) {
 
 if (-not $sawCompletion) {
     throw "Unity batchmode did not log Stage 1 scene creation before the timeout. See $unityLog"
+}
+
+if (-not $process.HasExited) {
+    if (-not $process.WaitForExit(120000)) {
+        throw "Unity batchmode logged Stage 1 completion but did not exit within the grace period. See $unityLog"
+    }
+}
+
+if ($process.ExitCode -ne 0) {
+    throw "Unity batchmode exited with code $($process.ExitCode). See $unityLog"
 }
 
 if (-not (Test-Path -LiteralPath $stage1Scene)) {

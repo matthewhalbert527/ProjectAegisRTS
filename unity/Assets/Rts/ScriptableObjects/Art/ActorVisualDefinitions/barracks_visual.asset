@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: barracks_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: barracks
+  displayName: Barracks
+  safeDisplayName: Barracks
+  category: 0
+  productionStatus: 1
+  conceptReference: {fileID: 11400000, guid: c48cafa98542e4c4fb8c285ceb22d8f1, type: 2}
+  icon: {fileID: 21300000, guid: 618af0b19dd98fc4e8bc6f21cf08f028, type: 3}
+  generatedBlockoutPrefab: {fileID: 1575144389124743221, guid: bf89ef515fcbe974390025f0a84aa9f1, type: 3}
+  productionPrefab: {fileID: 0}
+  fallbackPrefab: {fileID: 0}
+  preferredPrefabMode: 0
+  motionProfileId: building_static
+  buildingProfileId: barracks_building_visual
+  selectionRadius: 1.1
+  selectionHeight: 0.1
+  footprintWidth: 2
+  footprintHeight: 2
+  visualScale: 1
+  prefabHeightOffset: 0
+  useBuildingVisualController: 1
+  useVehicleMotionController: 0
+  useInfantryMotionController: 0
+  useAircraftMotionController: 0
+  useTurretVisualController: 0
+  requiredSockets: 0000000001000000020000000300000004000000050000000e0000000f0000001000000016000000170000001800000019000000
+  notes: 'Original facade and entry sequence needed.
+
+    Door opens during production,
+    infantry exits, lights idle/offline states.'
+  ipReviewRequired: 0
+  sourceConceptOriginalLabel: Barracks
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_42
+    PM (2).png

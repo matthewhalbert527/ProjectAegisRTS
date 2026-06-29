@@ -1,6 +1,6 @@
 # Rts Unity Assets
 
-Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface. Stage 6 adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` for visual-only movement profiles, controllers, path preview, and debug HUD. Stage 7 adds `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity` for visual-only building animation, power, production, and damage-state presentation.
+Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface. Stage 6 adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` for visual-only movement profiles, controllers, path preview, and debug HUD. Stage 7 adds `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity` for visual-only building animation, power, production, and damage-state presentation. Stage 8 adds `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity` for concept references, actor visual definitions, generated blockout prefabs, sockets, icons, validation, and resolver integration.
 
 ## Folder Roles
 
@@ -9,7 +9,8 @@ Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and sub
 - `Scripts/CoreBridge`: Unity-to-core adapters, command helpers, and board coordinate mapping.
 - `Scripts/Input`: desktop mouse/keyboard input plus XR-safe placement, left-hand, and right-hand adapters/placeholders.
 - `Scripts/Rendering`: board, actor, selection, low-power, production, interpolation, movement profile, vehicle, infantry, aircraft, turret, path-preview, and building animation visuals.
-- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, Stage 5 right-hand command UI, Stage 6 movement debug HUD, and Stage 7 building animation debug HUD.
+- `Scripts/Art`: Stage 8 actor visual definitions, concept references, prefab descriptors, sockets, resolver, and showcase components.
+- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, Stage 5 right-hand command UI, Stage 6 movement debug HUD, Stage 7 building animation debug HUD, and Stage 8 art pipeline debug HUD.
 - `Scripts/Camera`: desktop camera controls.
 - `Scripts/Utilities`: generated runtime materials.
 - `Editor`: scene generator menu item and batchmode entry point.
@@ -22,6 +23,8 @@ Unity does not own gameplay state. It smooths visual transforms between snapshot
 The actor view layer tracks previous and target snapshot positions, facing, normalized speed, visual motion profile id, and actor category. Stage 6 consumes those values through visual-only controllers for acceleration/braking presentation, turning arcs, tracks/wheels, suspension, turret lag, infantry locomotion placeholders, aircraft banking, and path previews without faking gameplay movement.
 
 Stage 7 consumes building snapshot values through visual-only controllers for lights, machinery, production indicators, doors, damage placeholders, and type-specific loops. It does not write power, production, health, or animation presentation state back into `Rts.Core`.
+
+Stage 8 consumes actor type IDs through Unity-only visual definition assets. It can replace generated primitives with blockout or production prefabs through `ActorVisualPrefabResolver`, but it never writes prefab, socket, icon, or concept state back into `Rts.Core`.
 
 ## Stage 2 UI
 
@@ -117,3 +120,20 @@ Stage 7 consumes building snapshot values through visual-only controllers for li
 - `Editor/Stage7SceneCreator.cs`: creates `Stage7_BuildingPowerProduction.unity`.
 - `Editor/Stage7SceneValidator.cs`: validates the Stage 7 scene structure.
 - `Editor/Stage7PlayModeSmokeValidator.cs`: validates runtime board/actor visuals, building controllers, profile lookup, low-power demo, production visual state, damage placeholder, HUD, and red console errors.
+
+## Stage 8 Art Pipeline And Prefab Catalog
+
+- `Scripts/Art/ActorVisualDefinition.cs`: ScriptableObject mapping an actor type to concept, icon, prefabs, profile IDs, socket requirements, and production status.
+- `Scripts/Art/ConceptArtReference.cs`: concept metadata imported from the Stage 0 registry.
+- `Scripts/Art/ActorVisualDefinitionLibrary.cs` and `ConceptArtReferenceLibrary.cs`: runtime-safe lookup libraries.
+- `Scripts/Art/ActorPrefabDescriptor.cs` and `ActorPrefabSocket.cs`: prefab metadata and required attachment transforms.
+- `Scripts/Art/ActorVisualPrefabResolver.cs`: optional prefab resolution service for `ActorRenderSystem`.
+- `Scripts/Art/ArtPipelineShowcaseController.cs` and `ConceptArtCardView.cs`: Stage 8 review grid and concept cards.
+- `Scripts/UI/Common/ArtPipelineDebugHud.cs`: F11 debug HUD for definitions, resolver stats, validation, and showcase controls.
+- `Editor/Stage8ConceptArtImporter.cs`: copies concept PNGs into Unity and creates concept reference assets.
+- `Editor/Stage8BlockoutPrefabGenerator.cs`: creates generated blockout prefabs for all 27 safe actor IDs.
+- `Editor/Stage8ActorVisualDefinitionGenerator.cs`: creates actor visual definition assets.
+- `Editor/Stage8IconGenerator.cs`: creates icon sprites.
+- `Editor/Stage8PrefabSocketValidator.cs`: validates definitions, prefabs, sockets, icons, and IP flags.
+- `Editor/Stage8SceneCreator.cs`: creates `Stage8_ArtPipelineShowcase.unity`.
+- `Editor/Stage8SceneValidator.cs` and `Stage8PlayModeSmokeValidator.cs`: validate scene structure and runtime-equivalent art pipeline behavior.

@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &171819950
+--- !u!1 &228431527
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,9 +127,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 171819953}
-  - component: {fileID: 171819952}
-  - component: {fileID: 171819951}
+  - component: {fileID: 228431530}
+  - component: {fileID: 228431529}
+  - component: {fileID: 228431528}
   m_Layer: 0
   m_Name: BoardRoot
   m_TagString: Untagged
@@ -137,37 +137,37 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &171819951
+--- !u!114 &228431528
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 171819950}
+  m_GameObject: {fileID: 228431527}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 47cb6f516e762904e87941b24cc339fc, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.BoardRenderer
---- !u!114 &171819952
+--- !u!114 &228431529
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 171819950}
+  m_GameObject: {fileID: 228431527}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 92853b76460725b43933e75468cdeab8, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.CoreBridge.BoardCoordinateMapper
---- !u!4 &171819953
+--- !u!4 &228431530
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 171819950}
+  m_GameObject: {fileID: 228431527}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -176,7 +176,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1020574755
+--- !u!1 &294714332
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -184,8 +184,126 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1020574757}
-  - component: {fileID: 1020574756}
+  - component: {fileID: 294714338}
+  - component: {fileID: 294714337}
+  - component: {fileID: 294714336}
+  - component: {fileID: 294714335}
+  - component: {fileID: 294714334}
+  - component: {fileID: 294714333}
+  m_Layer: 0
+  m_Name: RtsGame
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &294714333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294714332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5814b4abcc6d0cd488d388bc67af7357, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.RtsDebugHud
+  visible: 1
+  toggleKey: 96
+--- !u!114 &294714334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294714332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9bd461c885d9e249b86191311780368, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.RtsDesktopInputController
+--- !u!114 &294714335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294714332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b634fabdba009848a0c3e29d3841222, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.ActorRenderSystem
+  motionProfileLibrary: {fileID: 0}
+  buildingProfileLibrary: {fileID: 0}
+  actorVisualDefinitionLibrary: {fileID: 0}
+  actorVisualPrefabResolver: {fileID: 0}
+--- !u!114 &294714336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294714332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03213363cd1898e45ba8ce9216c3cd77, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.CoreBridge.RtsSimulationDriver
+  playerId: 1
+--- !u!114 &294714337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294714332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18cb866fdbeed0d448e7bd95050cd6ba, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Bootstrap.RtsGameBootstrapper
+  ticksPerSecond: 20
+  boardWidth: 32
+  boardHeight: 32
+  boardCellSizeMeters: 1
+  startPaused: 0
+  enableSmoothVisualInterpolation: 1
+  boardRoot: {fileID: 228431530}
+  coordinateMapper: {fileID: 228431529}
+  boardRenderer: {fileID: 228431528}
+  actorRenderSystem: {fileID: 294714335}
+  simulationDriver: {fileID: 294714336}
+  inputController: {fileID: 294714334}
+  debugHud: {fileID: 294714333}
+  cameraController: {fileID: 1737589909}
+  sceneCamera: {fileID: 1737589910}
+--- !u!4 &294714338
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294714332}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1193224139
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1193224141}
+  - component: {fileID: 1193224140}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -193,13 +311,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!108 &1020574756
+--- !u!108 &1193224140
 Light:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1020574755}
+  m_GameObject: {fileID: 1193224139}
   m_Enabled: 1
   serializedVersion: 13
   m_Type: 1
@@ -258,13 +376,13 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
---- !u!4 &1020574757
+--- !u!4 &1193224141
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1020574755}
+  m_GameObject: {fileID: 1193224139}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40305823, y: -0.27253202, z: 0.12708378, w: 0.8643611}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -273,7 +391,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1072289846
+--- !u!1 &1737589908
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -281,123 +399,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1072289852}
-  - component: {fileID: 1072289851}
-  - component: {fileID: 1072289850}
-  - component: {fileID: 1072289849}
-  - component: {fileID: 1072289848}
-  - component: {fileID: 1072289847}
-  m_Layer: 0
-  m_Name: RtsGame
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1072289847
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1072289846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5814b4abcc6d0cd488d388bc67af7357, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.RtsDebugHud
-  visible: 1
-  toggleKey: 96
---- !u!114 &1072289848
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1072289846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9bd461c885d9e249b86191311780368, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.RtsDesktopInputController
---- !u!114 &1072289849
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1072289846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b634fabdba009848a0c3e29d3841222, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.ActorRenderSystem
---- !u!114 &1072289850
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1072289846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03213363cd1898e45ba8ce9216c3cd77, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.CoreBridge.RtsSimulationDriver
-  playerId: 1
---- !u!114 &1072289851
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1072289846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18cb866fdbeed0d448e7bd95050cd6ba, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Bootstrap.RtsGameBootstrapper
-  ticksPerSecond: 20
-  boardWidth: 32
-  boardHeight: 32
-  boardCellSizeMeters: 1
-  startPaused: 0
-  enableSmoothVisualInterpolation: 1
-  boardRoot: {fileID: 171819953}
-  coordinateMapper: {fileID: 171819952}
-  boardRenderer: {fileID: 171819951}
-  actorRenderSystem: {fileID: 1072289849}
-  simulationDriver: {fileID: 1072289850}
-  inputController: {fileID: 1072289848}
-  debugHud: {fileID: 1072289847}
-  cameraController: {fileID: 1443755319}
-  sceneCamera: {fileID: 1443755320}
---- !u!4 &1072289852
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1072289846}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1443755318
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1443755321}
-  - component: {fileID: 1443755320}
-  - component: {fileID: 1443755319}
+  - component: {fileID: 1737589911}
+  - component: {fileID: 1737589910}
+  - component: {fileID: 1737589909}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -405,13 +409,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1443755319
+--- !u!114 &1737589909
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1443755318}
+  m_GameObject: {fileID: 1737589908}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a4308240f70d20d468a8c6a87ac05c51, type: 3}
@@ -424,13 +428,13 @@ MonoBehaviour:
   maxHeight: 38
   useOrthographicStage1View: 1
   orthographicSize: 28
---- !u!20 &1443755320
+--- !u!20 &1737589910
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1443755318}
+  m_GameObject: {fileID: 1737589908}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
@@ -475,13 +479,13 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!4 &1443755321
+--- !u!4 &1737589911
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1443755318}
+  m_GameObject: {fileID: 1737589908}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
   m_LocalPosition: {x: 16, y: 38, z: -26}
@@ -494,7 +498,7 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 171819953}
-  - {fileID: 1072289852}
-  - {fileID: 1443755321}
-  - {fileID: 1020574757}
+  - {fileID: 228431530}
+  - {fileID: 294714338}
+  - {fileID: 1737589911}
+  - {fileID: 1193224141}

@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: war_factory_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: war_factory
+  displayName: War Factory
+  safeDisplayName: War Factory
+  category: 0
+  productionStatus: 1
+  conceptReference: {fileID: 11400000, guid: 637fc1b1e27058145a87ca97dfac114e, type: 2}
+  icon: {fileID: 21300000, guid: ec446fe08ea4b3648b375c19ff19819f, type: 3}
+  generatedBlockoutPrefab: {fileID: 554875933570991338, guid: 9dc2c1dd47a9ee34ab8bc1b57cd9487f, type: 3}
+  productionPrefab: {fileID: 0}
+  fallbackPrefab: {fileID: 0}
+  preferredPrefabMode: 0
+  motionProfileId: building_static
+  buildingProfileId: war_factory_building_visual
+  selectionRadius: 1.6500001
+  selectionHeight: 0.1
+  footprintWidth: 3
+  footprintHeight: 2
+  visualScale: 1
+  prefabHeightOffset: 0
+  useBuildingVisualController: 1
+  useVehicleMotionController: 0
+  useInfantryMotionController: 0
+  useAircraftMotionController: 0
+  useTurretVisualController: 0
+  requiredSockets: 0000000001000000020000000300000004000000050000000e0000000f0000001000000016000000170000001800000019000000
+  notes: 'Keep as generic role; final silhouette should be unique.
+
+    Large door
+    opens, assembly arms animate, vehicle rolls out.'
+  ipReviewRequired: 0
+  sourceConceptOriginalLabel: War Factory
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_42
+    PM (3).png

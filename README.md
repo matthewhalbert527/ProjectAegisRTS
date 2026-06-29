@@ -1,6 +1,6 @@
 # ProjectAegisRTS
 
-ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a Meta Quest 3S VR/MR board game and as a PC RTS with a right-side production panel. Stage 0 created the deterministic, Unity-compatible C# simulation core. Stage 1 added a Unity desktop board prototype that consumes that core as a DLL. Stage 2 adds the first PC RTS sidebar, command bar, production queue, selection panel, minimap placeholder, and status log. Stage 3 adds the Quest/OpenXR-ready board placement prototype while preserving the PC scenes. Stage 4 adds a Quest-style left-hand build and selection interface with desktop fallback controls. Stage 5 adds the companion right-hand tactical command interface for movement, placeholder attack commands, command previews, and board manipulation. Stage 6 adds visual-only vehicle, infantry, aircraft, turret, and movement path presentation on top of deterministic snapshots. Stage 7 adds visual-only building animation, power-state, production, and damage-state presentation.
+ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a Meta Quest 3S VR/MR board game and as a PC RTS with a right-side production panel. Stage 0 created the deterministic, Unity-compatible C# simulation core. Stage 1 added a Unity desktop board prototype that consumes that core as a DLL. Stage 2 adds the first PC RTS sidebar, command bar, production queue, selection panel, minimap placeholder, and status log. Stage 3 adds the Quest/OpenXR-ready board placement prototype while preserving the PC scenes. Stage 4 adds a Quest-style left-hand build and selection interface with desktop fallback controls. Stage 5 adds the companion right-hand tactical command interface for movement, placeholder attack commands, command previews, and board manipulation. Stage 6 adds visual-only vehicle, infantry, aircraft, turret, and movement path presentation on top of deterministic snapshots. Stage 7 adds visual-only building animation, power-state, production, and damage-state presentation. Stage 8 adds the concept-art-to-production-prefab pipeline, actor visual definition catalog, generated blockout prefabs, icons, sockets, validation, and showcase scene.
 
 ## Contents
 
@@ -10,7 +10,7 @@ ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a 
 - `external/openra`: copied OpenRA reference source for audit only.
 - `external/redalert_reference`: copied historical reference source, read-only and not used as a code base.
 - `art/concepts`: copied concept cards and generated registries.
-- `unity`: Unity desktop board prototype, Stage 2 PC sidebar scene, Stage 3 XR board placement prototype, Stage 4 left-hand build/selection scene, Stage 5 dual-hand command scene, Stage 6 movement visualization scene, Stage 7 building power/production scene, and setup notes.
+- `unity`: Unity desktop board prototype, Stage 2 PC sidebar scene, Stage 3 XR board placement prototype, Stage 4 left-hand build/selection scene, Stage 5 dual-hand command scene, Stage 6 movement visualization scene, Stage 7 building power/production scene, Stage 8 art pipeline showcase scene, and setup notes.
 
 ## Run Tests
 
@@ -86,6 +86,13 @@ Run Stage 7 checks:
 .\tools\run-stage7-checks.ps1
 ```
 
+Run Stage 8 checks:
+
+```powershell
+.\tools\run-unity-stage8-validation.ps1
+.\tools\run-stage8-checks.ps1
+```
+
 Open the Unity project:
 
 ```powershell
@@ -101,3 +108,13 @@ Scene paths:
 - `Assets/Rts/Scenes/Stage5_DualHandCommand.unity`: Stage 5 dual-hand scene with left-hand build/selection plus right-hand tactical commands.
 - `Assets/Rts/Scenes/Stage6_MovementVisualization.unity`: Stage 6 movement visualization scene with profile-driven visual motion, path preview, debug HUD, and showcase actors.
 - `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity`: Stage 7 building animation scene with power/production/damage placeholder parts, profile library, F10 debug HUD, and demo controls.
+- `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity`: Stage 8 art pipeline scene with concept references, generated blockout prefabs, actor visual definitions, prefab sockets, validation, resolver integration, and F11 debug HUD.
+
+Stage 8 art assets:
+
+- Concept copies: `unity/Assets/Rts/Art/Concepts/`
+- Generated icons: `unity/Assets/Rts/Art/Icons/`
+- Generated blockouts: `unity/Assets/Rts/Art/Prefabs/Actors/GeneratedBlockouts/`
+- Production prefabs: `unity/Assets/Rts/Art/Prefabs/Actors/Production/`
+- Actor visual definitions: `unity/Assets/Rts/ScriptableObjects/Art/ActorVisualDefinitions/`
+- Validation report: `docs/STAGE8_PREFAB_VALIDATION.md`

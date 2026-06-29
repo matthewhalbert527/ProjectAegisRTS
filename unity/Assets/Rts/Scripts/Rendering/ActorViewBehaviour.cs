@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Snapshots;
+using ProjectAegisRTS.UnityClient.Art;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.Rendering.Buildings;
 using ProjectAegisRTS.UnityClient.Rendering.Motion;
@@ -13,6 +14,8 @@ namespace ProjectAegisRTS.UnityClient.Rendering
     {
         readonly List<GameObject> generatedObjects = new List<GameObject>();
         string configuredTypeId = string.Empty;
+        GameObject configuredPrefab;
+        GameObject prefabInstance;
         GameObject body;
         GameObject turretMarker;
         GameObject selectionMarker;
@@ -47,6 +50,11 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         public AircraftVisualMotionController AircraftMotion { get; private set; }
         public TurretVisualAimController TurretAim { get; private set; }
         public BuildingVisualStateController BuildingVisual { get; private set; }
+        public ActorVisualDefinition ActiveVisualDefinition { get; private set; }
+        public ActorPrefabDescriptor ActivePrefabDescriptor { get; private set; }
+        public bool UsesResolvedPrefab { get; private set; }
+        public bool HasResolvedVisualDefinition { get; private set; }
+        public bool UsedFallbackPrimitive { get; private set; }
         public string MotionControllerSummary
         {
             get
@@ -79,9 +87,11 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             int simulationTicksPerSecond,
             int snapshotTick,
             VisualMotionProfile motionProfile,
-            BuildingVisualProfile buildingProfile)
+            BuildingVisualProfile buildingProfile,
+            ActorVisualDefinition visualDefinition = null,
+            GameObject resolvedPrefab = null)
         {
-            EnsureVisuals(definition, materials);
+            EnsureVisuals(definition, materials, visualDefinition, resolvedPrefab);
             EnsureMotionControllers(definition, motionProfile);
             EnsureBuildingVisualController(definition, buildingProfile);
 
@@ -163,22 +173,59 @@ namespace ProjectAegisRTS.UnityClient.Rendering
                 BuildingVisual.TickVisual(deltaTime);
         }
 
-        void EnsureVisuals(ActorDefinition definition, Stage1MaterialLibrary materials)
+        void EnsureVisuals(ActorDefinition definition, Stage1MaterialLibrary materials, ActorVisualDefinition visualDefinition, GameObject resolvedPrefab)
         {
-            if (configuredTypeId == definition.TypeId)
+            if (configuredTypeId == definition.TypeId && configuredPrefab == resolvedPrefab)
                 return;
 
             configuredTypeId = definition.TypeId;
+            configuredPrefab = resolvedPrefab;
             ActorTypeId = definition.TypeId;
             ClearGeneratedObjects();
             ActorTypeCategory = DetermineCategory(definition.TypeId, definition);
+            ActiveVisualDefinition = visualDefinition;
+            HasResolvedVisualDefinition = visualDefinition != null;
+            UsesResolvedPrefab = resolvedPrefab != null;
+            UsedFallbackPrimitive = resolvedPrefab == null;
 
-            if (definition is BuildingDefinition)
+            if (resolvedPrefab != null)
+                CreatePrefabVisual(definition, resolvedPrefab);
+            else if (definition is BuildingDefinition)
                 CreateBuildingVisual((BuildingDefinition)definition, materials);
             else
                 CreateUnitVisual(definition.TypeId, materials);
 
             CreateCommonMarkers(definition, materials);
+        }
+
+        void CreatePrefabVisual(ActorDefinition definition, GameObject resolvedPrefab)
+        {
+            prefabInstance = Instantiate(resolvedPrefab);
+            prefabInstance.name = "Stage8 Visual " + definition.TypeId;
+            prefabInstance.transform.SetParent(transform, false);
+            prefabInstance.transform.localPosition = Vector3.zero;
+            prefabInstance.transform.localRotation = Quaternion.identity;
+            prefabInstance.transform.localScale = Vector3.one;
+
+            ActivePrefabDescriptor = prefabInstance.GetComponentInChildren<ActorPrefabDescriptor>(true);
+            body = SocketGameObject(ActorPrefabSocketKind.VisualRoot);
+            if (body == null)
+                body = SocketGameObject(ActorPrefabSocketKind.BodyRoot);
+            if (body == null)
+                body = prefabInstance;
+
+            turretMarker = SocketGameObject(ActorPrefabSocketKind.TurretRoot);
+            if (turretMarker == null)
+                turretMarker = SocketGameObject(ActorPrefabSocketKind.BarrelRoot);
+            if (turretMarker == null)
+                turretMarker = SocketGameObject(ActorPrefabSocketKind.MuzzlePrimary);
+
+            leftTrackMarker = SocketGameObject(ActorPrefabSocketKind.TrackLeft);
+            if (leftTrackMarker == null)
+                leftTrackMarker = SocketGameObject(ActorPrefabSocketKind.WheelLeft);
+            rightTrackMarker = SocketGameObject(ActorPrefabSocketKind.TrackRight);
+            if (rightTrackMarker == null)
+                rightTrackMarker = SocketGameObject(ActorPrefabSocketKind.WheelRight);
         }
 
         void CreateBuildingVisual(BuildingDefinition definition, Stage1MaterialLibrary materials)
@@ -286,7 +333,12 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             }
 
             if (BuildingVisual == null)
-                BuildingVisual = GetOrAdd<BuildingVisualStateController>();
+            {
+                if (prefabInstance != null)
+                    BuildingVisual = prefabInstance.GetComponentInChildren<BuildingVisualStateController>(true);
+                if (BuildingVisual == null)
+                    BuildingVisual = GetOrAdd<BuildingVisualStateController>();
+            }
 
             BuildingVisual.enabled = true;
             var activeProfile = buildingProfile != null ? buildingProfile : BuildingVisualProfile.CreateRuntimeDefault(definition.TypeId, BuildingVisualProfileLibrary.CategoryForActor(definition.TypeId));
@@ -366,6 +418,15 @@ namespace ProjectAegisRTS.UnityClient.Rendering
 
         void ClearGeneratedObjects()
         {
+            if (prefabInstance != null)
+                DestroyObject(prefabInstance);
+            prefabInstance = null;
+            ActivePrefabDescriptor = null;
+            ActiveVisualDefinition = null;
+            UsesResolvedPrefab = false;
+            HasResolvedVisualDefinition = false;
+            UsedFallbackPrimitive = true;
+
             for (var i = generatedObjects.Count - 1; i >= 0; i--)
                 if (generatedObjects[i] != null)
                     DestroyObject(generatedObjects[i]);
@@ -382,6 +443,16 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             rightTrackMarker = null;
             if (BuildingVisual != null)
                 BuildingVisual.ResetVisualState();
+            BuildingVisual = null;
+        }
+
+        GameObject SocketGameObject(ActorPrefabSocketKind kind)
+        {
+            if (ActivePrefabDescriptor == null)
+                return null;
+
+            Transform socketTransform;
+            return ActivePrefabDescriptor.TryGetSocket(kind, out socketTransform) && socketTransform != null ? socketTransform.gameObject : null;
         }
 
         T GetOrAdd<T>() where T : Component

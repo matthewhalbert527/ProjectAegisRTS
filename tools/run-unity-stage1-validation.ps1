@@ -66,14 +66,20 @@ Require-SceneText -Lines $sceneLines -Pattern 'm_LocalPosition: \{x: 16, y: 38, 
 
 Write-Host 'Scene file validation passed.'
 
-$unityProcesses = @(Get-UnityProcessesForProject -ProjectPath $unityProject)
-if ($unityProcesses.Count -gt 0) {
+$unityProcesses = @(Get-UnityProcessesForProject -ProjectPath $unityProject |
+    Where-Object {
+        $_.CommandLine -notmatch 'AssetImportWorker' -and
+        $_.CommandLine -notmatch '-batchmode' -and
+        $_.CommandLine -notmatch '-batchMode'
+    })
+$unityProjectIsOpen = $unityProcesses.Count -gt 0
+if ($unityProjectIsOpen) {
     Write-Host "Unity process count for this project: $($unityProcesses.Count)"
 } else {
     Write-Warning 'Unity does not appear to be open for this project. Open Unity and press Play for the manual interaction checklist.'
 }
 
-if (Test-Path -LiteralPath $editorLog) {
+if ($unityProjectIsOpen -and (Test-Path -LiteralPath $editorLog)) {
     Write-Host 'Checking live Unity Editor log for red-error signatures.'
     $errorPatterns = @(
         'NullReferenceException',
@@ -94,6 +100,8 @@ if (Test-Path -LiteralPath $editorLog) {
     }
 
     Write-Host 'Unity Editor log validation passed.'
+} elseif (Test-Path -LiteralPath $editorLog) {
+    Write-Warning "Skipping Unity Editor log scan because this project is not open. The log can contain stale errors from previous sessions: $editorLog"
 } else {
     Write-Warning "Unity Editor log was not found: $editorLog"
 }

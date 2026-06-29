@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: attack_aircraft_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: attack_aircraft
+  displayName: Skyraider
+  safeDisplayName: Attack Aircraft
+  category: 4
+  productionStatus: 9
+  conceptReference: {fileID: 11400000, guid: 625b849d8cc12d54393283b99ca9a9fa, type: 2}
+  icon: {fileID: 21300000, guid: 35d1cdb0f3cd54442aac424aa4feba3f, type: 3}
+  generatedBlockoutPrefab: {fileID: 6452882112796400919, guid: 8f331cb674bdcfc4fb15c840970ca742, type: 3}
+  productionPrefab: {fileID: 0}
+  fallbackPrefab: {fileID: 0}
+  preferredPrefabMode: 0
+  motionProfileId: aircraft_attack
+  buildingProfileId:
+  selectionRadius: 0.6
+  selectionHeight: 1.6
+  footprintWidth: 1
+  footprintHeight: 1
+  visualScale: 1
+  prefabHeightOffset: 1.2
+  useBuildingVisualController: 0
+  useVehicleMotionController: 0
+  useInfantryMotionController: 0
+  useAircraftMotionController: 1
+  useTurretVisualController: 1
+  requiredSockets: 00000000010000000200000003000000040000000600000017000000180000001e0000001f000000
+  notes: 'Working label only; review naming before release.
+
+    Banking, altitude,
+    weapon recoil, takeoff/landing sequence later.'
+  ipReviewRequired: 1
+  sourceConceptOriginalLabel: Skyraider
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_15_11
+    PM (1).png

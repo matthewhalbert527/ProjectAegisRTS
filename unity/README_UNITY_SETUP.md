@@ -190,6 +190,29 @@ To validate it from PowerShell:
 
 Stage 7 preserves the Stage 6 movement scene and adds `BuildingVisualProfileLibrary`, building visual profile assets, generated placeholder building parts, light/machinery/production/door/damage/type-specific controllers, `BuildingPowerDemoController`, and `BuildingAnimationDebugHud`.
 
+## Create or Validate the Stage 8 Scene
+
+Stage 8 adds the art pipeline showcase scene:
+
+```text
+Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity
+```
+
+To create or refresh it manually in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 8 > Create Art Pipeline Showcase Scene
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage8-validation.ps1
+.\tools\run-stage8-checks.ps1
+```
+
+Stage 8 preserves the Stage 7 building scene and adds `ActorVisualDefinitionLibrary`, `ConceptArtReferenceLibrary`, `ActorVisualPrefabResolver`, generated blockout prefabs, icon generation, prefab socket validation, `ArtPipelineShowcaseController`, and `ArtPipelineDebugHud`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -249,6 +272,16 @@ Stage 2 also exposes these actions through buttons in the sidebar and bottom com
 - Clear Overrides: clear visual demo overrides.
 - Toggle Visual Debug: toggle debug state on the selected or first building visual.
 
+## Stage 8 Art Pipeline Controls
+
+- F11: toggle the art pipeline debug HUD.
+- Prev/Next: cycle actor visual definitions.
+- Spawn: spawn the selected blockout preview.
+- Concepts: toggle concept reference cards.
+- Sockets: toggle socket labels.
+- Refresh: rebuild the showcase grid.
+- Validate All: run runtime definition validation.
+
 ## Stage 3 Board Placement Controls
 
 - Tab: toggle board placement mode.
@@ -272,6 +305,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 5 uses generated placeholder right-hand command UI and a compile-safe no-op XR adapter until physical Quest input is connected.
 - Stage 6 uses placeholder primitives and profile-driven visual motion controllers; it is not final art, physics, combat animation, or skeletal animation.
 - Stage 7 uses placeholder building parts, simple materials, and transform loops; it is not final building art, VFX, sound, combat damage, or destruction.
+- Stage 8 uses generated blockout prefabs and concept copies; it is not final production modeling, rigging, VFX, audio, combat, or destruction.
 - The attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

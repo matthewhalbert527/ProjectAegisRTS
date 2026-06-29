@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &488849979
+--- !u!1 &167987908
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,10 +127,10 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 488849983}
-  - component: {fileID: 488849982}
-  - component: {fileID: 488849981}
-  - component: {fileID: 488849980}
+  - component: {fileID: 167987912}
+  - component: {fileID: 167987911}
+  - component: {fileID: 167987910}
+  - component: {fileID: 167987909}
   m_Layer: 0
   m_Name: Stage3 Board Placement
   m_TagString: Untagged
@@ -138,54 +138,54 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &488849980
+--- !u!114 &167987909
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 488849979}
+  m_GameObject: {fileID: 167987908}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cff26ab5e59b3d04a8d775d316b3c305, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.XR.XrBoardPlacementInputAdapter
-  controller: {fileID: 488849982}
+  controller: {fileID: 167987911}
   xrPackagesAvailable: 0
---- !u!114 &488849981
+--- !u!114 &167987910
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 488849979}
+  m_GameObject: {fileID: 167987908}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 281931dff7273e648ac8548c67764866, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.Desktop.DesktopBoardPlacementInput
-  controller: {fileID: 488849982}
-  sceneCamera: {fileID: 1207971429}
+  controller: {fileID: 167987911}
+  sceneCamera: {fileID: 1106444141}
   disableWhilePlacementActive:
-  - {fileID: 1207971430}
+  - {fileID: 1106444142}
   moveSpeed: 5
   yawSpeed: 75
   heightSpeed: 1.2
   scaleSpeed: 0.35
---- !u!114 &488849982
+--- !u!114 &167987911
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 488849979}
+  m_GameObject: {fileID: 167987908}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 448284bf4f2e32048883cd4789c18753, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Board.BoardPlacementController
-  boardRoot: {fileID: 1460135891}
-  coordinateMapper: {fileID: 1460135890}
+  boardRoot: {fileID: 510211010}
+  coordinateMapper: {fileID: 510211009}
   model:
     position: {x: 0, y: 0, z: 0}
     yawDegrees: 0
@@ -199,13 +199,13 @@ MonoBehaviour:
   heightStep: 0.08
   yawStepDegrees: 45
   scaleStep: 0.08
---- !u!4 &488849983
+--- !u!4 &167987912
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 488849979}
+  m_GameObject: {fileID: 167987908}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -214,7 +214,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &707798702
+--- !u!1 &441610884
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -222,9 +222,184 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 707798705}
-  - component: {fileID: 707798704}
-  - component: {fileID: 707798703}
+  - component: {fileID: 441610890}
+  - component: {fileID: 441610889}
+  - component: {fileID: 441610888}
+  - component: {fileID: 441610887}
+  - component: {fileID: 441610886}
+  - component: {fileID: 441610885}
+  m_Layer: 0
+  m_Name: RtsGame
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &441610885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441610884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5814b4abcc6d0cd488d388bc67af7357, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.RtsDebugHud
+  visible: 0
+  toggleKey: 96
+--- !u!114 &441610886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441610884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9bd461c885d9e249b86191311780368, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.RtsDesktopInputController
+--- !u!114 &441610887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441610884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b634fabdba009848a0c3e29d3841222, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.ActorRenderSystem
+  motionProfileLibrary: {fileID: 0}
+  buildingProfileLibrary: {fileID: 0}
+  actorVisualDefinitionLibrary: {fileID: 0}
+  actorVisualPrefabResolver: {fileID: 0}
+--- !u!114 &441610888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441610884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03213363cd1898e45ba8ce9216c3cd77, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.CoreBridge.RtsSimulationDriver
+  playerId: 1
+--- !u!114 &441610889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441610884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18cb866fdbeed0d448e7bd95050cd6ba, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Bootstrap.RtsGameBootstrapper
+  ticksPerSecond: 20
+  boardWidth: 32
+  boardHeight: 32
+  boardCellSizeMeters: 1
+  startPaused: 0
+  enableSmoothVisualInterpolation: 1
+  boardRoot: {fileID: 510211010}
+  coordinateMapper: {fileID: 510211009}
+  boardRenderer: {fileID: 510211011}
+  actorRenderSystem: {fileID: 441610887}
+  simulationDriver: {fileID: 441610888}
+  inputController: {fileID: 441610886}
+  debugHud: {fileID: 441610885}
+  cameraController: {fileID: 1106444142}
+  sceneCamera: {fileID: 1106444141}
+--- !u!4 &441610890
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441610884}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &510211008
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 510211010}
+  - component: {fileID: 510211009}
+  - component: {fileID: 510211011}
+  m_Layer: 0
+  m_Name: BoardRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &510211009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510211008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92853b76460725b43933e75468cdeab8, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.CoreBridge.BoardCoordinateMapper
+--- !u!4 &510211010
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510211008}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &510211011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510211008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47cb6f516e762904e87941b24cc339fc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.BoardRenderer
+--- !u!1 &588572019
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 588572022}
+  - component: {fileID: 588572021}
+  - component: {fileID: 588572020}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -232,13 +407,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &707798703
+--- !u!114 &588572020
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 707798702}
+  m_GameObject: {fileID: 588572019}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
@@ -252,13 +427,13 @@ MonoBehaviour:
   m_InputActionsPerSecond: 10
   m_RepeatDelay: 0.5
   m_ForceModuleActive: 0
---- !u!114 &707798704
+--- !u!114 &588572021
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 707798702}
+  m_GameObject: {fileID: 588572019}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
@@ -267,13 +442,13 @@ MonoBehaviour:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
---- !u!4 &707798705
+--- !u!4 &588572022
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 707798702}
+  m_GameObject: {fileID: 588572019}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -282,7 +457,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &710138329
+--- !u!1 &705576616
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -290,8 +465,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 710138330}
-  - component: {fileID: 710138331}
+  - component: {fileID: 705576617}
+  - component: {fileID: 705576618}
   m_Layer: 0
   m_Name: Stage3 Board Placement HUD
   m_TagString: Untagged
@@ -299,40 +474,40 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &710138330
+--- !u!224 &705576617
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 710138329}
+  m_GameObject: {fileID: 705576616}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1889712209}
+  m_Father: {fileID: 1252466387}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 201, y: -216}
   m_SizeDelta: {x: 378, y: 408}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &710138331
+--- !u!114 &705576618
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 710138329}
+  m_GameObject: {fileID: 705576616}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76ddf4c05c79c0c4ea9266d6959648c1, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.XR.BoardPlacementHud
-  controller: {fileID: 488849982}
-  recenterReference: {fileID: 1207971431}
---- !u!1 &763730761
+  controller: {fileID: 167987911}
+  recenterReference: {fileID: 1106444143}
+--- !u!1 &869387967
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -340,8 +515,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 763730763}
-  - component: {fileID: 763730762}
+  - component: {fileID: 869387969}
+  - component: {fileID: 869387968}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -349,13 +524,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!108 &763730762
+--- !u!108 &869387968
 Light:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 763730761}
+  m_GameObject: {fileID: 869387967}
   m_Enabled: 1
   serializedVersion: 13
   m_Type: 1
@@ -414,13 +589,13 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
---- !u!4 &763730763
+--- !u!4 &869387969
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 763730761}
+  m_GameObject: {fileID: 869387967}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40305823, y: -0.27253202, z: 0.12708378, w: 0.8643611}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -429,7 +604,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1207971428
+--- !u!1 &1106444140
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -437,9 +612,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1207971431}
-  - component: {fileID: 1207971429}
-  - component: {fileID: 1207971430}
+  - component: {fileID: 1106444143}
+  - component: {fileID: 1106444141}
+  - component: {fileID: 1106444142}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -447,13 +622,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!20 &1207971429
+--- !u!20 &1106444141
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1207971428}
+  m_GameObject: {fileID: 1106444140}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
@@ -498,13 +673,13 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!114 &1207971430
+--- !u!114 &1106444142
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1207971428}
+  m_GameObject: {fileID: 1106444140}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a4308240f70d20d468a8c6a87ac05c51, type: 3}
@@ -517,13 +692,13 @@ MonoBehaviour:
   maxHeight: 38
   useOrthographicStage1View: 1
   orthographicSize: 30
---- !u!4 &1207971431
+--- !u!4 &1106444143
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1207971428}
+  m_GameObject: {fileID: 1106444140}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
   m_LocalPosition: {x: 16, y: 40, z: -30}
@@ -532,7 +707,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1361721636
+--- !u!1 &1252466383
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -540,118 +715,10 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1361721638}
-  - component: {fileID: 1361721637}
-  m_Layer: 0
-  m_Name: Stage3 XR Rig Placeholder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1361721637
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1361721636}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd03c642bf706e34f85820f83aaf2431, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.XR.Stage3XrRigPlaceholder
-  fallbackCamera: {fileID: 1207971429}
-  rigRoot: {fileID: 0}
-  head: {fileID: 0}
-  leftController: {fileID: 0}
-  rightController: {fileID: 0}
-  leftRay: {fileID: 0}
-  rightRay: {fileID: 0}
---- !u!4 &1361721638
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1361721636}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1460135889
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1460135891}
-  - component: {fileID: 1460135890}
-  - component: {fileID: 1460135892}
-  m_Layer: 0
-  m_Name: BoardRoot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1460135890
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1460135889}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92853b76460725b43933e75468cdeab8, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.CoreBridge.BoardCoordinateMapper
---- !u!4 &1460135891
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1460135889}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1460135892
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1460135889}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47cb6f516e762904e87941b24cc339fc, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.BoardRenderer
---- !u!1 &1889712205
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1889712209}
-  - component: {fileID: 1889712208}
-  - component: {fileID: 1889712207}
-  - component: {fileID: 1889712206}
+  - component: {fileID: 1252466387}
+  - component: {fileID: 1252466386}
+  - component: {fileID: 1252466385}
+  - component: {fileID: 1252466384}
   m_Layer: 0
   m_Name: Stage3 Canvas
   m_TagString: Untagged
@@ -659,13 +726,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1889712206
+--- !u!114 &1252466384
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1889712205}
+  m_GameObject: {fileID: 1252466383}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
@@ -682,13 +749,13 @@ MonoBehaviour:
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
   m_PresetInfoIsWorld: 0
---- !u!114 &1889712207
+--- !u!114 &1252466385
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1889712205}
+  m_GameObject: {fileID: 1252466383}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
@@ -699,13 +766,13 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!223 &1889712208
+--- !u!223 &1252466386
 Canvas:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1889712205}
+  m_GameObject: {fileID: 1252466383}
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 0
@@ -723,19 +790,19 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!224 &1889712209
+--- !u!224 &1252466387
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1889712205}
+  m_GameObject: {fileID: 1252466383}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 710138330}
+  - {fileID: 705576617}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -743,7 +810,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1 &2083109804
+--- !u!1 &1715336663
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -751,104 +818,41 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2083109810}
-  - component: {fileID: 2083109809}
-  - component: {fileID: 2083109808}
-  - component: {fileID: 2083109807}
-  - component: {fileID: 2083109806}
-  - component: {fileID: 2083109805}
+  - component: {fileID: 1715336665}
+  - component: {fileID: 1715336664}
   m_Layer: 0
-  m_Name: RtsGame
+  m_Name: Stage3 XR Rig Placeholder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2083109805
+--- !u!114 &1715336664
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2083109804}
+  m_GameObject: {fileID: 1715336663}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5814b4abcc6d0cd488d388bc67af7357, type: 3}
+  m_Script: {fileID: 11500000, guid: fd03c642bf706e34f85820f83aaf2431, type: 3}
   m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.RtsDebugHud
-  visible: 0
-  toggleKey: 96
---- !u!114 &2083109806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2083109804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9bd461c885d9e249b86191311780368, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.RtsDesktopInputController
---- !u!114 &2083109807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2083109804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b634fabdba009848a0c3e29d3841222, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.ActorRenderSystem
---- !u!114 &2083109808
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2083109804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03213363cd1898e45ba8ce9216c3cd77, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.CoreBridge.RtsSimulationDriver
-  playerId: 1
---- !u!114 &2083109809
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2083109804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18cb866fdbeed0d448e7bd95050cd6ba, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Bootstrap.RtsGameBootstrapper
-  ticksPerSecond: 20
-  boardWidth: 32
-  boardHeight: 32
-  boardCellSizeMeters: 1
-  startPaused: 0
-  enableSmoothVisualInterpolation: 1
-  boardRoot: {fileID: 1460135891}
-  coordinateMapper: {fileID: 1460135890}
-  boardRenderer: {fileID: 1460135892}
-  actorRenderSystem: {fileID: 2083109807}
-  simulationDriver: {fileID: 2083109808}
-  inputController: {fileID: 2083109806}
-  debugHud: {fileID: 2083109805}
-  cameraController: {fileID: 1207971430}
-  sceneCamera: {fileID: 1207971429}
---- !u!4 &2083109810
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.XR.Stage3XrRigPlaceholder
+  fallbackCamera: {fileID: 1106444141}
+  rigRoot: {fileID: 0}
+  head: {fileID: 0}
+  leftController: {fileID: 0}
+  rightController: {fileID: 0}
+  leftRay: {fileID: 0}
+  rightRay: {fileID: 0}
+--- !u!4 &1715336665
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2083109804}
+  m_GameObject: {fileID: 1715336663}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -861,11 +865,11 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1460135891}
-  - {fileID: 2083109810}
-  - {fileID: 1207971431}
-  - {fileID: 763730763}
-  - {fileID: 707798705}
-  - {fileID: 1889712209}
-  - {fileID: 488849983}
-  - {fileID: 1361721638}
+  - {fileID: 510211010}
+  - {fileID: 441610890}
+  - {fileID: 1106444143}
+  - {fileID: 869387969}
+  - {fileID: 588572022}
+  - {fileID: 1252466387}
+  - {fileID: 167987912}
+  - {fileID: 1715336665}

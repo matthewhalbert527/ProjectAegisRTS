@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Snapshots;
+using ProjectAegisRTS.UnityClient.Art;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.Rendering.Buildings;
 using ProjectAegisRTS.UnityClient.Rendering.Motion;
@@ -22,6 +23,8 @@ namespace ProjectAegisRTS.UnityClient.Rendering
 
         public VisualMotionProfileLibrary motionProfileLibrary;
         public BuildingVisualProfileLibrary buildingProfileLibrary;
+        public ActorVisualDefinitionLibrary actorVisualDefinitionLibrary;
+        public ActorVisualPrefabResolver actorVisualPrefabResolver;
         public int ActorVisualCount { get; private set; }
         public int MovingVisualCount { get; private set; }
         public int VehicleMotionControllerCount { get; private set; }
@@ -32,6 +35,10 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         public int LowPowerBuildingCount { get; private set; }
         public int ProducingBuildingCount { get; private set; }
         public int DamagedBuildingCount { get; private set; }
+        public int ActorVisualDefinitionCount { get; private set; }
+        public int ResolvedPrefabCount { get; private set; }
+        public int FallbackPrimitiveCount { get; private set; }
+        public int MissingDefinitionCount { get; private set; }
 
         public void Initialize(BoardCoordinateMapper coordinateMapper, RtsSimulationDriver simulationDriver, bool enableSmoothInterpolation)
         {
@@ -47,6 +54,14 @@ namespace ProjectAegisRTS.UnityClient.Rendering
                 buildingProfileLibrary = Object.FindFirstObjectByType<BuildingVisualProfileLibrary>();
             if (buildingProfileLibrary != null)
                 buildingProfileLibrary.EnsureInitialized();
+            if (actorVisualDefinitionLibrary == null)
+                actorVisualDefinitionLibrary = Object.FindFirstObjectByType<ActorVisualDefinitionLibrary>();
+            if (actorVisualDefinitionLibrary != null)
+                actorVisualDefinitionLibrary.EnsureInitialized();
+            if (actorVisualPrefabResolver == null)
+                actorVisualPrefabResolver = Object.FindFirstObjectByType<ActorVisualPrefabResolver>();
+            if (actorVisualPrefabResolver != null && actorVisualPrefabResolver.definitionLibrary == null)
+                actorVisualPrefabResolver.definitionLibrary = actorVisualDefinitionLibrary;
 
             if (actorRoot == null)
             {
@@ -82,7 +97,10 @@ namespace ProjectAegisRTS.UnityClient.Rendering
                 var profile = motionProfileLibrary == null ? null : motionProfileLibrary.GetProfile(actor.TypeId, definition, actor.VisualMotionProfileId);
                 var buildingDefinition = definition as BuildingDefinition;
                 var buildingProfile = buildingProfileLibrary == null || buildingDefinition == null ? null : buildingProfileLibrary.GetProfile(actor.TypeId, buildingDefinition);
-                view.ApplySnapshot(actor, definition, mapper, materials, selectedIds.Contains(actor.ActorId), smoothInterpolation, driver.TicksPerSecond, snapshot.Tick, profile, buildingProfile);
+                ActorVisualDefinition visualDefinition;
+                GameObject resolvedPrefab;
+                ResolveActorVisual(actor.TypeId, out visualDefinition, out resolvedPrefab);
+                view.ApplySnapshot(actor, definition, mapper, materials, selectedIds.Contains(actor.ActorId), smoothInterpolation, driver.TicksPerSecond, snapshot.Tick, profile, buildingProfile, visualDefinition, resolvedPrefab);
                 view.TickVisual(deltaTime);
             }
 
@@ -144,6 +162,22 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             return false;
         }
 
+        void ResolveActorVisual(string actorTypeId, out ActorVisualDefinition visualDefinition, out GameObject resolvedPrefab)
+        {
+            visualDefinition = null;
+            resolvedPrefab = null;
+
+            if (actorVisualPrefabResolver != null && actorVisualPrefabResolver.ResolvePrefab(actorTypeId, out visualDefinition, out resolvedPrefab))
+                return;
+
+            if (actorVisualDefinitionLibrary != null)
+            {
+                actorVisualDefinitionLibrary.TryGetDefinition(actorTypeId, out visualDefinition);
+                if (visualDefinition != null)
+                    resolvedPrefab = visualDefinition.GetBestPrefab();
+            }
+        }
+
         ActorViewBehaviour CreateActorView(ActorSnapshot actor)
         {
             var actorObject = new GameObject("Actor " + actor.ActorId + " " + actor.TypeId);
@@ -166,6 +200,10 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             LowPowerBuildingCount = 0;
             ProducingBuildingCount = 0;
             DamagedBuildingCount = 0;
+            ActorVisualDefinitionCount = actorVisualDefinitionLibrary == null ? 0 : actorVisualDefinitionLibrary.DefinitionCount;
+            ResolvedPrefabCount = 0;
+            FallbackPrimitiveCount = 0;
+            MissingDefinitionCount = 0;
 
             foreach (var pair in actorViews)
             {
@@ -181,6 +219,12 @@ namespace ProjectAegisRTS.UnityClient.Rendering
                     InfantryMotionControllerCount++;
                 if (view.AircraftMotion != null && view.AircraftMotion.enabled)
                     AircraftMotionControllerCount++;
+                if (view.UsesResolvedPrefab)
+                    ResolvedPrefabCount++;
+                if (view.UsedFallbackPrimitive)
+                    FallbackPrimitiveCount++;
+                if (!view.HasResolvedVisualDefinition)
+                    MissingDefinitionCount++;
                 if (view.BuildingVisual != null && view.BuildingVisual.enabled)
                 {
                     BuildingVisualCount++;

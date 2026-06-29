@@ -1,0 +1,38 @@
+namespace ProjectAegisRTS.UnityClient.Art
+{
+    public enum ActorPrefabSocketKind
+    {
+        Root,
+        BodyRoot,
+        VisualRoot,
+        SelectionAnchor,
+        HealthBarAnchor,
+        UiAnchor,
+        MuzzlePrimary,
+        MuzzleSecondary,
+        TurretRoot,
+        BarrelRoot,
+        WheelLeft,
+        WheelRight,
+        TrackLeft,
+        TrackRight,
+        DoorRoot,
+        ProductionExit,
+        RallyExit,
+        HarvesterDock,
+        RepairArmRoot,
+        CraneRoot,
+        RadarDishRoot,
+        TurbineRoot,
+        LightRoot,
+        VfxSmoke,
+        VfxExplosion,
+        VfxProduction,
+        AudioLoop,
+        Head,
+        WeaponSocket,
+        AimPivot,
+        AircraftRotor,
+        LandingPadAnchor
+    }
+}

@@ -42,6 +42,12 @@ Stage 7 adds Unity-only building animation and state presentation. `BuildingVisu
 
 The building visual layer does not own gameplay power, production, health, placement, repair, or destruction rules. It may call existing `RtsSimulationDriver` demo command paths from the debug controller, but it never mutates `Rts.Core` internals or writes animation state back to the simulation. Any forced production visual state is isolated as a Unity-only debug override for presentation validation.
 
+## Stage 8 Art Pipeline Boundary
+
+Stage 8 adds Unity-only art replacement data. `ActorVisualDefinitionLibrary` maps safe actor type IDs to concept references, icons, generated blockout prefabs, future production prefabs, motion/building profile IDs, and required sockets. `ActorVisualPrefabResolver` lets `ActorRenderSystem` prefer authored prefabs when available and fall back to generated primitives when definitions or prefabs are missing.
+
+Prefab descriptors and sockets define presentation attachment points for turrets, barrels, weapons, doors, production exits, lights, VFX, aircraft rotors, wheels, tracks, and UI anchors. They do not change deterministic actor definitions, footprints, production rules, movement, power, combat, or health in `Rts.Core`.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

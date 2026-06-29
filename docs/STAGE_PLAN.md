@@ -34,7 +34,7 @@ Complete. Building animation, power, production, and damage-state visualization 
 
 ## Stage 8
 
-Concept art to production 3D asset pipeline with licensing, naming, import, rigging, materials, and animation standards.
+Complete. Art pipeline / concept art to production prefabs. Adds `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity`, concept import/copy tooling, 27 concept reference assets, 27 actor visual definition assets, 27 generated blockout prefabs, generated icons, prefab socket/descriptors, runtime prefab resolver integration, F11 art pipeline debug HUD, generated validation reports, and automated scene/play-mode smoke validation.
 
 ## Stage 9
 
@@ -42,4 +42,4 @@ Combat, weapons, projectiles, damage, death, and destruction presentation.
 
 ## Later Stages
 
-Economy/fog expansion, skirmish AI, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.
+Economy/resource harvesting and refinery loop refinement, fog expansion, skirmish AI, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.

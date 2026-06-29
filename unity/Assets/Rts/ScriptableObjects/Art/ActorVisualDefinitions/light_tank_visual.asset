@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: light_tank_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: light_tank
+  displayName: Light Tank
+  safeDisplayName: Light Tank
+  category: 3
+  productionStatus: 1
+  conceptReference: {fileID: 11400000, guid: 8d6a518072a65a345b8d9849c0b0d906, type: 2}
+  icon: {fileID: 21300000, guid: 8eb335a1ccdae8d4aac3c744d8136358, type: 3}
+  generatedBlockoutPrefab: {fileID: 1334794736421903130, guid: a209321449af18c4da6883f95add92a8, type: 3}
+  productionPrefab: {fileID: 0}
+  fallbackPrefab: {fileID: 0}
+  preferredPrefabMode: 0
+  motionProfileId: tracked_light
+  buildingProfileId:
+  selectionRadius: 0.6
+  selectionHeight: 0.1
+  footprintWidth: 1
+  footprintHeight: 1
+  visualScale: 1
+  prefabHeightOffset: 0
+  useBuildingVisualController: 0
+  useVehicleMotionController: 1
+  useInfantryMotionController: 0
+  useAircraftMotionController: 0
+  useTurretVisualController: 1
+  requiredSockets: 00000000010000000200000003000000040000000600000008000000090000000c0000000d0000001700000018000000
+  notes: 'Keep as original concept reference only; final model should be original
+    high-detail tracked armor.
+
+    Future acceleration, braking, track roll, suspension,
+    turret lag, muzzle recoil.'
+  ipReviewRequired: 0
+  sourceConceptOriginalLabel: Light Tank
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_29
+    PM (1).png
