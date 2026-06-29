@@ -1,5 +1,6 @@
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.Rendering.Motion;
 using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.Rendering
@@ -7,6 +8,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
     public sealed class CommandPreviewRenderer : MonoBehaviour
     {
         public BoardCoordinateMapper mapper;
+        public MovementPathPreview movementPathPreview;
         GameObject marker;
         Material moveMaterial;
         Material attackMaterial;
@@ -19,6 +21,10 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         public void Initialize(BoardCoordinateMapper coordinateMapper)
         {
             mapper = coordinateMapper;
+            if (movementPathPreview == null)
+                movementPathPreview = Object.FindFirstObjectByType<MovementPathPreview>();
+            if (movementPathPreview != null)
+                movementPathPreview.Initialize(coordinateMapper);
             EnsureMaterials();
             EnsureMarker();
             ClearPreview();
@@ -27,6 +33,13 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         public void ShowMoveTarget(Int2 cell)
         {
             Show(cell, "move", moveMaterial);
+        }
+
+        public void ShowMovePath(Int2 startCell, Int2 targetCell)
+        {
+            ShowMoveTarget(targetCell);
+            if (movementPathPreview != null)
+                movementPathPreview.SetPreview(startCell, targetCell);
         }
 
         public void ShowAttackTarget(Int2 cell)
@@ -45,6 +58,8 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             PreviewKind = string.Empty;
             if (marker != null)
                 marker.SetActive(false);
+            if (movementPathPreview != null)
+                movementPathPreview.ClearPreview();
         }
 
         void Show(Int2 cell, string kind, Material material)

@@ -138,6 +138,29 @@ To validate it from PowerShell:
 
 Stage 5 preserves the Stage 4 left-hand build/selection interface and adds a simulated right-hand/controller rig, right-hand command HUD, command preview marker, move command routing, attack/force-attack placeholders, and board manipulation coexistence. It compiles without XR Interaction Toolkit or Meta XR packages.
 
+## Create or Validate the Stage 6 Scene
+
+Stage 6 adds the movement visualization scene:
+
+```text
+Assets/Rts/Scenes/Stage6_MovementVisualization.unity
+```
+
+To create or refresh it manually in Unity, run:
+
+```text
+ProjectAegisRTS > Create Stage 6 Movement Visualization Scene
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage6-validation.ps1
+.\tools\run-stage6-checks.ps1
+```
+
+Stage 6 preserves the Stage 5 dual-hand command scene and adds `VisualMotionProfileLibrary`, movement profile assets, actor visual motion controllers, vehicle/infantry/aircraft/turret placeholders, movement path preview, movement debug HUD, and a small visual-only showcase for categories not present in the default demo world.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -182,6 +205,11 @@ Stage 2 also exposes these actions through buttons in the sidebar and bottom com
 - Mouse wheel: scale/zoom the board while manipulating.
 - Escape: cancel the active right-hand command mode.
 
+## Stage 6 Movement Visualization Controls
+
+- F9: toggle the movement debug HUD.
+- Right-hand/desktop move commands continue to show the Stage 5 target marker and now may also draw a Stage 6 path preview.
+
 ## Stage 3 Board Placement Controls
 
 - Tab: toggle board placement mode.
@@ -203,6 +231,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 3 uses a placeholder XR rig until a proper XR Origin/controller rig is added in a later stage.
 - Stage 4 uses generated placeholder wrist/radial UI and a compile-safe no-op XR adapter until physical Quest input is connected.
 - Stage 5 uses generated placeholder right-hand command UI and a compile-safe no-op XR adapter until physical Quest input is connected.
+- Stage 6 uses placeholder primitives and profile-driven visual motion controllers; it is not final art, physics, combat animation, or skeletal animation.
 - The attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

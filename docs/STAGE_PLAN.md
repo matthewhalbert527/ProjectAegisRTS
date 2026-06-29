@@ -26,7 +26,7 @@ Complete. Quest right-hand tactical command interface. Adds `Assets/Rts/Scenes/S
 
 ## Stage 6
 
-High-quality movement visualization layered on deterministic simulation snapshots.
+Complete. High-quality movement visualization layered on deterministic simulation snapshots. Adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity`, profile-driven visual motion ScriptableObjects, visual-only actor smoothing, vehicle track/suspension placeholders, infantry locomotion placeholders, aircraft bank/hover placeholders, turret lag/recoil placeholders, movement path preview, movement debug HUD, Stage 6 showcase actors, and automated scene/play-mode validation.
 
 ## Stage 7
 

@@ -1,6 +1,6 @@
 # Rts Unity Assets
 
-Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface.
+Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface. Stage 6 adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` for visual-only movement profiles, controllers, path preview, and debug HUD.
 
 ## Folder Roles
 
@@ -8,8 +8,8 @@ Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and sub
 - `Scripts/Board`: Stage 3 board transform model and placement controller.
 - `Scripts/CoreBridge`: Unity-to-core adapters, command helpers, and board coordinate mapping.
 - `Scripts/Input`: desktop mouse/keyboard input plus XR-safe placement, left-hand, and right-hand adapters/placeholders.
-- `Scripts/Rendering`: board, actor, selection, low-power, production, and interpolation visuals.
-- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, and Stage 5 right-hand command UI.
+- `Scripts/Rendering`: board, actor, selection, low-power, production, interpolation, movement profile, vehicle, infantry, aircraft, turret, and path-preview visuals.
+- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, Stage 5 right-hand command UI, and Stage 6 movement debug HUD.
 - `Scripts/Camera`: desktop camera controls.
 - `Scripts/Utilities`: generated runtime materials.
 - `Editor`: scene generator menu item and batchmode entry point.
@@ -19,7 +19,7 @@ Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and sub
 
 Unity does not own gameplay state. It smooths visual transforms between snapshots, but actor position, power state, production state, placement validation, and move orders come from `Rts.Core`.
 
-The actor view layer tracks previous and target snapshot positions, facing, normalized speed, visual motion profile id, and actor category so later stages can add acceleration/braking visuals, turning arcs, tracks/wheels, suspension, turret lag, infantry locomotion, and aircraft banking without faking gameplay movement.
+The actor view layer tracks previous and target snapshot positions, facing, normalized speed, visual motion profile id, and actor category. Stage 6 consumes those values through visual-only controllers for acceleration/braking presentation, turning arcs, tracks/wheels, suspension, turret lag, infantry locomotion placeholders, aircraft banking, and path previews without faking gameplay movement.
 
 ## Stage 2 UI
 
@@ -79,3 +79,20 @@ The actor view layer tracks previous and target snapshot positions, facing, norm
 - `Editor/Stage5SceneCreator.cs`: creates `Stage5_DualHandCommand.unity`.
 - `Editor/Stage5SceneValidator.cs`: validates the Stage 5 scene structure.
 - `Editor/Stage5PlayModeSmokeValidator.cs`: validates runtime board visuals, actors, left-hand preservation, move commands, attack placeholders, board manipulation, placement suppression, cancellation, and red console errors.
+
+## Stage 6 Movement Visualization
+
+- `Scripts/Rendering/Motion/VisualMotionProfile.cs`: ScriptableObject tuning data for visual speed, smoothing, tracks, infantry step phase, aircraft bank/hover, turret lag, and recoil placeholders.
+- `Scripts/Rendering/Motion/VisualMotionProfileLibrary.cs`: profile lookup by snapshot profile id, actor type id, or category.
+- `Scripts/Rendering/Motion/ActorVisualMotionController.cs`: visual-only transform smoothing toward authoritative snapshots.
+- `Scripts/Rendering/Motion/VehicleVisualMotionController.cs`: track/wheel phase, suspension placeholder, braking, and turning readouts.
+- `Scripts/Rendering/Motion/InfantryVisualMotionController.cs`: idle/walk/run and aim/fire placeholders.
+- `Scripts/Rendering/Motion/AircraftVisualMotionController.cs`: bank, altitude offset, and hover placeholders.
+- `Scripts/Rendering/Motion/TurretVisualAimController.cs`: turret lag and recoil placeholder.
+- `Scripts/Rendering/Motion/MovementPathPreview.cs`: visual-only movement path line and endpoint markers.
+- `Scripts/Rendering/Motion/Stage6MotionShowcase.cs`: scene-only visual showcase for vehicle, infantry, aircraft, and turret controllers.
+- `Scripts/UI/Common/MovementDebugHud.cs`: F9 debug HUD for visual controller counts and selected actor motion state.
+- `Editor/Stage6MotionProfileAssetCreator.cs`: creates the Stage 6 profile assets.
+- `Editor/Stage6SceneCreator.cs`: creates `Stage6_MovementVisualization.unity`.
+- `Editor/Stage6SceneValidator.cs`: validates the Stage 6 scene structure.
+- `Editor/Stage6PlayModeSmokeValidator.cs`: validates runtime actor motion, path preview, showcase controllers, pause/resume, single-step, low-power state, and red console errors.

@@ -4,6 +4,10 @@
 
 Stage 6 should add high-quality visual movement on top of deterministic `Rts.Core` snapshots. The simulation remains authoritative; Unity may smooth, animate, and embellish presentation, but it must not change pathfinding, actor positions, facing, command validation, or tick outcomes.
 
+## Implementation Status
+
+Implemented in `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` with profile-driven Unity presentation controllers. `Rts.Core` remains UnityEngine-free and authoritative; Stage 6 only consumes snapshot fields such as cell position, fixed world position, facing, normalized speed, movement phase, and `VisualMotionProfileId`.
+
 ## Visual Vehicle Layer
 
 - Acceleration and braking: interpolate visual speed toward snapshot speed, with per-profile easing and clamp values.
@@ -30,27 +34,25 @@ Stage 6 should add high-quality visual movement on top of deterministic `Rts.Cor
 
 `Rts.Core` already exposes cell position, fixed world position, facing, normalized speed, movement phase, and `visual_motion_profile_id` in snapshots. Stage 6 should consume those fields from Unity render systems and add presentation components only. Do not add Unity physics, `Rigidbody`, `NavMeshAgent`, or floating-point Unity transforms as gameplay authority.
 
-## Recommended Unity Classes
+## Unity Classes
 
-- `VisualMotionProfile`: ScriptableObject or serializable data for per-actor visual tuning.
-- `VisualMotionProfileRegistry`: maps `visual_motion_profile_id` and actor category to profiles.
-- `ActorVisualMotionController`: per-actor visual smoothing, acceleration, braking, and turn interpolation.
-- `VehicleVisualAnimator`: wheels, tracks, suspension, body lean, and turret lag hooks.
-- `InfantryVisualAnimator`: locomotion blend and aim/recoil placeholders.
-- `AircraftVisualAnimator`: altitude, banking, hover, and VTOL presentation.
-- `VisualMotionDebugHud`: optional debug readout for snapshot speed, visual speed, facing error, and profile id.
-- `Stage6VisualMotionSmokeValidator`: automated validator for deterministic snapshot preservation and non-authoritative visual updates.
+- `VisualMotionProfile`: ScriptableObject data for per-actor visual tuning.
+- `VisualMotionProfileLibrary`: maps `VisualMotionProfileId`, actor type, and actor category to profiles.
+- `ActorVisualMotionController`: per-actor visual smoothing, acceleration, braking, arrival, and turn interpolation.
+- `VehicleVisualMotionController`: track/wheel phase, braking/turning flags, and suspension placeholders.
+- `InfantryVisualMotionController`: idle/walk/run locomotion placeholder and aim/fire blend placeholders.
+- `AircraftVisualMotionController`: banking, altitude offset, and hover presentation.
+- `TurretVisualAimController`: turret lag and recoil placeholder.
+- `MovementPathPreview`: visual-only movement path line and endpoint markers.
+- `MovementDebugHud`: debug readout for controller counts, profile id, visual speed, state, facing, target, and category details.
+- `Stage6PlayModeSmokeValidator`: automated validator for scene wiring, runtime actor views, move command preview, showcase controllers, pause/resume, single-step, low-power state, and red console errors.
 
 ## Validation Strategy
 
 - Run all Stage 5 checks before Stage 6 work begins.
-- Add smoke validation that spawns the demo world, selects a mobile actor, issues a move command, and confirms:
-  - `Rts.Core` checksum stays unchanged by visual components.
-  - actor views move visually without creating authoritative commands.
-  - visual facing converges toward snapshot facing.
-  - wheel/track/turret/aircraft placeholder components can be absent without errors.
-  - no repeating red console errors are logged.
-- Keep acceptance automated through a future `tools/run-stage6-checks.ps1`.
+- Run `tools/run-unity-stage6-validation.ps1` to create the Stage 6 scene, validate required objects/components, and run play-mode smoke.
+- Run `tools/run-stage6-checks.ps1` for the full Stage 0-6 gate, UnityEngine scan, and whitespace check.
+- Smoke validation confirms generated actor visuals, selected vehicle motion, path preview, showcase vehicle/infantry/aircraft/turret controllers, pause/resume, single-step, low-power visual state, and no red console errors.
 
 ## Non-Goals
 

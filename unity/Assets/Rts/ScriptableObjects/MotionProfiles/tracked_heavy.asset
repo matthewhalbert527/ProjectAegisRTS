@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cfb6178d0251ce4ea1ac94fe7866dad, type: 3}
+  m_Name: tracked_heavy
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.Motion.VisualMotionProfile
+  profileId: tracked_heavy
+  displayName: Tracked Heavy Vehicle
+  category: 2
+  maxVisualSpeed: 3.8
+  accelerationSmoothing: 4.2
+  brakingSmoothing: 8.5
+  turnSmoothing: 4.5
+  facingLag: 0.14
+  minimumTurnSpeed: 0.08
+  visualArrivalDistance: 0.05
+  suspensionStrength: 0.045
+  trackOrWheelAnimationScale: 3.2
+  infantryStepRate: 0
+  infantryStrideLength: 0
+  aircraftBankAmount: 0
+  aircraftAltitudeOffset: 0
+  aircraftHoverBobAmount: 0
+  turretLag: 5.5
+  recoilVisualStrength: 0.06

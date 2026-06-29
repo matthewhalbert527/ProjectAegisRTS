@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.Rendering.Motion;
 using ProjectAegisRTS.UnityClient.Utilities;
 using UnityEngine;
 
@@ -18,6 +19,8 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         GameObject lightMarker;
         GameObject machineryMarker;
         GameObject productionMarker;
+        GameObject leftTrackMarker;
+        GameObject rightTrackMarker;
         Vector3 previousSnapshotPosition;
         Vector3 targetSnapshotPosition;
         bool hasPosition;
@@ -36,6 +39,28 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         public int NormalizedSpeed { get; private set; }
         public string VisualMotionProfileId { get; private set; }
         public string ActorTypeCategory { get; private set; }
+        public string ActorTypeId { get; private set; }
+        public ActorVisualMotionController ActorVisualMotion { get; private set; }
+        public VehicleVisualMotionController VehicleMotion { get; private set; }
+        public InfantryVisualMotionController InfantryMotion { get; private set; }
+        public AircraftVisualMotionController AircraftMotion { get; private set; }
+        public TurretVisualAimController TurretAim { get; private set; }
+        public string MotionControllerSummary
+        {
+            get
+            {
+                var summary = ActorVisualMotion == null ? "base=missing" : "base=" + ActorVisualMotion.CurrentMotionState;
+                if (VehicleMotion != null)
+                    summary += ", vehicle";
+                if (InfantryMotion != null)
+                    summary += ", infantry";
+                if (AircraftMotion != null)
+                    summary += ", aircraft";
+                if (TurretAim != null)
+                    summary += ", turret";
+                return summary;
+            }
+        }
 
         public void Initialize(int actorId)
         {
@@ -50,9 +75,11 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             bool selected,
             bool enableSmoothVisuals,
             int simulationTicksPerSecond,
-            int snapshotTick)
+            int snapshotTick,
+            VisualMotionProfile motionProfile)
         {
             EnsureVisuals(definition, materials);
+            EnsureMotionControllers(definition, motionProfile);
 
             var target = mapper.ActorToWorldPosition(snapshot, definition) + Vector3.up * BaseElevation(definition, snapshot.TypeId);
             smoothVisuals = enableSmoothVisuals;
@@ -77,7 +104,10 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             FacingDegrees = snapshot.FacingDegrees;
             NormalizedSpeed = snapshot.NormalizedSpeed;
             VisualMotionProfileId = snapshot.VisualMotionProfileId;
-            transform.rotation = Quaternion.Euler(0f, snapshot.FacingDegrees, 0f);
+            if (smoothVisuals && ActorVisualMotion != null)
+                ActorVisualMotion.ApplySnapshot(snapshot, target);
+            else
+                transform.rotation = Quaternion.Euler(0f, snapshot.FacingDegrees, 0f);
 
             if (selectionMarker != null)
                 selectionMarker.SetActive(selected);
@@ -92,7 +122,21 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             if (!hasPosition)
                 return;
 
-            if (smoothVisuals)
+            if (smoothVisuals && ActorVisualMotion != null)
+            {
+                ActorVisualMotion.TickVisual(deltaTime);
+                interpolationAlpha = Mathf.Clamp01(interpolationAlpha + deltaTime * ticksPerSecond);
+
+                if (VehicleMotion != null && VehicleMotion.enabled)
+                    VehicleMotion.TickVisual(deltaTime);
+                if (InfantryMotion != null && InfantryMotion.enabled)
+                    InfantryMotion.TickVisual(deltaTime);
+                if (AircraftMotion != null && AircraftMotion.enabled)
+                    AircraftMotion.TickVisual(deltaTime);
+                if (TurretAim != null && TurretAim.enabled)
+                    TurretAim.TickVisual(deltaTime);
+            }
+            else if (smoothVisuals)
             {
                 interpolationAlpha = Mathf.Clamp01(interpolationAlpha + deltaTime * ticksPerSecond);
                 transform.position = Vector3.Lerp(previousSnapshotPosition, targetSnapshotPosition, interpolationAlpha);
@@ -116,6 +160,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
                 return;
 
             configuredTypeId = definition.TypeId;
+            ActorTypeId = definition.TypeId;
             ClearGeneratedObjects();
             ActorTypeCategory = DetermineCategory(definition.TypeId, definition);
 
@@ -161,7 +206,64 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             }
 
             body = CreatePrimitive("Vehicle Body", PrimitiveType.Cube, new Vector3(0f, 0.24f, 0f), new Vector3(0.85f, 0.34f, 0.62f), materials.Vehicle);
+            leftTrackMarker = CreatePrimitive("Left Track Placeholder", PrimitiveType.Cube, new Vector3(-0.43f, 0.13f, 0f), new Vector3(0.08f, 0.16f, 0.64f), materials.Machinery);
+            rightTrackMarker = CreatePrimitive("Right Track Placeholder", PrimitiveType.Cube, new Vector3(0.43f, 0.13f, 0f), new Vector3(0.08f, 0.16f, 0.64f), materials.Machinery);
             turretMarker = CreatePrimitive("Vehicle Turret", PrimitiveType.Cube, new Vector3(0f, 0.49f, 0.10f), new Vector3(0.38f, 0.16f, 0.38f), materials.Machinery);
+        }
+
+        void EnsureMotionControllers(ActorDefinition definition, VisualMotionProfile motionProfile)
+        {
+            var category = VisualMotionProfileLibrary.CategoryForActor(definition.TypeId, definition);
+            if (ActorVisualMotion == null)
+                ActorVisualMotion = GetOrAdd<ActorVisualMotionController>();
+
+            var activeProfile = motionProfile != null ? motionProfile : VisualMotionProfile.CreateRuntimeDefault("runtime_" + definition.TypeId, category);
+            ActorVisualMotion.Initialize(ActorId, definition.TypeId, activeProfile);
+
+            if (category == VisualMotionCategory.Vehicle || category == VisualMotionCategory.Harvester)
+            {
+                if (VehicleMotion == null)
+                    VehicleMotion = GetOrAdd<VehicleVisualMotionController>();
+                VehicleMotion.enabled = true;
+                VehicleMotion.leftTrackPlaceholder = leftTrackMarker == null ? null : leftTrackMarker.transform;
+                VehicleMotion.rightTrackPlaceholder = rightTrackMarker == null ? null : rightTrackMarker.transform;
+                VehicleMotion.suspensionRoot = body == null ? transform : body.transform;
+                VehicleMotion.Initialize(ActorVisualMotion);
+            }
+            else if (VehicleMotion != null)
+                VehicleMotion.enabled = false;
+
+            if (category == VisualMotionCategory.Infantry)
+            {
+                if (InfantryMotion == null)
+                    InfantryMotion = GetOrAdd<InfantryVisualMotionController>();
+                InfantryMotion.enabled = true;
+                InfantryMotion.bodyRoot = body == null ? transform : body.transform;
+                InfantryMotion.Initialize(ActorVisualMotion);
+            }
+            else if (InfantryMotion != null)
+                InfantryMotion.enabled = false;
+
+            if (category == VisualMotionCategory.Aircraft)
+            {
+                if (AircraftMotion == null)
+                    AircraftMotion = GetOrAdd<AircraftVisualMotionController>();
+                AircraftMotion.enabled = true;
+                AircraftMotion.aircraftRoot = body == null ? transform : body.transform;
+                AircraftMotion.Initialize(ActorVisualMotion);
+            }
+            else if (AircraftMotion != null)
+                AircraftMotion.enabled = false;
+
+            if (turretMarker != null)
+            {
+                if (TurretAim == null)
+                    TurretAim = GetOrAdd<TurretVisualAimController>();
+                TurretAim.enabled = true;
+                TurretAim.Initialize(ActorVisualMotion, turretMarker.transform);
+            }
+            else if (TurretAim != null)
+                TurretAim.enabled = false;
         }
 
         void CreateCommonMarkers(ActorDefinition definition, Stage1MaterialLibrary materials)
@@ -249,6 +351,16 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             lightMarker = null;
             machineryMarker = null;
             productionMarker = null;
+            leftTrackMarker = null;
+            rightTrackMarker = null;
+        }
+
+        T GetOrAdd<T>() where T : Component
+        {
+            var component = GetComponent<T>();
+            if (component == null)
+                component = gameObject.AddComponent<T>();
+            return component;
         }
 
         static void SetMaterial(GameObject target, Material material)

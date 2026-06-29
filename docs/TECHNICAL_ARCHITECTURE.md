@@ -30,6 +30,12 @@ Attack and force-attack are placeholder commands in Stage 5. They update status 
 
 `XrRightHandInputAdapter` intentionally avoids hard references to XR Interaction Toolkit and Meta XR packages. Future Quest bindings should connect right controller rays, primary command, mode buttons, grip/board manipulation, and rotate/scale axes behind `IRightHandInputSource`.
 
+## Stage 6 Visual Movement Boundary
+
+Stage 6 adds Unity-only movement presentation. `VisualMotionProfileLibrary` resolves profile data from snapshot profile id, actor type, or actor category. `ActorVisualMotionController` smooths presentation transforms toward authoritative `ActorSnapshot` positions and facing, while vehicle, infantry, aircraft, turret, and path preview components add local visual state.
+
+These controllers do not submit commands, update `Rts.Core`, use Unity physics authority, or write pathfinding/position data back to the simulation. The Stage 6 showcase exists only to exercise presentation controllers for actor categories not spawned by the current demo world.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:
