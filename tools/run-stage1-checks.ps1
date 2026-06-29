@@ -45,6 +45,18 @@ function Find-UnityEditor {
     return $null
 }
 
+function Get-UnityProcessesForProject {
+    param([string]$ProjectPath)
+
+    $slashPath = $ProjectPath -replace '\\', '/'
+    Get-CimInstance Win32_Process -Filter "name = 'Unity.exe'" |
+        Where-Object {
+            $_.CommandLine -and
+            $_.CommandLine -match '-projectPath' -and
+            ($_.CommandLine.Contains($ProjectPath) -or $_.CommandLine.Contains($slashPath))
+        }
+}
+
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $dotnet = Find-DotNet
 $unityProject = Join-Path $repoRoot 'unity'
@@ -65,6 +77,18 @@ if ($LASTEXITCODE -ne 0) {
 $unityEditor = Find-UnityEditor
 if (-not $unityEditor) {
     Write-Warning 'Unity Editor executable was not found. Unity script compilation and play validation must be checked manually in Unity Hub.'
+    exit 0
+}
+
+$openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject | Where-Object { $_.CommandLine -notmatch 'AssetImportWorker' })
+if ($openUnity.Count -gt 0) {
+    Write-Warning 'Unity Editor is already open for this project, so batchmode cannot safely take the project lock.'
+    Write-Host 'Running live Stage 1 Unity validation instead.'
+    $validationScript = Join-Path $repoRoot 'tools\run-unity-stage1-validation.ps1'
+    & $validationScript
+    if ($LASTEXITCODE -ne 0) {
+        throw "run-unity-stage1-validation.ps1 failed with exit code $LASTEXITCODE."
+    }
     exit 0
 }
 

@@ -43,9 +43,28 @@ function Find-UnityHub {
     return $null
 }
 
+function Get-UnityProcessesForProject {
+    param([string]$ProjectPath)
+
+    $slashPath = $ProjectPath -replace '\\', '/'
+    Get-CimInstance Win32_Process -Filter "name = 'Unity.exe'" |
+        Where-Object {
+            $_.CommandLine -and
+            $_.CommandLine -match '-projectPath' -and
+            ($_.CommandLine.Contains($ProjectPath) -or $_.CommandLine.Contains($slashPath))
+        }
+}
+
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $unityProject = Join-Path $repoRoot 'unity'
 $unityEditor = Find-UnityEditor
+
+$openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject | Where-Object { $_.CommandLine -notmatch 'AssetImportWorker' })
+if ($openUnity.Count -gt 0) {
+    Write-Host "Unity project is already open:"
+    Write-Host $unityProject
+    return
+}
 
 if ($unityEditor) {
     Write-Host "Opening Unity project with $unityEditor"
