@@ -83,6 +83,7 @@ function Normalize-UnityGeneratedFiles {
         'unity\Assets\Rts\Scenes\Stage2_PCSidebar.unity',
         'unity\Assets\Rts\Scenes\Stage3_XRBoardPlacement.unity',
         'unity\Assets\Rts\Scenes\Stage4_LeftHandBuildSelection.unity',
+        'unity\Assets\Rts\Scenes\Stage5_DualHandCommand.unity',
         'unity\Assets\XR\Settings\OpenXR Package Settings.asset',
         'unity\Assets\XR\Settings\OpenXR Package Settings.asset.meta',
         'unity\Assets\XR\Settings.meta',
@@ -110,16 +111,16 @@ if ($LASTEXITCODE -ne 0) {
     throw "build-rts-core-for-unity.ps1 failed with exit code $LASTEXITCODE."
 }
 
-Write-Host 'Running Stage 1 live/file validation.'
-& (Join-Path $repoRoot 'tools\run-unity-stage1-validation.ps1')
+Write-Host 'Running Stage 1 checks.'
+& (Join-Path $repoRoot 'tools\run-stage1-checks.ps1')
 if ($LASTEXITCODE -ne 0) {
-    throw "run-unity-stage1-validation.ps1 failed with exit code $LASTEXITCODE."
+    throw "run-stage1-checks.ps1 failed with exit code $LASTEXITCODE."
 }
 
-Write-Host 'Running Stage 2 Unity validation.'
-& (Join-Path $repoRoot 'tools\run-unity-stage2-validation.ps1')
+Write-Host 'Running Stage 2 checks.'
+& (Join-Path $repoRoot 'tools\run-stage2-checks.ps1')
 if ($LASTEXITCODE -ne 0) {
-    throw "run-unity-stage2-validation.ps1 failed with exit code $LASTEXITCODE."
+    throw "run-stage2-checks.ps1 failed with exit code $LASTEXITCODE."
 }
 
 Write-Host 'Running Stage 2 Play Mode smoke validation.'
@@ -128,22 +129,22 @@ if ($LASTEXITCODE -ne 0) {
     throw "run-stage2-playmode-smoke.ps1 failed with exit code $LASTEXITCODE."
 }
 
-Write-Host 'Running Stage 3 Unity validation.'
-& (Join-Path $repoRoot 'tools\run-unity-stage3-validation.ps1')
-if ($LASTEXITCODE -ne 0) {
-    throw "run-unity-stage3-validation.ps1 failed with exit code $LASTEXITCODE."
-}
-
 Write-Host 'Running Stage 3 checks.'
 & (Join-Path $repoRoot 'tools\run-stage3-checks.ps1')
 if ($LASTEXITCODE -ne 0) {
     throw "run-stage3-checks.ps1 failed with exit code $LASTEXITCODE."
 }
 
-Write-Host 'Running Stage 4 Unity validation.'
-& (Join-Path $repoRoot 'tools\run-unity-stage4-validation.ps1')
+Write-Host 'Running Stage 4 checks.'
+& (Join-Path $repoRoot 'tools\run-stage4-checks.ps1')
 if ($LASTEXITCODE -ne 0) {
-    throw "run-unity-stage4-validation.ps1 failed with exit code $LASTEXITCODE."
+    throw "run-stage4-checks.ps1 failed with exit code $LASTEXITCODE."
+}
+
+Write-Host 'Running Stage 5 Unity validation.'
+& (Join-Path $repoRoot 'tools\run-unity-stage5-validation.ps1')
+if ($LASTEXITCODE -ne 0) {
+    throw "run-unity-stage5-validation.ps1 failed with exit code $LASTEXITCODE."
 }
 
 Write-Host 'Checking Rts.Core for UnityEngine references.'
@@ -163,4 +164,4 @@ if ($LASTEXITCODE -ne 0) {
     throw "git diff --check failed with exit code $LASTEXITCODE."
 }
 
-Write-Host 'Stage 4 checks passed.'
+Write-Host 'Stage 5 checks passed.'

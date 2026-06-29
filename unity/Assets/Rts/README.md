@@ -1,15 +1,15 @@
 # Rts Unity Assets
 
-Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface.
+Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface.
 
 ## Folder Roles
 
 - `Scripts/Bootstrap`: scene startup and reference wiring.
 - `Scripts/Board`: Stage 3 board transform model and placement controller.
 - `Scripts/CoreBridge`: Unity-to-core adapters, command helpers, and board coordinate mapping.
-- `Scripts/Input`: desktop mouse/keyboard input plus XR-safe placement and left-hand adapters/placeholders.
+- `Scripts/Input`: desktop mouse/keyboard input plus XR-safe placement, left-hand, and right-hand adapters/placeholders.
 - `Scripts/Rendering`: board, actor, selection, low-power, production, and interpolation visuals.
-- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, and Stage 4 left-hand wrist/radial UI.
+- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, and Stage 5 right-hand command UI.
 - `Scripts/Camera`: desktop camera controls.
 - `Scripts/Utilities`: generated runtime materials.
 - `Editor`: scene generator menu item and batchmode entry point.
@@ -66,3 +66,16 @@ The actor view layer tracks previous and target snapshot positions, facing, norm
 - `Editor/Stage4SceneValidator.cs`: validates the Stage 4 scene structure.
 - `Editor/Stage4PlayModeSmokeValidator.cs`: validates runtime board visuals, actors, ticking, menu, production, placement, selection, lasso, cancellation, and red console errors.
 - `Editor/Stage4XrSetupReporter.cs`: reports package/input status and writes `docs/STAGE4_XR_INPUT_STATUS.md`.
+
+## Stage 5 Right-Hand Tactical Commands
+
+- `Scripts/UI/XR/RightHand/RightHandCommandMode.cs`: Stage 5 right-hand command modes.
+- `Scripts/UI/XR/RightHand/RightHandCommandRouter.cs`: move, context, attack placeholder, force-attack placeholder, cancellation, and status routing through the simulation driver.
+- `Scripts/UI/XR/RightHand/Stage5DualHandModeCoordinator.cs`: desktop/XR right-hand input coordination, placement suppression, and board manipulation.
+- `Scripts/UI/XR/RightHand/RightHandCommandHud.cs`, `RightHandCommandReticle.cs`, and `RightHandStatusPanel.cs`: generated command readouts and feedback.
+- `Scripts/Input/Desktop/DesktopRightHandInputSource.cs`: keyboard/mouse fallback controls.
+- `Scripts/Input/XR/IRightHandInputSource.cs`, `XrRightHandInputAdapter.cs`, and `SimulatedRightHandRig.cs`: compile-safe XR boundary and placeholder rig.
+- `Scripts/Rendering/CommandPreviewRenderer.cs`: generated target marker for move, attack placeholder, and invalid command feedback.
+- `Editor/Stage5SceneCreator.cs`: creates `Stage5_DualHandCommand.unity`.
+- `Editor/Stage5SceneValidator.cs`: validates the Stage 5 scene structure.
+- `Editor/Stage5PlayModeSmokeValidator.cs`: validates runtime board visuals, actors, left-hand preservation, move commands, attack placeholders, board manipulation, placement suppression, cancellation, and red console errors.

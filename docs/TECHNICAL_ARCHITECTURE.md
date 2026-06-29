@@ -22,6 +22,14 @@ The left-hand UI owns presentation state such as open/closed menu, active produc
 
 `XrLeftHandInputAdapter` intentionally avoids hard references to XR Interaction Toolkit and Meta XR packages. Future Quest bindings should connect controller rays, trigger/select, grip/modifier, thumbstick axes, and hand pinch behind compile-safe adapter boundaries.
 
+## Stage 5 Right-Hand Command Boundary
+
+Stage 5 adds a Unity-only right-hand tactical command layer. `DesktopRightHandInputSource` and `XrRightHandInputAdapter` feed command rays and button-like actions into `Stage5DualHandModeCoordinator`. Movement commands route through `RightHandCommandRouter` and `RtsSimulationDriver.TryIssueMoveSelectedToCell`, preserving `Rts.Core` as the authority.
+
+Attack and force-attack are placeholder commands in Stage 5. They update status and command preview feedback without adding final combat, weapons, projectiles, or damage. The coordinator suppresses right-hand gameplay commands during Stage 4 building placement or Stage 3 board placement. Board manipulation uses the Stage 3 presentation transform and does not mutate deterministic gameplay state.
+
+`XrRightHandInputAdapter` intentionally avoids hard references to XR Interaction Toolkit and Meta XR packages. Future Quest bindings should connect right controller rays, primary command, mode buttons, grip/board manipulation, and rotate/scale axes behind `IRightHandInputSource`.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

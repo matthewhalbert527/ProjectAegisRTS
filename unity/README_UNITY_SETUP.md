@@ -115,6 +115,29 @@ To validate it from PowerShell:
 
 Stage 4 uses a simulated left-hand/controller rig, a wrist/radial uGUI build menu, placement and selection panels, ray selection, candidate cycling, and a simple board-space lasso. It compiles without XR Interaction Toolkit or Meta XR packages.
 
+## Create or Validate the Stage 5 Scene
+
+Stage 5 adds the dual-hand command scene:
+
+```text
+Assets/Rts/Scenes/Stage5_DualHandCommand.unity
+```
+
+To create or refresh it manually in Unity, run:
+
+```text
+ProjectAegisRTS > Create Stage 5 Dual-Hand Command Scene
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage5-validation.ps1
+.\tools\run-stage5-checks.ps1
+```
+
+Stage 5 preserves the Stage 4 left-hand build/selection interface and adds a simulated right-hand/controller rig, right-hand command HUD, command preview marker, move command routing, attack/force-attack placeholders, and board manipulation coexistence. It compiles without XR Interaction Toolkit or Meta XR packages.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -147,6 +170,18 @@ Stage 2 also exposes these actions through buttons in the sidebar and bottom com
 - Backquote: toggle the Stage 4 status HUD.
 - L plus mouse drag: board-space lasso selection.
 
+## Stage 5 Right-Hand Desktop Fallback Controls
+
+- V: toggle the right-hand command HUD.
+- M: enter move mode.
+- A: enter attack placeholder mode.
+- F: enter force-attack placeholder mode.
+- Right mouse or Enter: confirm the current right-hand command.
+- Space or middle mouse: board manipulation mode.
+- Q/E: rotate the board while manipulating.
+- Mouse wheel: scale/zoom the board while manipulating.
+- Escape: cancel the active right-hand command mode.
+
 ## Stage 3 Board Placement Controls
 
 - Tab: toggle board placement mode.
@@ -167,6 +202,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 2 is still placeholder-art PC UI, not final visual art.
 - Stage 3 uses a placeholder XR rig until a proper XR Origin/controller rig is added in a later stage.
 - Stage 4 uses generated placeholder wrist/radial UI and a compile-safe no-op XR adapter until physical Quest input is connected.
+- Stage 5 uses generated placeholder right-hand command UI and a compile-safe no-op XR adapter until physical Quest input is connected.
 - The attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

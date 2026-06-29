@@ -18,11 +18,11 @@ Complete. Quest/OpenXR board placement prototype with adjustable height, yaw, sc
 
 ## Stage 4
 
-Quest left-hand build and selection interface. Adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity`, simulated left-hand/controller rig, wrist/radial production categories, build item cards, queue routing through the simulation bridge, placement footprint preview, ray selection, ambiguous candidate cycling, board-space lasso selection, desktop fallback controls, XR-safe adapter boundaries, package/input status reporting, and automated smoke validation.
+Complete. Quest left-hand build and selection interface. Adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity`, simulated left-hand/controller rig, wrist/radial production categories, build item cards, queue routing through the simulation bridge, placement footprint preview, ray selection, ambiguous candidate cycling, board-space lasso selection, desktop fallback controls, XR-safe adapter boundaries, package/input status reporting, and automated smoke validation.
 
 ## Stage 5
 
-Quest right-hand tactical command interface: movement/attack confirmation, right-hand command ray, board manipulation coexistence, and clear hand responsibility split.
+Complete. Quest right-hand tactical command interface. Adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity`, simulated right-hand/controller rig, right-hand command HUD, move command routing, attack and force-attack placeholders, command preview markers, board manipulation coexistence, desktop fallback controls, XR-safe adapter boundaries, and automated smoke validation while preserving Stage 2 and Stage 4 controls.
 
 ## Stage 6
 

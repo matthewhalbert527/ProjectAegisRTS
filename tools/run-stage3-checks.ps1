@@ -22,7 +22,13 @@ function Find-UnityEngineReferences {
 
     $rg = Get-Command rg -ErrorAction SilentlyContinue
     if ($rg) {
-        $rgHits = & $rg.Source -n "UnityEngine" $CorePath
+        try {
+            $rgHits = & $rg.Source -n "UnityEngine" $CorePath
+        } catch {
+            Write-Warning "rg was found at $($rg.Source) but could not be executed; using built-in PowerShell Select-String fallback."
+            return Find-UnityEngineReferencesWithPowerShell -CorePath $CorePath
+        }
+
         if ($LASTEXITCODE -eq 0) {
             return @($rgHits)
         }
@@ -34,6 +40,12 @@ function Find-UnityEngineReferences {
     }
 
     Write-Host 'rg not found; using built-in PowerShell Select-String fallback.'
+    return Find-UnityEngineReferencesWithPowerShell -CorePath $CorePath
+}
+
+function Find-UnityEngineReferencesWithPowerShell {
+    param([string]$CorePath)
+
     $referenceHits = Get-ChildItem $CorePath -Recurse -Include *.cs |
         Select-String -Pattern "UnityEngine"
     return @($referenceHits)
