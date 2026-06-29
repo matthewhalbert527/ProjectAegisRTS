@@ -32,4 +32,4 @@ Validated locally with Unity `6000.5.1f1` at `E:\Unity\Hub\Editor\6000.5.1f1\Edi
 - Stage 6 visual controllers are presentation-only and do not write back into `Rts.Core`.
 - The Stage 6 showcase adds vehicle, infantry, aircraft, turret, and path preview coverage because the current demo world starts with only a fabrication hub and scout rover.
 - The right-hand command preview remains compatible with Stage 5 and now optionally drives a Stage 6 path line.
-- Commit: pending local commit hash.
+- Implementation commit: `04dbac348bdca630c0ea18d387f896b28217f6ed`.
