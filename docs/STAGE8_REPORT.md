@@ -8,7 +8,7 @@ Stage 8 creates the Unity-side art pipeline layer for replacing placeholder visu
 
 - Branch: `codex/stage-8-art-pipeline-prefabs`
 - Base Stage 7 implementation commit: `0b399dee35a6be291608b644a91f9b10f673d824`
-- Stage 8 implementation commit: `TBD`
+- Stage 8 implementation commit: `7f60b7cc22fe2dbb15d437f83c26b20d0ac41102`
 
 ## Systems Created
 
