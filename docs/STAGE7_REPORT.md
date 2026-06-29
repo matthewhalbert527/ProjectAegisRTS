@@ -8,7 +8,7 @@ Stage 7 adds a Unity-only building animation, power, production, and damage visu
 
 - Branch: `codex/stage-7-building-animation-power`
 - Base commit: `6aa0f7f703e30cfb2cf4d278aac31722ecff9c60`
-- Implementation commit: pending final local commit.
+- Implementation commit: `0b399dee35a6be291608b644a91f9b10f673d824`.
 
 ## Files Changed
 
