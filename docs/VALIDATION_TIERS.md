@@ -67,4 +67,4 @@ Do not weaken or remove the full chain when adding faster tiers.
 
 ## Stage 8.1 Commit
 
-Stage 8.1 implementation hash: recorded after the local validation-tier commit is created.
+Stage 8.1 implementation hash: c6cfde1111538f204abbb3e6583df3bf8f363858.

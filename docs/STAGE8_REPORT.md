@@ -10,7 +10,7 @@ Stage 8 creates the Unity-side art pipeline layer for replacing placeholder visu
 - Base Stage 7 implementation commit: `0b399dee35a6be291608b644a91f9b10f673d824`
 - Stage 8 implementation commit: `7f60b7cc22fe2dbb15d437f83c26b20d0ac41102`
 - Stage 8.1 validation-tier branch: `codex/stage-8-1-validation-tiers`
-- Stage 8.1 validation-tier implementation commit: recorded after the local commit is created.
+- Stage 8.1 validation-tier implementation commit: c6cfde1111538f204abbb3e6583df3bf8f363858.
 
 ## Systems Created
 
