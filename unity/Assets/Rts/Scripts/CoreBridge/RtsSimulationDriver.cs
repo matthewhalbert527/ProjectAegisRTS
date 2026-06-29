@@ -132,6 +132,42 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return RtsCommandResult.Ok("Selection cleared.");
         }
 
+        public RtsCommandResult SetSelectedActorIds(IReadOnlyList<int> actorIds)
+        {
+            selectedActorIds.Clear();
+            if (actorIds != null)
+            {
+                for (var i = 0; i < actorIds.Count; i++)
+                {
+                    ActorSnapshot actor;
+                    if (TryGetActorSnapshot(actorIds[i], out actor) && actor.OwnerId == playerId && !selectedActorIds.Contains(actor.ActorId))
+                        selectedActorIds.Add(actor.ActorId);
+                }
+            }
+
+            if (world == null)
+                return RtsCommandResult.Ok("Selected actors: " + SelectedActorIdsText() + ".");
+
+            return RtsCommandAdapter.SelectActors(world, playerId, selectedActorIds);
+        }
+
+        public RtsCommandResult AddOrRemoveSelectedActor(int actorId)
+        {
+            ActorSnapshot actor;
+            if (!TryGetActorSnapshot(actorId, out actor) || actor.OwnerId != playerId)
+                return RtsCommandResult.Fail("ActorUnavailable", "Selectable actor is no longer available.");
+
+            if (selectedActorIds.Contains(actorId))
+                selectedActorIds.Remove(actorId);
+            else
+                selectedActorIds.Add(actorId);
+
+            if (world == null)
+                return RtsCommandResult.Ok("Selected actors: " + SelectedActorIdsText() + ".");
+
+            return RtsCommandAdapter.SelectActors(world, playerId, selectedActorIds);
+        }
+
         public RtsCommandResult TryIssueMoveSelectedToCell(Int2 cell)
         {
             if (selectedActorIds.Count == 0)
@@ -228,6 +264,16 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
             pendingPlacementTypeId = string.Empty;
             return RtsCommandResult.Ok("Placement mode cancelled.");
+        }
+
+        public bool IsPlacementValidAtCell(Int2 cell, out PlacementPreviewSnapshot preview)
+        {
+            preview = null;
+            if (!HasPlacementMode || world == null)
+                return false;
+
+            preview = world.PreviewPlacement(playerId, pendingPlacementTypeId, cell);
+            return preview != null && preview.CanPlace;
         }
 
         public RtsCommandResult TryCancelProduction(int queueItemId)

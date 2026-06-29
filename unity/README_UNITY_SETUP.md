@@ -86,6 +86,35 @@ To validate it from PowerShell:
 
 Stage 3 installs or verifies Unity Registry packages for XR Plug-in Management, OpenXR, and Input System when batchmode can safely run. The runtime scene remains package-independent: if XR packages are absent or incomplete, the desktop fallback and placeholder XR rig still compile and run.
 
+## Create or Validate the Stage 4 Scene
+
+Stage 4 adds the Quest-style left-hand build and selection interface:
+
+```text
+Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity
+```
+
+To create or refresh it manually in Unity, run:
+
+```text
+ProjectAegisRTS > Create Stage 4 Left-Hand Build Selection Scene
+```
+
+To report XR input package status manually in Unity, run:
+
+```text
+ProjectAegisRTS > Report Stage 4 XR Input Status
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage4-validation.ps1
+.\tools\run-stage4-checks.ps1
+```
+
+Stage 4 uses a simulated left-hand/controller rig, a wrist/radial uGUI build menu, placement and selection panels, ray selection, candidate cycling, and a simple board-space lasso. It compiles without XR Interaction Toolkit or Meta XR packages.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -104,6 +133,19 @@ Stage 3 installs or verifies Unity Registry packages for XR Plug-in Management, 
 - Q/E: rotate camera.
 
 Stage 2 also exposes these actions through buttons in the sidebar and bottom command bar: production, queue cancel, placement cancel, stop, move, attack placeholder, guard/patrol/deploy/repair/sell placeholders, power toggle, pause, step, and low-power demo.
+
+## Stage 4 Left-Hand Desktop Fallback Controls
+
+- C: toggle the left-hand build interface.
+- F1-F6: switch left-hand production categories.
+- 1-8: queue the matching build card in the active category.
+- Mouse ray: simulated left-hand ray.
+- Left mouse or Enter: select, confirm placement, or activate the current action.
+- Ctrl + left mouse: additive selection.
+- Escape: cancel placement/menu/active mode or clear selection.
+- Tab / Shift+Tab: cycle ambiguous selection candidates.
+- Backquote: toggle the Stage 4 status HUD.
+- L plus mouse drag: board-space lasso selection.
 
 ## Stage 3 Board Placement Controls
 
@@ -124,6 +166,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Meta XR Core/Interaction SDK packages are not imported automatically.
 - Stage 2 is still placeholder-art PC UI, not final visual art.
 - Stage 3 uses a placeholder XR rig until a proper XR Origin/controller rig is added in a later stage.
+- Stage 4 uses generated placeholder wrist/radial UI and a compile-safe no-op XR adapter until physical Quest input is connected.
 - The attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

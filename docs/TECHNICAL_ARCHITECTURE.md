@@ -14,6 +14,14 @@ Stage 3 introduces a Unity-only board transform layer for Quest/OpenXR-style pla
 
 The XR adapter scripts are package-independent placeholders. OpenXR, XR Interaction Toolkit, or Meta SDK objects can later feed placement rays and confirm/cancel/adjust inputs into the controller without changing the simulation bridge.
 
+## Stage 4 Left-Hand Interface Boundary
+
+Stage 4 adds a Unity-only Quest-style left-hand build and selection layer. `DesktopLeftHandInputSource` and `XrLeftHandInputAdapter` feed rays and button-like actions into `Stage4ModeCoordinator`. The coordinator routes production, placement, selection, candidate cycling, and lasso actions through `LeftHandCommandRouter`, `RtsSimulationDriver`, and existing snapshot/command APIs.
+
+The left-hand UI owns presentation state such as open/closed menu, active production category, selected build card, hovered cell, candidate list, and local selection indicators. It does not own gameplay rules. Production, placement validation, credits, power state, actor spawning, movement, and deterministic ticks remain in `Rts.Core`.
+
+`XrLeftHandInputAdapter` intentionally avoids hard references to XR Interaction Toolkit and Meta XR packages. Future Quest bindings should connect controller rays, trigger/select, grip/modifier, thumbstick axes, and hand pinch behind compile-safe adapter boundaries.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

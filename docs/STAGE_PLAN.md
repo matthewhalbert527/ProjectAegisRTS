@@ -14,28 +14,28 @@ Complete, pending visual polish. PC right-side OpenRA-style production panel usi
 
 ## Stage 3
 
-Quest/OpenXR board placement prototype with adjustable height, yaw, scale, recenter, reset, save/load, desktop fallback controls, XR-safe adapter placeholders, package setup reporting, and `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity`.
+Complete. Quest/OpenXR board placement prototype with adjustable height, yaw, scale, recenter, reset, save/load, desktop fallback controls, XR-safe adapter placeholders, package setup reporting, automated smoke validation, and `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity`.
 
 ## Stage 4
 
-Next recommended stage: left-hand build and selection interface for VR/MR, with right-hand tactical orders and board controls.
+Quest left-hand build and selection interface. Adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity`, simulated left-hand/controller rig, wrist/radial production categories, build item cards, queue routing through the simulation bridge, placement footprint preview, ray selection, ambiguous candidate cycling, board-space lasso selection, desktop fallback controls, XR-safe adapter boundaries, package/input status reporting, and automated smoke validation.
 
 ## Stage 5
 
-High-quality movement visualization layered on deterministic simulation snapshots.
+Quest right-hand tactical command interface: movement/attack confirmation, right-hand command ray, board manipulation coexistence, and clear hand responsibility split.
 
 ## Stage 6
 
-Building animation and power states: powered idle, production active, low power, offline, damaged, and destroyed.
+High-quality movement visualization layered on deterministic simulation snapshots.
 
 ## Stage 7
 
-Concept art to production 3D asset pipeline with licensing, naming, import, rigging, materials, and animation standards.
+Building animation and power states: powered idle, production active, low power, offline, damaged, and destroyed.
 
 ## Stage 8
 
-Later stage: skirmish AI for economy, basebuilding, scouting, production, attacks, repairs, and defensive behavior.
+Concept art to production 3D asset pipeline with licensing, naming, import, rigging, materials, and animation standards.
 
 ## Stage 9
 
-Later stage: multiplayer, replays, deterministic checksums, desync reporting, and command stream validation.
+Later stage: combat/economy/fog expansion, skirmish AI, multiplayer, replays, deterministic checksums, desync reporting, and command stream validation.

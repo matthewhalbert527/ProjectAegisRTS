@@ -69,7 +69,7 @@ function Invoke-UnityBatch {
 
     $arguments = "-batchmode -quit -projectPath `"$UnityProject`" -executeMethod $ExecuteMethod -logFile `"$LogPath`""
     Write-Host "Running Unity batch method: $ExecuteMethod"
-    Start-Process -FilePath $UnityEditor -ArgumentList $arguments -WindowStyle Hidden | Out-Null
+    $process = Start-Process -FilePath $UnityEditor -ArgumentList $arguments -WindowStyle Hidden -PassThru
 
     $deadline = (Get-Date).AddMinutes(5)
     $sawCompletion = $false
@@ -86,7 +86,16 @@ function Invoke-UnityBatch {
                 break
             }
         }
+        if ($process.HasExited) {
+            break
+        }
     } while ((Get-Date) -lt $deadline)
+
+    if (-not $process.HasExited) {
+        if (-not $process.WaitForExit(120000)) {
+            throw "Unity logged no final exit within the grace period. See $LogPath"
+        }
+    }
 
     if (-not (Test-Path -LiteralPath $LogPath)) {
         throw "Unity did not create a log within the timeout. Expected: $LogPath"
@@ -99,6 +108,10 @@ function Invoke-UnityBatch {
 
     if (-not $sawCompletion) {
         throw "Unity did not log expected success marker '$SuccessPattern'. See $LogPath"
+    }
+
+    if ($process.ExitCode -ne 0) {
+        throw "Unity process exited with code $($process.ExitCode). See $LogPath"
     }
 }
 

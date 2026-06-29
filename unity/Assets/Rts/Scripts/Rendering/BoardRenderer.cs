@@ -49,25 +49,51 @@ namespace ProjectAegisRTS.UnityClient.Rendering
                 return;
             }
 
-            while (placementCells.Count < preview.FootprintCells.Count)
+            SetPlacementPreview(preview.FootprintCells, preview.CanPlace);
+        }
+
+        public void SetHoveredCell(Int2? hovered)
+        {
+            UpdateHover(hovered);
+        }
+
+        public void SetPlacementPreview(IReadOnlyList<Int2> footprintCells, bool isValid)
+        {
+            if (footprintCells == null || footprintCells.Count == 0)
             {
-                var cell = CreateFlatCell("Placement Preview Cell", materials.PlacementValid);
+                HidePlacementCells();
+                return;
+            }
+
+            while (placementCells.Count < footprintCells.Count)
+            {
+                var cell = CreateFlatCell("Placement Preview Cell", isValid ? materials.PlacementValid : materials.PlacementInvalid);
                 placementCells.Add(cell);
             }
 
             for (var i = 0; i < placementCells.Count; i++)
             {
                 var cellObject = placementCells[i];
-                if (i >= preview.FootprintCells.Count)
+                if (i >= footprintCells.Count)
                 {
                     cellObject.SetActive(false);
                     continue;
                 }
 
                 cellObject.SetActive(true);
-                cellObject.transform.position = mapper.CellToWorldCenter(preview.FootprintCells[i]) + Vector3.up * 0.045f;
-                SetMaterial(cellObject, preview.CanPlace ? materials.PlacementValid : materials.PlacementInvalid);
+                cellObject.transform.position = mapper.CellToWorldCenter(footprintCells[i]) + Vector3.up * 0.045f;
+                SetMaterial(cellObject, isValid ? materials.PlacementValid : materials.PlacementInvalid);
             }
+        }
+
+        public void SetPlacementPreview(string actorTypeId, IReadOnlyList<Int2> footprintCells, Int2 topLeftCell, bool isValid, string message)
+        {
+            SetPlacementPreview(footprintCells, isValid);
+        }
+
+        public void ClearPlacementPreview()
+        {
+            HidePlacementCells();
         }
 
         void CreateBoardSurface()

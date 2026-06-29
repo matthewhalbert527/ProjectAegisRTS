@@ -39,6 +39,48 @@ function Find-UnityEngineReferences {
     return @($referenceHits)
 }
 
+function Remove-TrailingWhitespace {
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return
+    }
+
+    $resolved = (Resolve-Path -LiteralPath $Path).Path
+    $lines = [System.IO.File]::ReadAllLines($resolved)
+    $changed = $false
+    for ($i = 0; $i -lt $lines.Length; $i++) {
+        $trimmed = $lines[$i].TrimEnd()
+        if ($trimmed.Length -ne $lines[$i].Length) {
+            $changed = $true
+            $lines[$i] = $trimmed
+        }
+    }
+
+    if ($changed) {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding -ArgumentList $false
+        [System.IO.File]::WriteAllLines($resolved, [string[]]$lines, $utf8NoBom)
+    }
+}
+
+function Normalize-UnityGeneratedFiles {
+    param([string]$RepoRoot)
+
+    $paths = @(
+        'unity\Assets\Rts\Scenes\Stage1_DesktopBoard.unity',
+        'unity\Assets\Rts\Scenes\Stage2_PCSidebar.unity',
+        'unity\Assets\Rts\Scenes\Stage3_XRBoardPlacement.unity',
+        'unity\Assets\XR\Settings\OpenXR Package Settings.asset',
+        'unity\Assets\XR\Settings\OpenXR Package Settings.asset.meta',
+        'unity\Assets\XR\Settings.meta',
+        'unity\Assets\XR.meta'
+    )
+
+    foreach ($path in $paths) {
+        Remove-TrailingWhitespace -Path (Join-Path $RepoRoot $path)
+    }
+}
+
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $dotnet = Find-DotNet
 $corePath = Join-Path $repoRoot 'src\Rts.Core'
@@ -86,6 +128,9 @@ if ($unityEngineHits.Count -gt 0) {
     throw 'Rts.Core must remain UnityEngine-free.'
 }
 Write-Host 'Rts.Core UnityEngine reference check passed; no UnityEngine references found.'
+
+Write-Host 'Normalizing Unity-generated whitespace.'
+Normalize-UnityGeneratedFiles -RepoRoot $repoRoot
 
 Write-Host 'Running git diff whitespace check.'
 git -C $repoRoot diff --check
