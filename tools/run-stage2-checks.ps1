@@ -17,8 +17,31 @@ function Find-DotNet {
     throw 'dotnet was not found on PATH or at C:\Program Files\dotnet\dotnet.exe.'
 }
 
+function Find-UnityEngineReferences {
+    param([string]$CorePath)
+
+    $rg = Get-Command rg -ErrorAction SilentlyContinue
+    if ($rg) {
+        $rgHits = & $rg.Source -n "UnityEngine" $CorePath
+        if ($LASTEXITCODE -eq 0) {
+            return @($rgHits)
+        }
+        if ($LASTEXITCODE -gt 1) {
+            throw "rg failed while checking UnityEngine references with exit code $LASTEXITCODE."
+        }
+
+        return @()
+    }
+
+    Write-Host 'rg not found; using built-in PowerShell Select-String fallback.'
+    $referenceHits = Get-ChildItem $CorePath -Recurse -Include *.cs |
+        Select-String -Pattern "UnityEngine"
+    return @($referenceHits)
+}
+
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $dotnet = Find-DotNet
+$corePath = Join-Path $repoRoot 'src\Rts.Core'
 
 Write-Host 'Running Rts.Core tests.'
 & $dotnet run --project (Join-Path $repoRoot 'src\Rts.Core.Tests')
@@ -51,14 +74,12 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host 'Checking Rts.Core for UnityEngine references.'
-$unityEngineHits = & rg -n "UnityEngine" (Join-Path $repoRoot 'src\Rts.Core')
-if ($LASTEXITCODE -eq 0) {
-    Write-Host $unityEngineHits
+$unityEngineHits = Find-UnityEngineReferences -CorePath $corePath
+if ($unityEngineHits.Count -gt 0) {
+    $unityEngineHits | ForEach-Object { Write-Host $_ }
     throw 'Rts.Core must remain UnityEngine-free.'
 }
-if ($LASTEXITCODE -gt 1) {
-    throw "rg failed while checking UnityEngine references with exit code $LASTEXITCODE."
-}
+Write-Host 'Rts.Core UnityEngine reference check passed; no UnityEngine references found.'
 
 Write-Host 'Running git diff whitespace check.'
 git -C $repoRoot diff --check
