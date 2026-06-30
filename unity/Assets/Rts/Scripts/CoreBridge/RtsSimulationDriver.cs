@@ -6,6 +6,7 @@ using ProjectAegisRTS.Demo;
 using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Simulation;
 using ProjectAegisRTS.Snapshots;
+using ProjectAegisRTS.UnityClient.Feedback;
 using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.CoreBridge
@@ -19,6 +20,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         [SerializeField] bool useAiSkirmishDemoWorld;
         [SerializeField] bool useMapTerrainDemoWorld;
         [SerializeField] bool usePlayerPerspectiveSnapshot;
+        public FeedbackEventBus feedbackEventBus;
 
         readonly List<int> selectedActorIds = new List<int>();
         RtsWorld world;
@@ -116,6 +118,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             forceLowPower = false;
             tickAccumulator = 0f;
             RefreshSnapshot();
+            if (feedbackEventBus != null)
+                feedbackEventBus.ResetSnapshotTracking();
             return RtsCommandResult.Ok(useMapTerrainDemoWorld ? "Map terrain demo world reset." : (useAiSkirmishDemoWorld ? "AI skirmish demo world reset." : (useFogRadarDemoWorld ? "Fog/radar demo world reset." : (useEconomyDemoWorld ? "Economy demo world reset." : (useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset.")))));
         }
 
@@ -192,18 +196,24 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             if (!TryFindActorAtCell(cell, out actorId))
             {
                 selectedActorIds.Clear();
-                return RtsCommandResult.Ok("Selection cleared.");
+                var cleared = RtsCommandResult.Ok("Selection cleared.");
+                EmitCommandFeedback(FeedbackEventType.SelectionChanged, cleared, cell, 0, "Selection cleared");
+                return cleared;
             }
 
             selectedActorIds.Clear();
             selectedActorIds.Add(actorId);
-            return RtsCommandAdapter.SelectActors(world, playerId, selectedActorIds);
+            var result = RtsCommandAdapter.SelectActors(world, playerId, selectedActorIds);
+            EmitCommandFeedback(FeedbackEventType.SelectionChanged, result, cell, actorId, "Selection");
+            return result;
         }
 
         public RtsCommandResult ClearSelection()
         {
             selectedActorIds.Clear();
-            return RtsCommandResult.Ok("Selection cleared.");
+            var result = RtsCommandResult.Ok("Selection cleared.");
+            EmitCommandFeedback(FeedbackEventType.SelectionChanged, result, hasHoveredCell ? hoveredCell : Int2.Zero, 0, "Selection cleared");
+            return result;
         }
 
         public RtsCommandResult SetSelectedActorIds(IReadOnlyList<int> actorIds)
@@ -220,9 +230,15 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             }
 
             if (world == null)
-                return RtsCommandResult.Ok("Selected actors: " + SelectedActorIdsText() + ".");
+            {
+                var localResult = RtsCommandResult.Ok("Selected actors: " + SelectedActorIdsText() + ".");
+                EmitCommandFeedback(FeedbackEventType.SelectionChanged, localResult, Int2.Zero, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Selection");
+                return localResult;
+            }
 
-            return RtsCommandAdapter.SelectActors(world, playerId, selectedActorIds);
+            var result = RtsCommandAdapter.SelectActors(world, playerId, selectedActorIds);
+            EmitCommandFeedback(FeedbackEventType.SelectionChanged, result, Int2.Zero, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Selection");
+            return result;
         }
 
         public RtsCommandResult AddOrRemoveSelectedActor(int actorId)
@@ -237,15 +253,25 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 selectedActorIds.Add(actorId);
 
             if (world == null)
-                return RtsCommandResult.Ok("Selected actors: " + SelectedActorIdsText() + ".");
+            {
+                var localResult = RtsCommandResult.Ok("Selected actors: " + SelectedActorIdsText() + ".");
+                EmitCommandFeedback(FeedbackEventType.SelectionChanged, localResult, actor.CellPosition, actorId, "Selection");
+                return localResult;
+            }
 
-            return RtsCommandAdapter.SelectActors(world, playerId, selectedActorIds);
+            var result = RtsCommandAdapter.SelectActors(world, playerId, selectedActorIds);
+            EmitCommandFeedback(FeedbackEventType.SelectionChanged, result, actor.CellPosition, actorId, "Selection");
+            return result;
         }
 
         public RtsCommandResult TryIssueMoveSelectedToCell(Int2 cell)
         {
             if (selectedActorIds.Count == 0)
-                return RtsCommandResult.Fail("NoSelection", "Select a mobile unit before issuing a move command.");
+            {
+                var fail = RtsCommandResult.Fail("NoSelection", "Select a mobile unit before issuing a move command.");
+                EmitCommandFeedback(FeedbackEventType.MoveCommand, fail, cell, 0, "Move");
+                return fail;
+            }
 
             var mobileActorIds = new List<int>();
             for (var i = 0; i < selectedActorIds.Count; i++)
@@ -260,25 +286,46 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             }
 
             if (mobileActorIds.Count == 0)
-                return RtsCommandResult.Fail("NoMobileSelection", "The current selection has no mobile units.");
+            {
+                var fail = RtsCommandResult.Fail("NoMobileSelection", "The current selection has no mobile units.");
+                EmitCommandFeedback(FeedbackEventType.MoveCommand, fail, cell, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Move");
+                return fail;
+            }
 
             var result = RtsCommandAdapter.IssueMoveOrder(world, playerId, mobileActorIds, cell);
             RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.MoveCommand, result, cell, mobileActorIds.Count > 0 ? mobileActorIds[0] : 0, "Move");
             return result;
         }
 
         public RtsCommandResult TryIssueAttackSelectedToActor(int targetActorId)
         {
             if (world == null)
-                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, Int2.Zero, 0, "Attack");
+                return fail;
+            }
             if (selectedActorIds.Count == 0)
-                return RtsCommandResult.Fail("NoSelection", "Select an armed actor before issuing an attack command.");
+            {
+                var fail = RtsCommandResult.Fail("NoSelection", "Select an armed actor before issuing an attack command.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, Int2.Zero, 0, "Attack");
+                return fail;
+            }
 
             ActorSnapshot target;
             if (!TryGetActorSnapshot(targetActorId, out target))
-                return RtsCommandResult.Fail("TargetMissing", "No target actor exists for the attack command.");
+            {
+                var fail = RtsCommandResult.Fail("TargetMissing", "No target actor exists for the attack command.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, Int2.Zero, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Attack");
+                return fail;
+            }
             if (target.OwnerId == playerId)
-                return RtsCommandResult.Fail("TargetFriendly", "Select an enemy actor as the attack target.");
+            {
+                var fail = RtsCommandResult.Fail("TargetFriendly", "Select an enemy actor as the attack target.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, target.CellPosition, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Attack");
+                return fail;
+            }
 
             var armedActorIds = new List<int>();
             for (var i = 0; i < selectedActorIds.Count; i++)
@@ -292,10 +339,15 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             }
 
             if (armedActorIds.Count == 0)
-                return RtsCommandResult.Fail("NoArmedSelection", "The current selection has no armed actors.");
+            {
+                var fail = RtsCommandResult.Fail("NoArmedSelection", "The current selection has no armed actors.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, target.CellPosition, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Attack");
+                return fail;
+            }
 
             var result = RtsCommandAdapter.IssueAttackOrder(world, playerId, armedActorIds, targetActorId);
             RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Attack, result, target.CellPosition, armedActorIds.Count > 0 ? armedActorIds[0] : 0, "Attack");
             return result;
         }
 
@@ -303,7 +355,11 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         {
             int targetActorId;
             if (!TryFindTargetActorAtCell(cell, out targetActorId))
-                return RtsCommandResult.Fail("NoAttackTarget", "No enemy actor is present at " + cell + ".");
+            {
+                var fail = RtsCommandResult.Fail("NoAttackTarget", "No enemy actor is present at " + cell + ".");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, cell, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Attack");
+                return fail;
+            }
 
             return TryIssueAttackSelectedToActor(targetActorId);
         }
@@ -311,19 +367,32 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public RtsCommandResult TryIssueForceAttackSelectedAtCell(Int2 cell)
         {
             if (selectedActorIds.Count == 0)
-                return RtsCommandResult.Fail("NoSelection", "Select an actor before issuing force-attack.");
+            {
+                var fail = RtsCommandResult.Fail("NoSelection", "Select an actor before issuing force-attack.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, cell, 0, "Force attack");
+                return fail;
+            }
 
             var result = RtsCommandAdapter.IssueForceAttackCell(world, playerId, selectedActorIds, cell);
             RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Attack, result, cell, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Force attack");
             return result;
         }
 
         public RtsCommandResult TryIssueHarvestSelectedAtCell(Int2 cell)
         {
             if (world == null)
-                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.Harvest, fail, cell, 0, "Harvest");
+                return fail;
+            }
             if (selectedActorIds.Count == 0)
-                return RtsCommandResult.Fail("NoSelection", "Select a harvester before issuing a harvest command.");
+            {
+                var fail = RtsCommandResult.Fail("NoSelection", "Select a harvester before issuing a harvest command.");
+                EmitCommandFeedback(FeedbackEventType.Harvest, fail, cell, 0, "Harvest");
+                return fail;
+            }
 
             var harvesterActorIds = new List<int>();
             for (var i = 0; i < selectedActorIds.Count; i++)
@@ -334,19 +403,32 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             }
 
             if (harvesterActorIds.Count == 0)
-                return RtsCommandResult.Fail("NoHarvesterSelection", "The current selection has no harvesters.");
+            {
+                var fail = RtsCommandResult.Fail("NoHarvesterSelection", "The current selection has no harvesters.");
+                EmitCommandFeedback(FeedbackEventType.Harvest, fail, cell, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Harvest");
+                return fail;
+            }
 
             var result = RtsCommandAdapter.IssueHarvestOrder(world, playerId, harvesterActorIds, cell);
             RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Harvest, result, cell, harvesterActorIds.Count > 0 ? harvesterActorIds[0] : 0, "Harvest");
             return result;
         }
 
         public RtsCommandResult TryReturnSelectedHarvesters()
         {
             if (world == null)
-                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.Unload, fail, Int2.Zero, 0, "Return to refinery");
+                return fail;
+            }
             if (selectedActorIds.Count == 0)
-                return RtsCommandResult.Fail("NoSelection", "Select a harvester before returning to refinery.");
+            {
+                var fail = RtsCommandResult.Fail("NoSelection", "Select a harvester before returning to refinery.");
+                EmitCommandFeedback(FeedbackEventType.Unload, fail, Int2.Zero, 0, "Return to refinery");
+                return fail;
+            }
 
             var harvesterActorIds = new List<int>();
             for (var i = 0; i < selectedActorIds.Count; i++)
@@ -357,10 +439,15 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             }
 
             if (harvesterActorIds.Count == 0)
-                return RtsCommandResult.Fail("NoHarvesterSelection", "The current selection has no harvesters.");
+            {
+                var fail = RtsCommandResult.Fail("NoHarvesterSelection", "The current selection has no harvesters.");
+                EmitCommandFeedback(FeedbackEventType.Unload, fail, Int2.Zero, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Return to refinery");
+                return fail;
+            }
 
             var result = RtsCommandAdapter.ReturnToRefinery(world, playerId, harvesterActorIds);
             RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Unload, result, Int2.Zero, harvesterActorIds.Count > 0 ? harvesterActorIds[0] : 0, "Return to refinery");
             return result;
         }
 
@@ -372,28 +459,47 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public RtsCommandResult TryQueueProduction(string typeId)
         {
             if (world == null)
-                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.ProductionStarted, fail, Int2.Zero, 0, "Production");
+                return fail;
+            }
 
             ActorDefinition targetDefinition;
             if (!Rules.TryGetDefinition(typeId, out targetDefinition))
-                return RtsCommandResult.Fail("UnknownActorType", "Unknown production type: " + typeId);
+            {
+                var fail = RtsCommandResult.Fail("UnknownActorType", "Unknown production type: " + typeId);
+                EmitCommandFeedback(FeedbackEventType.ProductionStarted, fail, Int2.Zero, 0, "Production");
+                return fail;
+            }
 
             if (targetDefinition is BuildingDefinition && HasCompletedPendingPlacement(typeId))
             {
                 pendingPlacementTypeId = typeId;
-                return RtsCommandResult.Ok("Placement mode entered for " + typeId + ".");
+                var placementResult = RtsCommandResult.Ok("Placement mode entered for " + typeId + ".");
+                EmitCommandFeedback(FeedbackEventType.ProductionCompleted, placementResult, Int2.Zero, 0, "Placement mode");
+                return placementResult;
             }
 
             var factoryTypeId = targetDefinition.Production.FactoryTypeId;
             if (string.IsNullOrEmpty(factoryTypeId))
-                return RtsCommandResult.Fail("NoFactory", typeId + " is not buildable in the Stage 0 rules.");
+            {
+                var fail = RtsCommandResult.Fail("NoFactory", typeId + " is not buildable in the Stage 0 rules.");
+                EmitCommandFeedback(FeedbackEventType.ProductionStarted, fail, Int2.Zero, 0, "Production");
+                return fail;
+            }
 
             int producerActorId;
             if (!TryFindOwnedActorOfType(factoryTypeId, out producerActorId))
-                return RtsCommandResult.Fail("ProducerMissing", "Build " + factoryTypeId + " before producing " + typeId + ".");
+            {
+                var fail = RtsCommandResult.Fail("ProducerMissing", "Build " + factoryTypeId + " before producing " + typeId + ".");
+                EmitCommandFeedback(FeedbackEventType.ProductionStarted, fail, Int2.Zero, 0, "Production");
+                return fail;
+            }
 
             var result = RtsCommandAdapter.BeginProduction(world, playerId, producerActorId, typeId);
             RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.ProductionStarted, result, Int2.Zero, producerActorId, "Production");
             return result;
         }
 
@@ -422,7 +528,11 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public RtsCommandResult TryPlacePendingBuildingAtCell(Int2 cell)
         {
             if (!HasPlacementMode)
-                return RtsCommandResult.Fail("PlacementInactive", "No pending building placement is active.");
+            {
+                var fail = RtsCommandResult.Fail("PlacementInactive", "No pending building placement is active.");
+                EmitCommandFeedback(FeedbackEventType.BuildingPlaced, fail, cell, 0, "Building placement");
+                return fail;
+            }
 
             var typeId = pendingPlacementTypeId;
             var result = RtsCommandAdapter.PlaceBuilding(world, playerId, typeId, cell);
@@ -430,6 +540,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 pendingPlacementTypeId = string.Empty;
 
             RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.BuildingPlaced, result, cell, 0, "Building placement");
             return result;
         }
 
@@ -485,12 +596,18 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public RtsCommandResult TryForceLowPowerOrCreateLowPowerDemoCondition()
         {
             if (world == null)
-                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.LowPower, fail, Int2.Zero, 0, "Low power");
+                return fail;
+            }
 
             forceLowPower = !forceLowPower;
             world.ForcePlayerPowerState(playerId, forceLowPower ? PlayerPowerState.LowPower : (PlayerPowerState?)null);
             RefreshSnapshot();
-            return RtsCommandResult.Ok(forceLowPower ? "Forced low-power demo state." : "Returned power state to simulation rules.");
+            var result = RtsCommandResult.Ok(forceLowPower ? "Forced low-power demo state." : "Returned power state to simulation rules.");
+            EmitCommandFeedback(FeedbackEventType.LowPower, result, Int2.Zero, 0, "Low power");
+            return result;
         }
 
         public bool TryGetPlacementPreview(out PlacementPreviewSnapshot preview)
@@ -563,6 +680,12 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         void RefreshSnapshot()
         {
             latestSnapshot = world == null ? null : (usePlayerPerspectiveSnapshot ? world.CreateSnapshot(playerId) : world.CreateSnapshot());
+        }
+
+        void EmitCommandFeedback(FeedbackEventType eventType, RtsCommandResult result, Int2 cell, int sourceActorId, string label)
+        {
+            if (feedbackEventBus != null)
+                feedbackEventBus.EmitCommandFeedback(eventType, result, cell, sourceActorId, label);
         }
 
         bool TryFindActorAtCell(Int2 cell, out int actorId)

@@ -78,6 +78,12 @@ Stage 13 moves terrain kind, movement class, passability, movement cost, map val
 
 Unity reads `MapSnapshot` and `PathDebugSnapshot` for terrain overlays, path debug lines, map validation HUDs, and authoring placeholders. Unity does not mutate authoritative terrain, pathfinding, actor positions, occupancy, resource amounts, or movement costs.
 
+## Stage 14 Feedback Boundary
+
+Stage 14 adds a Unity-only feedback event layer. `FeedbackEventBus` converts existing deterministic snapshots and already-computed command results into presentation events for selection, move, invalid command, production, building placement, low power, harvest, unload, attack, impact, damage, death/destruction, and radar changes.
+
+Feedback profiles, silent audio cues, primitive VFX markers, UI messages, and haptic placeholders are presentation-only. They do not mutate `Rts.Core`, do not introduce final audio/VFX assets, and do not become authoritative gameplay state.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

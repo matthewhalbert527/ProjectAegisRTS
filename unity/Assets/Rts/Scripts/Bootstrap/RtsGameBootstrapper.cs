@@ -1,6 +1,7 @@
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.CameraControls;
 using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.Feedback;
 using ProjectAegisRTS.UnityClient.InputControls;
 using ProjectAegisRTS.UnityClient.Rendering;
 using ProjectAegisRTS.UnityClient.Rendering.Ai;
@@ -44,6 +45,13 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public TerrainDebugRenderer terrainDebugRenderer;
         public PathDebugRenderer pathDebugRenderer;
         public MapAuthoringOverlay mapAuthoringOverlay;
+        public FeedbackProfileLibrary feedbackProfileLibrary;
+        public FeedbackEventBus feedbackEventBus;
+        public AudioFeedbackController audioFeedbackController;
+        public VfxFeedbackController vfxFeedbackController;
+        public UiFeedbackController uiFeedbackController;
+        public HapticFeedbackAdapter hapticFeedbackAdapter;
+        public FeedbackDebugHud feedbackDebugHud;
         public RtsSimulationDriver simulationDriver;
         public RtsDesktopInputController inputController;
         public RtsDebugHud debugHud;
@@ -75,6 +83,8 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public void InitializeScene()
         {
             EnsureReferences();
+            if (feedbackEventBus != null)
+                simulationDriver.feedbackEventBus = feedbackEventBus;
             simulationDriver.Initialize(ticksPerSecond, startPaused);
             coordinateMapper.Configure(boardWidth, boardHeight, boardCellSizeMeters, boardRoot);
             boardRenderer.Initialize(coordinateMapper);
@@ -111,6 +121,27 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 pathDebugRenderer.Initialize(simulationDriver, coordinateMapper);
             if (mapAuthoringOverlay != null)
                 mapAuthoringOverlay.Initialize(simulationDriver, coordinateMapper);
+            if (feedbackProfileLibrary != null)
+                feedbackProfileLibrary.EnsureInitialized();
+            if (feedbackEventBus != null)
+                feedbackEventBus.Initialize(simulationDriver, coordinateMapper);
+            if (audioFeedbackController != null)
+                audioFeedbackController.Initialize(feedbackEventBus, feedbackProfileLibrary);
+            if (vfxFeedbackController != null)
+                vfxFeedbackController.Initialize(feedbackEventBus, feedbackProfileLibrary);
+            if (uiFeedbackController != null)
+                uiFeedbackController.Initialize(feedbackEventBus);
+            if (hapticFeedbackAdapter != null)
+                hapticFeedbackAdapter.Initialize(feedbackEventBus, feedbackProfileLibrary);
+            if (feedbackDebugHud != null)
+            {
+                feedbackDebugHud.eventBus = feedbackEventBus;
+                feedbackDebugHud.profileLibrary = feedbackProfileLibrary;
+                feedbackDebugHud.audioController = audioFeedbackController;
+                feedbackDebugHud.vfxController = vfxFeedbackController;
+                feedbackDebugHud.uiController = uiFeedbackController;
+                feedbackDebugHud.hapticAdapter = hapticFeedbackAdapter;
+            }
             inputController.Initialize(sceneCamera, coordinateMapper, simulationDriver, debugHud);
             debugHud.Initialize(simulationDriver);
             cameraController.Configure(coordinateMapper);

@@ -152,6 +152,8 @@ Run Stage 13 checks:
 
 Use `run-stage13-fast-checks.ps1` for current map/pathing iteration, `run-stage13-medium-checks.ps1` before local commits, and `run-stage13-checks.ps1` as the slow full Stage 0-through-Stage 13 acceptance gate.
 
+Use `run-stage14-fast-checks.ps1` for current feedback iteration, `run-stage14-medium-checks.ps1` before local commits, and `run-stage14-checks.ps1` as the full Stage 0-through-Stage 14 acceptance gate.
+
 Open the Unity project:
 
 ```powershell
@@ -173,6 +175,7 @@ Scene paths:
 - `Assets/Rts/Scenes/Stage11_FogRadarMinimap.unity`: Stage 11 fog/radar/minimap scene with player-perspective snapshots, fog overlay, radar status, minimap dots, and F7 debug HUD.
 - `Assets/Rts/Scenes/Stage12_AISkirmishFoundation.unity`: Stage 12 AI skirmish scene with deterministic AI intents, command generation, plan timeline, and F6 debug HUD.
 - `Assets/Rts/Scenes/Stage13_MapTerrainPathing.unity`: Stage 13 map terrain pathing scene with deterministic terrain metadata, path diagnostics, map validation, and F5 debug HUD.
+- `Assets/Rts/Scenes/Stage14_FeedbackPolish.unity`: Stage 14 feedback scene with snapshot-driven placeholder audio/VFX/UI/haptic events and F4 debug HUD.
 
 Stage 8 art assets:
 
@@ -212,3 +215,10 @@ Stage 13 map/pathing assets:
 - Map render scripts: `unity/Assets/Rts/Scripts/Rendering/Map/`
 - Map terrain/pathing design notes: `docs/STAGE13_MAP_TERRAIN_PATHING_DESIGN.md`
 - Stage report: `docs/STAGE13_REPORT.md`
+
+Stage 14 feedback assets:
+
+- Feedback scripts: `unity/Assets/Rts/Scripts/Feedback/`
+- Feedback profiles: `unity/Assets/Rts/ScriptableObjects/Feedback/`
+- Feedback design notes: `docs/STAGE14_FEEDBACK_DESIGN.md`
+- Stage report: `docs/STAGE14_REPORT.md`

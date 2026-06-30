@@ -62,4 +62,4 @@ Complete. Map, terrain, pathing tools, and polish foundation. Adds deterministic
 
 ## Later Stages
 
-Feedback foundation, performance/build readiness, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.
+Stage 14 adds the Unity-side placeholder feedback foundation for audio, VFX, UI, and haptic event cues. Next later stages include performance/build readiness, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.
