@@ -48,18 +48,24 @@ Stage 8 adds Unity-only art replacement data. `ActorVisualDefinitionLibrary` map
 
 Prefab descriptors and sockets define presentation attachment points for turrets, barrels, weapons, doors, production exits, lights, VFX, aircraft rotors, wheels, tracks, and UI anchors. They do not change deterministic actor definitions, footprints, production rules, movement, power, combat, or health in `Rts.Core`.
 
+## Stage 9 Combat Boundary
+
+Stage 9 moves attack orders, weapon cooldowns, projectile movement, damage, death, destruction flags, and combat events into `Rts.Core`. The core exposes that state through expanded actor snapshots, projectile snapshots, and bounded combat event snapshots.
+
+Unity submits attack commands and renders placeholder projectiles, muzzle flashes, impact markers, damage markers, death markers, and the combat debug HUD. Unity does not own target validation, cooldown timers, projectile position, hit application, health, death, or destruction state.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:
 
-- Client submits commands such as `BeginProductionCommand`, `PlaceBuildingCommand`, and `IssueMoveOrderCommand`.
+- Client submits commands such as `BeginProductionCommand`, `PlaceBuildingCommand`, `IssueMoveOrderCommand`, and `IssueAttackOrderCommand`.
 - Core validates commands and returns `CommandResult`.
 - Core advances in fixed ticks.
-- Client reads `WorldSnapshot`, `ActorSnapshot`, `ProductionSnapshot`, `PowerSnapshot`, and `PlacementPreviewSnapshot`.
+- Client reads `WorldSnapshot`, `ActorSnapshot`, `ProductionSnapshot`, `PowerSnapshot`, `PlacementPreviewSnapshot`, `ProjectileSnapshot`, and `CombatEventSnapshot`.
 
 ## Deterministic Tick Loop
 
-The current loop updates power, advances production, advances movement, and refreshes actor flags. State uses integers and fixed cell-scaled positions. The smoke test compares deterministic summaries after replaying the same command sequence twice.
+The current loop updates power, advances production, advances movement, advances combat/projectiles, and refreshes actor flags. State uses integers and fixed cell-scaled positions. The smoke test compares deterministic summaries after replaying the same command sequence twice.
 
 ## OpenRA Reference Boundary
 

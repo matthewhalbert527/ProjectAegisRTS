@@ -42,7 +42,7 @@ Complete. Validation tier tooling and hardening. Adds fast, medium, and full Sta
 
 ## Stage 9
 
-Combat, weapons, projectiles, damage, death, and destruction presentation.
+Complete. Combat, weapons, projectiles, damage, death, and destruction presentation. Adds deterministic attack orders, weapon cooldowns, projectile simulation, damage/death state, combat snapshots/events, `Assets/Rts/Scenes/Stage9_CombatWeaponsDamage.unity`, placeholder projectile/muzzle/impact/damage/death presentation, F12 combat debug HUD, and fast/medium/full Stage 9 validation tiers.
 
 ## Later Stages
 

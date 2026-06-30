@@ -49,6 +49,20 @@ namespace ProjectAegisRTS.Commands
         }
     }
 
+    public sealed class IssueForceAttackCellCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public IReadOnlyList<ActorId> ActorIds { get; private set; }
+        public Int2 TargetCell { get; private set; }
+
+        public IssueForceAttackCellCommand(int playerId, IReadOnlyList<ActorId> actorIds, Int2 targetCell)
+        {
+            PlayerId = playerId;
+            ActorIds = actorIds;
+            TargetCell = targetCell;
+        }
+    }
+
     public sealed class BeginProductionCommand : ISimCommand
     {
         public int PlayerId { get; private set; }

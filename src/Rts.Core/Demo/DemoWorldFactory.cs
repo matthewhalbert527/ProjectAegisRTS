@@ -14,5 +14,25 @@ namespace ProjectAegisRTS.Demo
             world.CreateActor("scout_rover", 1, new Int2(10, 4));
             return world;
         }
+
+        public static RtsWorld CreateCombatDemoWorld()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var world = new RtsWorld(rules, new GridMap(32, 32));
+            world.AddPlayer(1, "Aegis Combat Player", 5000);
+            world.AddPlayer(2, "Enemy Test Player", 5000);
+
+            world.CreateActor("fabrication_hub", 1, new Int2(3, 3));
+            world.CreateActor("light_tank", 1, new Int2(8, 8));
+            world.CreateActor("rifle_infantry", 1, new Int2(7, 9));
+            world.CreateActor("gun_tower", 1, new Int2(10, 10));
+
+            world.CreateActor("medium_tank", 2, new Int2(12, 8));
+            world.CreateActor("rifle_infantry", 2, new Int2(13, 9));
+            world.CreateActor("gun_tower", 2, new Int2(15, 10));
+            world.CreateActor("power_plant", 2, new Int2(18, 10));
+
+            return world;
+        }
     }
 }

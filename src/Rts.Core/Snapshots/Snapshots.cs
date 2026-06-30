@@ -9,12 +9,21 @@ namespace ProjectAegisRTS.Snapshots
         public int Tick { get; private set; }
         public IReadOnlyList<PlayerSnapshot> Players { get; private set; }
         public IReadOnlyList<ActorSnapshot> Actors { get; private set; }
+        public IReadOnlyList<ProjectileSnapshot> Projectiles { get; private set; }
+        public IReadOnlyList<CombatEventSnapshot> CombatEvents { get; private set; }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors)
+            : this(tick, players, actors, new ProjectileSnapshot[0], new CombatEventSnapshot[0])
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents)
         {
             Tick = tick;
             Players = players;
             Actors = actors;
+            Projectiles = projectiles;
+            CombatEvents = combatEvents;
         }
     }
 
@@ -58,6 +67,18 @@ namespace ProjectAegisRTS.Snapshots
         public int NormalizedSpeed { get; private set; }
         public int TurnRateDegrees { get; private set; }
         public string MovementPhase { get; private set; }
+        public int MaxHealth { get; private set; }
+        public bool IsAlive { get; private set; }
+        public bool IsDying { get; private set; }
+        public bool IsDestroyed { get; private set; }
+        public int LastDamageTick { get; private set; }
+        public int DeathTick { get; private set; }
+        public int DestroyedByActorId { get; private set; }
+        public string ActiveWeaponId { get; private set; }
+        public int WeaponCooldownRemaining { get; private set; }
+        public bool IsAttacking { get; private set; }
+        public int AttackTargetActorId { get; private set; }
+        public Int2 AttackTargetCell { get; private set; }
 
         public ActorSnapshot(
             int actorId,
@@ -80,6 +101,75 @@ namespace ProjectAegisRTS.Snapshots
             int normalizedSpeed,
             int turnRateDegrees,
             string movementPhase)
+            : this(
+                actorId,
+                typeId,
+                ownerId,
+                cellPosition,
+                fixedWorldPosition,
+                facingDegrees,
+                health,
+                health,
+                isSelected,
+                isPowered,
+                isLowPower,
+                lightsActive,
+                machineryActive,
+                isProducing,
+                productionProgress,
+                animationStateId,
+                visualMotionProfileId,
+                desiredSpeed,
+                normalizedSpeed,
+                turnRateDegrees,
+                movementPhase,
+                health > 0,
+                false,
+                false,
+                -1,
+                -1,
+                0,
+                string.Empty,
+                0,
+                false,
+                0,
+                cellPosition)
+        {
+        }
+
+        public ActorSnapshot(
+            int actorId,
+            string typeId,
+            int ownerId,
+            Int2 cellPosition,
+            Int2 fixedWorldPosition,
+            int facingDegrees,
+            int health,
+            int maxHealth,
+            bool isSelected,
+            bool isPowered,
+            bool isLowPower,
+            bool lightsActive,
+            bool machineryActive,
+            bool isProducing,
+            int productionProgress,
+            string animationStateId,
+            string visualMotionProfileId,
+            int desiredSpeed,
+            int normalizedSpeed,
+            int turnRateDegrees,
+            string movementPhase,
+            bool isAlive,
+            bool isDying,
+            bool isDestroyed,
+            int lastDamageTick,
+            int deathTick,
+            int destroyedByActorId,
+            string activeWeaponId,
+            int weaponCooldownRemaining,
+            bool isAttacking,
+            int attackTargetActorId,
+            Int2 attackTargetCell)
         {
             ActorId = actorId;
             TypeId = typeId;
@@ -101,6 +191,95 @@ namespace ProjectAegisRTS.Snapshots
             NormalizedSpeed = normalizedSpeed;
             TurnRateDegrees = turnRateDegrees;
             MovementPhase = movementPhase;
+            MaxHealth = maxHealth;
+            IsAlive = isAlive;
+            IsDying = isDying;
+            IsDestroyed = isDestroyed;
+            LastDamageTick = lastDamageTick;
+            DeathTick = deathTick;
+            DestroyedByActorId = destroyedByActorId;
+            ActiveWeaponId = activeWeaponId;
+            WeaponCooldownRemaining = weaponCooldownRemaining;
+            IsAttacking = isAttacking;
+            AttackTargetActorId = attackTargetActorId;
+            AttackTargetCell = attackTargetCell;
+        }
+    }
+
+    public sealed class ProjectileSnapshot
+    {
+        public int ProjectileId { get; private set; }
+        public int OwnerPlayerId { get; private set; }
+        public int SourceActorId { get; private set; }
+        public int TargetActorId { get; private set; }
+        public string WeaponId { get; private set; }
+        public string ProjectileKind { get; private set; }
+        public Int2 CurrentPositionFixed { get; private set; }
+        public Int2 TargetPositionFixed { get; private set; }
+        public Int2 TargetCell { get; private set; }
+        public int SpeedSubCellsPerTick { get; private set; }
+        public int Damage { get; private set; }
+        public bool HasImpacted { get; private set; }
+        public int ImpactTick { get; private set; }
+
+        public ProjectileSnapshot(
+            int projectileId,
+            int ownerPlayerId,
+            int sourceActorId,
+            int targetActorId,
+            string weaponId,
+            string projectileKind,
+            Int2 currentPositionFixed,
+            Int2 targetPositionFixed,
+            Int2 targetCell,
+            int speedSubCellsPerTick,
+            int damage,
+            bool hasImpacted,
+            int impactTick)
+        {
+            ProjectileId = projectileId;
+            OwnerPlayerId = ownerPlayerId;
+            SourceActorId = sourceActorId;
+            TargetActorId = targetActorId;
+            WeaponId = weaponId;
+            ProjectileKind = projectileKind;
+            CurrentPositionFixed = currentPositionFixed;
+            TargetPositionFixed = targetPositionFixed;
+            TargetCell = targetCell;
+            SpeedSubCellsPerTick = speedSubCellsPerTick;
+            Damage = damage;
+            HasImpacted = hasImpacted;
+            ImpactTick = impactTick;
+        }
+    }
+
+    public sealed class CombatEventSnapshot
+    {
+        public int EventId { get; private set; }
+        public int Tick { get; private set; }
+        public string EventType { get; private set; }
+        public int SourceActorId { get; private set; }
+        public int TargetActorId { get; private set; }
+        public int ProjectileId { get; private set; }
+        public string WeaponId { get; private set; }
+        public int Damage { get; private set; }
+        public int TargetHealth { get; private set; }
+        public Int2 Cell { get; private set; }
+        public Int2 FixedWorldPosition { get; private set; }
+
+        public CombatEventSnapshot(int eventId, int tick, string eventType, int sourceActorId, int targetActorId, int projectileId, string weaponId, int damage, int targetHealth, Int2 cell, Int2 fixedWorldPosition)
+        {
+            EventId = eventId;
+            Tick = tick;
+            EventType = eventType;
+            SourceActorId = sourceActorId;
+            TargetActorId = targetActorId;
+            ProjectileId = projectileId;
+            WeaponId = weaponId;
+            Damage = damage;
+            TargetHealth = targetHealth;
+            Cell = cell;
+            FixedWorldPosition = fixedWorldPosition;
         }
     }
 

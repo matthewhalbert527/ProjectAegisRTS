@@ -53,6 +53,16 @@ namespace ProjectAegisRTS.Actors
         public int NormalizedSpeed { get; set; }
         public string MovementPhase { get; set; }
         public Int2 RallyPoint { get; set; }
+        public int AttackTargetActorId { get; set; }
+        public Int2 AttackTargetCell { get; set; }
+        public int WeaponCooldownRemaining { get; set; }
+        public bool IsAttacking { get; set; }
+        public int LastDamageTick { get; set; }
+        public bool IsDying { get; set; }
+        public bool IsDestroyed { get; set; }
+        public int DeathTick { get; set; }
+        public int DestroyedByActorId { get; set; }
+        public string ActiveWeaponId { get; set; }
 
         public ActorState(ActorId id, int ownerPlayerId, string typeId, Int2 cellPosition, int health)
         {
@@ -78,6 +88,16 @@ namespace ProjectAegisRTS.Actors
             NormalizedSpeed = 0;
             MovementPhase = "idle";
             RallyPoint = cellPosition;
+            AttackTargetActorId = 0;
+            AttackTargetCell = cellPosition;
+            WeaponCooldownRemaining = 0;
+            IsAttacking = false;
+            LastDamageTick = -1;
+            IsDying = false;
+            IsDestroyed = false;
+            DeathTick = -1;
+            DestroyedByActorId = 0;
+            ActiveWeaponId = string.Empty;
         }
     }
 }

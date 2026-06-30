@@ -1,6 +1,6 @@
 # Rts Unity Assets
 
-Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface. Stage 6 adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` for visual-only movement profiles, controllers, path preview, and debug HUD. Stage 7 adds `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity` for visual-only building animation, power, production, and damage-state presentation. Stage 8 adds `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity` for concept references, actor visual definitions, generated blockout prefabs, sockets, icons, validation, and resolver integration.
+Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface. Stage 6 adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` for visual-only movement profiles, controllers, path preview, and debug HUD. Stage 7 adds `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity` for visual-only building animation, power, production, and damage-state presentation. Stage 8 adds `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity` for concept references, actor visual definitions, generated blockout prefabs, sockets, icons, validation, and resolver integration. Stage 9 adds `Assets/Rts/Scenes/Stage9_CombatWeaponsDamage.unity` for deterministic combat presentation, projectile visuals, combat events, and damage/death placeholders.
 
 ## Folder Roles
 
@@ -8,9 +8,9 @@ Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and sub
 - `Scripts/Board`: Stage 3 board transform model and placement controller.
 - `Scripts/CoreBridge`: Unity-to-core adapters, command helpers, and board coordinate mapping.
 - `Scripts/Input`: desktop mouse/keyboard input plus XR-safe placement, left-hand, and right-hand adapters/placeholders.
-- `Scripts/Rendering`: board, actor, selection, low-power, production, interpolation, movement profile, vehicle, infantry, aircraft, turret, path-preview, and building animation visuals.
+- `Scripts/Rendering`: board, actor, selection, low-power, production, interpolation, movement profile, vehicle, infantry, aircraft, turret, path-preview, building animation, and combat visuals.
 - `Scripts/Art`: Stage 8 actor visual definitions, concept references, prefab descriptors, sockets, resolver, and showcase components.
-- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, Stage 5 right-hand command UI, Stage 6 movement debug HUD, Stage 7 building animation debug HUD, and Stage 8 art pipeline debug HUD.
+- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, Stage 5 right-hand command UI, Stage 6 movement debug HUD, Stage 7 building animation debug HUD, Stage 8 art pipeline debug HUD, and Stage 9 combat debug HUD.
 - `Scripts/Camera`: desktop camera controls.
 - `Scripts/Utilities`: generated runtime materials.
 - `Editor`: scene generator menu item and batchmode entry point.
@@ -18,13 +18,15 @@ Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and sub
 
 ## Simulation Boundary
 
-Unity does not own gameplay state. It smooths visual transforms between snapshots, but actor position, power state, production state, placement validation, and move orders come from `Rts.Core`.
+Unity does not own gameplay state. It smooths visual transforms between snapshots, but actor position, power state, production state, placement validation, move orders, attack orders, projectiles, damage, and death/destruction state come from `Rts.Core`.
 
 The actor view layer tracks previous and target snapshot positions, facing, normalized speed, visual motion profile id, and actor category. Stage 6 consumes those values through visual-only controllers for acceleration/braking presentation, turning arcs, tracks/wheels, suspension, turret lag, infantry locomotion placeholders, aircraft banking, and path previews without faking gameplay movement.
 
 Stage 7 consumes building snapshot values through visual-only controllers for lights, machinery, production indicators, doors, damage placeholders, and type-specific loops. It does not write power, production, health, or animation presentation state back into `Rts.Core`.
 
 Stage 8 consumes actor type IDs through Unity-only visual definition assets. It can replace generated primitives with blockout or production prefabs through `ActorVisualPrefabResolver`, but it never writes prefab, socket, icon, or concept state back into `Rts.Core`.
+
+Stage 9 consumes combat snapshot and event data through Unity-only render systems for projectiles, muzzle flashes, impact markers, damage markers, death markers, and debug HUD readouts. It never writes health, projectile, cooldown, death, or target state back into `Rts.Core`.
 
 ## Validation Tiers
 
@@ -33,6 +35,9 @@ Stage 8.1 adds tiered validation commands from the repository root:
 - `tools/run-stage8-fast-checks.ps1`: current Stage 8 art pipeline iteration only.
 - `tools/run-stage8-medium-checks.ps1`: core tests, Unity DLL build, direct Stage 7 Unity validation, and Stage 8 validation before local commits.
 - `tools/run-stage8-checks.ps1`: slow full acceptance gate from Stage 0 through Stage 8.
+- `tools/run-stage9-fast-checks.ps1`: current Stage 9 combat iteration only.
+- `tools/run-stage9-medium-checks.ps1`: core tests, Unity DLL build, Stage 8 immediate dependency validation, and Stage 9 validation before local commits.
+- `tools/run-stage9-checks.ps1`: slow full acceptance gate from Stage 0 through Stage 9.
 
 The fast and medium tiers do not weaken acceptance coverage; they make day-to-day Unity asset and tooling edits cheaper to validate.
 
@@ -147,3 +152,15 @@ The fast and medium tiers do not weaken acceptance coverage; they make day-to-da
 - `Editor/Stage8PrefabSocketValidator.cs`: validates definitions, prefabs, sockets, icons, and IP flags.
 - `Editor/Stage8SceneCreator.cs`: creates `Stage8_ArtPipelineShowcase.unity`.
 - `Editor/Stage8SceneValidator.cs` and `Stage8PlayModeSmokeValidator.cs`: validate scene structure and runtime-equivalent art pipeline behavior.
+
+## Stage 9 Combat Weapons Damage
+
+- `Scripts/Rendering/Combat/CombatVisualProfile.cs`: ScriptableObject tuning data for placeholder projectile, muzzle, impact, damage, and death visuals.
+- `Scripts/Rendering/Combat/CombatVisualProfileLibrary.cs`: combat profile lookup by weapon/projectile/impact visual id.
+- `Scripts/Rendering/Combat/ProjectileRenderSystem.cs`: renders deterministic `ProjectileSnapshot` data as Unity-only placeholder visuals.
+- `Scripts/Rendering/Combat/CombatEventRenderSystem.cs`: consumes bounded combat events for muzzle, impact, damage, and death presentation.
+- `Scripts/Rendering/Combat/MuzzleFlashVisualController.cs`, `ImpactVisualController.cs`, `DamageVisualController.cs`, and `DeathVisualController.cs`: short-lived placeholder VFX controllers.
+- `Scripts/UI/Common/CombatDebugHud.cs`: F12 debug HUD and combat demo controls.
+- `Editor/Stage9CombatProfileAssetCreator.cs`: creates default combat visual profile assets.
+- `Editor/Stage9SceneCreator.cs`: creates `Stage9_CombatWeaponsDamage.unity`.
+- `Editor/Stage9SceneValidator.cs` and `Stage9PlayModeSmokeValidator.cs`: validate scene structure and runtime combat behavior.

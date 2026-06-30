@@ -13,6 +13,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
     public sealed class RtsSimulationDriver : MonoBehaviour
     {
         [SerializeField] int playerId = 1;
+        [SerializeField] bool useCombatDemoWorld;
 
         readonly List<int> selectedActorIds = new List<int>();
         RtsWorld world;
@@ -33,6 +34,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public bool HasPlacementMode { get { return !string.IsNullOrEmpty(pendingPlacementTypeId); } }
         public string PendingPlacementTypeId { get { return pendingPlacementTypeId; } }
         public int PlayerId { get { return playerId; } }
+        public bool UseCombatDemoWorld { get { return useCombatDemoWorld; } set { useCombatDemoWorld = value; } }
 
         public string CommandMode
         {
@@ -89,13 +91,19 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult ResetDemoWorld()
         {
-            world = DemoWorldFactory.CreateMvpWorld();
+            world = useCombatDemoWorld ? DemoWorldFactory.CreateCombatDemoWorld() : DemoWorldFactory.CreateMvpWorld();
             selectedActorIds.Clear();
             pendingPlacementTypeId = string.Empty;
             forceLowPower = false;
             tickAccumulator = 0f;
             RefreshSnapshot();
-            return RtsCommandResult.Ok("Demo world reset.");
+            return RtsCommandResult.Ok(useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset.");
+        }
+
+        public RtsCommandResult TryCreateCombatDemoWorld()
+        {
+            useCombatDemoWorld = true;
+            return ResetDemoWorld();
         }
 
         public void SetHoveredCell(Int2 cell)
@@ -191,6 +199,62 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             var result = RtsCommandAdapter.IssueMoveOrder(world, playerId, mobileActorIds, cell);
             RefreshSnapshot();
             return result;
+        }
+
+        public RtsCommandResult TryIssueAttackSelectedToActor(int targetActorId)
+        {
+            if (world == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+            if (selectedActorIds.Count == 0)
+                return RtsCommandResult.Fail("NoSelection", "Select an armed actor before issuing an attack command.");
+
+            ActorSnapshot target;
+            if (!TryGetActorSnapshot(targetActorId, out target))
+                return RtsCommandResult.Fail("TargetMissing", "No target actor exists for the attack command.");
+            if (target.OwnerId == playerId)
+                return RtsCommandResult.Fail("TargetFriendly", "Select an enemy actor as the attack target.");
+
+            var armedActorIds = new List<int>();
+            for (var i = 0; i < selectedActorIds.Count; i++)
+            {
+                ActorSnapshot actor;
+                ActorDefinition definition;
+                if (!TryGetActorSnapshot(selectedActorIds[i], out actor) || actor.IsDestroyed || !Rules.TryGetDefinition(actor.TypeId, out definition))
+                    continue;
+                if (definition.Weapon != null)
+                    armedActorIds.Add(actor.ActorId);
+            }
+
+            if (armedActorIds.Count == 0)
+                return RtsCommandResult.Fail("NoArmedSelection", "The current selection has no armed actors.");
+
+            var result = RtsCommandAdapter.IssueAttackOrder(world, playerId, armedActorIds, targetActorId);
+            RefreshSnapshot();
+            return result;
+        }
+
+        public RtsCommandResult TryIssueAttackSelectedAtCell(Int2 cell)
+        {
+            int targetActorId;
+            if (!TryFindTargetActorAtCell(cell, out targetActorId))
+                return RtsCommandResult.Fail("NoAttackTarget", "No enemy actor is present at " + cell + ".");
+
+            return TryIssueAttackSelectedToActor(targetActorId);
+        }
+
+        public RtsCommandResult TryIssueForceAttackSelectedAtCell(Int2 cell)
+        {
+            if (selectedActorIds.Count == 0)
+                return RtsCommandResult.Fail("NoSelection", "Select an actor before issuing force-attack.");
+
+            var result = RtsCommandAdapter.IssueForceAttackCell(world, playerId, selectedActorIds, cell);
+            RefreshSnapshot();
+            return result;
+        }
+
+        public RtsCommandResult TryStopSelectedCombat()
+        {
+            return TryStopSelected();
         }
 
         public RtsCommandResult TryQueueProduction(string typeId)
@@ -400,6 +464,29 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 var actor = latestSnapshot.Actors[i];
                 ActorDefinition definition;
                 if (actor.OwnerId != playerId || !Rules.TryGetDefinition(actor.TypeId, out definition))
+                    continue;
+
+                if (ActorCoversCell(actor, definition, cell))
+                {
+                    actorId = actor.ActorId;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        bool TryFindTargetActorAtCell(Int2 cell, out int actorId)
+        {
+            actorId = 0;
+            if (latestSnapshot == null)
+                return false;
+
+            for (var i = latestSnapshot.Actors.Count - 1; i >= 0; i--)
+            {
+                var actor = latestSnapshot.Actors[i];
+                ActorDefinition definition;
+                if (actor.OwnerId == playerId || actor.IsDestroyed || !Rules.TryGetDefinition(actor.TypeId, out definition))
                     continue;
 
                 if (ActorCoversCell(actor, definition, cell))

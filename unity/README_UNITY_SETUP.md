@@ -217,6 +217,37 @@ Stage 8 preserves the Stage 7 building scene and adds `ActorVisualDefinitionLibr
 
 Stage 8.1 adds validation tiers for faster iteration. Use the fast tier after small Stage 8 art/prefab/script changes, the medium tier before committing, and the full Stage 8 checks for final acceptance. The full gate remains the slow Stage 0-through-Stage 8 chain. See `..\docs\VALIDATION_TIERS.md`.
 
+## Create or Validate the Stage 9 Scene
+
+Stage 9 adds the combat, weapons, projectiles, damage, and death scene:
+
+```text
+Assets/Rts/Scenes/Stage9_CombatWeaponsDamage.unity
+```
+
+To create or refresh combat visual profiles manually in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 9 > Create Combat Visual Profiles
+```
+
+To create or refresh the scene manually in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 9 > Create Combat Weapons Damage Scene
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage9-validation.ps1
+.\tools\run-stage9-fast-checks.ps1
+.\tools\run-stage9-medium-checks.ps1
+.\tools\run-stage9-checks.ps1
+```
+
+Stage 9 preserves the Stage 8 art pipeline scene and adds `CombatVisualProfileLibrary`, `ProjectileRenderSystem`, `CombatEventRenderSystem`, placeholder combat VFX, deterministic attack routing, and `CombatDebugHud`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -286,6 +317,16 @@ Stage 2 also exposes these actions through buttons in the sidebar and bottom com
 - Refresh: rebuild the showcase grid.
 - Validate All: run runtime definition validation.
 
+## Stage 9 Combat Controls
+
+- F12: toggle the combat debug HUD.
+- Select Attacker: select the first friendly combat demo attacker.
+- Attack Target: issue an attack order against the first enemy target.
+- Stop: stop selected combat orders.
+- Reset Combat: recreate the combat demo world.
+- A: desktop/right-hand attack mode now routes to real attack orders when targeting an enemy actor.
+- F: force-attack remains a safe placeholder route.
+
 ## Stage 3 Board Placement Controls
 
 - Tab: toggle board placement mode.
@@ -310,7 +351,8 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 6 uses placeholder primitives and profile-driven visual motion controllers; it is not final art, physics, combat animation, or skeletal animation.
 - Stage 7 uses placeholder building parts, simple materials, and transform loops; it is not final building art, VFX, sound, combat damage, or destruction.
 - Stage 8 uses generated blockout prefabs and concept copies; it is not final production modeling, rigging, VFX, audio, combat, or destruction.
-- The attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
+- Stage 9 uses MVP combat balance and placeholder VFX; it is not final combat balance, armor, line-of-sight, splash damage, audio, or destruction art.
+- Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.
 - Play mode interaction validation should still be checked interactively after opening the generated scene.

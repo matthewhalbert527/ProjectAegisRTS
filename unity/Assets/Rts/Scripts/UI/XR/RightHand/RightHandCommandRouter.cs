@@ -32,7 +32,7 @@ namespace ProjectAegisRTS.UnityClient.UI.XR.RightHand
         public void EnterAttackMode()
         {
             CurrentMode = RightHandCommandMode.Attack;
-            Info("Right-hand attack placeholder mode.");
+            Info("Right-hand attack mode.");
         }
 
         public void EnterForceAttackMode()
@@ -94,7 +94,14 @@ namespace ProjectAegisRTS.UnityClient.UI.XR.RightHand
             if (previewRenderer != null)
                 previewRenderer.ShowAttackTarget(cell);
 
-            return LogAndReturn(RtsCommandResult.Ok((forceAttack ? "Force-attack" : "Attack") + " placeholder target " + cell + "."));
+            if (forceAttack)
+                return LogAndReturn(RtsCommandResult.Ok("Force-attack placeholder target " + cell + "."));
+
+            var result = driver.TryIssueAttackSelectedAtCell(cell);
+            if (!result.Success && !driver.UseCombatDemoWorld)
+                return LogAndReturn(RtsCommandResult.Ok("Attack placeholder target " + cell + "."));
+
+            return LogAndReturn(result);
         }
 
         public void CancelCommandMode()

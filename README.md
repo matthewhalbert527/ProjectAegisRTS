@@ -1,6 +1,6 @@
 # ProjectAegisRTS
 
-ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a Meta Quest 3S VR/MR board game and as a PC RTS with a right-side production panel. Stage 0 created the deterministic, Unity-compatible C# simulation core. Stage 1 added a Unity desktop board prototype that consumes that core as a DLL. Stage 2 adds the first PC RTS sidebar, command bar, production queue, selection panel, minimap placeholder, and status log. Stage 3 adds the Quest/OpenXR-ready board placement prototype while preserving the PC scenes. Stage 4 adds a Quest-style left-hand build and selection interface with desktop fallback controls. Stage 5 adds the companion right-hand tactical command interface for movement, placeholder attack commands, command previews, and board manipulation. Stage 6 adds visual-only vehicle, infantry, aircraft, turret, and movement path presentation on top of deterministic snapshots. Stage 7 adds visual-only building animation, power-state, production, and damage-state presentation. Stage 8 adds the concept-art-to-production-prefab pipeline, actor visual definition catalog, generated blockout prefabs, icons, sockets, validation, and showcase scene.
+ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a Meta Quest 3S VR/MR board game and as a PC RTS with a right-side production panel. Stage 0 created the deterministic, Unity-compatible C# simulation core. Stage 1 added a Unity desktop board prototype that consumes that core as a DLL. Stage 2 adds the first PC RTS sidebar, command bar, production queue, selection panel, minimap placeholder, and status log. Stage 3 adds the Quest/OpenXR-ready board placement prototype while preserving the PC scenes. Stage 4 adds a Quest-style left-hand build and selection interface with desktop fallback controls. Stage 5 adds the companion right-hand tactical command interface for movement, placeholder attack commands, command previews, and board manipulation. Stage 6 adds visual-only vehicle, infantry, aircraft, turret, and movement path presentation on top of deterministic snapshots. Stage 7 adds visual-only building animation, power-state, production, and damage-state presentation. Stage 8 adds the concept-art-to-production-prefab pipeline, actor visual definition catalog, generated blockout prefabs, icons, sockets, validation, and showcase scene. Stage 9 adds deterministic combat, weapons, projectiles, damage, death/destruction state, and Unity placeholder combat presentation.
 
 ## Contents
 
@@ -10,7 +10,7 @@ ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a 
 - `external/openra`: copied OpenRA reference source for audit only.
 - `external/redalert_reference`: copied historical reference source, read-only and not used as a code base.
 - `art/concepts`: copied concept cards and generated registries.
-- `unity`: Unity desktop board prototype, Stage 2 PC sidebar scene, Stage 3 XR board placement prototype, Stage 4 left-hand build/selection scene, Stage 5 dual-hand command scene, Stage 6 movement visualization scene, Stage 7 building power/production scene, Stage 8 art pipeline showcase scene, and setup notes.
+- `unity`: Unity desktop board prototype, Stage 2 PC sidebar scene, Stage 3 XR board placement prototype, Stage 4 left-hand build/selection scene, Stage 5 dual-hand command scene, Stage 6 movement visualization scene, Stage 7 building power/production scene, Stage 8 art pipeline showcase scene, Stage 9 combat scene, and setup notes.
 
 ## Run Tests
 
@@ -97,6 +97,17 @@ Run Stage 8 checks:
 
 Stage 8.1 adds validation tiers. Use `run-stage8-fast-checks.ps1` for current Stage 8 iteration, `run-stage8-medium-checks.ps1` before local commits, and `run-stage8-checks.ps1` as the slow full Stage 0-through-Stage 8 acceptance gate. See `docs/VALIDATION_TIERS.md`.
 
+Run Stage 9 checks:
+
+```powershell
+.\tools\run-unity-stage9-validation.ps1
+.\tools\run-stage9-fast-checks.ps1
+.\tools\run-stage9-medium-checks.ps1
+.\tools\run-stage9-checks.ps1
+```
+
+Use `run-stage9-fast-checks.ps1` for current combat iteration, `run-stage9-medium-checks.ps1` before local commits, and `run-stage9-checks.ps1` as the slow full Stage 0-through-Stage 9 acceptance gate.
+
 Open the Unity project:
 
 ```powershell
@@ -113,6 +124,7 @@ Scene paths:
 - `Assets/Rts/Scenes/Stage6_MovementVisualization.unity`: Stage 6 movement visualization scene with profile-driven visual motion, path preview, debug HUD, and showcase actors.
 - `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity`: Stage 7 building animation scene with power/production/damage placeholder parts, profile library, F10 debug HUD, and demo controls.
 - `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity`: Stage 8 art pipeline scene with concept references, generated blockout prefabs, actor visual definitions, prefab sockets, validation, resolver integration, and F11 debug HUD.
+- `Assets/Rts/Scenes/Stage9_CombatWeaponsDamage.unity`: Stage 9 combat scene with deterministic attack orders, projectiles, damage/death snapshots, placeholder combat VFX, combat profiles, and F12 debug HUD.
 
 Stage 8 art assets:
 
@@ -122,3 +134,9 @@ Stage 8 art assets:
 - Production prefabs: `unity/Assets/Rts/Art/Prefabs/Actors/Production/`
 - Actor visual definitions: `unity/Assets/Rts/ScriptableObjects/Art/ActorVisualDefinitions/`
 - Validation report: `docs/STAGE8_PREFAB_VALIDATION.md`
+
+Stage 9 combat assets:
+
+- Combat visual profiles: `unity/Assets/Rts/ScriptableObjects/Combat/`
+- Combat design notes: `docs/STAGE9_COMBAT_DESIGN.md`
+- Stage report: `docs/STAGE9_REPORT.md`

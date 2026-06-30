@@ -8,6 +8,7 @@ using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Pathfinding;
 using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Production;
+using ProjectAegisRTS.Projectiles;
 using ProjectAegisRTS.Snapshots;
 
 namespace ProjectAegisRTS.Simulation
@@ -16,9 +17,14 @@ namespace ProjectAegisRTS.Simulation
     {
         readonly Dictionary<int, PlayerState> players;
         readonly Dictionary<int, ActorState> actors;
+        readonly Dictionary<int, ProjectileState> projectiles;
+        readonly List<CombatEventSnapshot> recentCombatEvents;
         readonly GridPathfinder pathfinder;
         int nextActorId;
         int nextQueueItemId;
+        int nextProjectileId;
+        int nextCombatEventId;
+        const int MaxRecentCombatEvents = 64;
 
         public RtsRules Rules { get; private set; }
         public GridMap Map { get; private set; }
@@ -30,9 +36,13 @@ namespace ProjectAegisRTS.Simulation
             Map = map;
             players = new Dictionary<int, PlayerState>();
             actors = new Dictionary<int, ActorState>();
+            projectiles = new Dictionary<int, ProjectileState>();
+            recentCombatEvents = new List<CombatEventSnapshot>();
             pathfinder = new GridPathfinder();
             nextActorId = 1;
             nextQueueItemId = 1;
+            nextProjectileId = 1;
+            nextCombatEventId = 1;
         }
 
         public IReadOnlyDictionary<int, PlayerState> Players
@@ -43,6 +53,11 @@ namespace ProjectAegisRTS.Simulation
         public IReadOnlyDictionary<int, ActorState> Actors
         {
             get { return actors; }
+        }
+
+        public IReadOnlyDictionary<int, ProjectileState> Projectiles
+        {
+            get { return projectiles; }
         }
 
         public PlayerState AddPlayer(int playerId, string name, int credits)
@@ -103,6 +118,8 @@ namespace ProjectAegisRTS.Simulation
                 return IssueMoveOrder((IssueMoveOrderCommand)command);
             if (command is IssueAttackOrderCommand)
                 return IssueAttackOrder((IssueAttackOrderCommand)command);
+            if (command is IssueForceAttackCellCommand)
+                return IssueForceAttackCell((IssueForceAttackCellCommand)command);
             if (command is BeginProductionCommand)
                 return BeginProduction((BeginProductionCommand)command);
             if (command is CancelProductionCommand)
@@ -125,6 +142,8 @@ namespace ProjectAegisRTS.Simulation
             UpdatePowerAndActorFlags();
             TickProduction();
             TickMovement();
+            TickCombat();
+            TickProjectiles();
             UpdatePowerAndActorFlags();
         }
 
@@ -169,6 +188,7 @@ namespace ProjectAegisRTS.Simulation
                     actor.WorldPositionFixed,
                     actor.FacingDegrees,
                     actor.Health,
+                    definition.MaxHealth,
                     false,
                     actor.IsPowered,
                     actor.IsLowPower,
@@ -181,10 +201,40 @@ namespace ProjectAegisRTS.Simulation
                     actor.DesiredSpeed,
                     actor.NormalizedSpeed,
                     turnRate,
-                    actor.MovementPhase));
+                    actor.MovementPhase,
+                    !actor.IsDestroyed,
+                    actor.IsDying,
+                    actor.IsDestroyed,
+                    actor.LastDamageTick,
+                    actor.DeathTick,
+                    actor.DestroyedByActorId,
+                    actor.ActiveWeaponId,
+                    actor.WeaponCooldownRemaining,
+                    actor.IsAttacking,
+                    actor.AttackTargetActorId,
+                    actor.AttackTargetCell));
             }
 
-            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots);
+            var projectileSnapshots = new List<ProjectileSnapshot>();
+            foreach (var projectile in SortedProjectiles())
+            {
+                projectileSnapshots.Add(new ProjectileSnapshot(
+                    projectile.ProjectileId,
+                    projectile.OwnerPlayerId,
+                    projectile.SourceActorId,
+                    projectile.TargetActorId,
+                    projectile.WeaponId,
+                    projectile.ProjectileKind.ToString(),
+                    projectile.CurrentPositionFixed,
+                    projectile.TargetPositionFixed,
+                    projectile.TargetCell,
+                    projectile.SpeedSubCellsPerTick,
+                    projectile.Damage,
+                    projectile.HasImpacted,
+                    projectile.ImpactTick));
+            }
+
+            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents));
         }
 
         public string GetDeterminismSummary()
@@ -226,7 +276,26 @@ namespace ProjectAegisRTS.Simulation
                     .Append(actor.FacingDegrees).Append(' ')
                     .Append(actor.CurrentOrder).Append(' ')
                     .Append(actor.IsPowered).Append(' ')
-                    .Append(actor.IsLowPower)
+                    .Append(actor.IsLowPower).Append(' ')
+                    .Append(actor.AttackTargetActorId).Append(' ')
+                    .Append(actor.WeaponCooldownRemaining).Append(' ')
+                    .Append(actor.IsAttacking).Append(' ')
+                    .Append(actor.IsDestroyed).Append(' ')
+                    .Append(actor.DeathTick)
+                    .AppendLine();
+            }
+
+            foreach (var projectile in SortedProjectiles())
+            {
+                sb.Append("projectile ")
+                    .Append(projectile.ProjectileId).Append(' ')
+                    .Append(projectile.OwnerPlayerId).Append(' ')
+                    .Append(projectile.SourceActorId).Append(' ')
+                    .Append(projectile.TargetActorId).Append(' ')
+                    .Append(projectile.WeaponId).Append(' ')
+                    .Append(projectile.CurrentPositionFixed).Append(' ')
+                    .Append(projectile.TargetPositionFixed).Append(' ')
+                    .Append(projectile.RemainingLifetimeTicks)
                     .AppendLine();
             }
 
@@ -319,6 +388,12 @@ namespace ProjectAegisRTS.Simulation
                     continue;
                 }
 
+                if (actor.IsDestroyed)
+                {
+                    details.Add("actor " + actorId.Value + ": destroyed");
+                    continue;
+                }
+
                 if (!(Rules.GetDefinition(actor.TypeId) is UnitDefinition))
                 {
                     details.Add("actor " + actorId.Value + ": not a unit");
@@ -348,6 +423,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.Path.AddRange(pair.Value);
                 actor.CurrentOrder = actor.Path.Count == 0 ? ActorOrderKind.Idle : ActorOrderKind.Move;
                 actor.OrderTargetCell = command.DestinationCell;
+                ClearAttackState(actor);
                 actor.MovementPhase = actor.Path.Count == 0 ? "idle" : "moving";
             }
 
@@ -356,20 +432,60 @@ namespace ProjectAegisRTS.Simulation
 
         CommandResult IssueAttackOrder(IssueAttackOrderCommand command)
         {
-            if (!actors.ContainsKey(command.TargetActorId.Value))
+            ActorState target;
+            if (!actors.TryGetValue(command.TargetActorId.Value, out target))
                 return CommandResult.Fail("AttackTargetMissing", "The attack target actor does not exist.");
 
+            if (target.IsDestroyed)
+                return CommandResult.Fail("AttackTargetDestroyed", "The attack target has already been destroyed.");
+
+            var prepared = new List<ActorState>();
+            var details = new List<string>();
             foreach (var actorId in command.ActorIds)
             {
                 ActorState actor;
                 if (!TryGetOwnedActor(command.PlayerId, actorId, out actor))
-                    return CommandResult.Fail("AttackActorInvalid", "An attack subject actor does not exist or is not owned by the command player.");
+                {
+                    details.Add("actor " + actorId.Value + ": not owned or missing");
+                    continue;
+                }
 
-                actor.CurrentOrder = ActorOrderKind.Attack;
-                actor.OrderTargetCell = actors[command.TargetActorId.Value].CellPosition;
+                var validation = ValidateAttackTarget(actor, target);
+                if (!validation.Success)
+                {
+                    details.Add("actor " + actorId.Value + ": " + validation.ErrorCode);
+                    continue;
+                }
+
+                prepared.Add(actor);
             }
 
-            return CommandResult.Ok("Attack order placeholder accepted.");
+            if (details.Count > 0)
+                return CommandResult.Fail("AttackOrderRejected", "One or more actors could not accept the attack order.", details);
+
+            foreach (var actor in prepared)
+            {
+                actor.Path.Clear();
+                actor.CurrentOrder = ActorOrderKind.Attack;
+                actor.AttackTargetActorId = target.Id.Value;
+                actor.AttackTargetCell = target.CellPosition;
+                actor.OrderTargetCell = target.CellPosition;
+                actor.ActiveWeaponId = Rules.GetDefinition(actor.TypeId).Weapon.WeaponId;
+                actor.IsAttacking = true;
+                actor.DesiredSpeed = 0;
+                actor.NormalizedSpeed = 0;
+                actor.MovementPhase = "attacking";
+            }
+
+            return CommandResult.Ok("Attack order accepted.");
+        }
+
+        CommandResult IssueForceAttackCell(IssueForceAttackCellCommand command)
+        {
+            if (!Map.Contains(command.TargetCell))
+                return CommandResult.Fail("ForceAttackOutsideMap", "The force-attack target cell is outside the map.");
+
+            return CommandResult.Fail("ForceAttackCellUnsupported", "Stage 9 supports actor-target attack orders; cell force-attack is reserved for a later pass.");
         }
 
         CommandResult SetRallyPoint(SetRallyPointCommand command)
@@ -396,6 +512,7 @@ namespace ProjectAegisRTS.Simulation
 
                 actor.Path.Clear();
                 actor.CurrentOrder = ActorOrderKind.Stop;
+                ClearAttackState(actor);
                 actor.DesiredSpeed = 0;
                 actor.NormalizedSpeed = 0;
                 actor.MovementPhase = "idle";
@@ -410,7 +527,7 @@ namespace ProjectAegisRTS.Simulation
             if (!TryGetOwnedActor(command.PlayerId, command.ActorId, out actor))
                 return CommandResult.Fail("PowerToggleActorInvalid", "The target actor does not exist or is not owned by the command player.");
 
-            if (!(Rules.GetDefinition(actor.TypeId) is BuildingDefinition))
+                if (!(Rules.GetDefinition(actor.TypeId) is BuildingDefinition))
                 return CommandResult.Fail("PowerToggleRequiresBuilding", "Only buildings can be power-toggled in Stage 0.");
 
             actor.ManuallyPoweredOff = !actor.ManuallyPoweredOff;
@@ -428,6 +545,13 @@ namespace ProjectAegisRTS.Simulation
                 {
                     if (item.State == ProductionItemState.CompletedPendingPlacement)
                         continue;
+
+                    ActorState producerActor;
+                    if (actors.TryGetValue(item.ProducerActorId.Value, out producerActor) && producerActor.IsDestroyed)
+                    {
+                        item.State = ProductionItemState.Paused;
+                        continue;
+                    }
 
                     if (player.PowerState != PlayerPowerState.Normal && !item.ExemptFromLowPowerPause)
                     {
@@ -458,6 +582,8 @@ namespace ProjectAegisRTS.Simulation
         {
             ActorState producer;
             if (!actors.TryGetValue(item.ProducerActorId.Value, out producer))
+                return;
+            if (producer.IsDestroyed)
                 return;
 
             var producerDefinition = Rules.GetDefinition(producer.TypeId) as BuildingDefinition;
@@ -497,6 +623,15 @@ namespace ProjectAegisRTS.Simulation
         {
             foreach (var actor in SortedActors())
             {
+                if (actor.IsDestroyed)
+                {
+                    actor.Path.Clear();
+                    actor.DesiredSpeed = 0;
+                    actor.NormalizedSpeed = 0;
+                    actor.MovementPhase = "destroyed";
+                    continue;
+                }
+
                 var definition = Rules.GetDefinition(actor.TypeId) as UnitDefinition;
                 if (definition == null || actor.Path.Count == 0)
                 {
@@ -553,7 +688,7 @@ namespace ProjectAegisRTS.Simulation
                 var consumed = 0;
                 foreach (var actor in SortedActors())
                 {
-                    if (actor.OwnerPlayerId != player.PlayerId || actor.ManuallyPoweredOff)
+                    if (actor.OwnerPlayerId != player.PlayerId || actor.ManuallyPoweredOff || actor.IsDestroyed)
                         continue;
 
                     var definition = Rules.GetDefinition(actor.TypeId);
@@ -583,6 +718,19 @@ namespace ProjectAegisRTS.Simulation
                 var isBuilding = definition.Kind == ActorKind.Building;
                 var powered = !actor.ManuallyPoweredOff && player.PowerState != PlayerPowerState.Offline;
                 var lowPower = isBuilding && player.PowerState == PlayerPowerState.LowPower;
+
+                if (actor.IsDestroyed)
+                {
+                    actor.IsPowered = false;
+                    actor.IsLowPower = false;
+                    actor.LightsActive = false;
+                    actor.MachineryActive = false;
+                    actor.IsProducing = false;
+                    actor.ProductionProgress = 0;
+                    actor.AnimationStateId = definition.Death.DeathVisualId;
+                    actor.MovementPhase = "destroyed";
+                    continue;
+                }
 
                 actor.IsPowered = !isBuilding || powered;
                 actor.IsLowPower = lowPower;
@@ -706,7 +854,191 @@ namespace ProjectAegisRTS.Simulation
             if (!actors.TryGetValue(actorId.Value, out actor))
                 return false;
 
-            return actor.OwnerPlayerId == playerId;
+            return actor.OwnerPlayerId == playerId && !actor.IsDestroyed;
+        }
+
+        CommandResult ValidateAttackTarget(ActorState attacker, ActorState target)
+        {
+            if (attacker.IsDestroyed)
+                return CommandResult.Fail("AttackActorDestroyed", "The attacker has been destroyed.");
+            if (target.IsDestroyed)
+                return CommandResult.Fail("AttackTargetDestroyed", "The attack target has been destroyed.");
+            if (attacker.OwnerPlayerId == target.OwnerPlayerId)
+                return CommandResult.Fail("AttackTargetFriendly", "Stage 9 attack orders require an enemy target.");
+
+            var attackerDefinition = Rules.GetDefinition(attacker.TypeId);
+            var targetDefinition = Rules.GetDefinition(target.TypeId);
+            var weapon = attackerDefinition.Weapon;
+            if (weapon == null)
+                return CommandResult.Fail("AttackActorUnarmed", "The attacker has no weapon definition.");
+
+            if (targetDefinition.Kind == ActorKind.Building && !weapon.CanTargetBuildings)
+                return CommandResult.Fail("AttackCannotTargetBuilding", "The weapon cannot target buildings.");
+            if (targetDefinition.Kind == ActorKind.Unit && !weapon.CanTargetUnits)
+                return CommandResult.Fail("AttackCannotTargetUnit", "The weapon cannot target units.");
+            if (targetDefinition.Production.Kind == ProductionKind.Aircraft && !weapon.CanTargetAir)
+                return CommandResult.Fail("AttackCannotTargetAir", "The weapon cannot target aircraft.");
+            if (targetDefinition.Production.Kind != ProductionKind.Aircraft && !weapon.CanTargetGround)
+                return CommandResult.Fail("AttackCannotTargetGround", "The weapon cannot target ground actors.");
+
+            var distance = attacker.CellPosition.ManhattanDistanceTo(target.CellPosition);
+            if (distance < weapon.MinRangeCells)
+                return CommandResult.Fail("AttackTargetTooClose", "The target is inside the weapon minimum range.");
+            if (distance > weapon.RangeCells)
+                return CommandResult.Fail("AttackTargetOutOfRange", "The target is outside the Stage 9 weapon range.");
+
+            return CommandResult.Ok("Attack target is valid.");
+        }
+
+        void TickCombat()
+        {
+            foreach (var actor in SortedActors())
+            {
+                if (actor.WeaponCooldownRemaining > 0)
+                    actor.WeaponCooldownRemaining--;
+
+                if (actor.IsDestroyed || actor.CurrentOrder != ActorOrderKind.Attack || actor.AttackTargetActorId <= 0)
+                    continue;
+
+                ActorState target;
+                if (!actors.TryGetValue(actor.AttackTargetActorId, out target))
+                {
+                    ClearAttackState(actor);
+                    continue;
+                }
+
+                var validation = ValidateAttackTarget(actor, target);
+                if (!validation.Success)
+                {
+                    ClearAttackState(actor);
+                    continue;
+                }
+
+                actor.AttackTargetCell = target.CellPosition;
+                actor.OrderTargetCell = target.CellPosition;
+                actor.MovementPhase = "attacking";
+                if (actor.WeaponCooldownRemaining == 0)
+                    FireWeapon(actor, target, Rules.GetDefinition(actor.TypeId).Weapon);
+            }
+        }
+
+        void FireWeapon(ActorState attacker, ActorState target, WeaponDefinition weapon)
+        {
+            attacker.WeaponCooldownRemaining = weapon.CooldownTicks;
+            attacker.IsAttacking = true;
+            attacker.ActiveWeaponId = weapon.WeaponId;
+
+            if (target.WorldPositionFixed.X > attacker.WorldPositionFixed.X)
+                attacker.FacingDegrees = 90;
+            else if (target.WorldPositionFixed.X < attacker.WorldPositionFixed.X)
+                attacker.FacingDegrees = 270;
+            else if (target.WorldPositionFixed.Y > attacker.WorldPositionFixed.Y)
+                attacker.FacingDegrees = 180;
+            else if (target.WorldPositionFixed.Y < attacker.WorldPositionFixed.Y)
+                attacker.FacingDegrees = 0;
+
+            if (weapon.FireMode == WeaponFireMode.InstantHit)
+            {
+                AddCombatEvent("WeaponFired", attacker.Id.Value, target.Id.Value, 0, weapon.WeaponId, 0, target.Health, target.CellPosition, target.WorldPositionFixed);
+                ApplyDamage(target, weapon.Damage, attacker.Id.Value, 0, weapon.WeaponId);
+                return;
+            }
+
+            var projectile = new ProjectileState(
+                nextProjectileId++,
+                attacker.OwnerPlayerId,
+                attacker.Id.Value,
+                target.Id.Value,
+                weapon.WeaponId,
+                weapon.ProjectileKind,
+                attacker.WorldPositionFixed,
+                target.WorldPositionFixed,
+                target.CellPosition,
+                weapon.ProjectileSpeedSubCellsPerTick,
+                weapon.Damage,
+                TickNumber,
+                weapon.ProjectileDefinition.LifetimeTicks);
+
+            projectiles.Add(projectile.ProjectileId, projectile);
+            AddCombatEvent("WeaponFired", attacker.Id.Value, target.Id.Value, projectile.ProjectileId, weapon.WeaponId, 0, target.Health, target.CellPosition, target.WorldPositionFixed);
+        }
+
+        void TickProjectiles()
+        {
+            var impacted = new List<int>();
+            foreach (var projectile in SortedProjectiles())
+            {
+                if (projectile.CreatedTick == TickNumber)
+                    continue;
+
+                projectile.RemainingLifetimeTicks--;
+                var dx = projectile.TargetPositionFixed.X - projectile.CurrentPositionFixed.X;
+                var dy = projectile.TargetPositionFixed.Y - projectile.CurrentPositionFixed.Y;
+                var next = new Int2(
+                    projectile.CurrentPositionFixed.X + FixedMath.ClampStep(dx, projectile.SpeedSubCellsPerTick),
+                    projectile.CurrentPositionFixed.Y + FixedMath.ClampStep(dy, projectile.SpeedSubCellsPerTick));
+                projectile.CurrentPositionFixed = next;
+
+                if (next.Equals(projectile.TargetPositionFixed) || projectile.RemainingLifetimeTicks <= 0)
+                {
+                    projectile.HasImpacted = true;
+                    projectile.ImpactTick = TickNumber;
+                    ActorState target;
+                    if (actors.TryGetValue(projectile.TargetActorId, out target) && !target.IsDestroyed)
+                        ApplyDamage(target, projectile.Damage, projectile.SourceActorId, projectile.ProjectileId, projectile.WeaponId);
+                    else
+                        AddCombatEvent("ProjectileExpired", projectile.SourceActorId, projectile.TargetActorId, projectile.ProjectileId, projectile.WeaponId, 0, 0, projectile.TargetCell, projectile.TargetPositionFixed);
+
+                    impacted.Add(projectile.ProjectileId);
+                }
+            }
+
+            foreach (var projectileId in impacted)
+                projectiles.Remove(projectileId);
+        }
+
+        void ApplyDamage(ActorState target, int damage, int sourceActorId, int projectileId, string weaponId)
+        {
+            if (target.IsDestroyed)
+                return;
+
+            target.Health -= damage;
+            if (target.Health < 0)
+                target.Health = 0;
+            target.LastDamageTick = TickNumber;
+            AddCombatEvent("DamageApplied", sourceActorId, target.Id.Value, projectileId, weaponId, damage, target.Health, target.CellPosition, target.WorldPositionFixed);
+
+            if (target.Health > 0)
+                return;
+
+            target.IsDying = true;
+            target.IsDestroyed = true;
+            target.DeathTick = TickNumber;
+            target.DestroyedByActorId = sourceActorId;
+            target.Path.Clear();
+            ClearAttackState(target);
+            target.CurrentOrder = ActorOrderKind.Stop;
+            target.DesiredSpeed = 0;
+            target.NormalizedSpeed = 0;
+            target.MovementPhase = "destroyed";
+            AddCombatEvent("ActorDestroyed", sourceActorId, target.Id.Value, projectileId, weaponId, damage, target.Health, target.CellPosition, target.WorldPositionFixed);
+        }
+
+        void ClearAttackState(ActorState actor)
+        {
+            actor.AttackTargetActorId = 0;
+            actor.AttackTargetCell = actor.CellPosition;
+            actor.IsAttacking = false;
+            actor.ActiveWeaponId = string.Empty;
+            if (actor.CurrentOrder == ActorOrderKind.Attack)
+                actor.CurrentOrder = ActorOrderKind.Idle;
+        }
+
+        void AddCombatEvent(string eventType, int sourceActorId, int targetActorId, int projectileId, string weaponId, int damage, int targetHealth, Int2 cell, Int2 fixedWorldPosition)
+        {
+            recentCombatEvents.Add(new CombatEventSnapshot(nextCombatEventId++, TickNumber, eventType, sourceActorId, targetActorId, projectileId, weaponId, damage, targetHealth, cell, fixedWorldPosition));
+            while (recentCombatEvents.Count > MaxRecentCombatEvents)
+                recentCombatEvents.RemoveAt(0);
         }
 
         static bool Contains(IReadOnlyList<string> values, string value)
@@ -729,6 +1061,13 @@ namespace ProjectAegisRTS.Simulation
         {
             var list = new List<ActorState>(actors.Values);
             list.Sort((a, b) => a.Id.Value.CompareTo(b.Id.Value));
+            return list;
+        }
+
+        List<ProjectileState> SortedProjectiles()
+        {
+            var list = new List<ProjectileState>(projectiles.Values);
+            list.Sort((a, b) => a.ProjectileId.CompareTo(b.ProjectileId));
             return list;
         }
     }

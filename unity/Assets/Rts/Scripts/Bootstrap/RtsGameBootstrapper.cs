@@ -3,6 +3,7 @@ using ProjectAegisRTS.UnityClient.CameraControls;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.InputControls;
 using ProjectAegisRTS.UnityClient.Rendering;
+using ProjectAegisRTS.UnityClient.Rendering.Combat;
 using ProjectAegisRTS.UnityClient.UI;
 using UnityEngine;
 
@@ -23,6 +24,9 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public BoardCoordinateMapper coordinateMapper;
         public BoardRenderer boardRenderer;
         public ActorRenderSystem actorRenderSystem;
+        public CombatVisualProfileLibrary combatVisualProfileLibrary;
+        public ProjectileRenderSystem projectileRenderSystem;
+        public CombatEventRenderSystem combatEventRenderSystem;
         public RtsSimulationDriver simulationDriver;
         public RtsDesktopInputController inputController;
         public RtsDebugHud debugHud;
@@ -58,6 +62,12 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
             coordinateMapper.Configure(boardWidth, boardHeight, boardCellSizeMeters, boardRoot);
             boardRenderer.Initialize(coordinateMapper);
             actorRenderSystem.Initialize(coordinateMapper, simulationDriver, enableSmoothVisualInterpolation);
+            if (combatVisualProfileLibrary != null)
+                combatVisualProfileLibrary.EnsureInitialized();
+            if (projectileRenderSystem != null)
+                projectileRenderSystem.Initialize(simulationDriver, coordinateMapper, combatVisualProfileLibrary);
+            if (combatEventRenderSystem != null)
+                combatEventRenderSystem.Initialize(simulationDriver, coordinateMapper, combatVisualProfileLibrary);
             inputController.Initialize(sceneCamera, coordinateMapper, simulationDriver, debugHud);
             debugHud.Initialize(simulationDriver);
             cameraController.Configure(coordinateMapper);

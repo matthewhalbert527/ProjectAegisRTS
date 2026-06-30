@@ -70,7 +70,7 @@ namespace ProjectAegisRTS.UnityClient.InputControls
                     else if (commandRouter.CurrentMode == DesktopCommandMode.Move)
                         commandRouter.IssueMoveToCell(hoveredCell);
                     else if (commandRouter.CurrentMode == DesktopCommandMode.AttackPlaceholder)
-                        commandRouter.Placeholder("Attack");
+                        commandRouter.IssueAttackToCell(hoveredCell);
                     else
                         commandRouter.SelectAtCell(hoveredCell);
                 }

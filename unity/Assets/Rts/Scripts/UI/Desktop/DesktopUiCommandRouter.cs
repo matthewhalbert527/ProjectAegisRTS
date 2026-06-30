@@ -73,7 +73,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         public void SetAttackPlaceholderMode()
         {
             CurrentMode = DesktopCommandMode.AttackPlaceholder;
-            Warning("Attack mode is a Stage 2 placeholder.");
+            Info("Attack mode: left-click an enemy actor to issue a deterministic attack order.");
         }
 
         public RtsCommandResult IssueMoveToCell(Int2 cell)
@@ -82,6 +82,18 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
 
             var result = driver.TryIssueMoveSelectedToCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueAttackToCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssueAttackSelectedAtCell(cell);
             if (result.Success)
                 CurrentMode = DesktopCommandMode.Normal;
             Log(result);

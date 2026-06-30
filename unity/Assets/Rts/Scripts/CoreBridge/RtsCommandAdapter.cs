@@ -63,6 +63,20 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 world.IssueCommand(new IssueMoveOrderCommand(playerId, ToActorIds(actorIds), destinationCell)));
         }
 
+        public static RtsCommandResult IssueAttackOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, int targetActorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Attack",
+                world.IssueCommand(new IssueAttackOrderCommand(playerId, ToActorIds(actorIds), new ActorId(targetActorId))));
+        }
+
+        public static RtsCommandResult IssueForceAttackCell(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, Int2 targetCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Force attack",
+                world.IssueCommand(new IssueForceAttackCellCommand(playerId, ToActorIds(actorIds), targetCell)));
+        }
+
         public static RtsCommandResult BeginProduction(RtsWorld world, int playerId, int producerActorId, string typeId)
         {
             return RtsCommandResult.FromCore(
