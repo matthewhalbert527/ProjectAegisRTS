@@ -11,8 +11,8 @@ $corePath = Join-Path $repoRoot 'src\Rts.Core'
 
 Write-ValidationSection 'Stage 9 medium checks'
 Write-Host 'Purpose: pre-commit confidence for Stage 9 changes.'
-Write-Host 'Scope: Rts.Core tests, Unity DLL build, direct Stage 8 medium validation as the immediate dependency, Stage 9 validation, Stage 9 Play Mode smoke or live fallback, Rts.Core UnityEngine scan, and git diff whitespace check.'
-Write-Host 'This medium tier avoids replaying the full Stage 0-through-Stage 9 acceptance chain. Use run-stage9-checks.ps1 for final acceptance.'
+Write-Host 'Scope: Rts.Core tests, one Unity DLL build, direct Stage 8 Unity validation as the immediate dependency, Stage 9 validation, Stage 9 Play Mode smoke or live fallback, Rts.Core UnityEngine scan, and git diff whitespace check.'
+Write-Host 'This medium tier does not call prior medium checks. Use run-stage9-checks.ps1 for final Stage 0-through-Stage 9 acceptance.'
 
 Write-ValidationSection 'Rts.Core tests'
 Invoke-DotNetRunNoRestore -DotNetPath $dotnet -ProjectPath (Join-Path $repoRoot 'src\Rts.Core.Tests')
@@ -27,13 +27,13 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-ValidationSection 'Stage 8 immediate dependency validation'
-& (Join-Path $repoRoot 'tools\run-stage8-medium-checks.ps1')
+& (Join-Path $repoRoot 'tools\run-unity-stage8-validation.ps1') -SkipCoreBuild
 if ($LASTEXITCODE -ne 0) {
-    throw "run-stage8-medium-checks.ps1 failed with exit code $LASTEXITCODE."
+    throw "run-unity-stage8-validation.ps1 failed with exit code $LASTEXITCODE."
 }
 
 Write-ValidationSection 'Stage 9 Unity validation'
-& (Join-Path $repoRoot 'tools\run-unity-stage9-validation.ps1')
+& (Join-Path $repoRoot 'tools\run-unity-stage9-validation.ps1') -SkipCoreBuild
 if ($LASTEXITCODE -ne 0) {
     throw "run-unity-stage9-validation.ps1 failed with exit code $LASTEXITCODE."
 }

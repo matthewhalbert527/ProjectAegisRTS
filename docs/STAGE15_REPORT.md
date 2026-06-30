@@ -36,6 +36,16 @@ Use:
 .\tools\run-stage15-checks.ps1
 ```
 
+Stage 15.1 keeps the fast/medium/full split explicit:
+
+- fast: current Stage 15 iteration only,
+- medium: `Rts.Core` tests once, one Unity DLL build, direct Stage 14 Unity validation, direct Stage 15 Unity validation, UnityEngine-free scan, and `git diff --check`,
+- full: Stage 0 through Stage 15 final acceptance.
+
+The Stage 15 medium script must not call `run-stage14-medium-checks.ps1`; it calls `run-unity-stage14-validation.ps1 -SkipCoreBuild` instead. Windows CRLF conversion warnings are not failures when `git diff --check` passes.
+
+The pushed Stage 15 checkpoint is `codex/overnight-stage10-stage15` at `04c6c768bd6cdda74c6593a7d046de62ac27a39b`. Stage 15.1 tooling cleanup is on `codex/stage-15-1-validation-flattening`.
+
 ## Limitations
 
 - Quest budgets are placeholders until device profiling exists.

@@ -5,10 +5,10 @@
 - Branch: `codex/overnight-stage10-stage15`
 - Start baseline: `5d2ee28188d84fb7661d3f7d7bfe812e8c2396ed` (`Implement Stage 9 combat weapons damage`)
 - Highest completed stage this pass: Stage 15, Quest Performance / Build Readiness Foundation
-- Latest implementation commit: Stage 15 implementation commit from this pass
+- Latest implementation commit: `04c6c768bd6cdda74c6593a7d046de62ac27a39b` (`Implement Stage 15 performance build readiness foundation`)
 - Unity Editor: `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe` (`6000.5.1f1`)
 - .NET SDK used: `10.0.301`
-- Push status: not pushed
+- Push status: `codex/overnight-stage10-stage15` is pushed; `codex/stage-15-1-validation-flattening` is a local tooling cleanup branch and must not be pushed from this task.
 
 ## Commits Created
 
@@ -19,7 +19,7 @@
 - `17527ff5848ba3a0a333cb8e0bd8332ca9f2f860` - Implement Stage 13 map terrain pathing tools
 - `5e6f0dd7e51c26a34e3b7962570b9e69a32b7b03` - Flatten full-stage validation chain
 - `b54ea7d` - Implement Stage 14 feedback foundation
-- This commit - Implement Stage 15 performance build readiness foundation
+- `04c6c768bd6cdda74c6593a7d046de62ac27a39b` - Implement Stage 15 performance build readiness foundation
 
 ## Stages
 
@@ -45,6 +45,7 @@
 - `tools/run-stage15-checks.ps1`: passed with the flattened full Stage 0-15 acceptance gate.
 - `git diff --check`: passed after cleanup.
 - Rts.Core UnityEngine-free scan: passed; no `UnityEngine` references found in `src/Rts.Core`.
+- Windows CRLF conversion warnings on Unity text assets are non-fatal when `git diff --check` passes. Stage 15.1 adds `.gitattributes` so Unity YAML assets stay LF and generated binaries remain binary.
 
 ## NuGet And Batchmode
 
@@ -64,7 +65,7 @@
 ## Blockers
 
 - No gameplay or compile blocker remains for Stage 15.
-- Full-chain orchestration has been flattened for Stage 9 and later full gates. No validation tooling blocker remains.
+- Full-chain orchestration has been flattened for Stage 9 and later full gates. Stage 15.1 additionally flattens Stage 9-through-Stage 15 medium gates so they call direct prior-stage Unity validation instead of prior medium scripts.
 
 ## Morning Command
 

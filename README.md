@@ -1,6 +1,6 @@
 # ProjectAegisRTS
 
-ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a Meta Quest 3S VR/MR board game and as a PC RTS with a right-side production panel. Stage 0 created the deterministic, Unity-compatible C# simulation core. Stage 1 added a Unity desktop board prototype that consumes that core as a DLL. Stage 2 adds the first PC RTS sidebar, command bar, production queue, selection panel, minimap placeholder, and status log. Stage 3 adds the Quest/OpenXR-ready board placement prototype while preserving the PC scenes. Stage 4 adds a Quest-style left-hand build and selection interface with desktop fallback controls. Stage 5 adds the companion right-hand tactical command interface for movement, placeholder attack commands, command previews, and board manipulation. Stage 6 adds visual-only vehicle, infantry, aircraft, turret, and movement path presentation on top of deterministic snapshots. Stage 7 adds visual-only building animation, power-state, production, and damage-state presentation. Stage 8 adds the concept-art-to-production-prefab pipeline, actor visual definition catalog, generated blockout prefabs, icons, sockets, validation, and showcase scene. Stage 9 adds deterministic combat, weapons, projectiles, damage, death/destruction state, and Unity placeholder combat presentation. Stage 10 adds deterministic ore harvesting, harvester cargo, refinery unloading, economy snapshots/events, and Unity placeholder economy presentation. Stage 11 adds deterministic fog of war, radar status, minimap snapshots, and Unity placeholder fog/minimap presentation. Stage 12 adds deterministic skirmish AI planning, AI intent snapshots, and Unity placeholder AI debug presentation. Stage 13 adds deterministic terrain metadata, movement-class passability, path diagnostics, map validation, and Unity placeholder terrain/path debug presentation.
+ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a Meta Quest 3S VR/MR board game and as a PC RTS with a right-side production panel. Stage 0 created the deterministic, Unity-compatible C# simulation core. Stage 1 added a Unity desktop board prototype that consumes that core as a DLL. Stage 2 adds the first PC RTS sidebar, command bar, production queue, selection panel, minimap placeholder, and status log. Stage 3 adds the Quest/OpenXR-ready board placement prototype while preserving the PC scenes. Stage 4 adds a Quest-style left-hand build and selection interface with desktop fallback controls. Stage 5 adds the companion right-hand tactical command interface for movement, placeholder attack commands, command previews, and board manipulation. Stage 6 adds visual-only vehicle, infantry, aircraft, turret, and movement path presentation on top of deterministic snapshots. Stage 7 adds visual-only building animation, power-state, production, and damage-state presentation. Stage 8 adds the concept-art-to-production-prefab pipeline, actor visual definition catalog, generated blockout prefabs, icons, sockets, validation, and showcase scene. Stage 9 adds deterministic combat, weapons, projectiles, damage, death/destruction state, and Unity placeholder combat presentation. Stage 10 adds deterministic ore harvesting, harvester cargo, refinery unloading, economy snapshots/events, and Unity placeholder economy presentation. Stage 11 adds deterministic fog of war, radar status, minimap snapshots, and Unity placeholder fog/minimap presentation. Stage 12 adds deterministic skirmish AI planning, AI intent snapshots, and Unity placeholder AI debug presentation. Stage 13 adds deterministic terrain metadata, movement-class passability, path diagnostics, map validation, and Unity placeholder terrain/path debug presentation. Stage 14 adds snapshot-driven placeholder feedback presentation. Stage 15 adds performance/build-readiness scaffolding.
 
 ## Contents
 
@@ -10,7 +10,7 @@ ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a 
 - `external/openra`: copied OpenRA reference source for audit only.
 - `external/redalert_reference`: copied historical reference source, read-only and not used as a code base.
 - `art/concepts`: copied concept cards and generated registries.
-- `unity`: Unity desktop board prototype, Stage 2 PC sidebar scene, Stage 3 XR board placement prototype, Stage 4 left-hand build/selection scene, Stage 5 dual-hand command scene, Stage 6 movement visualization scene, Stage 7 building power/production scene, Stage 8 art pipeline showcase scene, Stage 9 combat scene, Stage 10 economy scene, Stage 11 fog/radar/minimap scene, Stage 12 AI skirmish scene, Stage 13 map terrain pathing scene, and setup notes.
+- `unity`: Unity desktop board prototype, Stage 2 PC sidebar scene, Stage 3 XR board placement prototype, Stage 4 left-hand build/selection scene, Stage 5 dual-hand command scene, Stage 6 movement visualization scene, Stage 7 building power/production scene, Stage 8 art pipeline showcase scene, Stage 9 combat scene, Stage 10 economy scene, Stage 11 fog/radar/minimap scene, Stage 12 AI skirmish scene, Stage 13 map terrain pathing scene, Stage 14 feedback scene, Stage 15 performance/build-readiness scene, and setup notes.
 
 ## Run Tests
 
@@ -152,9 +152,29 @@ Run Stage 13 checks:
 
 Use `run-stage13-fast-checks.ps1` for current map/pathing iteration, `run-stage13-medium-checks.ps1` before local commits, and `run-stage13-checks.ps1` as the slow full Stage 0-through-Stage 13 acceptance gate.
 
+Run Stage 14 checks:
+
+```powershell
+.\tools\run-unity-stage14-validation.ps1
+.\tools\run-stage14-fast-checks.ps1
+.\tools\run-stage14-medium-checks.ps1
+.\tools\run-stage14-checks.ps1
+```
+
 Use `run-stage14-fast-checks.ps1` for current feedback iteration, `run-stage14-medium-checks.ps1` before local commits, and `run-stage14-checks.ps1` as the full Stage 0-through-Stage 14 acceptance gate.
 
+Run Stage 15 checks:
+
+```powershell
+.\tools\run-unity-stage15-validation.ps1
+.\tools\run-stage15-fast-checks.ps1
+.\tools\run-stage15-medium-checks.ps1
+.\tools\run-stage15-checks.ps1
+```
+
 Use `run-stage15-fast-checks.ps1` for current performance/build-readiness iteration, `run-stage15-medium-checks.ps1` before local commits, and `run-stage15-checks.ps1` as the full Stage 0-through-Stage 15 acceptance gate.
+
+Stage 15.1 keeps medium validation flat: Stage 9 and later medium scripts run core tests once, build/copy `Rts.Core` once, then call direct prior-stage and current-stage Unity validation. They must not call prior medium scripts. `git diff --check` remains the whitespace gate; Windows line-ending conversion warnings are non-fatal when that command passes. See `docs/VALIDATION_TIERS.md`.
 
 Open the Unity project:
 

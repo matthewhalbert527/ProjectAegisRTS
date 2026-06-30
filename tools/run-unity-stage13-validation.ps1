@@ -1,5 +1,7 @@
 [CmdletBinding()]
-param()
+param(
+    [switch]$SkipCoreBuild
+)
 
 $ErrorActionPreference = 'Stop'
 
@@ -160,10 +162,14 @@ New-Item -ItemType Directory -Force -Path $logRoot | Out-Null
 Write-Host "Unity Editor: $unityEditor"
 Write-Host "Stage 13 scene: $scenePath"
 
-Write-Host 'Building Rts.Core DLL for Unity.'
-& (Join-Path $repoRoot 'tools\build-rts-core-for-unity.ps1')
-if ($LASTEXITCODE -ne 0) {
-    throw "build-rts-core-for-unity.ps1 failed with exit code $LASTEXITCODE."
+if ($SkipCoreBuild) {
+    Write-Host 'Skipping Rts.Core DLL build for Unity; caller already built it.'
+} else {
+    Write-Host 'Building Rts.Core DLL for Unity.'
+    & (Join-Path $repoRoot 'tools\build-rts-core-for-unity.ps1')
+    if ($LASTEXITCODE -ne 0) {
+        throw "build-rts-core-for-unity.ps1 failed with exit code $LASTEXITCODE."
+    }
 }
 
 $openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject |

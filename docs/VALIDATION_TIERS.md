@@ -1,6 +1,6 @@
 # Validation Tiers
 
-Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. Stage 14 follows it for feedback iteration. Stage 15 follows it for performance/build-readiness iteration. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration. Stage 9 and later full gates use `tools\run-stage-full-chain-checks.ps1` to walk Stage 0 through the current stage once instead of recursively replaying lower full gates.
+Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. Stage 14 follows it for feedback iteration. Stage 15 follows it for performance/build-readiness iteration. Stage 15.1 flattens the Stage 9-through-Stage 15 medium tiers so they validate the immediate prior stage directly instead of recursively calling prior medium checks. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration. Stage 9 and later full gates use `tools\run-stage-full-chain-checks.ps1` to walk Stage 0 through the current stage once instead of recursively replaying lower full gates.
 
 ## Tier Summary
 
@@ -30,6 +30,14 @@ Stage 8.1 adds validation tiers so normal development does not need to replay th
 | Fast | `.\tools\run-stage15-fast-checks.ps1` | You changed current Stage 15 performance budgets, pooling, render stats, readiness reporters, scene wiring, or smoke tooling. | Builds/copies `Rts.Core` for Unity, runs Stage 15 profile generation and validation only, runs Stage 15 Play Mode smoke/build-readiness audit when batchmode can own the project lock, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
 | Medium | `.\tools\run-stage15-medium-checks.ps1` | You are preparing a local Stage 15 commit. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs Stage 14 immediate dependency validation, then Stage 15 validation and Play Mode smoke/fallback, the `Rts.Core` UnityEngine-free scan, and `git diff --check`. |
 | Full | `.\tools\run-stage15-checks.ps1` | You need final Stage 15 acceptance evidence. | Runs Stage 0 through Stage 15 through the flattened full-chain runner, including each stage's Unity validation and Stage 15 Play Mode smoke/fallback. This is intentionally slow, but avoids recursive replay. |
+
+## Medium Flattening Rule
+
+Medium checks must not call earlier `run-stage*-medium-checks.ps1` scripts. A medium check runs `Rts.Core` tests once, builds/copies `Rts.Core` once, calls the immediate prior stage's Unity validation script directly with `-SkipCoreBuild`, calls the current stage's Unity validation script with `-SkipCoreBuild`, then runs the UnityEngine-free scan and `git diff --check`.
+
+For example, `run-stage15-medium-checks.ps1` calls `run-unity-stage14-validation.ps1 -SkipCoreBuild` and `run-unity-stage15-validation.ps1 -SkipCoreBuild`. It must not call `run-stage14-medium-checks.ps1`.
+
+Full checks are different: they remain the final Stage 0-through-current-stage acceptance gates and must not be weakened to match medium scope.
 
 ## Stage 8 Examples
 
@@ -195,6 +203,8 @@ Before declaring Stage 15 accepted or using Stage 15 as the base for a later sta
 
 Fast checks should usually take minutes because they avoid earlier-stage validation. Medium checks are longer because they include core tests, Unity DLL build, immediate dependency validation, and current-stage validation, but they avoid the full replay where practical. Full checks are the slow acceptance gate and can take much longer because they validate every stage through the current stage. Stage 9 and later full checks avoid recursively nesting lower full gates, so they should scale roughly with the number of stages instead of repeating prior stages many times.
 
+Stage 15.1 keeps medium checks to one core test run and one Unity DLL build per medium command. Direct Unity validation calls use `-SkipCoreBuild` after that build, which keeps failure output clear without introducing fragile cache state.
+
 ## Why Full Validation Still Matters
 
 The fast and medium tiers reduce iteration cost; they do not replace acceptance coverage. The full gate still proves that Stage 0 deterministic tests, earlier Unity scenes, smoke checks, dependencies, and current-stage validation continue to work together.
@@ -204,6 +214,16 @@ The fast and medium tiers reduce iteration cost; they do not replace acceptance 
 Validation helpers now check for each project's `obj\project.assets.json`. If assets exist, repeated runs use `--no-restore` for `dotnet run`, `dotnet build`, and `dotnet publish` paths that were updated in Stage 8.1. If assets are missing on a clean machine, the helper prints why and runs `dotnet restore` once for that project, then returns to no-restore execution.
 
 This keeps first-time setup working without making every validation loop depend on network or NuGet access.
+
+## Line Endings And Whitespace
+
+The repository uses `.gitattributes` to keep Unity YAML-style files (`.unity`, `.prefab`, `.asset`, `.meta`, `.json`, `.yml`, `.yaml`) on LF line endings and mark generated binaries such as `.dll` and `.pdb` as binary. C# and PowerShell files use CRLF on checkout. Validation whitespace normalization preserves each file's existing newline style while trimming trailing whitespace.
+
+Git may still print local line-ending conversion warnings after an edit, especially on Windows. Treat those warnings as non-fatal when `git diff --check` passes. The whitespace gate remains `git diff --check`; do not mass-rewrite Unity assets just to silence warnings.
+
+## Stage 15.1 Branching
+
+The pushed Stage 15 checkpoint is `codex/overnight-stage10-stage15` at `04c6c768bd6cdda74c6593a7d046de62ac27a39b`. Stage 15.1 validation-tier flattening work belongs on `codex/stage-15-1-validation-flattening`.
 
 ## Unity Already Open
 
@@ -242,4 +262,4 @@ Stage 13 implementation hash: 17527ff5848ba3a0a333cb8e0bd8332ca9f2f860.
 
 Stage 14 implementation hash: b54ea7d.
 
-Stage 15 implementation hash: the local Stage 15 implementation commit from this pass.
+Stage 15 implementation hash: 04c6c768bd6cdda74c6593a7d046de62ac27a39b.

@@ -182,7 +182,19 @@ function Remove-TrailingWhitespace {
     }
 
     $resolved = (Resolve-Path -LiteralPath $Path).Path
-    $lines = [System.IO.File]::ReadAllLines($resolved)
+    $text = [System.IO.File]::ReadAllText($resolved)
+    if ($text.Length -eq 0) {
+        return
+    }
+
+    $newline = "`n"
+    if ($text.Contains("`r`n")) {
+        $newline = "`r`n"
+    }
+
+    $normalizedText = $text -replace "`r`n", "`n"
+    $normalizedText = $normalizedText -replace "`r", "`n"
+    $lines = $normalizedText -split "`n", -1
     $changed = $false
     for ($i = 0; $i -lt $lines.Length; $i++) {
         $trimmed = $lines[$i].TrimEnd()
@@ -194,7 +206,7 @@ function Remove-TrailingWhitespace {
 
     if ($changed) {
         $utf8NoBom = New-Object System.Text.UTF8Encoding -ArgumentList $false
-        [System.IO.File]::WriteAllLines($resolved, [string[]]$lines, $utf8NoBom)
+        [System.IO.File]::WriteAllText($resolved, ($lines -join $newline), $utf8NoBom)
     }
 }
 
