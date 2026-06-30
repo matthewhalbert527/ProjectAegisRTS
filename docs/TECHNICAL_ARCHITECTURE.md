@@ -90,6 +90,12 @@ Stage 15 adds Unity-only performance and build-readiness tooling. `ObjectPoolSer
 
 The performance layer does not change deterministic gameplay, does not make Unity physics authoritative, does not produce final Quest optimization, and does not require Android/Quest build modules. It is an audit and guardrail layer for future profiling and packaging work.
 
+## Stage 16 Match And Scenario Boundary
+
+Stage 16 adds deterministic match flow to `Rts.Core`. `MatchState` owns start/reset, phase, local outcome, elapsed ticks, victory/defeat detection, and objective state. `ScenarioDefinition` describes the vertical slice players, objectives, victory condition, and defeat condition. `WorldSnapshot` exposes `MatchSnapshot` and `ScenarioSnapshot`.
+
+Unity reads those snapshots through `VerticalSliceScenarioController`, `MatchObjectiveHud`, and `IntegratedSystemsStatusHud`. Unity debug actions call safe scenario APIs for damage, credit grants, map reveal, production, harvest, and attack smoke paths. Unity does not mutate actor health, credits, visibility, objective state, or match state directly.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:
@@ -97,11 +103,11 @@ The bridge is intentionally simple:
 - Client submits commands such as `BeginProductionCommand`, `PlaceBuildingCommand`, `IssueMoveOrderCommand`, `IssueAttackOrderCommand`, and `IssueHarvestOrderCommand`.
 - Core validates commands and returns `CommandResult`.
 - Core advances in fixed ticks.
-- Client reads `WorldSnapshot`, `ActorSnapshot`, `ProductionSnapshot`, `PowerSnapshot`, `PlacementPreviewSnapshot`, `ProjectileSnapshot`, `CombatEventSnapshot`, `EconomySnapshot`, `FogSnapshot`, `RadarSnapshot`, `MinimapSnapshot`, `AiSnapshot`, and `MapSnapshot`.
+- Client reads `WorldSnapshot`, `ActorSnapshot`, `ProductionSnapshot`, `PowerSnapshot`, `PlacementPreviewSnapshot`, `ProjectileSnapshot`, `CombatEventSnapshot`, `EconomySnapshot`, `FogSnapshot`, `RadarSnapshot`, `MinimapSnapshot`, `AiSnapshot`, `MapSnapshot`, `MatchSnapshot`, and `ScenarioSnapshot`.
 
 ## Deterministic Tick Loop
 
-The current loop updates power, lets deterministic AI planners submit validated commands, advances production, advances terrain-aware movement, advances harvesting/refinery unloading, advances combat/projectiles, updates visibility, and refreshes actor flags. State uses integers and fixed cell-scaled positions. The smoke test compares deterministic summaries after replaying the same command sequence twice.
+The current loop updates power, lets deterministic AI planners submit validated commands, advances production, advances terrain-aware movement, advances harvesting/refinery unloading, advances combat/projectiles, updates visibility, updates match/objective state, and refreshes actor flags. State uses integers and fixed cell-scaled positions. The smoke test compares deterministic summaries after replaying the same command sequence twice.
 
 ## OpenRA Reference Boundary
 

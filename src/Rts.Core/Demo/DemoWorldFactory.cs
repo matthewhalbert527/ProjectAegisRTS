@@ -1,6 +1,7 @@
 using ProjectAegisRTS.Ai;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Economy;
+using ProjectAegisRTS.Scenarios;
 using ProjectAegisRTS.Simulation;
 using ProjectAegisRTS.Terrain;
 
@@ -144,6 +145,67 @@ namespace ProjectAegisRTS.Demo
                 for (var x = 16; x <= 18; x++)
                     world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 140);
 
+            return world;
+        }
+
+        public static RtsWorld CreateVerticalSliceWorld()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var world = new RtsWorld(rules, new GridMap(32, 32));
+            world.AddPlayer(1, "Aegis Commander", 5000);
+            world.AddPlayer(2, "Deterministic Rival AI", 3500);
+
+            for (var x = 3; x <= 28; x++)
+                world.SetTerrainCell(new Int2(x, 13), TerrainKind.Road);
+
+            for (var y = 15; y <= 17; y++)
+                for (var x = 12; x <= 16; x++)
+                    world.SetTerrainCell(new Int2(x, y), TerrainKind.Rough);
+
+            for (var y = 14; y <= 18; y++)
+                for (var x = 6; x <= 9; x++)
+                    world.SetTerrainCell(new Int2(x, y), TerrainKind.Forest);
+
+            for (var y = 4; y <= 10; y++)
+                if (y != 7)
+                    world.SetTerrainCell(new Int2(20, y), TerrainKind.Water);
+
+            for (var x = 2; x <= 8; x++)
+                world.SetTerrainCell(new Int2(x, 22), TerrainKind.Cliff);
+
+            world.CreateActor("fabrication_hub", 1, new Int2(3, 3));
+            world.CreateActor("power_plant", 1, new Int2(7, 3));
+            world.CreateActor("barracks", 1, new Int2(10, 3));
+            world.CreateActor("war_factory", 1, new Int2(7, 7));
+            world.CreateActor("refinery", 1, new Int2(3, 8));
+            world.CreateActor("comm_center", 1, new Int2(11, 7));
+            world.CreateActor("gun_tower", 1, new Int2(13, 10));
+            world.CreateActor("harvester", 1, new Int2(8, 12));
+            world.CreateActor("scout_rover", 1, new Int2(10, 11));
+            world.CreateActor("light_tank", 1, new Int2(14, 10));
+            world.CreateActor("rifle_infantry", 1, new Int2(12, 11));
+
+            world.CreateActor("fabrication_hub", 2, new Int2(23, 22));
+            world.CreateActor("power_plant", 2, new Int2(20, 22));
+            world.CreateActor("barracks", 2, new Int2(23, 18));
+            world.CreateActor("war_factory", 2, new Int2(18, 24));
+            world.CreateActor("refinery", 2, new Int2(27, 17));
+            world.CreateActor("gun_tower", 2, new Int2(22, 20));
+            world.CreateActor("medium_tank", 2, new Int2(18, 10));
+            world.CreateActor("rifle_infantry", 2, new Int2(17, 10));
+            world.CreateActor("scout_rover", 2, new Int2(21, 20));
+            world.CreateActor("harvester", 2, new Int2(26, 21));
+
+            for (var y = 8; y <= 9; y++)
+                for (var x = 15; x <= 18; x++)
+                    world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 180);
+
+            for (var y = 14; y <= 16; y++)
+                for (var x = 25; x <= 28; x++)
+                    world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 160);
+
+            world.ConfigureAiPlayer(new AiPlayerDefinition(2, new AiDifficultyDefinition("stage16-vertical-slice", 14, 3, 2, 16016)));
+            world.ConfigureScenario(ScenarioDefinition.CreateVerticalSlice(1, 2));
             return world;
         }
     }

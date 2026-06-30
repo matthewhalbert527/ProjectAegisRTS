@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Core;
+using ProjectAegisRTS.Match;
 using ProjectAegisRTS.Power;
+using ProjectAegisRTS.Scenarios;
 using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Snapshots
@@ -18,6 +20,8 @@ namespace ProjectAegisRTS.Snapshots
         public MinimapSnapshot Minimap { get; private set; }
         public AiSnapshot Ai { get; private set; }
         public MapSnapshot Map { get; private set; }
+        public MatchSnapshot Match { get; private set; }
+        public ScenarioSnapshot Scenario { get; private set; }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors)
             : this(tick, players, actors, new ProjectileSnapshot[0], new CombatEventSnapshot[0], EconomySnapshot.Empty)
@@ -45,6 +49,11 @@ namespace ProjectAegisRTS.Snapshots
         }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai, MapSnapshot map)
+            : this(tick, players, actors, projectiles, combatEvents, economy, fog, radar, minimap, ai, map, MatchSnapshot.Empty, ScenarioSnapshot.Empty)
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai, MapSnapshot map, MatchSnapshot match, ScenarioSnapshot scenario)
         {
             Tick = tick;
             Players = players;
@@ -57,6 +66,8 @@ namespace ProjectAegisRTS.Snapshots
             Minimap = minimap ?? MinimapSnapshot.Empty;
             Ai = ai ?? AiSnapshot.Empty;
             Map = map ?? MapSnapshot.Empty;
+            Match = match ?? MatchSnapshot.Empty;
+            Scenario = scenario ?? ScenarioSnapshot.Empty;
         }
     }
 

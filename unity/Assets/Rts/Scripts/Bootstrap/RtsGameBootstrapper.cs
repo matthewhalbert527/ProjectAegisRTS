@@ -10,7 +10,9 @@ using ProjectAegisRTS.UnityClient.Rendering.Combat;
 using ProjectAegisRTS.UnityClient.Rendering.Economy;
 using ProjectAegisRTS.UnityClient.Rendering.Map;
 using ProjectAegisRTS.UnityClient.Rendering.Visibility;
+using ProjectAegisRTS.UnityClient.Scenario;
 using ProjectAegisRTS.UnityClient.UI;
+using ProjectAegisRTS.UnityClient.UI.Common;
 using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.Bootstrap
@@ -61,6 +63,10 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public QuestBuildReadinessReporter questBuildReadinessReporter;
         public PcBuildReadinessReporter pcBuildReadinessReporter;
         public RenderStatsHud renderStatsHud;
+        public VerticalSliceScenarioController verticalSliceScenarioController;
+        public MatchObjectiveHud matchObjectiveHud;
+        public IntegratedSystemsStatusHud integratedSystemsStatusHud;
+        public VerticalSliceDebugActions verticalSliceDebugActions;
         public RtsSimulationDriver simulationDriver;
         public RtsDesktopInputController inputController;
         public RtsDebugHud debugHud;
@@ -169,6 +175,14 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 pcBuildReadinessReporter.Initialize(performanceBudgetLibrary, runtimePerformanceStats, sceneComplexityReporter);
             if (renderStatsHud != null)
                 renderStatsHud.Initialize(runtimePerformanceStats, sceneComplexityReporter, performanceBudgetLibrary, questBuildReadinessReporter, pcBuildReadinessReporter);
+            if (verticalSliceDebugActions != null)
+                verticalSliceDebugActions.Initialize(simulationDriver);
+            if (matchObjectiveHud != null)
+                matchObjectiveHud.Initialize(simulationDriver, verticalSliceScenarioController, verticalSliceDebugActions);
+            if (integratedSystemsStatusHud != null)
+                integratedSystemsStatusHud.Initialize(simulationDriver);
+            if (verticalSliceScenarioController != null)
+                verticalSliceScenarioController.Initialize(simulationDriver, matchObjectiveHud, integratedSystemsStatusHud, verticalSliceDebugActions);
             inputController.Initialize(sceneCamera, coordinateMapper, simulationDriver, debugHud);
             debugHud.Initialize(simulationDriver);
             cameraController.Configure(coordinateMapper);

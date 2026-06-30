@@ -7,8 +7,10 @@ using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Demo;
 using ProjectAegisRTS.Economy;
+using ProjectAegisRTS.Match;
 using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Production;
+using ProjectAegisRTS.Scenarios;
 using ProjectAegisRTS.Simulation;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.Terrain;
@@ -76,7 +78,17 @@ namespace ProjectAegisRTS.Tests
                 PathQueryReturnsStructuredResult,
                 MapValidationCatchesInvalidLayout,
                 MapSnapshotContainsTerrainAndPathDebug,
-                PathingDeterminismSmokeTest
+                PathingDeterminismSmokeTest,
+                VerticalSliceWorldCreates,
+                VerticalSliceWorldHasPlayerBase,
+                VerticalSliceWorldHasEnemyBase,
+                VerticalSliceWorldHasResources,
+                VerticalSliceWorldHasFog,
+                VerticalSliceWorldHasAiPlayer,
+                MatchStartsRunning,
+                DestroyEnemyBaseTriggersVictory,
+                DestroyPlayerBaseTriggersDefeat,
+                VerticalSliceDeterminismSmokeTest
             };
 
             var passed = 0;
@@ -637,6 +649,101 @@ namespace ProjectAegisRTS.Tests
             Assert(a == b, "Expected pathing deterministic summaries to match.");
         }
 
+        static void VerticalSliceWorldCreates()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            Assert(world.Map.Width == 32 && world.Map.Height == 32, "Expected 32x32 vertical slice map.");
+            Assert(world.MatchState.IsConfigured, "Expected vertical slice scenario configuration.");
+            Assert(world.ValidateMapForPlayer(1).Success, "Expected valid vertical slice map.");
+        }
+
+        static void VerticalSliceWorldHasPlayerBase()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            Assert(world.FirstActorOfType("fabrication_hub", 1) != null, "Expected player fabrication hub.");
+            Assert(world.FirstActorOfType("refinery", 1) != null, "Expected player refinery.");
+            Assert(world.FirstActorOfType("war_factory", 1) != null, "Expected player war factory.");
+            Assert(world.FirstActorOfType("comm_center", 1) != null, "Expected player comm center.");
+        }
+
+        static void VerticalSliceWorldHasEnemyBase()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            Assert(world.FirstActorOfType("fabrication_hub", 2) != null, "Expected enemy fabrication hub.");
+            Assert(world.FirstActorOfType("refinery", 2) != null, "Expected enemy refinery.");
+            Assert(world.FirstActorOfType("war_factory", 2) != null, "Expected enemy war factory.");
+            Assert(world.FirstActorOfType("gun_tower", 2) != null, "Expected enemy gun tower.");
+        }
+
+        static void VerticalSliceWorldHasResources()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            var snapshot = world.CreateSnapshot();
+            Assert(world.ResourceCells.Count >= 20, "Expected multiple resource cells in the vertical slice.");
+            Assert(snapshot.Economy.Resources.Count >= 20, "Expected resource cells in the economy snapshot.");
+        }
+
+        static void VerticalSliceWorldHasFog()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            var snapshot = world.CreateSnapshot(1);
+            Assert(snapshot.Fog.Cells.Count == 1024, "Expected one fog cell per map cell.");
+            Assert(HasCellVisibility(snapshot.Fog, new Int2(31, 31), CellVisibility.Unexplored), "Expected far cells to remain unexplored.");
+            Assert(snapshot.Minimap.ActorDots.Count > 0, "Expected minimap actor data.");
+        }
+
+        static void VerticalSliceWorldHasAiPlayer()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            var snapshot = world.CreateSnapshot();
+            Assert(snapshot.Ai.Players.Count == 1, "Expected one configured AI player.");
+            Assert(snapshot.Ai.Players[0].PlayerId == 2, "Expected enemy player AI.");
+        }
+
+        static void MatchStartsRunning()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            var result = world.StartMatch();
+            var snapshot = world.CreateSnapshot();
+            Assert(result.Success, "Expected match start success: " + result.ErrorCode);
+            Assert(snapshot.Match.Phase == MatchPhase.Running, "Expected running match phase.");
+            Assert(HasObjectiveState(snapshot.Scenario, "destroy_enemy_base", ScenarioObjectiveState.Active), "Expected active destroy objective.");
+            Assert(HasObjectiveState(snapshot.Scenario, "protect_player_base", ScenarioObjectiveState.Active), "Expected active protect objective.");
+        }
+
+        static void DestroyEnemyBaseTriggersVictory()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            world.StartMatch();
+            var enemyHub = world.FirstActorOfType("fabrication_hub", 2);
+            var result = world.ApplyScenarioDamage(1, enemyHub.Id, 9999, "test_victory");
+            var snapshot = world.CreateSnapshot();
+            Assert(result.Success, "Expected scenario damage success: " + result.ErrorCode);
+            Assert(snapshot.Match.Phase == MatchPhase.Won, "Expected enemy base destruction to win the match.");
+            Assert(snapshot.Match.LocalPlayerOutcome == PlayerOutcome.Victory, "Expected local victory outcome.");
+            Assert(HasObjectiveState(snapshot.Scenario, "destroy_enemy_base", ScenarioObjectiveState.Completed), "Expected completed destroy objective.");
+        }
+
+        static void DestroyPlayerBaseTriggersDefeat()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            world.StartMatch();
+            var playerHub = world.FirstActorOfType("fabrication_hub", 1);
+            var result = world.ApplyScenarioDamage(2, playerHub.Id, 9999, "test_defeat");
+            var snapshot = world.CreateSnapshot();
+            Assert(result.Success, "Expected scenario damage success: " + result.ErrorCode);
+            Assert(snapshot.Match.Phase == MatchPhase.Lost, "Expected player base destruction to lose the match.");
+            Assert(snapshot.Match.LocalPlayerOutcome == PlayerOutcome.Defeat, "Expected local defeat outcome.");
+            Assert(HasObjectiveState(snapshot.Scenario, "protect_player_base", ScenarioObjectiveState.Failed), "Expected failed protect objective.");
+        }
+
+        static void VerticalSliceDeterminismSmokeTest()
+        {
+            var a = RunVerticalSliceDeterministicSequence();
+            var b = RunVerticalSliceDeterministicSequence();
+            Assert(a == b, "Expected vertical slice deterministic summaries to match.");
+        }
+
         static string RunDeterministicSequence()
         {
             var world = DemoWorldFactory.CreateMvpWorld();
@@ -696,6 +803,20 @@ namespace ProjectAegisRTS.Tests
             world.QueryPath(infantry.Id, new Int2(9, 15));
             world.IssueCommand(new IssueMoveOrderCommand(1, new[] { scout.Id }, new Int2(18, 6)));
             RunTicks(world, 96);
+            return world.GetDeterminismSummary();
+        }
+
+        static string RunVerticalSliceDeterministicSequence()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            world.StartMatch();
+            var harvester = world.FirstActorOfType("harvester", 1);
+            var tank = world.FirstActorOfType("light_tank", 1);
+            var target = world.FirstActorOfType("rifle_infantry", 2);
+            world.IssueCommand(new IssueHarvestOrderCommand(1, new[] { harvester.Id }, new Int2(15, 8)));
+            world.IssueCommand(new IssueAttackOrderCommand(1, new[] { tank.Id }, target.Id));
+            RunTicks(world, 80);
+            world.CreateSnapshot(1);
             return world.GetDeterminismSummary();
         }
 
@@ -783,6 +904,14 @@ namespace ProjectAegisRTS.Tests
         {
             for (var i = 0; i < snapshot.TerrainCells.Count; i++)
                 if (snapshot.TerrainCells[i].Kind == kind)
+                    return true;
+            return false;
+        }
+
+        static bool HasObjectiveState(ScenarioSnapshot snapshot, string objectiveId, ScenarioObjectiveState state)
+        {
+            for (var i = 0; i < snapshot.Objectives.Count; i++)
+                if (snapshot.Objectives[i].ObjectiveId == objectiveId && snapshot.Objectives[i].State == state)
                     return true;
             return false;
         }

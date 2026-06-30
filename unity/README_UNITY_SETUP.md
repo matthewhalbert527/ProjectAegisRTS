@@ -348,6 +348,69 @@ To validate it from PowerShell:
 
 Stage 13 preserves the Stage 12 AI scene and adds deterministic terrain/passability/path debug snapshots, terrain/path placeholder presentation, map validation readouts, and `MapValidationDebugHud`.
 
+## Create or Validate the Stage 14 Scene
+
+Stage 14 adds the feedback polish scene:
+
+```text
+Assets/Rts/Scenes/Stage14_FeedbackPolish.unity
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage14-validation.ps1
+.\tools\run-stage14-fast-checks.ps1
+.\tools\run-stage14-medium-checks.ps1
+.\tools\run-stage14-checks.ps1
+```
+
+Stage 14 preserves the Stage 13 map scene and adds snapshot-driven placeholder audio, VFX, UI, and haptic feedback.
+
+## Create or Validate the Stage 15 Scene
+
+Stage 15 adds the performance/build-readiness scene:
+
+```text
+Assets/Rts/Scenes/Stage15_PerformanceBuildReadiness.unity
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage15-validation.ps1
+.\tools\run-stage15-fast-checks.ps1
+.\tools\run-stage15-medium-checks.ps1
+.\tools\run-stage15-checks.ps1
+```
+
+Stage 15 preserves the Stage 14 feedback scene and adds object pooling, runtime stats, scene complexity, quality profiles, readiness reporters, and `RenderStatsHud`.
+
+## Create or Validate the Stage 16 Scene
+
+Stage 16 adds the integrated playable vertical slice:
+
+```text
+Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity
+```
+
+To create or refresh it manually in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 16 > Create Playable Vertical Slice Scene
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage16-validation.ps1
+.\tools\run-stage16-fast-checks.ps1
+.\tools\run-stage16-medium-checks.ps1
+.\tools\run-stage16-checks.ps1
+```
+
+Stage 16 preserves Stage 15 systems, restores the PC desktop HUD/sidebar in the integrated scene, and adds deterministic match/objective state, vertical-slice world setup, scenario debug actions, `MatchObjectiveHud`, and `IntegratedSystemsStatusHud`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -362,6 +425,10 @@ Stage 13 preserves the Stage 12 AI scene and adds deterministic terrain/passabil
 - F7: toggle the Stage 11 fog/radar debug HUD.
 - F6: toggle the Stage 12 AI debug HUD.
 - F5: toggle the Stage 13 map validation debug HUD.
+- F4: toggle the Stage 14 feedback debug HUD.
+- F3: toggle the Stage 15 render stats HUD.
+- O: toggle the Stage 16 match/objective HUD.
+- Y: toggle the Stage 16 integrated systems HUD.
 - F1-F6: switch Stage 2 production tabs.
 - S/M/A: stop, move mode, or attack placeholder command.
 - Backquote: toggle the Stage 1 debug overlay if it is enabled in the scene.
@@ -456,6 +523,13 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 7 uses placeholder building parts, simple materials, and transform loops; it is not final building art, VFX, sound, combat damage, or destruction.
 - Stage 8 uses generated blockout prefabs and concept copies; it is not final production modeling, rigging, VFX, audio, combat, or destruction.
 - Stage 9 uses MVP combat balance and placeholder VFX; it is not final combat balance, armor, line-of-sight, splash damage, audio, or destruction art.
+- Stage 10 uses MVP economy balance and placeholder ore/cargo/refinery visuals; it is not final resource balance or art.
+- Stage 11 uses deterministic fog and placeholder minimap/fog visuals; it is not final scouting UX.
+- Stage 12 uses deterministic skirmish AI intents; it is not final opponent strategy.
+- Stage 13 uses placeholder terrain/path debug visuals; it is not final map authoring.
+- Stage 14 uses placeholder/silent feedback assets; it is not final audio, VFX, haptics, or UI polish.
+- Stage 15 uses placeholder budgets/readiness checks; it is not final Quest profiling or release packaging.
+- Stage 16 is a vertical slice with simple base-destroy objectives; it is not campaign scripting, multiplayer, replay, save/load, final balance, or final art.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

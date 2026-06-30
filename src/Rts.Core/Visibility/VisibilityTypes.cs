@@ -62,6 +62,12 @@ namespace ProjectAegisRTS.Visibility
             cells[Index(cell)] = CellVisibility.Visible;
         }
 
+        public void RevealAll()
+        {
+            for (var i = 0; i < cells.Length; i++)
+                cells[i] = CellVisibility.Visible;
+        }
+
         public CellVisibility GetCell(Int2 cell)
         {
             return Contains(cell) ? cells[Index(cell)] : CellVisibility.Unexplored;

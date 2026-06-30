@@ -7,10 +7,12 @@ using ProjectAegisRTS.Commands;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Economy;
+using ProjectAegisRTS.Match;
 using ProjectAegisRTS.Pathfinding;
 using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Production;
 using ProjectAegisRTS.Projectiles;
+using ProjectAegisRTS.Scenarios;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.Terrain;
 using ProjectAegisRTS.Visibility;
@@ -29,6 +31,7 @@ namespace ProjectAegisRTS.Simulation
         readonly List<CombatEventSnapshot> recentCombatEvents;
         readonly List<EconomyEventSnapshot> recentEconomyEvents;
         readonly List<PathDebugSnapshot> recentPathQueries;
+        readonly MatchState matchState;
         readonly AiSystem aiSystem;
         readonly GridPathfinder pathfinder;
         int nextActorId;
@@ -61,6 +64,7 @@ namespace ProjectAegisRTS.Simulation
             recentCombatEvents = new List<CombatEventSnapshot>();
             recentEconomyEvents = new List<EconomyEventSnapshot>();
             recentPathQueries = new List<PathDebugSnapshot>();
+            matchState = new MatchState();
             aiSystem = new AiSystem();
             pathfinder = new GridPathfinder();
             nextActorId = 1;
@@ -109,6 +113,11 @@ namespace ProjectAegisRTS.Simulation
         public AiSystem AiSystem
         {
             get { return aiSystem; }
+        }
+
+        public MatchState MatchState
+        {
+            get { return matchState; }
         }
 
         public PlayerState AddPlayer(int playerId, string name, int credits)
@@ -252,6 +261,65 @@ namespace ProjectAegisRTS.Simulation
             UpdatePowerAndActorFlags();
         }
 
+        public CommandResult ConfigureScenario(ScenarioDefinition scenarioDefinition)
+        {
+            return matchState.Configure(scenarioDefinition);
+        }
+
+        public CommandResult StartMatch()
+        {
+            var result = matchState.StartMatch(TickNumber);
+            matchState.Update(this);
+            return result;
+        }
+
+        public CommandResult ResetMatch()
+        {
+            return matchState.ResetMatch();
+        }
+
+        public CommandResult ApplyScenarioDamage(int playerId, ActorId targetActorId, int damage, string reason)
+        {
+            if (!players.ContainsKey(playerId))
+                return CommandResult.Fail("UnknownPlayer", "The scenario damage request references a player that does not exist.");
+            if (damage <= 0)
+                return CommandResult.Fail("InvalidDamage", "Scenario damage must be greater than zero.");
+
+            ActorState target;
+            if (!actors.TryGetValue(targetActorId.Value, out target))
+                return CommandResult.Fail("ActorMissing", "The scenario damage target does not exist.");
+            if (target.IsDestroyed)
+                return CommandResult.Fail("ActorDestroyed", "The scenario damage target is already destroyed.");
+
+            ApplyDamage(target, damage, 0, 0, string.IsNullOrEmpty(reason) ? "scenario_debug" : reason);
+            UpdatePowerAndActorFlags();
+            UpdateVisibility();
+            matchState.Update(this);
+            return CommandResult.Ok("Scenario damage applied.");
+        }
+
+        public CommandResult GrantScenarioCredits(int playerId, int credits, string reason)
+        {
+            if (!players.ContainsKey(playerId))
+                return CommandResult.Fail("UnknownPlayer", "The credit grant references a player that does not exist.");
+            if (credits <= 0)
+                return CommandResult.Fail("InvalidCredits", "Scenario credit grant must be greater than zero.");
+
+            players[playerId].Credits += credits;
+            AddEconomyEvent("ScenarioCreditsGranted", 0, 0, Int2.Zero, credits, credits);
+            return CommandResult.Ok("Scenario credits granted.");
+        }
+
+        public CommandResult RevealScenarioMap(int playerId)
+        {
+            PlayerVisibilityState visibility;
+            if (!visibilityStates.TryGetValue(playerId, out visibility))
+                return CommandResult.Fail("UnknownPlayer", "The reveal request references a player that does not exist.");
+
+            visibility.RevealAll();
+            return CommandResult.Ok("Scenario map revealed.");
+        }
+
         public CommandResult IssueCommand(ISimCommand command)
         {
             if (!players.ContainsKey(command.PlayerId))
@@ -301,6 +369,7 @@ namespace ProjectAegisRTS.Simulation
             TickProjectiles();
             UpdatePowerAndActorFlags();
             UpdateVisibility();
+            matchState.Update(this);
         }
 
         public PlacementPreviewSnapshot PreviewPlacement(int playerId, string typeId, Int2 topLeftCell)
@@ -443,7 +512,7 @@ namespace ProjectAegisRTS.Simulation
             var minimap = perspectivePlayerId > 0 ? CreateMinimapSnapshot(perspectivePlayerId) : MinimapSnapshot.Empty;
             var map = CreateMapSnapshot(perspectivePlayerId);
 
-            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy, fog, radar, minimap, aiSystem.CreateSnapshot(), map);
+            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy, fog, radar, minimap, aiSystem.CreateSnapshot(), map, matchState.CreateSnapshot(), matchState.CreateScenarioSnapshot());
         }
 
         public bool IsCellVisible(int playerId, Int2 cell)
@@ -464,6 +533,23 @@ namespace ProjectAegisRTS.Simulation
             UpdateVisibility();
             var sb = new StringBuilder();
             sb.Append("tick=").Append(TickNumber).AppendLine();
+            var match = matchState.CreateSnapshot();
+            sb.Append("match ")
+                .Append(match.ScenarioId).Append(' ')
+                .Append(match.Phase).Append(' ')
+                .Append(match.LocalPlayerOutcome).Append(' ')
+                .Append(match.WinningPlayerId).Append(' ')
+                .Append(match.StartedTick).Append(' ')
+                .Append(match.ElapsedTicks)
+                .AppendLine();
+            var scenario = matchState.CreateScenarioSnapshot();
+            foreach (var objective in scenario.Objectives)
+            {
+                sb.Append("objective ")
+                    .Append(objective.ObjectiveId).Append(' ')
+                    .Append(objective.State)
+                    .AppendLine();
+            }
 
             foreach (var player in SortedPlayers())
             {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ProjectAegisRTS.Actors;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Demo;
@@ -19,6 +20,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         [SerializeField] bool useFogRadarDemoWorld;
         [SerializeField] bool useAiSkirmishDemoWorld;
         [SerializeField] bool useMapTerrainDemoWorld;
+        [SerializeField] bool useVerticalSliceDemoWorld;
         [SerializeField] bool usePlayerPerspectiveSnapshot;
         public FeedbackEventBus feedbackEventBus;
 
@@ -46,6 +48,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public bool UseFogRadarDemoWorld { get { return useFogRadarDemoWorld; } set { useFogRadarDemoWorld = value; } }
         public bool UseAiSkirmishDemoWorld { get { return useAiSkirmishDemoWorld; } set { useAiSkirmishDemoWorld = value; } }
         public bool UseMapTerrainDemoWorld { get { return useMapTerrainDemoWorld; } set { useMapTerrainDemoWorld = value; } }
+        public bool UseVerticalSliceDemoWorld { get { return useVerticalSliceDemoWorld; } set { useVerticalSliceDemoWorld = value; } }
         public bool UsePlayerPerspectiveSnapshot { get { return usePlayerPerspectiveSnapshot; } set { usePlayerPerspectiveSnapshot = value; } }
 
         public string CommandMode
@@ -103,7 +106,9 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult ResetDemoWorld()
         {
-            if (useMapTerrainDemoWorld)
+            if (useVerticalSliceDemoWorld)
+                world = DemoWorldFactory.CreateVerticalSliceWorld();
+            else if (useMapTerrainDemoWorld)
                 world = DemoWorldFactory.CreateMapTerrainDemoWorld();
             else if (useAiSkirmishDemoWorld)
                 world = DemoWorldFactory.CreateAiSkirmishDemoWorld();
@@ -120,7 +125,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             RefreshSnapshot();
             if (feedbackEventBus != null)
                 feedbackEventBus.ResetSnapshotTracking();
-            return RtsCommandResult.Ok(useMapTerrainDemoWorld ? "Map terrain demo world reset." : (useAiSkirmishDemoWorld ? "AI skirmish demo world reset." : (useFogRadarDemoWorld ? "Fog/radar demo world reset." : (useEconomyDemoWorld ? "Economy demo world reset." : (useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset.")))));
+            return RtsCommandResult.Ok(useVerticalSliceDemoWorld ? "Vertical slice demo world reset." : (useMapTerrainDemoWorld ? "Map terrain demo world reset." : (useAiSkirmishDemoWorld ? "AI skirmish demo world reset." : (useFogRadarDemoWorld ? "Fog/radar demo world reset." : (useEconomyDemoWorld ? "Economy demo world reset." : (useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset."))))));
         }
 
         public RtsCommandResult TryCreateCombatDemoWorld()
@@ -130,6 +135,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useFogRadarDemoWorld = false;
             useAiSkirmishDemoWorld = false;
             useMapTerrainDemoWorld = false;
+            useVerticalSliceDemoWorld = false;
             return ResetDemoWorld();
         }
 
@@ -140,6 +146,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useFogRadarDemoWorld = false;
             useAiSkirmishDemoWorld = false;
             useMapTerrainDemoWorld = false;
+            useVerticalSliceDemoWorld = false;
             return ResetDemoWorld();
         }
 
@@ -150,6 +157,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useCombatDemoWorld = false;
             useAiSkirmishDemoWorld = false;
             useMapTerrainDemoWorld = false;
+            useVerticalSliceDemoWorld = false;
             usePlayerPerspectiveSnapshot = true;
             return ResetDemoWorld();
         }
@@ -161,6 +169,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useEconomyDemoWorld = false;
             useCombatDemoWorld = false;
             useMapTerrainDemoWorld = false;
+            useVerticalSliceDemoWorld = false;
             usePlayerPerspectiveSnapshot = false;
             return ResetDemoWorld();
         }
@@ -172,8 +181,167 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useFogRadarDemoWorld = false;
             useEconomyDemoWorld = false;
             useCombatDemoWorld = false;
+            useVerticalSliceDemoWorld = false;
             usePlayerPerspectiveSnapshot = false;
             return ResetDemoWorld();
+        }
+
+        public RtsCommandResult TryCreateVerticalSliceWorld()
+        {
+            useVerticalSliceDemoWorld = true;
+            useMapTerrainDemoWorld = false;
+            useAiSkirmishDemoWorld = false;
+            useFogRadarDemoWorld = false;
+            useEconomyDemoWorld = false;
+            useCombatDemoWorld = false;
+            usePlayerPerspectiveSnapshot = true;
+            return ResetDemoWorld();
+        }
+
+        public RtsCommandResult TryStartMatch()
+        {
+            if (world == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            var result = RtsCommandResult.FromCore("Start match", world.StartMatch());
+            RefreshSnapshot();
+            return result;
+        }
+
+        public RtsCommandResult TryResetMatch()
+        {
+            if (world == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            var result = RtsCommandResult.FromCore("Reset match", world.ResetMatch());
+            RefreshSnapshot();
+            return result;
+        }
+
+        public RtsCommandResult TryApplyScenarioDamage(int actorId, int damage, string reason)
+        {
+            if (world == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            var result = RtsCommandResult.FromCore("Scenario damage", world.ApplyScenarioDamage(playerId, new ActorId(actorId), damage, reason));
+            RefreshSnapshot();
+            return result;
+        }
+
+        public RtsCommandResult TryGrantScenarioCredits(int credits)
+        {
+            if (world == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            var result = RtsCommandResult.FromCore("Grant credits", world.GrantScenarioCredits(playerId, credits, "unity_debug"));
+            RefreshSnapshot();
+            return result;
+        }
+
+        public RtsCommandResult TryRevealScenarioMap()
+        {
+            if (world == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            var result = RtsCommandResult.FromCore("Reveal map", world.RevealScenarioMap(playerId));
+            RefreshSnapshot();
+            return result;
+        }
+
+        public RtsCommandResult TryDestroyEnemyBaseForScenario()
+        {
+            int actorId;
+            if (!TryFindAliveActorOfType("fabrication_hub", 2, out actorId))
+                return RtsCommandResult.Fail("EnemyBaseMissing", "No enemy fabrication hub is available.");
+
+            return TryApplyScenarioDamage(actorId, 9999, "scenario_destroy_enemy_base");
+        }
+
+        public RtsCommandResult TryDestroyPlayerBaseForScenario()
+        {
+            int actorId;
+            if (!TryFindAliveActorOfType("fabrication_hub", playerId, out actorId))
+                return RtsCommandResult.Fail("PlayerBaseMissing", "No player fabrication hub is available.");
+
+            return TryApplyScenarioDamage(actorId, 9999, "scenario_destroy_player_base");
+        }
+
+        public bool TryFindAliveActorOfType(string typeId, int ownerId, out int actorId)
+        {
+            actorId = 0;
+            if (world == null)
+                return false;
+
+            foreach (var pair in world.Actors)
+            {
+                var actor = pair.Value;
+                if (actor.TypeId == typeId && actor.OwnerPlayerId == ownerId && !actor.IsDestroyed)
+                {
+                    actorId = actor.Id.Value;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryFindFirstEnemyCombatActor(out int actorId)
+        {
+            actorId = 0;
+            if (world == null || Rules == null)
+                return false;
+
+            if (latestSnapshot != null)
+            {
+                for (var i = 0; i < latestSnapshot.Actors.Count; i++)
+                {
+                    var snapshot = latestSnapshot.Actors[i];
+                    ActorDefinition snapshotDefinition;
+                    if (snapshot.OwnerId != playerId && !snapshot.IsDestroyed && Rules.TryGetDefinition(snapshot.TypeId, out snapshotDefinition) && snapshotDefinition.Weapon != null)
+                    {
+                        actorId = snapshot.ActorId;
+                        return true;
+                    }
+                }
+            }
+
+            foreach (var pair in world.Actors)
+            {
+                var actor = pair.Value;
+                ActorDefinition definition;
+                if (actor.OwnerPlayerId != playerId && !actor.IsDestroyed && Rules.TryGetDefinition(actor.TypeId, out definition) && definition.Weapon != null)
+                {
+                    actorId = actor.Id.Value;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public RtsCommandResult TrySelectFirstOwnedActorOfType(string typeId)
+        {
+            int actorId;
+            if (!TryFindAliveActorOfType(typeId, playerId, out actorId))
+                return RtsCommandResult.Fail("ActorMissing", "No owned actor of type " + typeId + " is available.");
+
+            return SetSelectedActorIds(new[] { actorId });
+        }
+
+        public RtsCommandResult TrySelectFirstOwnedCombatActor()
+        {
+            if (world == null || Rules == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            foreach (var pair in world.Actors)
+            {
+                var actor = pair.Value;
+                ActorDefinition definition;
+                if (actor.OwnerPlayerId == playerId && !actor.IsDestroyed && Rules.TryGetDefinition(actor.TypeId, out definition) && definition.Weapon != null)
+                    return SetSelectedActorIds(new[] { actor.Id.Value });
+            }
+
+            return RtsCommandResult.Fail("CombatActorMissing", "No owned combat actor is available.");
         }
 
         public void SetHoveredCell(Int2 cell)

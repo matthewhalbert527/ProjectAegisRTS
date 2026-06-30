@@ -1,6 +1,6 @@
 # Validation Tiers
 
-Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. Stage 14 follows it for feedback iteration. Stage 15 follows it for performance/build-readiness iteration. Stage 15.1 flattens the Stage 9-through-Stage 15 medium tiers so they validate the immediate prior stage directly instead of recursively calling prior medium checks. A follow-up Stage 15.1 hardening pass added `tools\audit-medium-validation-recursion.ps1` after runtime output showed recursive medium sections were still possible to miss. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration. Stage 9 and later full gates use `tools\run-stage-full-chain-checks.ps1` to walk Stage 0 through the current stage once instead of recursively replaying lower full gates.
+Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. Stage 14 follows it for feedback iteration. Stage 15 follows it for performance/build-readiness iteration. Stage 16 follows it for playable vertical-slice iteration. Stage 15.1 flattens the Stage 9-through-Stage 16 medium tiers so they validate the immediate prior stage directly instead of recursively calling prior medium checks. A follow-up hardening pass added `tools\audit-medium-validation-recursion.ps1` after runtime output showed recursive medium sections were still possible to miss. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration. Stage 9 and later full gates use `tools\run-stage-full-chain-checks.ps1` to walk Stage 0 through the current stage once instead of recursively replaying lower full gates.
 
 ## Tier Summary
 
@@ -30,12 +30,15 @@ Stage 8.1 adds validation tiers so normal development does not need to replay th
 | Fast | `.\tools\run-stage15-fast-checks.ps1` | You changed current Stage 15 performance budgets, pooling, render stats, readiness reporters, scene wiring, or smoke tooling. | Builds/copies `Rts.Core` for Unity, runs Stage 15 profile generation and validation only, runs Stage 15 Play Mode smoke/build-readiness audit when batchmode can own the project lock, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
 | Medium | `.\tools\run-stage15-medium-checks.ps1` | You are preparing a local Stage 15 commit. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs Stage 14 immediate dependency validation, then Stage 15 validation and Play Mode smoke/fallback, the `Rts.Core` UnityEngine-free scan, and `git diff --check`. |
 | Full | `.\tools\run-stage15-checks.ps1` | You need final Stage 15 acceptance evidence. | Runs Stage 0 through Stage 15 through the flattened full-chain runner, including each stage's Unity validation and Stage 15 Play Mode smoke/fallback. This is intentionally slow, but avoids recursive replay. |
+| Fast | `.\tools\run-stage16-fast-checks.ps1` | You changed current Stage 16 match flow, scenario scene wiring, integrated HUDs, or smoke tooling. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs Stage 16 scene validation and Play Mode smoke/fallback, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
+| Medium | `.\tools\run-stage16-medium-checks.ps1` | You are preparing a local Stage 16 commit. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs direct Stage 15 Unity validation, then Stage 16 validation and Play Mode smoke/fallback, the medium recursion audit, the `Rts.Core` UnityEngine-free scan, and `git diff --check`. |
+| Full | `.\tools\run-stage16-checks.ps1` | You need final Stage 16 acceptance evidence. | Runs Stage 0 through Stage 16 through the flattened full-chain runner, including each stage's Unity validation and Stage 16 Play Mode smoke/fallback. This is intentionally slow, but avoids recursive replay. |
 
 ## Medium Flattening Rule
 
 Medium checks must not call earlier `run-stage*-medium-checks.ps1` scripts. A medium check runs `Rts.Core` tests once, builds/copies `Rts.Core` once, calls the immediate prior stage's Unity validation script directly with `-SkipCoreBuild`, calls the current stage's Unity validation script with `-SkipCoreBuild`, then runs the UnityEngine-free scan and `git diff --check`.
 
-For example, `run-stage15-medium-checks.ps1` calls `run-unity-stage14-validation.ps1 -SkipCoreBuild` and `run-unity-stage15-validation.ps1 -SkipCoreBuild`. It must not call `run-stage14-medium-checks.ps1`.
+For example, `run-stage16-medium-checks.ps1` calls `run-unity-stage15-validation.ps1 -SkipCoreBuild` and `run-unity-stage16-validation.ps1 -SkipCoreBuild`. It must not call `run-stage15-medium-checks.ps1`.
 
 The machine-enforced guardrail is:
 
@@ -43,7 +46,7 @@ The machine-enforced guardrail is:
 .\tools\audit-medium-validation-recursion.ps1
 ```
 
-This audit scans Stage 9 through Stage 15 medium scripts and fails if a prior medium dependency or old "medium validation as the immediate dependency" wording returns. Stage 13, Stage 14, and Stage 15 medium scripts run the audit before tests, and the Stage 15 full gate runs it before the full acceptance chain.
+This audit scans Stage 9 through Stage 16 medium scripts and fails if a prior medium dependency or old "medium validation as the immediate dependency" wording returns. Stage 13, Stage 14, Stage 15, and Stage 16 medium scripts run the audit before tests, and the Stage 16 full gate runs it before the full acceptance chain.
 
 Full checks are different: they remain the final Stage 0-through-current-stage acceptance gates and must not be weakened to match medium scope.
 
@@ -205,6 +208,26 @@ Before declaring Stage 15 accepted or using Stage 15 as the base for a later sta
 
 ```powershell
 .\tools\run-stage15-checks.ps1
+```
+
+## Stage 16 Examples
+
+After touching Stage 16 match flow, vertical-slice world setup, scene wiring, HUDs, or smoke validation, use:
+
+```powershell
+.\tools\run-stage16-fast-checks.ps1
+```
+
+Before committing Stage 16 vertical-slice changes locally, use:
+
+```powershell
+.\tools\run-stage16-medium-checks.ps1
+```
+
+Before declaring Stage 16 accepted or using Stage 16 as the base for a later stage, use:
+
+```powershell
+.\tools\run-stage16-checks.ps1
 ```
 
 ## Expected Time

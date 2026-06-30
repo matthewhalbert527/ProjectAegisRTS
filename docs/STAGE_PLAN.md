@@ -68,6 +68,10 @@ Complete. Audio, VFX, UI, and haptic feedback foundation. Adds a Unity-side feed
 
 Complete. Quest performance and build-readiness foundation. Adds placeholder Quest/PC performance budget profiles, object pooling for short-lived projectile and feedback marker visuals, runtime performance stats, scene complexity reporting, quality profile application, build-readiness reporters, `Assets/Rts/Scenes/Stage15_PerformanceBuildReadiness.unity`, F3 render stats HUD, and fast/medium/full Stage 15 validation tiers.
 
+## Stage 16
+
+Complete. Integrated playable vertical slice. Adds deterministic match/scenario/victory state, vertical-slice demo world, match and scenario snapshots, player/enemy bases, resources, fog/minimap, AI, terrain/pathing, economy, combat, feedback, performance HUD, PC sidebar, simulated dual-hand controls, `Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity`, match/objective HUD, integrated systems status HUD, scenario debug actions, and fast/medium/full Stage 16 validation tiers with non-recursive medium validation guarded by the audit script.
+
 ## Later Stages
 
 Next later stages include multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.
