@@ -18,7 +18,7 @@ Stage 13 implements the map, terrain, pathing diagnostics, and authoring-tool pl
 - `dotnet run --no-restore --project src/Rts.Core.Tests`: passing 55/55 during implementation.
 - `tools/run-stage13-fast-checks.ps1`: passed with Unity batchmode scene validation and Play Mode smoke.
 - `tools/run-stage13-medium-checks.ps1`: passed with Stage 12 immediate dependency validation.
-- `tools/run-stage13-checks.ps1`: attempted as the recursive full Stage 0-13 gate; it was still progressing when the 90-minute command timeout cut off the local runner during dependency validation. No active ProjectAegisRTS Unity or PowerShell validation process remained afterward. Fast and medium gates are the accepted evidence for this checkpoint; the next validation-tooling pass should reduce repeated full-chain runtime.
+- `tools/run-stage13-checks.ps1`: passed after the full gate was flattened to run Stage 0-13 validation once per stage instead of recursively replaying lower full gates.
 - Rts.Core UnityEngine-free scan passed.
 
 ## Limits

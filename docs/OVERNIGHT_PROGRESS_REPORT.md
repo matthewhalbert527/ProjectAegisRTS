@@ -33,7 +33,7 @@
 - `tools/build-rts-core-for-unity.ps1`: passed and refreshed `unity/Assets/Rts/Plugins/RtsCore/Rts.Core.dll`.
 - `tools/run-stage13-fast-checks.ps1`: passed with Unity batchmode scene validation and Play Mode smoke.
 - `tools/run-stage13-medium-checks.ps1`: passed, including Stage 12 immediate dependency validation.
-- `tools/run-stage13-checks.ps1`: attempted; the recursive full Stage 0-13 chain was still progressing when the 90-minute command timeout cut off the local runner during dependency validation. No active ProjectAegisRTS validation process remained afterward.
+- `tools/run-stage13-checks.ps1`: passed with the flattened full-chain runner in about 10 minutes, including Stage 0 tests, Stage 1-13 Unity validation, batchmode Play Mode smoke where available, the UnityEngine-free scan, and `git diff --check`.
 - `git diff --check`: passed after cleanup.
 - Rts.Core UnityEngine-free scan: passed; no `UnityEngine` references found in `src/Rts.Core`.
 
@@ -53,7 +53,7 @@
 ## Blockers
 
 - No gameplay or compile blocker remains for Stage 13.
-- The recursive full acceptance chain is too slow for this pass and timed out after 90 minutes while still making progress. Next pass should optimize validation tiers/full-chain orchestration before attempting Stage 14/15 full acceptance.
+- Full-chain orchestration has been flattened for Stage 9 and later full gates. No validation tooling blocker remains before Stage 14/15 work continues.
 
 ## Morning Command
 
