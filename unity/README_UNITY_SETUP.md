@@ -273,6 +273,31 @@ To validate it from PowerShell:
 
 Stage 10 preserves the Stage 9 combat scene and adds deterministic ore harvesting, harvester cargo/refinery unloading snapshots, resource markers, cargo and dock markers, economy event markers, and `EconomyDebugHud`.
 
+## Create or Validate the Stage 11 Scene
+
+Stage 11 adds the fog, radar, and minimap scene:
+
+```text
+Assets/Rts/Scenes/Stage11_FogRadarMinimap.unity
+```
+
+To create or refresh the scene manually in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 11 > Create Fog Radar Minimap Scene
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage11-validation.ps1
+.\tools\run-stage11-fast-checks.ps1
+.\tools\run-stage11-medium-checks.ps1
+.\tools\run-stage11-checks.ps1
+```
+
+Stage 11 preserves the Stage 10 economy scene and adds player-perspective snapshots, fog overlay presentation, radar status, minimap dots, and `FogDebugHud`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -284,6 +309,7 @@ Stage 10 preserves the Stage 9 combat scene and adds deterministic ore harvestin
 - I/T/H: queue rifle infantry, light tank, harvester.
 - L: toggle forced low-power demo state.
 - F8: toggle the Stage 10 economy debug HUD.
+- F7: toggle the Stage 11 fog/radar debug HUD.
 - F1-F6: switch Stage 2 production tabs.
 - S/M/A: stop, move mode, or attack placeholder command.
 - Backquote: toggle the Stage 1 debug overlay if it is enabled in the scene.

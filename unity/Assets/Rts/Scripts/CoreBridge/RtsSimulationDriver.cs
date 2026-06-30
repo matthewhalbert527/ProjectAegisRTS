@@ -15,6 +15,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         [SerializeField] int playerId = 1;
         [SerializeField] bool useCombatDemoWorld;
         [SerializeField] bool useEconomyDemoWorld;
+        [SerializeField] bool useFogRadarDemoWorld;
+        [SerializeField] bool usePlayerPerspectiveSnapshot;
 
         readonly List<int> selectedActorIds = new List<int>();
         RtsWorld world;
@@ -37,6 +39,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public int PlayerId { get { return playerId; } }
         public bool UseCombatDemoWorld { get { return useCombatDemoWorld; } set { useCombatDemoWorld = value; } }
         public bool UseEconomyDemoWorld { get { return useEconomyDemoWorld; } set { useEconomyDemoWorld = value; } }
+        public bool UseFogRadarDemoWorld { get { return useFogRadarDemoWorld; } set { useFogRadarDemoWorld = value; } }
+        public bool UsePlayerPerspectiveSnapshot { get { return usePlayerPerspectiveSnapshot; } set { usePlayerPerspectiveSnapshot = value; } }
 
         public string CommandMode
         {
@@ -93,7 +97,9 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult ResetDemoWorld()
         {
-            if (useEconomyDemoWorld)
+            if (useFogRadarDemoWorld)
+                world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            else if (useEconomyDemoWorld)
                 world = DemoWorldFactory.CreateEconomyDemoWorld();
             else
                 world = useCombatDemoWorld ? DemoWorldFactory.CreateCombatDemoWorld() : DemoWorldFactory.CreateMvpWorld();
@@ -102,13 +108,14 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             forceLowPower = false;
             tickAccumulator = 0f;
             RefreshSnapshot();
-            return RtsCommandResult.Ok(useEconomyDemoWorld ? "Economy demo world reset." : (useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset."));
+            return RtsCommandResult.Ok(useFogRadarDemoWorld ? "Fog/radar demo world reset." : (useEconomyDemoWorld ? "Economy demo world reset." : (useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset.")));
         }
 
         public RtsCommandResult TryCreateCombatDemoWorld()
         {
             useCombatDemoWorld = true;
             useEconomyDemoWorld = false;
+            useFogRadarDemoWorld = false;
             return ResetDemoWorld();
         }
 
@@ -116,6 +123,16 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         {
             useEconomyDemoWorld = true;
             useCombatDemoWorld = false;
+            useFogRadarDemoWorld = false;
+            return ResetDemoWorld();
+        }
+
+        public RtsCommandResult TryCreateFogRadarDemoWorld()
+        {
+            useFogRadarDemoWorld = true;
+            useEconomyDemoWorld = false;
+            useCombatDemoWorld = false;
+            usePlayerPerspectiveSnapshot = true;
             return ResetDemoWorld();
         }
 
@@ -509,7 +526,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         void RefreshSnapshot()
         {
-            latestSnapshot = world == null ? null : world.CreateSnapshot();
+            latestSnapshot = world == null ? null : (usePlayerPerspectiveSnapshot ? world.CreateSnapshot(playerId) : world.CreateSnapshot());
         }
 
         bool TryFindActorAtCell(Int2 cell, out int actorId)

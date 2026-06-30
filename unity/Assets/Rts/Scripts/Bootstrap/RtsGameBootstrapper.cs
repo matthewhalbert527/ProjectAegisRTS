@@ -5,6 +5,7 @@ using ProjectAegisRTS.UnityClient.InputControls;
 using ProjectAegisRTS.UnityClient.Rendering;
 using ProjectAegisRTS.UnityClient.Rendering.Combat;
 using ProjectAegisRTS.UnityClient.Rendering.Economy;
+using ProjectAegisRTS.UnityClient.Rendering.Visibility;
 using ProjectAegisRTS.UnityClient.UI;
 using UnityEngine;
 
@@ -32,6 +33,10 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public HarvesterCargoVisualController harvesterCargoVisualController;
         public RefineryDockVisualController refineryDockVisualController;
         public EconomyEventRenderSystem economyEventRenderSystem;
+        public FogOverlayRenderer fogOverlayRenderer;
+        public VisibilityDebugRenderer visibilityDebugRenderer;
+        public RadarSnapshotAdapter radarSnapshotAdapter;
+        public MinimapRenderSystem minimapRenderSystem;
         public RtsSimulationDriver simulationDriver;
         public RtsDesktopInputController inputController;
         public RtsDebugHud debugHud;
@@ -81,6 +86,14 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 refineryDockVisualController.Initialize(simulationDriver, coordinateMapper);
             if (economyEventRenderSystem != null)
                 economyEventRenderSystem.Initialize(simulationDriver, coordinateMapper);
+            if (fogOverlayRenderer != null)
+                fogOverlayRenderer.Initialize(simulationDriver, coordinateMapper);
+            if (visibilityDebugRenderer != null)
+                visibilityDebugRenderer.Initialize(simulationDriver, coordinateMapper);
+            if (radarSnapshotAdapter != null)
+                radarSnapshotAdapter.driver = simulationDriver;
+            if (minimapRenderSystem != null)
+                minimapRenderSystem.Initialize(simulationDriver, coordinateMapper);
             inputController.Initialize(sceneCamera, coordinateMapper, simulationDriver, debugHud);
             debugHud.Initialize(simulationDriver);
             cameraController.Configure(coordinateMapper);

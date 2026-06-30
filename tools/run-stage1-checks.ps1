@@ -107,7 +107,11 @@ if (-not $unityEditor) {
     exit 0
 }
 
-$openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject | Where-Object { $_.CommandLine -notmatch 'AssetImportWorker' })
+$openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject |
+    Where-Object {
+        $_.CommandLine -notmatch 'AssetImportWorker' -and
+        $_.CommandLine -notmatch '-batchmode'
+    })
 if ($openUnity.Count -gt 0) {
     Write-Warning 'Unity Editor is already open for this project, so batchmode cannot safely take the project lock.'
     Write-Host 'Running live Stage 1 Unity validation instead.'

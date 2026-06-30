@@ -198,7 +198,11 @@ if ($LASTEXITCODE -ne 0) {
     throw "build-rts-core-for-unity.ps1 failed with exit code $LASTEXITCODE."
 }
 
-$openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject | Where-Object { $_.CommandLine -notmatch 'AssetImportWorker' })
+$openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject |
+    Where-Object {
+        $_.CommandLine -notmatch 'AssetImportWorker' -and
+        $_.CommandLine -notmatch '-batchmode'
+    })
 if ($openUnity.Count -gt 0) {
     Write-Warning 'Unity Editor is already open for this project. Using live scene/log validation fallback.'
     Test-SceneFileLive -ScenePath $scenePath

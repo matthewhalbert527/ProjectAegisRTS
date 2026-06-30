@@ -11,6 +11,7 @@ using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Production;
 using ProjectAegisRTS.Projectiles;
 using ProjectAegisRTS.Snapshots;
+using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Simulation
 {
@@ -22,6 +23,7 @@ namespace ProjectAegisRTS.Simulation
         readonly Dictionary<Int2, ResourceCellState> resourceCells;
         readonly Dictionary<int, HarvesterState> harvesters;
         readonly Dictionary<int, RefineryState> refineries;
+        readonly Dictionary<int, PlayerVisibilityState> visibilityStates;
         readonly List<CombatEventSnapshot> recentCombatEvents;
         readonly List<EconomyEventSnapshot> recentEconomyEvents;
         readonly GridPathfinder pathfinder;
@@ -49,6 +51,7 @@ namespace ProjectAegisRTS.Simulation
             resourceCells = new Dictionary<Int2, ResourceCellState>();
             harvesters = new Dictionary<int, HarvesterState>();
             refineries = new Dictionary<int, RefineryState>();
+            visibilityStates = new Dictionary<int, PlayerVisibilityState>();
             recentCombatEvents = new List<CombatEventSnapshot>();
             recentEconomyEvents = new List<EconomyEventSnapshot>();
             pathfinder = new GridPathfinder();
@@ -89,10 +92,16 @@ namespace ProjectAegisRTS.Simulation
             get { return refineries; }
         }
 
+        public IReadOnlyDictionary<int, PlayerVisibilityState> VisibilityStates
+        {
+            get { return visibilityStates; }
+        }
+
         public PlayerState AddPlayer(int playerId, string name, int credits)
         {
             var player = new PlayerState(playerId, name, credits);
             players.Add(playerId, player);
+            visibilityStates[playerId] = new PlayerVisibilityState(playerId, Map.Width, Map.Height);
             return player;
         }
 
@@ -199,6 +208,7 @@ namespace ProjectAegisRTS.Simulation
             TickCombat();
             TickProjectiles();
             UpdatePowerAndActorFlags();
+            UpdateVisibility();
         }
 
         public PlacementPreviewSnapshot PreviewPlacement(int playerId, string typeId, Int2 topLeftCell)
@@ -210,7 +220,18 @@ namespace ProjectAegisRTS.Simulation
 
         public WorldSnapshot CreateSnapshot()
         {
+            return CreateSnapshotForPlayer(0);
+        }
+
+        public WorldSnapshot CreateSnapshot(int perspectivePlayerId)
+        {
+            return CreateSnapshotForPlayer(perspectivePlayerId);
+        }
+
+        WorldSnapshot CreateSnapshotForPlayer(int perspectivePlayerId)
+        {
             UpdatePowerAndActorFlags();
+            UpdateVisibility();
 
             var playerSnapshots = new List<PlayerSnapshot>();
             foreach (var player in SortedPlayers())
@@ -230,6 +251,9 @@ namespace ProjectAegisRTS.Simulation
             var actorSnapshots = new List<ActorSnapshot>();
             foreach (var actor in SortedActors())
             {
+                if (!ShouldIncludeActorInSnapshot(actor, perspectivePlayerId))
+                    continue;
+
                 var definition = Rules.GetDefinition(actor.TypeId);
                 var unit = definition as UnitDefinition;
                 var turnRate = unit == null ? 0 : unit.Movement.TurnRateDegreesPerTick;
@@ -291,7 +315,12 @@ namespace ProjectAegisRTS.Simulation
 
             var resourceSnapshots = new List<ResourceSnapshot>();
             foreach (var resource in SortedResources())
+            {
+                if (perspectivePlayerId > 0 && !IsCellExploredOrVisible(perspectivePlayerId, resource.Cell))
+                    continue;
+
                 resourceSnapshots.Add(new ResourceSnapshot(resource.Cell, resource.Kind.ToString(), resource.Amount, resource.MaxAmount, resource.IsDepleted));
+            }
 
             var harvesterSnapshots = new List<HarvesterSnapshot>();
             foreach (var harvester in SortedHarvesters())
@@ -317,12 +346,29 @@ namespace ProjectAegisRTS.Simulation
                     refinery.TotalResourcesReceived));
 
             var economy = new EconomySnapshot(resourceSnapshots, harvesterSnapshots, refinerySnapshots, new List<EconomyEventSnapshot>(recentEconomyEvents));
-            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy);
+            var fog = perspectivePlayerId > 0 ? CreateFogSnapshot(perspectivePlayerId) : FogSnapshot.Empty;
+            var radar = perspectivePlayerId > 0 ? CreateRadarSnapshot(perspectivePlayerId) : RadarSnapshot.Empty;
+            var minimap = perspectivePlayerId > 0 ? CreateMinimapSnapshot(perspectivePlayerId) : MinimapSnapshot.Empty;
+
+            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy, fog, radar, minimap);
+        }
+
+        public bool IsCellVisible(int playerId, Int2 cell)
+        {
+            PlayerVisibilityState visibility;
+            return visibilityStates.TryGetValue(playerId, out visibility) && visibility.IsVisible(cell);
+        }
+
+        public bool IsCellExploredOrVisible(int playerId, Int2 cell)
+        {
+            PlayerVisibilityState visibility;
+            return visibilityStates.TryGetValue(playerId, out visibility) && visibility.IsExploredOrVisible(cell);
         }
 
         public string GetDeterminismSummary()
         {
             UpdatePowerAndActorFlags();
+            UpdateVisibility();
             var sb = new StringBuilder();
             sb.Append("tick=").Append(TickNumber).AppendLine();
 
@@ -345,6 +391,32 @@ namespace ProjectAegisRTS.Simulation
                         .Append(item.State)
                         .AppendLine();
                 }
+            }
+
+            foreach (var player in SortedPlayers())
+            {
+                PlayerVisibilityState visibility;
+                if (!visibilityStates.TryGetValue(player.PlayerId, out visibility))
+                    continue;
+
+                var visible = 0;
+                var explored = 0;
+                foreach (var cellVisibility in visibility.CopyCells())
+                {
+                    if (cellVisibility == CellVisibility.Visible)
+                        visible++;
+                    else if (cellVisibility == CellVisibility.Explored)
+                        explored++;
+                }
+
+                var radar = CreateRadarSnapshot(player.PlayerId);
+                sb.Append("visibility ")
+                    .Append(player.PlayerId)
+                    .Append(" visible=").Append(visible)
+                    .Append(" explored=").Append(explored)
+                    .Append(" radar=").Append(radar.IsActive)
+                    .Append('/').Append(radar.ProviderActorId)
+                    .AppendLine();
             }
 
             foreach (var actor in SortedActors())
@@ -1005,6 +1077,113 @@ namespace ProjectAegisRTS.Simulation
                 else
                     actor.AnimationStateId = definition.Animation.IdleStateId;
             }
+        }
+
+        void UpdateVisibility()
+        {
+            foreach (var pair in visibilityStates)
+                pair.Value.BeginUpdate();
+
+            foreach (var actor in SortedActors())
+            {
+                if (actor.IsDestroyed)
+                    continue;
+
+                PlayerVisibilityState visibility;
+                if (!visibilityStates.TryGetValue(actor.OwnerPlayerId, out visibility))
+                    continue;
+
+                var definition = Rules.GetDefinition(actor.TypeId);
+                RevealCircle(visibility, actor.CellPosition, definition.Sight.RadiusCells);
+            }
+        }
+
+        void RevealCircle(PlayerVisibilityState visibility, Int2 center, int radius)
+        {
+            var radiusSquared = radius * radius;
+            for (var y = center.Y - radius; y <= center.Y + radius; y++)
+            {
+                for (var x = center.X - radius; x <= center.X + radius; x++)
+                {
+                    var cell = new Int2(x, y);
+                    if (!Map.Contains(cell))
+                        continue;
+
+                    var dx = x - center.X;
+                    var dy = y - center.Y;
+                    if (dx * dx + dy * dy <= radiusSquared)
+                        visibility.RevealCell(cell);
+                }
+            }
+        }
+
+        bool ShouldIncludeActorInSnapshot(ActorState actor, int perspectivePlayerId)
+        {
+            if (perspectivePlayerId <= 0)
+                return true;
+            if (actor.OwnerPlayerId == perspectivePlayerId)
+                return true;
+
+            return IsCellVisible(perspectivePlayerId, actor.CellPosition);
+        }
+
+        FogSnapshot CreateFogSnapshot(int playerId)
+        {
+            PlayerVisibilityState visibility;
+            if (!visibilityStates.TryGetValue(playerId, out visibility))
+                return FogSnapshot.Empty;
+
+            var cells = new List<CellVisibilitySnapshot>();
+            var rawCells = visibility.CopyCells();
+            for (var y = 0; y < visibility.Height; y++)
+                for (var x = 0; x < visibility.Width; x++)
+                    cells.Add(new CellVisibilitySnapshot(new Int2(x, y), rawCells[y * visibility.Width + x]));
+
+            return new FogSnapshot(playerId, visibility.Width, visibility.Height, cells);
+        }
+
+        RadarSnapshot CreateRadarSnapshot(int playerId)
+        {
+            foreach (var actor in SortedActors())
+            {
+                if (actor.OwnerPlayerId != playerId || actor.IsDestroyed || !actor.IsPowered || actor.IsLowPower)
+                    continue;
+
+                var definition = Rules.GetDefinition(actor.TypeId);
+                if (definition.Radar.ProvidesRadar)
+                    return new RadarSnapshot(playerId, true, actor.Id.Value, definition.Radar.RadiusCells);
+            }
+
+            return new RadarSnapshot(playerId, false, 0, 0);
+        }
+
+        MinimapSnapshot CreateMinimapSnapshot(int playerId)
+        {
+            PlayerVisibilityState visibility;
+            if (!visibilityStates.TryGetValue(playerId, out visibility))
+                return MinimapSnapshot.Empty;
+
+            var actorDots = new List<MinimapActorDotSnapshot>();
+            foreach (var actor in SortedActors())
+            {
+                var isEnemy = actor.OwnerPlayerId != playerId;
+                var isVisible = visibility.IsVisible(actor.CellPosition);
+                if (isEnemy && !isVisible)
+                    continue;
+
+                actorDots.Add(new MinimapActorDotSnapshot(actor.Id.Value, actor.OwnerPlayerId, actor.TypeId, actor.CellPosition, isEnemy, isVisible));
+            }
+
+            var resourceDots = new List<MinimapResourceDotSnapshot>();
+            foreach (var resource in SortedResources())
+            {
+                if (!visibility.IsExploredOrVisible(resource.Cell))
+                    continue;
+
+                resourceDots.Add(new MinimapResourceDotSnapshot(resource.Cell, resource.Kind.ToString(), visibility.IsVisible(resource.Cell), resource.IsDepleted));
+            }
+
+            return new MinimapSnapshot(playerId, Map.Width, Map.Height, actorDots, resourceDots);
         }
 
         CommandResult ValidatePlacement(int playerId, string typeId, Int2 topLeftCell, bool requirePendingPlacement)

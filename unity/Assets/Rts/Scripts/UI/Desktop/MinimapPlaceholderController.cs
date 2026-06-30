@@ -51,8 +51,10 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             if (driver == null || driver.LatestSnapshot == null || dotRoot == null)
                 return;
 
-            var actors = driver.LatestSnapshot.Actors;
-            while (dots.Count < actors.Count)
+            var snapshot = driver.LatestSnapshot;
+            var useMinimap = snapshot.Minimap != null && snapshot.Minimap.ActorDots.Count > 0;
+            var dotCount = useMinimap ? snapshot.Minimap.ActorDots.Count : snapshot.Actors.Count;
+            while (dots.Count < dotCount)
             {
                 var dot = new GameObject("Dot");
                 dot.transform.SetParent(dotRoot, false);
@@ -64,22 +66,41 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
             for (var i = 0; i < dots.Count; i++)
             {
-                if (i >= actors.Count)
+                if (i >= dotCount)
                 {
                     dots[i].gameObject.SetActive(false);
                     continue;
                 }
 
-                var actor = actors[i];
                 dots[i].gameObject.SetActive(true);
-                ActorDefinition definition;
-                var isBuilding = driver.TryGetDefinition(actor.TypeId, out definition) && definition is BuildingDefinition;
-                dots[i].color = isBuilding ? new Color(0.95f, 0.74f, 0.28f, 1f) : new Color(0.36f, 0.88f, 0.50f, 1f);
-                dots[i].rectTransform.sizeDelta = isBuilding ? new Vector2(7f, 7f) : new Vector2(4f, 4f);
                 dots[i].rectTransform.anchorMin = Vector2.zero;
                 dots[i].rectTransform.anchorMax = Vector2.zero;
-                dots[i].rectTransform.anchoredPosition = new Vector2(actor.CellPosition.X / 32f * dotRoot.rect.width, actor.CellPosition.Y / 32f * dotRoot.rect.height);
+                if (useMinimap)
+                    ApplyMinimapDot(dots[i], snapshot.Minimap.ActorDots[i], snapshot.Minimap.Width, snapshot.Minimap.Height);
+                else
+                    ApplyActorDot(dots[i], snapshot.Actors[i]);
             }
+        }
+
+        void ApplyMinimapDot(Image dot, MinimapActorDotSnapshot actor)
+        {
+            ApplyMinimapDot(dot, actor, 32, 32);
+        }
+
+        void ApplyMinimapDot(Image dot, MinimapActorDotSnapshot actor, int width, int height)
+        {
+            dot.color = actor.IsEnemy ? new Color(0.95f, 0.22f, 0.18f, 1f) : new Color(0.32f, 0.86f, 0.44f, 1f);
+            dot.rectTransform.sizeDelta = actor.IsEnemy ? new Vector2(5f, 5f) : new Vector2(4f, 4f);
+            dot.rectTransform.anchoredPosition = new Vector2(actor.Cell.X / (float)Mathf.Max(1, width) * dotRoot.rect.width, actor.Cell.Y / (float)Mathf.Max(1, height) * dotRoot.rect.height);
+        }
+
+        void ApplyActorDot(Image dot, ActorSnapshot actor)
+        {
+            ActorDefinition definition;
+            var isBuilding = driver.TryGetDefinition(actor.TypeId, out definition) && definition is BuildingDefinition;
+            dot.color = isBuilding ? new Color(0.95f, 0.74f, 0.28f, 1f) : new Color(0.36f, 0.88f, 0.50f, 1f);
+            dot.rectTransform.sizeDelta = isBuilding ? new Vector2(7f, 7f) : new Vector2(4f, 4f);
+            dot.rectTransform.anchoredPosition = new Vector2(actor.CellPosition.X / 32f * dotRoot.rect.width, actor.CellPosition.Y / 32f * dotRoot.rect.height);
         }
     }
 }

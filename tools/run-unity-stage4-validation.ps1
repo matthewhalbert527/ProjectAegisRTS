@@ -235,7 +235,11 @@ if ($LASTEXITCODE -ne 0) {
     throw "build-rts-core-for-unity.ps1 failed with exit code $LASTEXITCODE."
 }
 
-$openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject | Where-Object { $_.CommandLine -notmatch 'AssetImportWorker' })
+$openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject |
+    Where-Object {
+        $_.CommandLine -notmatch 'AssetImportWorker' -and
+        $_.CommandLine -notmatch '-batchmode'
+    })
 if ($openUnity.Count -gt 0) {
     Write-Warning 'Unity Editor is already open for this project. Using Stage 4 live scene/log validation fallback; full batch Play Mode automation is skipped because Unity owns the project lock.'
     $fallbackStatusPath = Write-XrStatusFallback -RepoRoot $repoRoot -UnityProject $unityProject

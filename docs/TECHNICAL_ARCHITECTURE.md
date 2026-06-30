@@ -60,6 +60,12 @@ Stage 10 moves ore resource cells, harvest orders, harvester cargo/work states, 
 
 Unity submits harvest/return commands and renders placeholder ore cells, cargo markers, dock markers, unload/event markers, and the economy debug HUD. Unity does not own resource amounts, cargo, refinery unload timing, credit awards, or harvester work states.
 
+## Stage 11 Visibility Boundary
+
+Stage 11 moves per-player fog of war, explored/visible/unexplored cells, sight radii, radar provider state, player-perspective actor filtering, and minimap data into `Rts.Core`. The core exposes that state through `FogSnapshot`, `RadarSnapshot`, and `MinimapSnapshot`.
+
+Unity opts into player-perspective snapshots for the Stage 11 scene, renders placeholder fog overlays and minimap dots, and reads radar status for HUD/debug presentation. Unity does not own visibility state, actor hiding, explored cell persistence, or radar activation.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:
@@ -67,11 +73,11 @@ The bridge is intentionally simple:
 - Client submits commands such as `BeginProductionCommand`, `PlaceBuildingCommand`, `IssueMoveOrderCommand`, `IssueAttackOrderCommand`, and `IssueHarvestOrderCommand`.
 - Core validates commands and returns `CommandResult`.
 - Core advances in fixed ticks.
-- Client reads `WorldSnapshot`, `ActorSnapshot`, `ProductionSnapshot`, `PowerSnapshot`, `PlacementPreviewSnapshot`, `ProjectileSnapshot`, `CombatEventSnapshot`, and `EconomySnapshot`.
+- Client reads `WorldSnapshot`, `ActorSnapshot`, `ProductionSnapshot`, `PowerSnapshot`, `PlacementPreviewSnapshot`, `ProjectileSnapshot`, `CombatEventSnapshot`, `EconomySnapshot`, `FogSnapshot`, `RadarSnapshot`, and `MinimapSnapshot`.
 
 ## Deterministic Tick Loop
 
-The current loop updates power, advances production, advances movement, advances harvesting/refinery unloading, advances combat/projectiles, and refreshes actor flags. State uses integers and fixed cell-scaled positions. The smoke test compares deterministic summaries after replaying the same command sequence twice.
+The current loop updates power, advances production, advances movement, advances harvesting/refinery unloading, advances combat/projectiles, updates visibility, and refreshes actor flags. State uses integers and fixed cell-scaled positions. The smoke test compares deterministic summaries after replaying the same command sequence twice.
 
 ## OpenRA Reference Boundary
 

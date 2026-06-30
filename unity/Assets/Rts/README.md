@@ -1,6 +1,6 @@
 # Rts Unity Assets
 
-Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface. Stage 6 adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` for visual-only movement profiles, controllers, path preview, and debug HUD. Stage 7 adds `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity` for visual-only building animation, power, production, and damage-state presentation. Stage 8 adds `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity` for concept references, actor visual definitions, generated blockout prefabs, sockets, icons, validation, and resolver integration. Stage 9 adds `Assets/Rts/Scenes/Stage9_CombatWeaponsDamage.unity` for deterministic combat presentation, projectile visuals, combat events, and damage/death placeholders. Stage 10 adds `Assets/Rts/Scenes/Stage10_EconomyHarvesting.unity` for deterministic economy presentation, resource visuals, harvester cargo, refinery unloading, and economy events.
+Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface. Stage 6 adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` for visual-only movement profiles, controllers, path preview, and debug HUD. Stage 7 adds `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity` for visual-only building animation, power, production, and damage-state presentation. Stage 8 adds `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity` for concept references, actor visual definitions, generated blockout prefabs, sockets, icons, validation, and resolver integration. Stage 9 adds `Assets/Rts/Scenes/Stage9_CombatWeaponsDamage.unity` for deterministic combat presentation, projectile visuals, combat events, and damage/death placeholders. Stage 10 adds `Assets/Rts/Scenes/Stage10_EconomyHarvesting.unity` for deterministic economy presentation, resource visuals, harvester cargo, refinery unloading, and economy events. Stage 11 adds `Assets/Rts/Scenes/Stage11_FogRadarMinimap.unity` for deterministic fog, radar, and minimap presentation.
 
 ## Folder Roles
 
@@ -8,9 +8,9 @@ Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and sub
 - `Scripts/Board`: Stage 3 board transform model and placement controller.
 - `Scripts/CoreBridge`: Unity-to-core adapters, command helpers, and board coordinate mapping.
 - `Scripts/Input`: desktop mouse/keyboard input plus XR-safe placement, left-hand, and right-hand adapters/placeholders.
-- `Scripts/Rendering`: board, actor, selection, low-power, production, interpolation, movement profile, vehicle, infantry, aircraft, turret, path-preview, building animation, combat visuals, and economy visuals.
+- `Scripts/Rendering`: board, actor, selection, low-power, production, interpolation, movement profile, vehicle, infantry, aircraft, turret, path-preview, building animation, combat visuals, economy visuals, and visibility/fog/minimap visuals.
 - `Scripts/Art`: Stage 8 actor visual definitions, concept references, prefab descriptors, sockets, resolver, and showcase components.
-- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, Stage 5 right-hand command UI, Stage 6 movement debug HUD, Stage 7 building animation debug HUD, Stage 8 art pipeline debug HUD, Stage 9 combat debug HUD, and Stage 10 economy debug HUD.
+- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, Stage 5 right-hand command UI, Stage 6 movement debug HUD, Stage 7 building animation debug HUD, Stage 8 art pipeline debug HUD, Stage 9 combat debug HUD, Stage 10 economy debug HUD, and Stage 11 fog debug HUD.
 - `Scripts/Camera`: desktop camera controls.
 - `Scripts/Utilities`: generated runtime materials.
 - `Editor`: scene generator menu item and batchmode entry point.
@@ -18,7 +18,7 @@ Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and sub
 
 ## Simulation Boundary
 
-Unity does not own gameplay state. It smooths visual transforms between snapshots, but actor position, power state, production state, placement validation, move orders, attack orders, projectiles, damage, death/destruction state, resource amounts, harvester cargo, and refinery unloading come from `Rts.Core`.
+Unity does not own gameplay state. It smooths visual transforms between snapshots, but actor position, power state, production state, placement validation, move orders, attack orders, projectiles, damage, death/destruction state, resource amounts, harvester cargo, refinery unloading, fog, radar, and minimap data come from `Rts.Core`.
 
 The actor view layer tracks previous and target snapshot positions, facing, normalized speed, visual motion profile id, and actor category. Stage 6 consumes those values through visual-only controllers for acceleration/braking presentation, turning arcs, tracks/wheels, suspension, turret lag, infantry locomotion placeholders, aircraft banking, and path previews without faking gameplay movement.
 
@@ -29,6 +29,8 @@ Stage 8 consumes actor type IDs through Unity-only visual definition assets. It 
 Stage 9 consumes combat snapshot and event data through Unity-only render systems for projectiles, muzzle flashes, impact markers, damage markers, death markers, and debug HUD readouts. It never writes health, projectile, cooldown, death, or target state back into `Rts.Core`.
 
 Stage 10 consumes economy snapshot and event data through Unity-only render systems for resource cells, cargo markers, refinery dock/unload markers, economy event markers, and debug HUD readouts. It never writes resource amounts, cargo, refinery unload timing, or credit awards back into `Rts.Core`.
+
+Stage 11 consumes fog/radar/minimap snapshot data through Unity-only render systems for fog overlays, visibility debug readouts, radar state, minimap actor dots, and debug HUD readouts. It never writes visibility, explored state, actor hiding, or radar activation back into `Rts.Core`.
 
 ## Validation Tiers
 
@@ -43,6 +45,9 @@ Stage 8.1 adds tiered validation commands from the repository root:
 - `tools/run-stage10-fast-checks.ps1`: current Stage 10 economy iteration only.
 - `tools/run-stage10-medium-checks.ps1`: core tests, Unity DLL build, Stage 9 immediate dependency validation, and Stage 10 validation before local commits.
 - `tools/run-stage10-checks.ps1`: slow full acceptance gate from Stage 0 through Stage 10.
+- `tools/run-stage11-fast-checks.ps1`: current Stage 11 fog/radar/minimap iteration only.
+- `tools/run-stage11-medium-checks.ps1`: core tests, Unity DLL build, Stage 10 immediate dependency validation, and Stage 11 validation before local commits.
+- `tools/run-stage11-checks.ps1`: slow full acceptance gate from Stage 0 through Stage 11.
 
 The fast and medium tiers do not weaken acceptance coverage; they make day-to-day Unity asset and tooling edits cheaper to validate.
 
@@ -179,3 +184,13 @@ The fast and medium tiers do not weaken acceptance coverage; they make day-to-da
 - `Scripts/UI/Common/EconomyDebugHud.cs`: F8 debug HUD and economy demo controls.
 - `Editor/Stage10SceneCreator.cs`: creates `Stage10_EconomyHarvesting.unity`.
 - `Editor/Stage10SceneValidator.cs` and `Stage10PlayModeSmokeValidator.cs`: validate scene structure and runtime harvesting behavior.
+
+## Stage 11 Fog Radar Minimap
+
+- `Scripts/Rendering/Visibility/FogOverlayRenderer.cs`: renders unexplored and explored fog cells from `FogSnapshot`.
+- `Scripts/Rendering/Visibility/VisibilityDebugRenderer.cs`: tracks visible cell counts for validation/debugging.
+- `Scripts/Rendering/Visibility/RadarSnapshotAdapter.cs`: exposes radar status from `RadarSnapshot`.
+- `Scripts/Rendering/Visibility/MinimapRenderSystem.cs` and `MinimapActorDotView.cs`: render minimap actor dots from `MinimapSnapshot`.
+- `Scripts/UI/Common/FogDebugHud.cs`: F7 debug HUD and fog demo reset control.
+- `Editor/Stage11SceneCreator.cs`: creates `Stage11_FogRadarMinimap.unity`.
+- `Editor/Stage11SceneValidator.cs` and `Stage11PlayModeSmokeValidator.cs`: validate scene structure and runtime fog/radar/minimap behavior.

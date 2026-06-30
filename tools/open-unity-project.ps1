@@ -59,7 +59,11 @@ $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $unityProject = Join-Path $repoRoot 'unity'
 $unityEditor = Find-UnityEditor
 
-$openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject | Where-Object { $_.CommandLine -notmatch 'AssetImportWorker' })
+$openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject |
+    Where-Object {
+        $_.CommandLine -notmatch 'AssetImportWorker' -and
+        $_.CommandLine -notmatch '-batchmode'
+    })
 if ($openUnity.Count -gt 0) {
     Write-Host "Unity project is already open:"
     Write-Host $unityProject

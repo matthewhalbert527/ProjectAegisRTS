@@ -115,10 +115,20 @@ namespace ProjectAegisRTS.UnityClient.Rendering
                 var view = actorViews[id];
                 actorViews.Remove(id);
                 if (view != null)
-                    Destroy(view.gameObject);
+                    DestroyActorView(view.gameObject);
             }
 
             UpdateDebugStats();
+        }
+
+        static void DestroyActorView(Object target)
+        {
+            if (target == null)
+                return;
+            if (Application.isPlaying)
+                Destroy(target);
+            else
+                DestroyImmediate(target);
         }
 
         public bool TryGetDebugActorView(out ActorViewBehaviour view)

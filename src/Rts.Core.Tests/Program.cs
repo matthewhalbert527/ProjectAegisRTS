@@ -10,6 +10,7 @@ using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Production;
 using ProjectAegisRTS.Simulation;
 using ProjectAegisRTS.Snapshots;
+using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Tests
 {
@@ -52,7 +53,15 @@ namespace ProjectAegisRTS.Tests
                 DepletedResourceStopsHarvesting,
                 StopClearsHarvestOrder,
                 EconomySnapshotContainsResourceHarvesterRefinery,
-                EconomyDeterminismSmokeTest
+                EconomyDeterminismSmokeTest,
+                VisibilityInitializes,
+                ActorRevealsCellsWithinSightRadius,
+                ExploredCellsRemainAfterActorMovesAway,
+                EnemyHiddenWhenNotVisible,
+                EnemyVisibleWhenInSight,
+                FogSnapshotContainsVisibilityData,
+                RadarSnapshotExists,
+                VisibilityDeterminismSmokeTest
             };
 
             var passed = 0;
@@ -411,6 +420,81 @@ namespace ProjectAegisRTS.Tests
             Assert(a == b, "Expected economy deterministic summaries to match.");
         }
 
+        static void VisibilityInitializes()
+        {
+            var world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            var snapshot = world.CreateSnapshot(1);
+            Assert(snapshot.Fog.Width == 32 && snapshot.Fog.Height == 32, "Expected fog dimensions.");
+            Assert(snapshot.Fog.Cells.Count == 1024, "Expected one fog cell per map cell.");
+            Assert(world.VisibilityStates.ContainsKey(1), "Expected player 1 visibility state.");
+        }
+
+        static void ActorRevealsCellsWithinSightRadius()
+        {
+            var world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            world.CreateSnapshot(1);
+            Assert(world.IsCellVisible(1, new Int2(16, 8)), "Expected scout rover to reveal cell at sight edge.");
+        }
+
+        static void ExploredCellsRemainAfterActorMovesAway()
+        {
+            var world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            var scout = world.FirstActorOfType("scout_rover", 1);
+            var watchedCell = new Int2(16, 8);
+            world.CreateSnapshot(1);
+            Assert(world.IsCellVisible(1, watchedCell), "Expected watched cell visible before movement.");
+
+            var move = world.IssueCommand(new IssueMoveOrderCommand(1, new[] { scout.Id }, new Int2(20, 20)));
+            Assert(move.Success, "Expected scout movement success: " + move.ErrorCode);
+            RunTicks(world, 220);
+            var snapshot = world.CreateSnapshot(1);
+
+            Assert(!world.IsCellVisible(1, watchedCell), "Expected watched cell no longer visible.");
+            Assert(world.IsCellExploredOrVisible(1, watchedCell), "Expected watched cell to remain explored.");
+            Assert(HasCellVisibility(snapshot.Fog, watchedCell, CellVisibility.Explored), "Expected fog snapshot to preserve explored cell.");
+        }
+
+        static void EnemyHiddenWhenNotVisible()
+        {
+            var world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            var hiddenEnemy = world.FirstActorOfType("medium_tank", 2);
+            var snapshot = world.CreateSnapshot(1);
+            Assert(!SnapshotContainsActor(snapshot, hiddenEnemy.Id.Value), "Expected distant enemy hidden from player perspective.");
+        }
+
+        static void EnemyVisibleWhenInSight()
+        {
+            var world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            var visibleEnemy = world.FirstActorOfType("rifle_infantry", 2);
+            var snapshot = world.CreateSnapshot(1);
+            Assert(SnapshotContainsActor(snapshot, visibleEnemy.Id.Value), "Expected enemy in scout sight to be visible.");
+        }
+
+        static void FogSnapshotContainsVisibilityData()
+        {
+            var world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            var snapshot = world.CreateSnapshot(1);
+            Assert(snapshot.Fog.PlayerId == 1, "Expected player 1 fog snapshot.");
+            Assert(HasCellVisibility(snapshot.Fog, new Int2(8, 8), CellVisibility.Visible), "Expected scout cell visible in fog snapshot.");
+        }
+
+        static void RadarSnapshotExists()
+        {
+            var world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            var snapshot = world.CreateSnapshot(1);
+            Assert(snapshot.Radar.PlayerId == 1, "Expected player 1 radar snapshot.");
+            Assert(snapshot.Radar.IsActive, "Expected powered comm center radar active.");
+            Assert(snapshot.Radar.ProviderActorId == world.FirstActorOfType("comm_center", 1).Id.Value, "Expected comm center radar provider.");
+            Assert(snapshot.Minimap.ActorDots.Count > 0, "Expected minimap actor dots.");
+        }
+
+        static void VisibilityDeterminismSmokeTest()
+        {
+            var a = RunVisibilityDeterministicSequence();
+            var b = RunVisibilityDeterministicSequence();
+            Assert(a == b, "Expected visibility deterministic summaries to match.");
+        }
+
         static string RunDeterministicSequence()
         {
             var world = DemoWorldFactory.CreateMvpWorld();
@@ -440,6 +524,17 @@ namespace ProjectAegisRTS.Tests
         {
             var world = EconomyWorldWithHarvestOrder();
             RunTicks(world, 320);
+            return world.GetDeterminismSummary();
+        }
+
+        static string RunVisibilityDeterministicSequence()
+        {
+            var world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            var scout = world.FirstActorOfType("scout_rover", 1);
+            world.CreateSnapshot(1);
+            world.IssueCommand(new IssueMoveOrderCommand(1, new[] { scout.Id }, new Int2(20, 20)));
+            RunTicks(world, 220);
+            world.CreateSnapshot(1);
             return world.GetDeterminismSummary();
         }
 
@@ -474,6 +569,22 @@ namespace ProjectAegisRTS.Tests
         {
             for (var i = 0; i < snapshot.Economy.Events.Count; i++)
                 if (snapshot.Economy.Events[i].EventType == eventType)
+                    return true;
+            return false;
+        }
+
+        static bool SnapshotContainsActor(WorldSnapshot snapshot, int actorId)
+        {
+            for (var i = 0; i < snapshot.Actors.Count; i++)
+                if (snapshot.Actors[i].ActorId == actorId)
+                    return true;
+            return false;
+        }
+
+        static bool HasCellVisibility(FogSnapshot snapshot, Int2 cell, CellVisibility visibility)
+        {
+            for (var i = 0; i < snapshot.Cells.Count; i++)
+                if (snapshot.Cells[i].Cell.Equals(cell) && snapshot.Cells[i].Visibility == visibility)
                     return true;
             return false;
         }

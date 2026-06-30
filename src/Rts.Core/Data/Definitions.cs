@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Core;
+using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Data
 {
@@ -263,8 +264,10 @@ namespace ProjectAegisRTS.Data
         public AnimationStateDefinition Animation { get; private set; }
         public WeaponDefinition Weapon { get; private set; }
         public DeathDefinition Death { get; private set; }
+        public SightDefinition Sight { get; private set; }
+        public RadarDefinition Radar { get; private set; }
 
-        protected ActorDefinition(string typeId, string displayName, ActorKind kind, int maxHealth, ProductionDefinition production, PowerDefinition power, AnimationStateDefinition animation, WeaponDefinition weapon, DeathDefinition death)
+        protected ActorDefinition(string typeId, string displayName, ActorKind kind, int maxHealth, ProductionDefinition production, PowerDefinition power, AnimationStateDefinition animation, WeaponDefinition weapon, DeathDefinition death, SightDefinition sight, RadarDefinition radar)
         {
             TypeId = typeId;
             DisplayName = displayName;
@@ -275,6 +278,8 @@ namespace ProjectAegisRTS.Data
             Animation = animation;
             Weapon = weapon;
             Death = death ?? new DeathDefinition(120, "death_placeholder");
+            Sight = sight ?? new SightDefinition(kind == ActorKind.Building ? 5 : 4);
+            Radar = radar ?? new RadarDefinition(false, 0);
         }
     }
 
@@ -282,8 +287,8 @@ namespace ProjectAegisRTS.Data
     {
         public MovementDefinition Movement { get; private set; }
 
-        public UnitDefinition(string typeId, string displayName, int maxHealth, ProductionDefinition production, MovementDefinition movement, WeaponDefinition weapon, AnimationStateDefinition animation)
-            : base(typeId, displayName, ActorKind.Unit, maxHealth, production, new PowerDefinition(0, 0, false), animation, weapon, new DeathDefinition(120, "unit_death_placeholder"))
+        public UnitDefinition(string typeId, string displayName, int maxHealth, ProductionDefinition production, MovementDefinition movement, WeaponDefinition weapon, AnimationStateDefinition animation, SightDefinition sight = null, RadarDefinition radar = null)
+            : base(typeId, displayName, ActorKind.Unit, maxHealth, production, new PowerDefinition(0, 0, false), animation, weapon, new DeathDefinition(120, "unit_death_placeholder"), sight, radar)
         {
             Movement = movement;
         }
@@ -309,8 +314,10 @@ namespace ProjectAegisRTS.Data
             int constructionRadiusCells,
             Int2 unitExitOffset,
             IReadOnlyList<string> producesTypeIds,
-            WeaponDefinition weapon = null)
-            : base(typeId, displayName, ActorKind.Building, maxHealth, production, power, animation, weapon, new DeathDefinition(180, "building_death_placeholder"))
+            WeaponDefinition weapon = null,
+            SightDefinition sight = null,
+            RadarDefinition radar = null)
+            : base(typeId, displayName, ActorKind.Building, maxHealth, production, power, animation, weapon, new DeathDefinition(180, "building_death_placeholder"), sight, radar)
         {
             FootprintCells = footprintCells;
             ProvidesConstructionRadius = providesConstructionRadius;

@@ -48,6 +48,10 @@ Complete. Combat, weapons, projectiles, damage, death, and destruction presentat
 
 Complete. Economy, resource harvesting, and refinery loop. Adds deterministic ore resource cells, harvest orders, harvester cargo/work states, refinery dock/unload state, credit awards, economy snapshots/events, `Assets/Rts/Scenes/Stage10_EconomyHarvesting.unity`, resource/cargo/dock/event placeholder presentation, F8 economy debug HUD, scene validation, Play Mode smoke validation, and a full Stage 0-through-Stage 10 acceptance gate.
 
+## Stage 11
+
+Complete. Fog of war, radar, and minimap foundation. Adds deterministic per-player visibility state, explored/visible/unexplored cells, sight/radar definitions, player-perspective snapshots that hide unseen enemies, fog/radar/minimap snapshots, `Assets/Rts/Scenes/Stage11_FogRadarMinimap.unity`, placeholder fog overlay, minimap dots, F7 fog debug HUD, and fast/medium/full Stage 11 validation tiers.
+
 ## Later Stages
 
-Fog expansion, skirmish AI, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, release packaging, and faster Stage 10+ validation tiers.
+Skirmish AI, map/terrain/pathing tools, feedback foundation, performance/build readiness, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.

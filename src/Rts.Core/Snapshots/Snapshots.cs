@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Power;
+using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Snapshots
 {
@@ -12,6 +13,9 @@ namespace ProjectAegisRTS.Snapshots
         public IReadOnlyList<ProjectileSnapshot> Projectiles { get; private set; }
         public IReadOnlyList<CombatEventSnapshot> CombatEvents { get; private set; }
         public EconomySnapshot Economy { get; private set; }
+        public FogSnapshot Fog { get; private set; }
+        public RadarSnapshot Radar { get; private set; }
+        public MinimapSnapshot Minimap { get; private set; }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors)
             : this(tick, players, actors, new ProjectileSnapshot[0], new CombatEventSnapshot[0], EconomySnapshot.Empty)
@@ -24,6 +28,11 @@ namespace ProjectAegisRTS.Snapshots
         }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy)
+            : this(tick, players, actors, projectiles, combatEvents, economy, FogSnapshot.Empty, RadarSnapshot.Empty, MinimapSnapshot.Empty)
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap)
         {
             Tick = tick;
             Players = players;
@@ -31,6 +40,9 @@ namespace ProjectAegisRTS.Snapshots
             Projectiles = projectiles;
             CombatEvents = combatEvents;
             Economy = economy ?? EconomySnapshot.Empty;
+            Fog = fog ?? FogSnapshot.Empty;
+            Radar = radar ?? RadarSnapshot.Empty;
+            Minimap = minimap ?? MinimapSnapshot.Empty;
         }
     }
 
@@ -214,6 +226,110 @@ namespace ProjectAegisRTS.Snapshots
             AttackTargetActorId = attackTargetActorId;
             AttackTargetCell = attackTargetCell;
             HasHarvestOrder = hasHarvestOrder;
+        }
+    }
+
+    public sealed class FogSnapshot
+    {
+        public static readonly FogSnapshot Empty = new FogSnapshot(0, 0, 0, new CellVisibilitySnapshot[0]);
+
+        public int PlayerId { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public IReadOnlyList<CellVisibilitySnapshot> Cells { get; private set; }
+
+        public FogSnapshot(int playerId, int width, int height, IReadOnlyList<CellVisibilitySnapshot> cells)
+        {
+            PlayerId = playerId;
+            Width = width;
+            Height = height;
+            Cells = cells;
+        }
+    }
+
+    public sealed class CellVisibilitySnapshot
+    {
+        public Int2 Cell { get; private set; }
+        public CellVisibility Visibility { get; private set; }
+
+        public CellVisibilitySnapshot(Int2 cell, CellVisibility visibility)
+        {
+            Cell = cell;
+            Visibility = visibility;
+        }
+    }
+
+    public sealed class RadarSnapshot
+    {
+        public static readonly RadarSnapshot Empty = new RadarSnapshot(0, false, 0, 0);
+
+        public int PlayerId { get; private set; }
+        public bool IsActive { get; private set; }
+        public int ProviderActorId { get; private set; }
+        public int RadiusCells { get; private set; }
+
+        public RadarSnapshot(int playerId, bool isActive, int providerActorId, int radiusCells)
+        {
+            PlayerId = playerId;
+            IsActive = isActive;
+            ProviderActorId = providerActorId;
+            RadiusCells = radiusCells;
+        }
+    }
+
+    public sealed class MinimapSnapshot
+    {
+        public static readonly MinimapSnapshot Empty = new MinimapSnapshot(0, 0, 0, new MinimapActorDotSnapshot[0], new MinimapResourceDotSnapshot[0]);
+
+        public int PlayerId { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public IReadOnlyList<MinimapActorDotSnapshot> ActorDots { get; private set; }
+        public IReadOnlyList<MinimapResourceDotSnapshot> ResourceDots { get; private set; }
+
+        public MinimapSnapshot(int playerId, int width, int height, IReadOnlyList<MinimapActorDotSnapshot> actorDots, IReadOnlyList<MinimapResourceDotSnapshot> resourceDots)
+        {
+            PlayerId = playerId;
+            Width = width;
+            Height = height;
+            ActorDots = actorDots;
+            ResourceDots = resourceDots;
+        }
+    }
+
+    public sealed class MinimapActorDotSnapshot
+    {
+        public int ActorId { get; private set; }
+        public int OwnerId { get; private set; }
+        public string TypeId { get; private set; }
+        public Int2 Cell { get; private set; }
+        public bool IsEnemy { get; private set; }
+        public bool IsVisible { get; private set; }
+
+        public MinimapActorDotSnapshot(int actorId, int ownerId, string typeId, Int2 cell, bool isEnemy, bool isVisible)
+        {
+            ActorId = actorId;
+            OwnerId = ownerId;
+            TypeId = typeId;
+            Cell = cell;
+            IsEnemy = isEnemy;
+            IsVisible = isVisible;
+        }
+    }
+
+    public sealed class MinimapResourceDotSnapshot
+    {
+        public Int2 Cell { get; private set; }
+        public string Kind { get; private set; }
+        public bool IsVisible { get; private set; }
+        public bool IsDepleted { get; private set; }
+
+        public MinimapResourceDotSnapshot(Int2 cell, string kind, bool isVisible, bool isDepleted)
+        {
+            Cell = cell;
+            Kind = kind;
+            IsVisible = isVisible;
+            IsDepleted = isDepleted;
         }
     }
 

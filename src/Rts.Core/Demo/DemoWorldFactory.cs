@@ -53,5 +53,27 @@ namespace ProjectAegisRTS.Demo
 
             return world;
         }
+
+        public static RtsWorld CreateFogRadarDemoWorld()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var world = new RtsWorld(rules, new GridMap(32, 32));
+            world.AddPlayer(1, "Aegis Fog Player", 5000);
+            world.AddPlayer(2, "Hidden Test Player", 5000);
+
+            world.CreateActor("fabrication_hub", 1, new Int2(3, 3));
+            world.CreateActor("comm_center", 1, new Int2(7, 3));
+            world.CreateActor("scout_rover", 1, new Int2(8, 8));
+            world.CreateActor("rifle_infantry", 1, new Int2(5, 8));
+
+            world.CreateActor("rifle_infantry", 2, new Int2(12, 8));
+            world.CreateActor("medium_tank", 2, new Int2(25, 25));
+
+            for (var y = 10; y <= 11; y++)
+                for (var x = 14; x <= 16; x++)
+                    world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 100);
+
+            return world;
+        }
     }
 }

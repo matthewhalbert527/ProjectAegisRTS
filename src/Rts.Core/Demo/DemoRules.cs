@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
+using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Demo
 {
@@ -25,7 +26,7 @@ namespace ProjectAegisRTS.Demo
             actors.Add(Building("refinery", "Refinery", 1400, ProductionKind.Building, 600, 32, "fabrication_hub", 0, 12, new Int2(3, 3), false, 0, new Int2(1, 3), new string[0], buildingAnimation));
             actors.Add(Building("gun_tower", "Gun Tower", 700, ProductionKind.Building, 250, 18, "fabrication_hub", 0, 6, new Int2(1, 1), false, 0, new Int2(0, 1), new string[0], buildingAnimation, Weapon("tower_shell", "Tower Shell", 70, 6, 34, 512, ProjectileKind.Shell, true, false, true, true)));
             actors.Add(Building("field_hospital", "Field Hospital", 900, ProductionKind.Building, 450, 28, "fabrication_hub", 0, 6, new Int2(2, 2), false, 0, new Int2(1, 2), new string[0], buildingAnimation));
-            actors.Add(Building("comm_center", "Comm Center", 1000, ProductionKind.Building, 800, 45, "fabrication_hub", 0, 14, new Int2(2, 2), false, 0, new Int2(1, 2), new string[0], buildingAnimation));
+            actors.Add(Building("comm_center", "Comm Center", 1000, ProductionKind.Building, 800, 45, "fabrication_hub", 0, 14, new Int2(2, 2), false, 0, new Int2(1, 2), new string[0], buildingAnimation, null, 7, new RadarDefinition(true, 20)));
             actors.Add(Building("repair_bay", "Repair Bay", 1100, ProductionKind.Building, 500, 30, "fabrication_hub", 0, 10, new Int2(3, 2), false, 0, new Int2(1, 2), new string[0], buildingAnimation));
             actors.Add(Building("tech_center", "Tech Center", 1300, ProductionKind.Building, 1200, 60, "fabrication_hub", 0, 18, new Int2(2, 2), false, 0, new Int2(1, 2), new string[0], buildingAnimation));
             actors.Add(Building("cannon_turret", "Cannon Turret", 850, ProductionKind.Building, 400, 26, "fabrication_hub", 0, 8, new Int2(1, 1), false, 0, new Int2(0, 1), new string[0], buildingAnimation, Weapon("cannon_turret_shell", "Cannon Turret Shell", 110, 7, 42, 448, ProjectileKind.Shell, true, false, true, true)));
@@ -41,7 +42,7 @@ namespace ProjectAegisRTS.Demo
             actors.Add(Unit("medium_tank", "Medium Tank", 600, ProductionKind.Vehicle, 700, 38, "war_factory", 112, 15, "tracked_medium", unitAnimation, Weapon("medium_tank_shell", "Medium Tank Shell", 115, 6, 38, 480, ProjectileKind.Shell, true, false, true, true)));
             actors.Add(Unit("heavy_tank", "Heavy Tank", 850, ProductionKind.Vehicle, 950, 48, "war_factory", 96, 12, "tracked_heavy", unitAnimation, Weapon("heavy_tank_shell", "Heavy Tank Shell", 155, 7, 48, 416, ProjectileKind.Shell, true, false, true, true)));
             actors.Add(Unit("harvester", "Harvester", 700, ProductionKind.Vehicle, 700, 35, "war_factory", 96, 12, "wheeled_heavy", unitAnimation, null));
-            actors.Add(Unit("scout_rover", "Scout Rover", 300, ProductionKind.Vehicle, 300, 20, "war_factory", 160, 24, "wheeled_scout", unitAnimation, Weapon("scout_rover_burst", "Scout Rover Burst", 28, 4, 18, 768, ProjectileKind.Bullet, true, false, false, true)));
+            actors.Add(Unit("scout_rover", "Scout Rover", 300, ProductionKind.Vehicle, 300, 20, "war_factory", 160, 24, "wheeled_scout", unitAnimation, Weapon("scout_rover_burst", "Scout Rover Burst", 28, 4, 18, 768, ProjectileKind.Bullet, true, false, false, true), 8));
             actors.Add(Unit("apc", "APC", 550, ProductionKind.Vehicle, 600, 34, "war_factory", 128, 18, "wheeled_apc", unitAnimation, Weapon("apc_burst", "APC Burst", 36, 4, 20, 768, ProjectileKind.Bullet, true, false, false, true)));
             actors.Add(Unit("attack_aircraft", "Attack Aircraft", 450, ProductionKind.Aircraft, 800, 45, "dual_helipad", 192, 30, "aircraft_attack", unitAnimation, Weapon("aircraft_rocket", "Aircraft Rocket", 85, 6, 36, 448, ProjectileKind.Rocket, true, true, true, true)));
             actors.Add(Unit("heavy_lifter_aircraft", "Heavy Lifter Aircraft", 650, ProductionKind.Aircraft, 900, 50, "dual_helipad", 160, 20, "aircraft_lifter", unitAnimation, null));
@@ -49,7 +50,7 @@ namespace ProjectAegisRTS.Demo
             return new RtsRules(actors);
         }
 
-        static UnitDefinition Unit(string typeId, string displayName, int health, ProductionKind productionKind, int cost, int buildTimeTicks, string factoryTypeId, int speedPerTick, int turnRate, string visualProfile, AnimationStateDefinition animation, WeaponDefinition weapon)
+        static UnitDefinition Unit(string typeId, string displayName, int health, ProductionKind productionKind, int cost, int buildTimeTicks, string factoryTypeId, int speedPerTick, int turnRate, string visualProfile, AnimationStateDefinition animation, WeaponDefinition weapon, int sightRadius = 4)
         {
             return new UnitDefinition(
                 typeId,
@@ -58,10 +59,11 @@ namespace ProjectAegisRTS.Demo
                 new ProductionDefinition(productionKind, cost, buildTimeTicks, factoryTypeId, false),
                 new MovementDefinition(speedPerTick, turnRate, visualProfile),
                 weapon,
-                animation);
+                animation,
+                new SightDefinition(sightRadius));
         }
 
-        static BuildingDefinition Building(string typeId, string displayName, int health, ProductionKind productionKind, int cost, int buildTimeTicks, string factoryTypeId, int powerGenerated, int powerConsumed, Int2 footprint, bool providesConstructionRadius, int constructionRadius, Int2 unitExitOffset, IReadOnlyList<string> produces, AnimationStateDefinition animation, WeaponDefinition weapon = null)
+        static BuildingDefinition Building(string typeId, string displayName, int health, ProductionKind productionKind, int cost, int buildTimeTicks, string factoryTypeId, int powerGenerated, int powerConsumed, Int2 footprint, bool providesConstructionRadius, int constructionRadius, Int2 unitExitOffset, IReadOnlyList<string> produces, AnimationStateDefinition animation, WeaponDefinition weapon = null, int sightRadius = 5, RadarDefinition radar = null)
         {
             return new BuildingDefinition(
                 typeId,
@@ -75,7 +77,9 @@ namespace ProjectAegisRTS.Demo
                 constructionRadius,
                 unitExitOffset,
                 produces,
-                weapon);
+                weapon,
+                new SightDefinition(sightRadius),
+                radar);
         }
 
         static WeaponDefinition Weapon(string weaponId, string displayName, int damage, int rangeCells, int cooldownTicks, int projectileSpeedSubCellsPerTick, ProjectileKind projectileKind, bool canTargetGround, bool canTargetAir, bool canTargetBuildings, bool canTargetUnits)
