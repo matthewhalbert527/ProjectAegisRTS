@@ -1,6 +1,6 @@
 # Validation Tiers
 
-Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. Stage 14 follows it for feedback iteration. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration. Stage 9 and later full gates use `tools\run-stage-full-chain-checks.ps1` to walk Stage 0 through the current stage once instead of recursively replaying lower full gates.
+Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. Stage 14 follows it for feedback iteration. Stage 15 follows it for performance/build-readiness iteration. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration. Stage 9 and later full gates use `tools\run-stage-full-chain-checks.ps1` to walk Stage 0 through the current stage once instead of recursively replaying lower full gates.
 
 ## Tier Summary
 
@@ -27,6 +27,9 @@ Stage 8.1 adds validation tiers so normal development does not need to replay th
 | Fast | `.\tools\run-stage14-fast-checks.ps1` | You changed current Stage 14 feedback profiles, event bus, controllers, scene wiring, or smoke tooling. | Builds/copies `Rts.Core` for Unity, runs Stage 14 profile generation and validation only, runs Stage 14 Play Mode smoke when batchmode can own the project lock, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
 | Medium | `.\tools\run-stage14-medium-checks.ps1` | You are preparing a local Stage 14 commit. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs Stage 13 immediate dependency validation, then Stage 14 validation and Play Mode smoke/fallback, the `Rts.Core` UnityEngine-free scan, and `git diff --check`. |
 | Full | `.\tools\run-stage14-checks.ps1` | You need final Stage 14 acceptance evidence. | Runs Stage 0 through Stage 14 through the flattened full-chain runner, including each stage's Unity validation and Stage 14 Play Mode smoke/fallback. This is intentionally slow, but avoids recursive replay. |
+| Fast | `.\tools\run-stage15-fast-checks.ps1` | You changed current Stage 15 performance budgets, pooling, render stats, readiness reporters, scene wiring, or smoke tooling. | Builds/copies `Rts.Core` for Unity, runs Stage 15 profile generation and validation only, runs Stage 15 Play Mode smoke/build-readiness audit when batchmode can own the project lock, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
+| Medium | `.\tools\run-stage15-medium-checks.ps1` | You are preparing a local Stage 15 commit. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs Stage 14 immediate dependency validation, then Stage 15 validation and Play Mode smoke/fallback, the `Rts.Core` UnityEngine-free scan, and `git diff --check`. |
+| Full | `.\tools\run-stage15-checks.ps1` | You need final Stage 15 acceptance evidence. | Runs Stage 0 through Stage 15 through the flattened full-chain runner, including each stage's Unity validation and Stage 15 Play Mode smoke/fallback. This is intentionally slow, but avoids recursive replay. |
 
 ## Stage 8 Examples
 
@@ -168,6 +171,26 @@ Before declaring Stage 14 accepted or using Stage 14 as the base for a later sta
 .\tools\run-stage14-checks.ps1
 ```
 
+## Stage 15 Examples
+
+After touching Stage 15 performance budgets, pooling, render stats, readiness reporters, scene wiring, or smoke validation, use:
+
+```powershell
+.\tools\run-stage15-fast-checks.ps1
+```
+
+Before committing Stage 15 performance/build-readiness changes locally, use:
+
+```powershell
+.\tools\run-stage15-medium-checks.ps1
+```
+
+Before declaring Stage 15 accepted or using Stage 15 as the base for a later stage, use:
+
+```powershell
+.\tools\run-stage15-checks.ps1
+```
+
 ## Expected Time
 
 Fast checks should usually take minutes because they avoid earlier-stage validation. Medium checks are longer because they include core tests, Unity DLL build, immediate dependency validation, and current-stage validation, but they avoid the full replay where practical. Full checks are the slow acceptance gate and can take much longer because they validate every stage through the current stage. Stage 9 and later full checks avoid recursively nesting lower full gates, so they should scale roughly with the number of stages instead of repeating prior stages many times.
@@ -217,4 +240,6 @@ Stage 12 implementation hash: 5aca8fb0cc3b7b952adbdcedd5496f88719587f1.
 
 Stage 13 implementation hash: 17527ff5848ba3a0a333cb8e0bd8332ca9f2f860.
 
-Stage 14 implementation hash: the local Stage 14 implementation commit from this pass.
+Stage 14 implementation hash: b54ea7d.
+
+Stage 15 implementation hash: the local Stage 15 implementation commit from this pass.

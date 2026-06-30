@@ -60,6 +60,14 @@ Complete. Skirmish AI foundation. Adds deterministic AI player definitions, diff
 
 Complete. Map, terrain, pathing tools, and polish foundation. Adds deterministic terrain definitions, movement classes, passability masks, movement costs, terrain/resource map snapshots, structured path query diagnostics, map validation, `Assets/Rts/Scenes/Stage13_MapTerrainPathing.unity`, placeholder terrain/path debug presentation, F5 map validation HUD, authoring overlay placeholder, and fast/medium/full Stage 13 validation tiers.
 
+## Stage 14
+
+Complete. Audio, VFX, UI, and haptic feedback foundation. Adds a Unity-side feedback event bus, feedback profile assets, silent audio cues, primitive VFX markers, UI messages, haptic placeholders, `Assets/Rts/Scenes/Stage14_FeedbackPolish.unity`, F4 feedback debug HUD, and fast/medium/full Stage 14 validation tiers.
+
+## Stage 15
+
+Complete. Quest performance and build-readiness foundation. Adds placeholder Quest/PC performance budget profiles, object pooling for short-lived projectile and feedback marker visuals, runtime performance stats, scene complexity reporting, quality profile application, build-readiness reporters, `Assets/Rts/Scenes/Stage15_PerformanceBuildReadiness.unity`, F3 render stats HUD, and fast/medium/full Stage 15 validation tiers.
+
 ## Later Stages
 
-Stage 14 adds the Unity-side placeholder feedback foundation for audio, VFX, UI, and haptic event cues. Next later stages include performance/build readiness, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.
+Next later stages include multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

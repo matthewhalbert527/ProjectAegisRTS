@@ -1,3 +1,4 @@
+using ProjectAegisRTS.UnityClient.Performance;
 using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.Feedback
@@ -6,8 +7,10 @@ namespace ProjectAegisRTS.UnityClient.Feedback
     {
         public FeedbackEventBus eventBus;
         public FeedbackProfileLibrary profileLibrary;
+        public ObjectPoolService objectPoolService;
 
         public int SpawnedMarkerCount { get; private set; }
+        public int ActiveMarkerCount { get; private set; }
         public FeedbackEventType LastMarkerType { get; private set; }
 
         void OnEnable()
@@ -20,11 +23,12 @@ namespace ProjectAegisRTS.UnityClient.Feedback
             Unsubscribe();
         }
 
-        public void Initialize(FeedbackEventBus bus, FeedbackProfileLibrary library)
+        public void Initialize(FeedbackEventBus bus, FeedbackProfileLibrary library, ObjectPoolService poolService = null)
         {
             Unsubscribe();
             eventBus = bus;
             profileLibrary = library;
+            objectPoolService = poolService;
             Subscribe();
         }
 
@@ -37,7 +41,9 @@ namespace ProjectAegisRTS.UnityClient.Feedback
             if (profile == null || !profile.spawnVisualMarker)
                 return;
 
-            var marker = GameObject.CreatePrimitive(profile.markerPrimitive);
+            var marker = objectPoolService == null
+                ? CreateMarkerObject(profile.markerPrimitive)
+                : objectPoolService.Acquire("FeedbackMarker." + profile.markerPrimitive, () => CreateMarkerObject(profile.markerPrimitive), transform);
             marker.name = "Feedback " + feedbackEvent.eventType;
             marker.transform.SetParent(transform, false);
             marker.transform.position = feedbackEvent.worldPosition;
@@ -54,12 +60,28 @@ namespace ProjectAegisRTS.UnityClient.Feedback
                 renderer.sharedMaterial.color = profile.color;
             }
 
-            var timed = marker.AddComponent<FeedbackVisualMarker>();
-            timed.durationSeconds = Mathf.Max(0.05f, profile.durationSeconds);
-            timed.floatSpeed = profile.floatSpeed;
+            var timed = marker.GetComponent<FeedbackVisualMarker>();
+            if (timed == null)
+                timed = marker.AddComponent<FeedbackVisualMarker>();
+            timed.Configure(Mathf.Max(0.05f, profile.durationSeconds), profile.floatSpeed, objectPoolService, this);
 
             SpawnedMarkerCount++;
+            ActiveMarkerCount++;
             LastMarkerType = feedbackEvent.eventType;
+        }
+
+        public void NotifyMarkerReleased()
+        {
+            ActiveMarkerCount = Mathf.Max(0, ActiveMarkerCount - 1);
+        }
+
+        static GameObject CreateMarkerObject(PrimitiveType primitive)
+        {
+            var marker = GameObject.CreatePrimitive(primitive);
+            var collider = marker.GetComponent<Collider>();
+            if (collider != null)
+                FeedbackObjectUtility.DestroyObject(collider);
+            return marker;
         }
 
         void Subscribe()

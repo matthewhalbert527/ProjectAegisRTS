@@ -154,6 +154,8 @@ Use `run-stage13-fast-checks.ps1` for current map/pathing iteration, `run-stage1
 
 Use `run-stage14-fast-checks.ps1` for current feedback iteration, `run-stage14-medium-checks.ps1` before local commits, and `run-stage14-checks.ps1` as the full Stage 0-through-Stage 14 acceptance gate.
 
+Use `run-stage15-fast-checks.ps1` for current performance/build-readiness iteration, `run-stage15-medium-checks.ps1` before local commits, and `run-stage15-checks.ps1` as the full Stage 0-through-Stage 15 acceptance gate.
+
 Open the Unity project:
 
 ```powershell
@@ -176,6 +178,7 @@ Scene paths:
 - `Assets/Rts/Scenes/Stage12_AISkirmishFoundation.unity`: Stage 12 AI skirmish scene with deterministic AI intents, command generation, plan timeline, and F6 debug HUD.
 - `Assets/Rts/Scenes/Stage13_MapTerrainPathing.unity`: Stage 13 map terrain pathing scene with deterministic terrain metadata, path diagnostics, map validation, and F5 debug HUD.
 - `Assets/Rts/Scenes/Stage14_FeedbackPolish.unity`: Stage 14 feedback scene with snapshot-driven placeholder audio/VFX/UI/haptic events and F4 debug HUD.
+- `Assets/Rts/Scenes/Stage15_PerformanceBuildReadiness.unity`: Stage 15 performance/build-readiness scene with pooling, runtime stats, scene complexity, quality profiles, build-readiness reporters, and F3 render stats HUD.
 
 Stage 8 art assets:
 
@@ -222,3 +225,11 @@ Stage 14 feedback assets:
 - Feedback profiles: `unity/Assets/Rts/ScriptableObjects/Feedback/`
 - Feedback design notes: `docs/STAGE14_FEEDBACK_DESIGN.md`
 - Stage report: `docs/STAGE14_REPORT.md`
+
+Stage 15 performance/build-readiness assets:
+
+- Performance scripts: `unity/Assets/Rts/Scripts/Performance/`
+- Performance budget profiles: `unity/Assets/Rts/ScriptableObjects/Performance/`
+- Quest performance budget: `docs/STAGE15_QUEST_PERFORMANCE_BUDGET.md`
+- Build readiness notes: `docs/STAGE15_BUILD_READINESS.md`
+- Stage report: `docs/STAGE15_REPORT.md`

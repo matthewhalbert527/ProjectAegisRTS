@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.Performance;
 using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.Rendering.Combat
@@ -13,6 +14,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Combat
         public RtsSimulationDriver driver;
         public BoardCoordinateMapper mapper;
         public CombatVisualProfileLibrary profileLibrary;
+        public ObjectPoolService objectPoolService;
 
         Transform projectileRoot;
 
@@ -24,11 +26,12 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Combat
                 RenderSnapshot(driver.LatestSnapshot);
         }
 
-        public void Initialize(RtsSimulationDriver simulationDriver, BoardCoordinateMapper coordinateMapper, CombatVisualProfileLibrary library)
+        public void Initialize(RtsSimulationDriver simulationDriver, BoardCoordinateMapper coordinateMapper, CombatVisualProfileLibrary library, ObjectPoolService poolService = null)
         {
             driver = simulationDriver;
             mapper = coordinateMapper;
             profileLibrary = library;
+            objectPoolService = poolService;
             if (profileLibrary != null)
                 profileLibrary.EnsureInitialized();
             EnsureRoot();
@@ -54,9 +57,14 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Combat
                 ProjectileViewBehaviour view;
                 if (!views.TryGetValue(projectile.ProjectileId, out view) || view == null)
                 {
-                    var obj = new GameObject("Projectile " + projectile.ProjectileId + " " + projectile.WeaponId);
+                    var obj = objectPoolService == null
+                        ? new GameObject("Projectile " + projectile.ProjectileId + " " + projectile.WeaponId)
+                        : objectPoolService.Acquire("ProjectileView", CreateProjectileObject, projectileRoot);
+                    obj.name = "Projectile " + projectile.ProjectileId + " " + projectile.WeaponId;
                     obj.transform.SetParent(projectileRoot, false);
-                    view = obj.AddComponent<ProjectileViewBehaviour>();
+                    view = obj.GetComponent<ProjectileViewBehaviour>();
+                    if (view == null)
+                        view = obj.AddComponent<ProjectileViewBehaviour>();
                     views[projectile.ProjectileId] = view;
                 }
 
@@ -78,7 +86,9 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Combat
                 var id = removeBuffer[i];
                 var view = views[id];
                 views.Remove(id);
-                if (view != null)
+                if (view != null && objectPoolService != null)
+                    objectPoolService.Release(view.gameObject);
+                else if (view != null)
                     CombatObjectUtility.DestroyObject(view.gameObject);
             }
 
@@ -92,6 +102,13 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Combat
             var root = new GameObject("Projectile Views");
             root.transform.SetParent(transform, false);
             projectileRoot = root.transform;
+        }
+
+        static GameObject CreateProjectileObject()
+        {
+            var obj = new GameObject("Projectile View");
+            obj.AddComponent<ProjectileViewBehaviour>();
+            return obj;
         }
     }
 }

@@ -84,6 +84,12 @@ Stage 14 adds a Unity-only feedback event layer. `FeedbackEventBus` converts exi
 
 Feedback profiles, silent audio cues, primitive VFX markers, UI messages, and haptic placeholders are presentation-only. They do not mutate `Rts.Core`, do not introduce final audio/VFX assets, and do not become authoritative gameplay state.
 
+## Stage 15 Performance Boundary
+
+Stage 15 adds Unity-only performance and build-readiness tooling. `ObjectPoolService` reuses short-lived presentation objects for projectile views and feedback markers, while `RuntimePerformanceStats`, `SceneComplexityReporter`, `QualityProfileApplier`, and the readiness reporters expose budget and configuration data.
+
+The performance layer does not change deterministic gameplay, does not make Unity physics authoritative, does not produce final Quest optimization, and does not require Android/Quest build modules. It is an audit and guardrail layer for future profiling and packaging work.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

@@ -4,8 +4,8 @@
 
 - Branch: `codex/overnight-stage10-stage15`
 - Start baseline: `5d2ee28188d84fb7661d3f7d7bfe812e8c2396ed` (`Implement Stage 9 combat weapons damage`)
-- Highest completed stage this pass: Stage 14, Audio / VFX / Feedback Foundation
-- Latest implementation commit: Stage 14 implementation commit from this pass
+- Highest completed stage this pass: Stage 15, Quest Performance / Build Readiness Foundation
+- Latest implementation commit: Stage 15 implementation commit from this pass
 - Unity Editor: `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe` (`6000.5.1f1`)
 - .NET SDK used: `10.0.301`
 - Push status: not pushed
@@ -18,7 +18,8 @@
 - `5aca8fb0cc3b7b952adbdcedd5496f88719587f1` - Implement Stage 12 skirmish AI foundation
 - `17527ff5848ba3a0a333cb8e0bd8332ca9f2f860` - Implement Stage 13 map terrain pathing tools
 - `5e6f0dd7e51c26a34e3b7962570b9e69a32b7b03` - Flatten full-stage validation chain
-- This commit - Implement Stage 14 feedback foundation
+- `b54ea7d` - Implement Stage 14 feedback foundation
+- This commit - Implement Stage 15 performance build readiness foundation
 
 ## Stages
 
@@ -26,8 +27,8 @@
 - Stage 11: completed and committed.
 - Stage 12: completed and committed.
 - Stage 13: completed and committed.
-- Stage 14: completed locally; fast, medium, and full validation passed.
-- Stage 15: not started.
+- Stage 14: completed and committed.
+- Stage 15: completed locally; fast, medium, and full validation passed.
 
 ## Validation Results
 
@@ -39,13 +40,16 @@
 - `tools/run-stage14-fast-checks.ps1`: passed with Unity batchmode profile generation, scene validation, Play Mode smoke, UnityEngine-free scan, and `git diff --check`.
 - `tools/run-stage14-medium-checks.ps1`: passed with Stage 13 immediate dependency validation.
 - `tools/run-stage14-checks.ps1`: passed with the flattened full Stage 0-14 acceptance gate.
+- `tools/run-stage15-fast-checks.ps1`: passed with Unity batchmode performance profile generation, scene validation, Play Mode smoke, build-readiness audit, UnityEngine-free scan, and `git diff --check`.
+- `tools/run-stage15-medium-checks.ps1`: passed with Rts.Core tests and Stage 14 immediate dependency validation.
+- `tools/run-stage15-checks.ps1`: passed with the flattened full Stage 0-15 acceptance gate.
 - `git diff --check`: passed after cleanup.
 - Rts.Core UnityEngine-free scan: passed; no `UnityEngine` references found in `src/Rts.Core`.
 
 ## NuGet And Batchmode
 
 - NuGet/network restore was not required during repeated runs because project assets were present and validation used `--no-restore` where safe.
-- Unity validation used batchmode for Stage 14 fast, medium, and full validation.
+- Unity validation used batchmode for Stage 15 fast, medium, and full validation.
 - No live-editor fallback was needed for ProjectAegisRTS. An unrelated Unity project was open and did not own this project lock.
 
 ## Scene Paths
@@ -55,11 +59,12 @@
 - `Assets/Rts/Scenes/Stage12_AISkirmishFoundation.unity`
 - `Assets/Rts/Scenes/Stage13_MapTerrainPathing.unity`
 - `Assets/Rts/Scenes/Stage14_FeedbackPolish.unity`
+- `Assets/Rts/Scenes/Stage15_PerformanceBuildReadiness.unity`
 
 ## Blockers
 
-- No gameplay or compile blocker remains for Stage 14.
-- Full-chain orchestration has been flattened for Stage 9 and later full gates. No validation tooling blocker remains before Stage 15 work continues.
+- No gameplay or compile blocker remains for Stage 15.
+- Full-chain orchestration has been flattened for Stage 9 and later full gates. No validation tooling blocker remains.
 
 ## Morning Command
 
@@ -70,9 +75,9 @@ cd "E:\OpenRA Mod\ProjectAegisRTS"; .\tools\open-unity-project.ps1
 Open first:
 
 ```text
-Assets/Rts/Scenes/Stage14_FeedbackPolish.unity
+Assets/Rts/Scenes/Stage15_PerformanceBuildReadiness.unity
 ```
 
 ## Recommendation
 
-Next Codex goal: continue with Stage 15 Quest performance and build-readiness foundation from the clean Stage 14 checkpoint.
+Next Codex goal: start the next gameplay/networking checkpoint from the clean Stage 15 checkpoint, or do a focused Quest profiling pass once device-side tooling is available.

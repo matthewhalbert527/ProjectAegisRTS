@@ -3,6 +3,7 @@ using ProjectAegisRTS.UnityClient.CameraControls;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.Feedback;
 using ProjectAegisRTS.UnityClient.InputControls;
+using ProjectAegisRTS.UnityClient.Performance;
 using ProjectAegisRTS.UnityClient.Rendering;
 using ProjectAegisRTS.UnityClient.Rendering.Ai;
 using ProjectAegisRTS.UnityClient.Rendering.Combat;
@@ -52,6 +53,14 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public UiFeedbackController uiFeedbackController;
         public HapticFeedbackAdapter hapticFeedbackAdapter;
         public FeedbackDebugHud feedbackDebugHud;
+        public ObjectPoolService objectPoolService;
+        public PerformanceBudgetLibrary performanceBudgetLibrary;
+        public RuntimePerformanceStats runtimePerformanceStats;
+        public SceneComplexityReporter sceneComplexityReporter;
+        public QualityProfileApplier qualityProfileApplier;
+        public QuestBuildReadinessReporter questBuildReadinessReporter;
+        public PcBuildReadinessReporter pcBuildReadinessReporter;
+        public RenderStatsHud renderStatsHud;
         public RtsSimulationDriver simulationDriver;
         public RtsDesktopInputController inputController;
         public RtsDebugHud debugHud;
@@ -91,8 +100,10 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
             actorRenderSystem.Initialize(coordinateMapper, simulationDriver, enableSmoothVisualInterpolation);
             if (combatVisualProfileLibrary != null)
                 combatVisualProfileLibrary.EnsureInitialized();
+            if (performanceBudgetLibrary != null)
+                performanceBudgetLibrary.EnsureInitialized();
             if (projectileRenderSystem != null)
-                projectileRenderSystem.Initialize(simulationDriver, coordinateMapper, combatVisualProfileLibrary);
+                projectileRenderSystem.Initialize(simulationDriver, coordinateMapper, combatVisualProfileLibrary, objectPoolService);
             if (combatEventRenderSystem != null)
                 combatEventRenderSystem.Initialize(simulationDriver, coordinateMapper, combatVisualProfileLibrary);
             if (resourceFieldRenderSystem != null)
@@ -128,7 +139,7 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
             if (audioFeedbackController != null)
                 audioFeedbackController.Initialize(feedbackEventBus, feedbackProfileLibrary);
             if (vfxFeedbackController != null)
-                vfxFeedbackController.Initialize(feedbackEventBus, feedbackProfileLibrary);
+                vfxFeedbackController.Initialize(feedbackEventBus, feedbackProfileLibrary, objectPoolService);
             if (uiFeedbackController != null)
                 uiFeedbackController.Initialize(feedbackEventBus);
             if (hapticFeedbackAdapter != null)
@@ -142,6 +153,22 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 feedbackDebugHud.uiController = uiFeedbackController;
                 feedbackDebugHud.hapticAdapter = hapticFeedbackAdapter;
             }
+            if (sceneComplexityReporter != null)
+                sceneComplexityReporter.Refresh();
+            if (qualityProfileApplier != null)
+            {
+                qualityProfileApplier.Initialize(performanceBudgetLibrary);
+                if (qualityProfileApplier.applyOnStart)
+                    qualityProfileApplier.ApplySelectedProfile();
+            }
+            if (runtimePerformanceStats != null)
+                runtimePerformanceStats.Initialize(simulationDriver, projectileRenderSystem, vfxFeedbackController, objectPoolService);
+            if (questBuildReadinessReporter != null)
+                questBuildReadinessReporter.Initialize(performanceBudgetLibrary, runtimePerformanceStats, sceneComplexityReporter, qualityProfileApplier);
+            if (pcBuildReadinessReporter != null)
+                pcBuildReadinessReporter.Initialize(performanceBudgetLibrary, runtimePerformanceStats, sceneComplexityReporter);
+            if (renderStatsHud != null)
+                renderStatsHud.Initialize(runtimePerformanceStats, sceneComplexityReporter, performanceBudgetLibrary, questBuildReadinessReporter, pcBuildReadinessReporter);
             inputController.Initialize(sceneCamera, coordinateMapper, simulationDriver, debugHud);
             debugHud.Initialize(simulationDriver);
             cameraController.Configure(coordinateMapper);

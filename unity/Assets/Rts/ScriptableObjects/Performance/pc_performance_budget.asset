@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb87fac9f5d9d2441ae662c5893e9a8a, type: 3}
+  m_Name: pc_performance_budget
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Performance.PerformanceBudgetProfile
+  profileId: pc
+  displayName: PC Placeholder Budget
+  targetFrameRate: 60
+  maxSceneGameObjects: 1800
+  maxActiveRenderers: 900
+  maxActorViews: 220
+  maxProjectileViews: 96
+  maxFeedbackMarkers: 64
+  maxPoolInactiveObjects: 256
+  qualityLevel: 5
+  antiAliasing: 2
+  pixelLightCount: 2
+  shadowDistance: 45
+  lodBias: 1
+  preferVSyncOff: 1
+  notes: PC placeholder budget. Keeps standalone support explicit without Quest-specific
+    assumptions.
