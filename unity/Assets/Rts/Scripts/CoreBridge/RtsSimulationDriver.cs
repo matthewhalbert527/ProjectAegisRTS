@@ -14,6 +14,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
     {
         [SerializeField] int playerId = 1;
         [SerializeField] bool useCombatDemoWorld;
+        [SerializeField] bool useEconomyDemoWorld;
 
         readonly List<int> selectedActorIds = new List<int>();
         RtsWorld world;
@@ -35,6 +36,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public string PendingPlacementTypeId { get { return pendingPlacementTypeId; } }
         public int PlayerId { get { return playerId; } }
         public bool UseCombatDemoWorld { get { return useCombatDemoWorld; } set { useCombatDemoWorld = value; } }
+        public bool UseEconomyDemoWorld { get { return useEconomyDemoWorld; } set { useEconomyDemoWorld = value; } }
 
         public string CommandMode
         {
@@ -91,18 +93,29 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult ResetDemoWorld()
         {
-            world = useCombatDemoWorld ? DemoWorldFactory.CreateCombatDemoWorld() : DemoWorldFactory.CreateMvpWorld();
+            if (useEconomyDemoWorld)
+                world = DemoWorldFactory.CreateEconomyDemoWorld();
+            else
+                world = useCombatDemoWorld ? DemoWorldFactory.CreateCombatDemoWorld() : DemoWorldFactory.CreateMvpWorld();
             selectedActorIds.Clear();
             pendingPlacementTypeId = string.Empty;
             forceLowPower = false;
             tickAccumulator = 0f;
             RefreshSnapshot();
-            return RtsCommandResult.Ok(useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset.");
+            return RtsCommandResult.Ok(useEconomyDemoWorld ? "Economy demo world reset." : (useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset."));
         }
 
         public RtsCommandResult TryCreateCombatDemoWorld()
         {
             useCombatDemoWorld = true;
+            useEconomyDemoWorld = false;
+            return ResetDemoWorld();
+        }
+
+        public RtsCommandResult TryCreateEconomyDemoWorld()
+        {
+            useEconomyDemoWorld = true;
+            useCombatDemoWorld = false;
             return ResetDemoWorld();
         }
 
@@ -248,6 +261,52 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 return RtsCommandResult.Fail("NoSelection", "Select an actor before issuing force-attack.");
 
             var result = RtsCommandAdapter.IssueForceAttackCell(world, playerId, selectedActorIds, cell);
+            RefreshSnapshot();
+            return result;
+        }
+
+        public RtsCommandResult TryIssueHarvestSelectedAtCell(Int2 cell)
+        {
+            if (world == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+            if (selectedActorIds.Count == 0)
+                return RtsCommandResult.Fail("NoSelection", "Select a harvester before issuing a harvest command.");
+
+            var harvesterActorIds = new List<int>();
+            for (var i = 0; i < selectedActorIds.Count; i++)
+            {
+                ActorSnapshot actor;
+                if (TryGetActorSnapshot(selectedActorIds[i], out actor) && actor.OwnerId == playerId && actor.TypeId == "harvester" && !actor.IsDestroyed)
+                    harvesterActorIds.Add(actor.ActorId);
+            }
+
+            if (harvesterActorIds.Count == 0)
+                return RtsCommandResult.Fail("NoHarvesterSelection", "The current selection has no harvesters.");
+
+            var result = RtsCommandAdapter.IssueHarvestOrder(world, playerId, harvesterActorIds, cell);
+            RefreshSnapshot();
+            return result;
+        }
+
+        public RtsCommandResult TryReturnSelectedHarvesters()
+        {
+            if (world == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+            if (selectedActorIds.Count == 0)
+                return RtsCommandResult.Fail("NoSelection", "Select a harvester before returning to refinery.");
+
+            var harvesterActorIds = new List<int>();
+            for (var i = 0; i < selectedActorIds.Count; i++)
+            {
+                ActorSnapshot actor;
+                if (TryGetActorSnapshot(selectedActorIds[i], out actor) && actor.OwnerId == playerId && actor.TypeId == "harvester" && !actor.IsDestroyed)
+                    harvesterActorIds.Add(actor.ActorId);
+            }
+
+            if (harvesterActorIds.Count == 0)
+                return RtsCommandResult.Fail("NoHarvesterSelection", "The current selection has no harvesters.");
+
+            var result = RtsCommandAdapter.ReturnToRefinery(world, playerId, harvesterActorIds);
             RefreshSnapshot();
             return result;
         }

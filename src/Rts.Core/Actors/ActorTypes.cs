@@ -23,6 +23,7 @@ namespace ProjectAegisRTS.Actors
         Idle,
         Move,
         Attack,
+        Harvest,
         Stop,
         RallyPoint,
         PowerToggle
@@ -63,6 +64,7 @@ namespace ProjectAegisRTS.Actors
         public int DeathTick { get; set; }
         public int DestroyedByActorId { get; set; }
         public string ActiveWeaponId { get; set; }
+        public bool HasHarvestOrder { get; set; }
 
         public ActorState(ActorId id, int ownerPlayerId, string typeId, Int2 cellPosition, int health)
         {
@@ -98,6 +100,7 @@ namespace ProjectAegisRTS.Actors
             DeathTick = -1;
             DestroyedByActorId = 0;
             ActiveWeaponId = string.Empty;
+            HasHarvestOrder = false;
         }
     }
 }

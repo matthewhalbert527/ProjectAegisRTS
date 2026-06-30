@@ -63,6 +63,60 @@ namespace ProjectAegisRTS.Commands
         }
     }
 
+    public sealed class IssueHarvestOrderCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public IReadOnlyList<ActorId> ActorIds { get; private set; }
+        public Int2 ResourceCell { get; private set; }
+
+        public IssueHarvestOrderCommand(int playerId, IReadOnlyList<ActorId> actorIds, Int2 resourceCell)
+        {
+            PlayerId = playerId;
+            ActorIds = actorIds;
+            ResourceCell = resourceCell;
+        }
+    }
+
+    public sealed class AssignHarvesterToResourceCellCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public ActorId HarvesterActorId { get; private set; }
+        public Int2 ResourceCell { get; private set; }
+
+        public AssignHarvesterToResourceCellCommand(int playerId, ActorId harvesterActorId, Int2 resourceCell)
+        {
+            PlayerId = playerId;
+            HarvesterActorId = harvesterActorId;
+            ResourceCell = resourceCell;
+        }
+    }
+
+    public sealed class AssignHarvesterToRefineryCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public ActorId HarvesterActorId { get; private set; }
+        public ActorId RefineryActorId { get; private set; }
+
+        public AssignHarvesterToRefineryCommand(int playerId, ActorId harvesterActorId, ActorId refineryActorId)
+        {
+            PlayerId = playerId;
+            HarvesterActorId = harvesterActorId;
+            RefineryActorId = refineryActorId;
+        }
+    }
+
+    public sealed class ReturnToRefineryCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public IReadOnlyList<ActorId> ActorIds { get; private set; }
+
+        public ReturnToRefineryCommand(int playerId, IReadOnlyList<ActorId> actorIds)
+        {
+            PlayerId = playerId;
+            ActorIds = actorIds;
+        }
+    }
+
     public sealed class BeginProductionCommand : ISimCommand
     {
         public int PlayerId { get; private set; }

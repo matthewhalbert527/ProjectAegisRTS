@@ -5,6 +5,7 @@ using ProjectAegisRTS.Commands;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Demo;
+using ProjectAegisRTS.Economy;
 using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Production;
 using ProjectAegisRTS.Simulation;
@@ -41,7 +42,17 @@ namespace ProjectAegisRTS.Tests
                 GunTowerCanAttackEnemyInRange,
                 CombatDeterminismSmokeTest,
                 ProjectileSnapshotAppearsInWorldSnapshot,
-                DeathOrDamageEventAppearsInSnapshot
+                DeathOrDamageEventAppearsInSnapshot,
+                ResourceCellsExistInEconomyDemo,
+                HarvestOrderStartsHarvesterState,
+                HarvesterCargoIncreases,
+                ResourceAmountDecreases,
+                RefineryUnloadingAddsCredits,
+                HarvesterCargoDecreasesAfterUnload,
+                DepletedResourceStopsHarvesting,
+                StopClearsHarvestOrder,
+                EconomySnapshotContainsResourceHarvesterRefinery,
+                EconomyDeterminismSmokeTest
             };
 
             var passed = 0;
@@ -307,6 +318,99 @@ namespace ProjectAegisRTS.Tests
             Assert(HasEvent(snapshot, "DamageApplied"), "Expected damage event in snapshot.");
         }
 
+        static void ResourceCellsExistInEconomyDemo()
+        {
+            var world = DemoWorldFactory.CreateEconomyDemoWorld();
+            Assert(world.ResourceCells.Count == 9, "Expected 9 economy demo resource cells.");
+            Assert(world.FirstActorOfType("harvester", 1) != null, "Expected economy demo harvester.");
+            Assert(world.FirstActorOfType("refinery", 1) != null, "Expected economy demo refinery.");
+        }
+
+        static void HarvestOrderStartsHarvesterState()
+        {
+            var world = EconomyWorldWithHarvestOrder();
+            var harvester = world.FirstActorOfType("harvester", 1);
+            Assert(harvester.CurrentOrder == ActorOrderKind.Harvest, "Expected harvest order kind.");
+            Assert(world.Harvesters[harvester.Id.Value].State == HarvesterWorkState.MovingToResource, "Expected moving to resource.");
+        }
+
+        static void HarvesterCargoIncreases()
+        {
+            var world = EconomyWorldWithHarvestOrder();
+            var harvester = world.FirstActorOfType("harvester", 1);
+            RunTicks(world, 80);
+            Assert(world.Harvesters[harvester.Id.Value].CargoAmount > 0, "Expected harvester cargo to increase.");
+        }
+
+        static void ResourceAmountDecreases()
+        {
+            var world = EconomyWorldWithHarvestOrder();
+            var resourceCell = new Int2(15, 8);
+            var before = world.ResourceCells[resourceCell].Amount;
+            RunTicks(world, 80);
+            Assert(world.ResourceCells[resourceCell].Amount < before, "Expected resource amount to decrease.");
+        }
+
+        static void RefineryUnloadingAddsCredits()
+        {
+            var world = EconomyWorldWithHarvestOrder();
+            var startCredits = world.Players[1].Credits;
+            RunTicks(world, 260);
+            Assert(world.Players[1].Credits > startCredits, "Expected refinery unload to add credits.");
+            Assert(HasEconomyEvent(world.CreateSnapshot(), "HarvesterUnloaded"), "Expected unload economy event.");
+        }
+
+        static void HarvesterCargoDecreasesAfterUnload()
+        {
+            var world = EconomyWorldWithHarvestOrder();
+            var harvester = world.FirstActorOfType("harvester", 1);
+            RunTicks(world, 120);
+            Assert(world.Harvesters[harvester.Id.Value].CargoAmount > 0, "Expected cargo before unload.");
+            RunTicks(world, 160);
+            Assert(world.Harvesters[harvester.Id.Value].CargoAmount < world.Harvesters[harvester.Id.Value].CargoCapacity, "Expected cargo below capacity after unload.");
+        }
+
+        static void DepletedResourceStopsHarvesting()
+        {
+            var world = DemoWorldFactory.CreateEconomyDemoWorld();
+            var harvester = world.FirstActorOfType("harvester", 1);
+            var resourceCell = new Int2(15, 8);
+            world.ResourceCells[resourceCell].Amount = 20;
+            var result = world.IssueCommand(new IssueHarvestOrderCommand(1, new[] { harvester.Id }, resourceCell));
+            Assert(result.Success, "Expected harvest order success: " + result.ErrorCode);
+            RunTicks(world, 320);
+            Assert(world.ResourceCells[resourceCell].IsDepleted, "Expected resource depleted.");
+            Assert(world.Harvesters[harvester.Id.Value].State == HarvesterWorkState.Idle, "Expected harvester to stop after depleted cell and unload.");
+        }
+
+        static void StopClearsHarvestOrder()
+        {
+            var world = EconomyWorldWithHarvestOrder();
+            var harvester = world.FirstActorOfType("harvester", 1);
+            var result = world.IssueCommand(new StopCommand(1, new[] { harvester.Id }));
+            Assert(result.Success, "Expected stop success.");
+            Assert(!harvester.HasHarvestOrder, "Expected harvest flag cleared.");
+            Assert(world.Harvesters[harvester.Id.Value].State == HarvesterWorkState.Idle, "Expected idle harvester state.");
+        }
+
+        static void EconomySnapshotContainsResourceHarvesterRefinery()
+        {
+            var world = EconomyWorldWithHarvestOrder();
+            RunTicks(world, 80);
+            var snapshot = world.CreateSnapshot();
+            Assert(snapshot.Economy.Resources.Count > 0, "Expected resource snapshots.");
+            Assert(snapshot.Economy.Harvesters.Count == 1, "Expected one harvester snapshot.");
+            Assert(snapshot.Economy.Refineries.Count == 1, "Expected one refinery snapshot.");
+            Assert(snapshot.Economy.Events.Count > 0, "Expected economy events.");
+        }
+
+        static void EconomyDeterminismSmokeTest()
+        {
+            var a = RunEconomyDeterministicSequence();
+            var b = RunEconomyDeterministicSequence();
+            Assert(a == b, "Expected economy deterministic summaries to match.");
+        }
+
         static string RunDeterministicSequence()
         {
             var world = DemoWorldFactory.CreateMvpWorld();
@@ -332,6 +436,22 @@ namespace ProjectAegisRTS.Tests
             return world.GetDeterminismSummary();
         }
 
+        static string RunEconomyDeterministicSequence()
+        {
+            var world = EconomyWorldWithHarvestOrder();
+            RunTicks(world, 320);
+            return world.GetDeterminismSummary();
+        }
+
+        static RtsWorld EconomyWorldWithHarvestOrder()
+        {
+            var world = DemoWorldFactory.CreateEconomyDemoWorld();
+            var harvester = world.FirstActorOfType("harvester", 1);
+            var result = world.IssueCommand(new IssueHarvestOrderCommand(1, new[] { harvester.Id }, new Int2(15, 8)));
+            Assert(result.Success, "Expected harvest order success: " + result.ErrorCode);
+            return world;
+        }
+
         static RtsWorld CombatWorldWithTankAttack()
         {
             var world = DemoWorldFactory.CreateCombatDemoWorld();
@@ -346,6 +466,14 @@ namespace ProjectAegisRTS.Tests
         {
             for (var i = 0; i < snapshot.CombatEvents.Count; i++)
                 if (snapshot.CombatEvents[i].EventType == eventType)
+                    return true;
+            return false;
+        }
+
+        static bool HasEconomyEvent(WorldSnapshot snapshot, string eventType)
+        {
+            for (var i = 0; i < snapshot.Economy.Events.Count; i++)
+                if (snapshot.Economy.Events[i].EventType == eventType)
                     return true;
             return false;
         }

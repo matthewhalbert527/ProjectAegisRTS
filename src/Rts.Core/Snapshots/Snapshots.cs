@@ -11,19 +11,26 @@ namespace ProjectAegisRTS.Snapshots
         public IReadOnlyList<ActorSnapshot> Actors { get; private set; }
         public IReadOnlyList<ProjectileSnapshot> Projectiles { get; private set; }
         public IReadOnlyList<CombatEventSnapshot> CombatEvents { get; private set; }
+        public EconomySnapshot Economy { get; private set; }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors)
-            : this(tick, players, actors, new ProjectileSnapshot[0], new CombatEventSnapshot[0])
+            : this(tick, players, actors, new ProjectileSnapshot[0], new CombatEventSnapshot[0], EconomySnapshot.Empty)
         {
         }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents)
+            : this(tick, players, actors, projectiles, combatEvents, EconomySnapshot.Empty)
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy)
         {
             Tick = tick;
             Players = players;
             Actors = actors;
             Projectiles = projectiles;
             CombatEvents = combatEvents;
+            Economy = economy ?? EconomySnapshot.Empty;
         }
     }
 
@@ -79,6 +86,7 @@ namespace ProjectAegisRTS.Snapshots
         public bool IsAttacking { get; private set; }
         public int AttackTargetActorId { get; private set; }
         public Int2 AttackTargetCell { get; private set; }
+        public bool HasHarvestOrder { get; private set; }
 
         public ActorSnapshot(
             int actorId,
@@ -133,7 +141,8 @@ namespace ProjectAegisRTS.Snapshots
                 0,
                 false,
                 0,
-                cellPosition)
+                cellPosition,
+                false)
         {
         }
 
@@ -169,7 +178,8 @@ namespace ProjectAegisRTS.Snapshots
             int weaponCooldownRemaining,
             bool isAttacking,
             int attackTargetActorId,
-            Int2 attackTargetCell)
+            Int2 attackTargetCell,
+            bool hasHarvestOrder = false)
         {
             ActorId = actorId;
             TypeId = typeId;
@@ -203,6 +213,113 @@ namespace ProjectAegisRTS.Snapshots
             IsAttacking = isAttacking;
             AttackTargetActorId = attackTargetActorId;
             AttackTargetCell = attackTargetCell;
+            HasHarvestOrder = hasHarvestOrder;
+        }
+    }
+
+    public sealed class EconomySnapshot
+    {
+        public static readonly EconomySnapshot Empty = new EconomySnapshot(new ResourceSnapshot[0], new HarvesterSnapshot[0], new RefinerySnapshot[0], new EconomyEventSnapshot[0]);
+
+        public IReadOnlyList<ResourceSnapshot> Resources { get; private set; }
+        public IReadOnlyList<HarvesterSnapshot> Harvesters { get; private set; }
+        public IReadOnlyList<RefinerySnapshot> Refineries { get; private set; }
+        public IReadOnlyList<EconomyEventSnapshot> Events { get; private set; }
+
+        public EconomySnapshot(IReadOnlyList<ResourceSnapshot> resources, IReadOnlyList<HarvesterSnapshot> harvesters, IReadOnlyList<RefinerySnapshot> refineries, IReadOnlyList<EconomyEventSnapshot> events)
+        {
+            Resources = resources;
+            Harvesters = harvesters;
+            Refineries = refineries;
+            Events = events;
+        }
+    }
+
+    public sealed class ResourceSnapshot
+    {
+        public Int2 Cell { get; private set; }
+        public string Kind { get; private set; }
+        public int Amount { get; private set; }
+        public int MaxAmount { get; private set; }
+        public bool IsDepleted { get; private set; }
+
+        public ResourceSnapshot(Int2 cell, string kind, int amount, int maxAmount, bool isDepleted)
+        {
+            Cell = cell;
+            Kind = kind;
+            Amount = amount;
+            MaxAmount = maxAmount;
+            IsDepleted = isDepleted;
+        }
+    }
+
+    public sealed class HarvesterSnapshot
+    {
+        public int ActorId { get; private set; }
+        public int CargoAmount { get; private set; }
+        public int CargoCapacity { get; private set; }
+        public string CarriedResourceKind { get; private set; }
+        public Int2 HarvestTargetCell { get; private set; }
+        public int AssignedRefineryActorId { get; private set; }
+        public string State { get; private set; }
+        public int HarvestProgressTicks { get; private set; }
+        public int UnloadProgressTicks { get; private set; }
+
+        public HarvesterSnapshot(int actorId, int cargoAmount, int cargoCapacity, string carriedResourceKind, Int2 harvestTargetCell, int assignedRefineryActorId, string state, int harvestProgressTicks, int unloadProgressTicks)
+        {
+            ActorId = actorId;
+            CargoAmount = cargoAmount;
+            CargoCapacity = cargoCapacity;
+            CarriedResourceKind = carriedResourceKind;
+            HarvestTargetCell = harvestTargetCell;
+            AssignedRefineryActorId = assignedRefineryActorId;
+            State = state;
+            HarvestProgressTicks = harvestProgressTicks;
+            UnloadProgressTicks = unloadProgressTicks;
+        }
+    }
+
+    public sealed class RefinerySnapshot
+    {
+        public int ActorId { get; private set; }
+        public Int2 DockCell { get; private set; }
+        public int ActiveHarvesterActorId { get; private set; }
+        public int UnloadRatePerTick { get; private set; }
+        public bool IsUnloading { get; private set; }
+        public int TotalResourcesReceived { get; private set; }
+
+        public RefinerySnapshot(int actorId, Int2 dockCell, int activeHarvesterActorId, int unloadRatePerTick, bool isUnloading, int totalResourcesReceived)
+        {
+            ActorId = actorId;
+            DockCell = dockCell;
+            ActiveHarvesterActorId = activeHarvesterActorId;
+            UnloadRatePerTick = unloadRatePerTick;
+            IsUnloading = isUnloading;
+            TotalResourcesReceived = totalResourcesReceived;
+        }
+    }
+
+    public sealed class EconomyEventSnapshot
+    {
+        public int EventId { get; private set; }
+        public int Tick { get; private set; }
+        public string EventType { get; private set; }
+        public int HarvesterActorId { get; private set; }
+        public int RefineryActorId { get; private set; }
+        public Int2 Cell { get; private set; }
+        public int Amount { get; private set; }
+        public int CreditsAwarded { get; private set; }
+
+        public EconomyEventSnapshot(int eventId, int tick, string eventType, int harvesterActorId, int refineryActorId, Int2 cell, int amount, int creditsAwarded)
+        {
+            EventId = eventId;
+            Tick = tick;
+            EventType = eventType;
+            HarvesterActorId = harvesterActorId;
+            RefineryActorId = refineryActorId;
+            Cell = cell;
+            Amount = amount;
+            CreditsAwarded = creditsAwarded;
         }
     }
 

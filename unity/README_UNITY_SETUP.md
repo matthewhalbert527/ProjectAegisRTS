@@ -248,6 +248,29 @@ To validate it from PowerShell:
 
 Stage 9 preserves the Stage 8 art pipeline scene and adds `CombatVisualProfileLibrary`, `ProjectileRenderSystem`, `CombatEventRenderSystem`, placeholder combat VFX, deterministic attack routing, and `CombatDebugHud`.
 
+## Create or Validate the Stage 10 Scene
+
+Stage 10 adds the economy harvesting scene:
+
+```text
+Assets/Rts/Scenes/Stage10_EconomyHarvesting.unity
+```
+
+To create or refresh the scene manually in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 10 > Create Economy Harvesting Scene
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage10-validation.ps1
+.\tools\run-stage10-checks.ps1
+```
+
+Stage 10 preserves the Stage 9 combat scene and adds deterministic ore harvesting, harvester cargo/refinery unloading snapshots, resource markers, cargo and dock markers, economy event markers, and `EconomyDebugHud`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -258,6 +281,7 @@ Stage 9 preserves the Stage 8 art pipeline scene and adds `CombatVisualProfileLi
 - P/B/W/R/G: queue power plant, barracks, war factory, refinery, gun tower.
 - I/T/H: queue rifle infantry, light tank, harvester.
 - L: toggle forced low-power demo state.
+- F8: toggle the Stage 10 economy debug HUD.
 - F1-F6: switch Stage 2 production tabs.
 - S/M/A: stop, move mode, or attack placeholder command.
 - Backquote: toggle the Stage 1 debug overlay if it is enabled in the scene.

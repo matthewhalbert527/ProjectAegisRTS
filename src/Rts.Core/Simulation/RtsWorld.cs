@@ -5,6 +5,7 @@ using ProjectAegisRTS.Actors;
 using ProjectAegisRTS.Commands;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
+using ProjectAegisRTS.Economy;
 using ProjectAegisRTS.Pathfinding;
 using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Production;
@@ -18,13 +19,21 @@ namespace ProjectAegisRTS.Simulation
         readonly Dictionary<int, PlayerState> players;
         readonly Dictionary<int, ActorState> actors;
         readonly Dictionary<int, ProjectileState> projectiles;
+        readonly Dictionary<Int2, ResourceCellState> resourceCells;
+        readonly Dictionary<int, HarvesterState> harvesters;
+        readonly Dictionary<int, RefineryState> refineries;
         readonly List<CombatEventSnapshot> recentCombatEvents;
+        readonly List<EconomyEventSnapshot> recentEconomyEvents;
         readonly GridPathfinder pathfinder;
         int nextActorId;
         int nextQueueItemId;
         int nextProjectileId;
         int nextCombatEventId;
+        int nextEconomyEventId;
         const int MaxRecentCombatEvents = 64;
+        const int MaxRecentEconomyEvents = 64;
+        const int HarvesterCargoCapacity = 200;
+        const int RefineryUnloadRatePerTick = 25;
 
         public RtsRules Rules { get; private set; }
         public GridMap Map { get; private set; }
@@ -37,12 +46,17 @@ namespace ProjectAegisRTS.Simulation
             players = new Dictionary<int, PlayerState>();
             actors = new Dictionary<int, ActorState>();
             projectiles = new Dictionary<int, ProjectileState>();
+            resourceCells = new Dictionary<Int2, ResourceCellState>();
+            harvesters = new Dictionary<int, HarvesterState>();
+            refineries = new Dictionary<int, RefineryState>();
             recentCombatEvents = new List<CombatEventSnapshot>();
+            recentEconomyEvents = new List<EconomyEventSnapshot>();
             pathfinder = new GridPathfinder();
             nextActorId = 1;
             nextQueueItemId = 1;
             nextProjectileId = 1;
             nextCombatEventId = 1;
+            nextEconomyEventId = 1;
         }
 
         public IReadOnlyDictionary<int, PlayerState> Players
@@ -58,6 +72,21 @@ namespace ProjectAegisRTS.Simulation
         public IReadOnlyDictionary<int, ProjectileState> Projectiles
         {
             get { return projectiles; }
+        }
+
+        public IReadOnlyDictionary<Int2, ResourceCellState> ResourceCells
+        {
+            get { return resourceCells; }
+        }
+
+        public IReadOnlyDictionary<int, HarvesterState> Harvesters
+        {
+            get { return harvesters; }
+        }
+
+        public IReadOnlyDictionary<int, RefineryState> Refineries
+        {
+            get { return refineries; }
         }
 
         public PlayerState AddPlayer(int playerId, string name, int credits)
@@ -81,10 +110,26 @@ namespace ProjectAegisRTS.Simulation
 
             var building = definition as BuildingDefinition;
             if (building != null)
+            {
                 Map.OccupyBuilding(cell, building.FootprintCells, actor.Id);
+                if (typeId == "refinery")
+                    refineries[actor.Id.Value] = new RefineryState(actor.Id.Value, GetRefineryDockCell(actor, building), RefineryUnloadRatePerTick);
+            }
+            else if (typeId == "harvester")
+            {
+                harvesters[actor.Id.Value] = new HarvesterState(actor.Id.Value, HarvesterCargoCapacity);
+            }
 
             UpdatePowerAndActorFlags();
             return actor;
+        }
+
+        public void AddResourceCell(Int2 cell, ResourceKind kind, int amount)
+        {
+            if (!Map.Contains(cell))
+                throw new InvalidOperationException("Resource cell outside map: " + cell);
+
+            resourceCells[cell] = new ResourceCellState(cell, kind, amount);
         }
 
         public bool TryGetActor(ActorId actorId, out ActorState actor)
@@ -120,6 +165,14 @@ namespace ProjectAegisRTS.Simulation
                 return IssueAttackOrder((IssueAttackOrderCommand)command);
             if (command is IssueForceAttackCellCommand)
                 return IssueForceAttackCell((IssueForceAttackCellCommand)command);
+            if (command is IssueHarvestOrderCommand)
+                return IssueHarvestOrder((IssueHarvestOrderCommand)command);
+            if (command is AssignHarvesterToResourceCellCommand)
+                return AssignHarvesterToResourceCell((AssignHarvesterToResourceCellCommand)command);
+            if (command is AssignHarvesterToRefineryCommand)
+                return AssignHarvesterToRefinery((AssignHarvesterToRefineryCommand)command);
+            if (command is ReturnToRefineryCommand)
+                return ReturnToRefinery((ReturnToRefineryCommand)command);
             if (command is BeginProductionCommand)
                 return BeginProduction((BeginProductionCommand)command);
             if (command is CancelProductionCommand)
@@ -142,6 +195,7 @@ namespace ProjectAegisRTS.Simulation
             UpdatePowerAndActorFlags();
             TickProduction();
             TickMovement();
+            TickHarvesting();
             TickCombat();
             TickProjectiles();
             UpdatePowerAndActorFlags();
@@ -212,7 +266,8 @@ namespace ProjectAegisRTS.Simulation
                     actor.WeaponCooldownRemaining,
                     actor.IsAttacking,
                     actor.AttackTargetActorId,
-                    actor.AttackTargetCell));
+                    actor.AttackTargetCell,
+                    actor.HasHarvestOrder));
             }
 
             var projectileSnapshots = new List<ProjectileSnapshot>();
@@ -234,7 +289,35 @@ namespace ProjectAegisRTS.Simulation
                     projectile.ImpactTick));
             }
 
-            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents));
+            var resourceSnapshots = new List<ResourceSnapshot>();
+            foreach (var resource in SortedResources())
+                resourceSnapshots.Add(new ResourceSnapshot(resource.Cell, resource.Kind.ToString(), resource.Amount, resource.MaxAmount, resource.IsDepleted));
+
+            var harvesterSnapshots = new List<HarvesterSnapshot>();
+            foreach (var harvester in SortedHarvesters())
+                harvesterSnapshots.Add(new HarvesterSnapshot(
+                    harvester.ActorId,
+                    harvester.CargoAmount,
+                    harvester.CargoCapacity,
+                    harvester.CarriedResourceKind.ToString(),
+                    harvester.HarvestTargetCell,
+                    harvester.AssignedRefineryActorId,
+                    harvester.State.ToString(),
+                    harvester.HarvestProgressTicks,
+                    harvester.UnloadProgressTicks));
+
+            var refinerySnapshots = new List<RefinerySnapshot>();
+            foreach (var refinery in SortedRefineries())
+                refinerySnapshots.Add(new RefinerySnapshot(
+                    refinery.ActorId,
+                    refinery.DockCell,
+                    refinery.ActiveHarvesterActorId,
+                    refinery.UnloadRatePerTick,
+                    refinery.IsUnloading,
+                    refinery.TotalResourcesReceived));
+
+            var economy = new EconomySnapshot(resourceSnapshots, harvesterSnapshots, refinerySnapshots, new List<EconomyEventSnapshot>(recentEconomyEvents));
+            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy);
         }
 
         public string GetDeterminismSummary()
@@ -281,7 +364,43 @@ namespace ProjectAegisRTS.Simulation
                     .Append(actor.WeaponCooldownRemaining).Append(' ')
                     .Append(actor.IsAttacking).Append(' ')
                     .Append(actor.IsDestroyed).Append(' ')
-                    .Append(actor.DeathTick)
+                    .Append(actor.DeathTick).Append(' ')
+                    .Append(actor.HasHarvestOrder)
+                    .AppendLine();
+            }
+
+            foreach (var resource in SortedResources())
+            {
+                sb.Append("resource ")
+                    .Append(resource.Cell).Append(' ')
+                    .Append(resource.Kind).Append(' ')
+                    .Append(resource.Amount).Append('/')
+                    .Append(resource.MaxAmount)
+                    .AppendLine();
+            }
+
+            foreach (var harvester in SortedHarvesters())
+            {
+                sb.Append("harvester ")
+                    .Append(harvester.ActorId).Append(' ')
+                    .Append(harvester.State).Append(' ')
+                    .Append(harvester.CargoAmount).Append('/')
+                    .Append(harvester.CargoCapacity).Append(' ')
+                    .Append(harvester.HarvestTargetCell).Append(' ')
+                    .Append(harvester.AssignedRefineryActorId).Append(' ')
+                    .Append(harvester.HarvestProgressTicks).Append(' ')
+                    .Append(harvester.UnloadProgressTicks)
+                    .AppendLine();
+            }
+
+            foreach (var refinery in SortedRefineries())
+            {
+                sb.Append("refinery ")
+                    .Append(refinery.ActorId).Append(' ')
+                    .Append(refinery.DockCell).Append(' ')
+                    .Append(refinery.ActiveHarvesterActorId).Append(' ')
+                    .Append(refinery.IsUnloading).Append(' ')
+                    .Append(refinery.TotalResourcesReceived)
                     .AppendLine();
             }
 
@@ -424,6 +543,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.CurrentOrder = actor.Path.Count == 0 ? ActorOrderKind.Idle : ActorOrderKind.Move;
                 actor.OrderTargetCell = command.DestinationCell;
                 ClearAttackState(actor);
+                ClearHarvestState(actor);
                 actor.MovementPhase = actor.Path.Count == 0 ? "idle" : "moving";
             }
 
@@ -472,6 +592,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.OrderTargetCell = target.CellPosition;
                 actor.ActiveWeaponId = Rules.GetDefinition(actor.TypeId).Weapon.WeaponId;
                 actor.IsAttacking = true;
+                ClearHarvestState(actor);
                 actor.DesiredSpeed = 0;
                 actor.NormalizedSpeed = 0;
                 actor.MovementPhase = "attacking";
@@ -486,6 +607,131 @@ namespace ProjectAegisRTS.Simulation
                 return CommandResult.Fail("ForceAttackOutsideMap", "The force-attack target cell is outside the map.");
 
             return CommandResult.Fail("ForceAttackCellUnsupported", "Stage 9 supports actor-target attack orders; cell force-attack is reserved for a later pass.");
+        }
+
+        CommandResult IssueHarvestOrder(IssueHarvestOrderCommand command)
+        {
+            if (!Map.Contains(command.ResourceCell))
+                return CommandResult.Fail("HarvestCellOutsideMap", "The harvest target cell is outside the map.");
+
+            ResourceCellState resource;
+            if (!resourceCells.TryGetValue(command.ResourceCell, out resource) || resource.IsDepleted)
+                return CommandResult.Fail("HarvestResourceMissing", "The target cell has no available resource.");
+
+            var prepared = new List<ActorState>();
+            var details = new List<string>();
+            foreach (var actorId in command.ActorIds)
+            {
+                ActorState actor;
+                if (!TryGetOwnedActor(command.PlayerId, actorId, out actor))
+                {
+                    details.Add("actor " + actorId.Value + ": not owned or missing");
+                    continue;
+                }
+
+                HarvesterState harvester;
+                if (!harvesters.TryGetValue(actor.Id.Value, out harvester))
+                {
+                    details.Add("actor " + actorId.Value + ": not a harvester");
+                    continue;
+                }
+
+                if (FindNearestOwnedRefinery(command.PlayerId, actor.CellPosition) == null)
+                {
+                    details.Add("actor " + actorId.Value + ": no owned refinery");
+                    continue;
+                }
+
+                var path = actor.CellPosition.Equals(command.ResourceCell) ? new List<Int2>() : pathfinder.FindPath(Map, actor.CellPosition, command.ResourceCell);
+                if (!actor.CellPosition.Equals(command.ResourceCell) && path.Count == 0)
+                {
+                    details.Add("actor " + actorId.Value + ": no path to resource");
+                    continue;
+                }
+
+                prepared.Add(actor);
+            }
+
+            if (details.Count > 0)
+                return CommandResult.Fail("HarvestOrderRejected", "One or more harvesters could not accept the harvest order.", details);
+
+            foreach (var actor in prepared)
+                StartHarvestOrder(actor, command.ResourceCell);
+
+            return CommandResult.Ok("Harvest order accepted.");
+        }
+
+        CommandResult AssignHarvesterToResourceCell(AssignHarvesterToResourceCellCommand command)
+        {
+            return IssueHarvestOrder(new IssueHarvestOrderCommand(command.PlayerId, new[] { command.HarvesterActorId }, command.ResourceCell));
+        }
+
+        CommandResult AssignHarvesterToRefinery(AssignHarvesterToRefineryCommand command)
+        {
+            ActorState harvesterActor;
+            if (!TryGetOwnedActor(command.PlayerId, command.HarvesterActorId, out harvesterActor))
+                return CommandResult.Fail("HarvesterInvalid", "The harvester actor does not exist or is not owned by the command player.");
+
+            HarvesterState harvester;
+            if (!harvesters.TryGetValue(harvesterActor.Id.Value, out harvester))
+                return CommandResult.Fail("HarvesterInvalid", "The selected actor is not a harvester.");
+
+            ActorState refineryActor;
+            if (!TryGetOwnedActor(command.PlayerId, command.RefineryActorId, out refineryActor))
+                return CommandResult.Fail("RefineryInvalid", "The refinery actor does not exist or is not owned by the command player.");
+
+            RefineryState refinery;
+            if (!refineries.TryGetValue(refineryActor.Id.Value, out refinery))
+                return CommandResult.Fail("RefineryInvalid", "The selected actor is not a refinery.");
+
+            harvester.AssignedRefineryActorId = refinery.ActorId;
+            if (harvester.CargoAmount > 0)
+                SendHarvesterToRefinery(harvesterActor, harvester, refinery);
+
+            return CommandResult.Ok("Harvester assigned to refinery.");
+        }
+
+        CommandResult ReturnToRefinery(ReturnToRefineryCommand command)
+        {
+            var details = new List<string>();
+            var prepared = new List<ActorState>();
+            foreach (var actorId in command.ActorIds)
+            {
+                ActorState actor;
+                if (!TryGetOwnedActor(command.PlayerId, actorId, out actor))
+                {
+                    details.Add("actor " + actorId.Value + ": not owned or missing");
+                    continue;
+                }
+
+                HarvesterState harvester;
+                if (!harvesters.TryGetValue(actor.Id.Value, out harvester))
+                {
+                    details.Add("actor " + actorId.Value + ": not a harvester");
+                    continue;
+                }
+
+                var refinery = GetAssignedOrNearestRefinery(command.PlayerId, actor, harvester);
+                if (refinery == null)
+                {
+                    details.Add("actor " + actorId.Value + ": no owned refinery");
+                    continue;
+                }
+
+                prepared.Add(actor);
+            }
+
+            if (details.Count > 0)
+                return CommandResult.Fail("ReturnToRefineryRejected", "One or more harvesters could not return to refinery.", details);
+
+            foreach (var actor in prepared)
+            {
+                var harvester = harvesters[actor.Id.Value];
+                var refinery = GetAssignedOrNearestRefinery(command.PlayerId, actor, harvester);
+                SendHarvesterToRefinery(actor, harvester, refinery);
+            }
+
+            return CommandResult.Ok("Return-to-refinery order accepted.");
         }
 
         CommandResult SetRallyPoint(SetRallyPointCommand command)
@@ -513,6 +759,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.Path.Clear();
                 actor.CurrentOrder = ActorOrderKind.Stop;
                 ClearAttackState(actor);
+                ClearHarvestState(actor);
                 actor.DesiredSpeed = 0;
                 actor.NormalizedSpeed = 0;
                 actor.MovementPhase = "idle";
@@ -1017,6 +1264,7 @@ namespace ProjectAegisRTS.Simulation
             target.DestroyedByActorId = sourceActorId;
             target.Path.Clear();
             ClearAttackState(target);
+            ClearHarvestState(target);
             target.CurrentOrder = ActorOrderKind.Stop;
             target.DesiredSpeed = 0;
             target.NormalizedSpeed = 0;
@@ -1034,11 +1282,271 @@ namespace ProjectAegisRTS.Simulation
                 actor.CurrentOrder = ActorOrderKind.Idle;
         }
 
+        void TickHarvesting()
+        {
+            foreach (var refinery in SortedRefineries())
+            {
+                refinery.IsUnloading = false;
+                if (refinery.ActiveHarvesterActorId > 0)
+                {
+                    HarvesterState active;
+                    if (!harvesters.TryGetValue(refinery.ActiveHarvesterActorId, out active) || active.State != HarvesterWorkState.Unloading)
+                        refinery.ActiveHarvesterActorId = 0;
+                }
+            }
+
+            foreach (var harvester in SortedHarvesters())
+            {
+                ActorState actor;
+                if (!actors.TryGetValue(harvester.ActorId, out actor) || actor.IsDestroyed)
+                    continue;
+
+                if (!actor.HasHarvestOrder && harvester.State != HarvesterWorkState.Unloading)
+                    continue;
+
+                if (harvester.State == HarvesterWorkState.MovingToResource || harvester.State == HarvesterWorkState.Returning)
+                {
+                    if (actor.CellPosition.Equals(harvester.HarvestTargetCell))
+                    {
+                        harvester.State = HarvesterWorkState.Harvesting;
+                        actor.MovementPhase = "harvesting";
+                    }
+                }
+
+                if (harvester.State == HarvesterWorkState.Harvesting)
+                {
+                    ResourceCellState resource;
+                    if (!resourceCells.TryGetValue(harvester.HarvestTargetCell, out resource) || resource.IsDepleted)
+                    {
+                        if (harvester.CargoAmount > 0)
+                        {
+                            var refinery = GetAssignedOrNearestRefinery(actor.OwnerPlayerId, actor, harvester);
+                            if (refinery != null)
+                                SendHarvesterToRefinery(actor, harvester, refinery);
+                            else
+                                harvester.State = HarvesterWorkState.Blocked;
+                        }
+                        else
+                        {
+                            ClearHarvestState(actor);
+                        }
+
+                        continue;
+                    }
+
+                    var capacityRemaining = harvester.CargoCapacity - harvester.CargoAmount;
+                    if (capacityRemaining <= 0)
+                    {
+                        var refinery = GetAssignedOrNearestRefinery(actor.OwnerPlayerId, actor, harvester);
+                        if (refinery != null)
+                            SendHarvesterToRefinery(actor, harvester, refinery);
+                        else
+                            harvester.State = HarvesterWorkState.Blocked;
+                        continue;
+                    }
+
+                    var harvestAmount = Min(10, Min(capacityRemaining, resource.Amount));
+                    resource.Amount -= harvestAmount;
+                    harvester.CargoAmount += harvestAmount;
+                    harvester.CarriedResourceKind = resource.Kind;
+                    harvester.HarvestProgressTicks++;
+                    actor.MovementPhase = "harvesting";
+                    AddEconomyEvent("ResourceHarvested", actor.Id.Value, harvester.AssignedRefineryActorId, resource.Cell, harvestAmount, 0);
+
+                    if (harvester.CargoAmount >= harvester.CargoCapacity || resource.IsDepleted)
+                    {
+                        var refinery = GetAssignedOrNearestRefinery(actor.OwnerPlayerId, actor, harvester);
+                        if (refinery != null && harvester.CargoAmount > 0)
+                            SendHarvesterToRefinery(actor, harvester, refinery);
+                        else if (resource.IsDepleted && harvester.CargoAmount == 0)
+                            ClearHarvestState(actor);
+                    }
+                }
+
+                if (harvester.State == HarvesterWorkState.MovingToRefinery || harvester.State == HarvesterWorkState.WaitingForDock)
+                {
+                    RefineryState refinery;
+                    if (!refineries.TryGetValue(harvester.AssignedRefineryActorId, out refinery))
+                    {
+                        harvester.State = HarvesterWorkState.Blocked;
+                        continue;
+                    }
+
+                    if (actor.CellPosition.Equals(refinery.DockCell))
+                    {
+                        if (refinery.ActiveHarvesterActorId == 0 || refinery.ActiveHarvesterActorId == actor.Id.Value)
+                        {
+                            refinery.ActiveHarvesterActorId = actor.Id.Value;
+                            harvester.State = HarvesterWorkState.Unloading;
+                            harvester.UnloadProgressTicks = 0;
+                            actor.MovementPhase = "unloading";
+                        }
+                        else
+                        {
+                            harvester.State = HarvesterWorkState.WaitingForDock;
+                            actor.MovementPhase = "waiting_for_dock";
+                        }
+                    }
+                }
+
+                if (harvester.State == HarvesterWorkState.Unloading)
+                {
+                    RefineryState refinery;
+                    if (!refineries.TryGetValue(harvester.AssignedRefineryActorId, out refinery))
+                    {
+                        harvester.State = HarvesterWorkState.Blocked;
+                        continue;
+                    }
+
+                    if (refinery.ActiveHarvesterActorId != 0 && refinery.ActiveHarvesterActorId != actor.Id.Value)
+                    {
+                        harvester.State = HarvesterWorkState.WaitingForDock;
+                        continue;
+                    }
+
+                    refinery.ActiveHarvesterActorId = actor.Id.Value;
+                    refinery.IsUnloading = true;
+                    actor.MovementPhase = "unloading";
+
+                    var unloadAmount = Min(refinery.UnloadRatePerTick, harvester.CargoAmount);
+                    if (unloadAmount > 0)
+                    {
+                        harvester.CargoAmount -= unloadAmount;
+                        harvester.UnloadProgressTicks++;
+                        refinery.TotalResourcesReceived += unloadAmount;
+                        players[actor.OwnerPlayerId].Credits += unloadAmount;
+                        AddEconomyEvent("HarvesterUnloaded", actor.Id.Value, refinery.ActorId, refinery.DockCell, unloadAmount, unloadAmount);
+                    }
+
+                    if (harvester.CargoAmount <= 0)
+                    {
+                        harvester.CargoAmount = 0;
+                        harvester.CarriedResourceKind = ResourceKind.None;
+                        refinery.ActiveHarvesterActorId = 0;
+                        refinery.IsUnloading = false;
+
+                        ResourceCellState resource;
+                        if (actor.HasHarvestOrder && resourceCells.TryGetValue(harvester.HarvestTargetCell, out resource) && !resource.IsDepleted)
+                            SendHarvesterToResource(actor, harvester, harvester.HarvestTargetCell);
+                        else
+                            ClearHarvestState(actor);
+                    }
+                }
+            }
+        }
+
+        void StartHarvestOrder(ActorState actor, Int2 resourceCell)
+        {
+            var harvester = harvesters[actor.Id.Value];
+            var refinery = GetAssignedOrNearestRefinery(actor.OwnerPlayerId, actor, harvester);
+            harvester.AssignedRefineryActorId = refinery == null ? 0 : refinery.ActorId;
+            harvester.HarvestTargetCell = resourceCell;
+            actor.HasHarvestOrder = true;
+            actor.CurrentOrder = ActorOrderKind.Harvest;
+            actor.OrderTargetCell = resourceCell;
+            ClearAttackState(actor);
+            SendHarvesterToResource(actor, harvester, resourceCell);
+        }
+
+        void SendHarvesterToResource(ActorState actor, HarvesterState harvester, Int2 resourceCell)
+        {
+            actor.Path.Clear();
+            if (!actor.CellPosition.Equals(resourceCell))
+                actor.Path.AddRange(pathfinder.FindPath(Map, actor.CellPosition, resourceCell));
+            actor.CurrentOrder = ActorOrderKind.Harvest;
+            actor.OrderTargetCell = resourceCell;
+            actor.HasHarvestOrder = true;
+            harvester.HarvestTargetCell = resourceCell;
+            harvester.State = actor.CellPosition.Equals(resourceCell) ? HarvesterWorkState.Harvesting : HarvesterWorkState.MovingToResource;
+            actor.MovementPhase = actor.CellPosition.Equals(resourceCell) ? "harvesting" : "moving_to_resource";
+        }
+
+        void SendHarvesterToRefinery(ActorState actor, HarvesterState harvester, RefineryState refinery)
+        {
+            actor.Path.Clear();
+            if (!actor.CellPosition.Equals(refinery.DockCell))
+                actor.Path.AddRange(pathfinder.FindPath(Map, actor.CellPosition, refinery.DockCell));
+            actor.CurrentOrder = ActorOrderKind.Harvest;
+            actor.OrderTargetCell = refinery.DockCell;
+            actor.HasHarvestOrder = true;
+            harvester.AssignedRefineryActorId = refinery.ActorId;
+            harvester.State = actor.CellPosition.Equals(refinery.DockCell) ? HarvesterWorkState.Unloading : HarvesterWorkState.MovingToRefinery;
+            actor.MovementPhase = actor.CellPosition.Equals(refinery.DockCell) ? "unloading" : "moving_to_refinery";
+        }
+
+        RefineryState GetAssignedOrNearestRefinery(int playerId, ActorState actor, HarvesterState harvester)
+        {
+            RefineryState assigned;
+            ActorState assignedActor;
+            if (harvester.AssignedRefineryActorId > 0 &&
+                refineries.TryGetValue(harvester.AssignedRefineryActorId, out assigned) &&
+                actors.TryGetValue(assigned.ActorId, out assignedActor) &&
+                assignedActor.OwnerPlayerId == playerId &&
+                !assignedActor.IsDestroyed)
+                return assigned;
+
+            return FindNearestOwnedRefinery(playerId, actor.CellPosition);
+        }
+
+        RefineryState FindNearestOwnedRefinery(int playerId, Int2 fromCell)
+        {
+            RefineryState best = null;
+            var bestDistance = int.MaxValue;
+            foreach (var refinery in SortedRefineries())
+            {
+                ActorState actor;
+                if (!actors.TryGetValue(refinery.ActorId, out actor) || actor.OwnerPlayerId != playerId || actor.IsDestroyed)
+                    continue;
+
+                var distance = fromCell.ManhattanDistanceTo(refinery.DockCell);
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    best = refinery;
+                }
+            }
+
+            return best;
+        }
+
+        Int2 GetRefineryDockCell(ActorState actor, BuildingDefinition definition)
+        {
+            var preferred = actor.CellPosition + definition.UnitExitOffset;
+            return FindNearestSpawnCell(preferred);
+        }
+
+        void ClearHarvestState(ActorState actor)
+        {
+            actor.HasHarvestOrder = false;
+            HarvesterState harvester;
+            if (harvesters.TryGetValue(actor.Id.Value, out harvester))
+            {
+                harvester.State = HarvesterWorkState.Idle;
+                harvester.HarvestProgressTicks = 0;
+                harvester.UnloadProgressTicks = 0;
+            }
+
+            if (actor.CurrentOrder == ActorOrderKind.Harvest)
+                actor.CurrentOrder = ActorOrderKind.Idle;
+        }
+
         void AddCombatEvent(string eventType, int sourceActorId, int targetActorId, int projectileId, string weaponId, int damage, int targetHealth, Int2 cell, Int2 fixedWorldPosition)
         {
             recentCombatEvents.Add(new CombatEventSnapshot(nextCombatEventId++, TickNumber, eventType, sourceActorId, targetActorId, projectileId, weaponId, damage, targetHealth, cell, fixedWorldPosition));
             while (recentCombatEvents.Count > MaxRecentCombatEvents)
                 recentCombatEvents.RemoveAt(0);
+        }
+
+        void AddEconomyEvent(string eventType, int harvesterActorId, int refineryActorId, Int2 cell, int amount, int creditsAwarded)
+        {
+            recentEconomyEvents.Add(new EconomyEventSnapshot(nextEconomyEventId++, TickNumber, eventType, harvesterActorId, refineryActorId, cell, amount, creditsAwarded));
+            while (recentEconomyEvents.Count > MaxRecentEconomyEvents)
+                recentEconomyEvents.RemoveAt(0);
+        }
+
+        static int Min(int a, int b)
+        {
+            return a < b ? a : b;
         }
 
         static bool Contains(IReadOnlyList<string> values, string value)
@@ -1068,6 +1576,31 @@ namespace ProjectAegisRTS.Simulation
         {
             var list = new List<ProjectileState>(projectiles.Values);
             list.Sort((a, b) => a.ProjectileId.CompareTo(b.ProjectileId));
+            return list;
+        }
+
+        List<ResourceCellState> SortedResources()
+        {
+            var list = new List<ResourceCellState>(resourceCells.Values);
+            list.Sort((a, b) =>
+            {
+                var y = a.Cell.Y.CompareTo(b.Cell.Y);
+                return y != 0 ? y : a.Cell.X.CompareTo(b.Cell.X);
+            });
+            return list;
+        }
+
+        List<HarvesterState> SortedHarvesters()
+        {
+            var list = new List<HarvesterState>(harvesters.Values);
+            list.Sort((a, b) => a.ActorId.CompareTo(b.ActorId));
+            return list;
+        }
+
+        List<RefineryState> SortedRefineries()
+        {
+            var list = new List<RefineryState>(refineries.Values);
+            list.Sort((a, b) => a.ActorId.CompareTo(b.ActorId));
             return list;
         }
     }

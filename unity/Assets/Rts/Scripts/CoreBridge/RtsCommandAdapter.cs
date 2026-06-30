@@ -77,6 +77,27 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 world.IssueCommand(new IssueForceAttackCellCommand(playerId, ToActorIds(actorIds), targetCell)));
         }
 
+        public static RtsCommandResult IssueHarvestOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, Int2 resourceCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Harvest",
+                world.IssueCommand(new IssueHarvestOrderCommand(playerId, ToActorIds(actorIds), resourceCell)));
+        }
+
+        public static RtsCommandResult ReturnToRefinery(RtsWorld world, int playerId, IReadOnlyList<int> actorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Return to refinery",
+                world.IssueCommand(new ReturnToRefineryCommand(playerId, ToActorIds(actorIds))));
+        }
+
+        public static RtsCommandResult AssignHarvesterToRefinery(RtsWorld world, int playerId, int harvesterActorId, int refineryActorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Assign refinery",
+                world.IssueCommand(new AssignHarvesterToRefineryCommand(playerId, new ActorId(harvesterActorId), new ActorId(refineryActorId))));
+        }
+
         public static RtsCommandResult BeginProduction(RtsWorld world, int playerId, int producerActorId, string typeId)
         {
             return RtsCommandResult.FromCore(

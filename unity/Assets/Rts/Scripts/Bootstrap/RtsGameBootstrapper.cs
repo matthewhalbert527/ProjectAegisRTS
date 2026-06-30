@@ -4,6 +4,7 @@ using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.InputControls;
 using ProjectAegisRTS.UnityClient.Rendering;
 using ProjectAegisRTS.UnityClient.Rendering.Combat;
+using ProjectAegisRTS.UnityClient.Rendering.Economy;
 using ProjectAegisRTS.UnityClient.UI;
 using UnityEngine;
 
@@ -27,6 +28,10 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public CombatVisualProfileLibrary combatVisualProfileLibrary;
         public ProjectileRenderSystem projectileRenderSystem;
         public CombatEventRenderSystem combatEventRenderSystem;
+        public ResourceFieldRenderSystem resourceFieldRenderSystem;
+        public HarvesterCargoVisualController harvesterCargoVisualController;
+        public RefineryDockVisualController refineryDockVisualController;
+        public EconomyEventRenderSystem economyEventRenderSystem;
         public RtsSimulationDriver simulationDriver;
         public RtsDesktopInputController inputController;
         public RtsDebugHud debugHud;
@@ -68,6 +73,14 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 projectileRenderSystem.Initialize(simulationDriver, coordinateMapper, combatVisualProfileLibrary);
             if (combatEventRenderSystem != null)
                 combatEventRenderSystem.Initialize(simulationDriver, coordinateMapper, combatVisualProfileLibrary);
+            if (resourceFieldRenderSystem != null)
+                resourceFieldRenderSystem.Initialize(simulationDriver, coordinateMapper);
+            if (harvesterCargoVisualController != null)
+                harvesterCargoVisualController.Initialize(simulationDriver, coordinateMapper);
+            if (refineryDockVisualController != null)
+                refineryDockVisualController.Initialize(simulationDriver, coordinateMapper);
+            if (economyEventRenderSystem != null)
+                economyEventRenderSystem.Initialize(simulationDriver, coordinateMapper);
             inputController.Initialize(sceneCamera, coordinateMapper, simulationDriver, debugHud);
             debugHud.Initialize(simulationDriver);
             cameraController.Configure(coordinateMapper);

@@ -44,6 +44,10 @@ Complete. Validation tier tooling and hardening. Adds fast, medium, and full Sta
 
 Complete. Combat, weapons, projectiles, damage, death, and destruction presentation. Adds deterministic attack orders, weapon cooldowns, projectile simulation, damage/death state, combat snapshots/events, `Assets/Rts/Scenes/Stage9_CombatWeaponsDamage.unity`, placeholder projectile/muzzle/impact/damage/death presentation, F12 combat debug HUD, and fast/medium/full Stage 9 validation tiers.
 
+## Stage 10
+
+Complete. Economy, resource harvesting, and refinery loop. Adds deterministic ore resource cells, harvest orders, harvester cargo/work states, refinery dock/unload state, credit awards, economy snapshots/events, `Assets/Rts/Scenes/Stage10_EconomyHarvesting.unity`, resource/cargo/dock/event placeholder presentation, F8 economy debug HUD, scene validation, Play Mode smoke validation, and a full Stage 0-through-Stage 10 acceptance gate.
+
 ## Later Stages
 
-Economy/resource harvesting and refinery loop refinement, fog expansion, skirmish AI, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.
+Fog expansion, skirmish AI, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, release packaging, and faster Stage 10+ validation tiers.
