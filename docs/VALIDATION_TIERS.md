@@ -1,6 +1,6 @@
 # Validation Tiers
 
-Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration.
+Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration.
 
 ## Tier Summary
 
@@ -12,6 +12,9 @@ Stage 8.1 adds validation tiers so normal development does not need to replay th
 | Fast | `.\tools\run-stage9-fast-checks.ps1` | You changed current Stage 9 combat presentation, scene wiring, profiles, or smoke tooling. | Builds/copies `Rts.Core` for Unity, runs Stage 9 generation/validation only, runs Stage 9 Play Mode smoke when batchmode can own the project lock, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
 | Medium | `.\tools\run-stage9-medium-checks.ps1` | You are preparing a local Stage 9 commit. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs Stage 8 immediate dependency validation, then Stage 9 validation and Play Mode smoke/fallback, the `Rts.Core` UnityEngine-free scan, and `git diff --check`. |
 | Full | `.\tools\run-stage9-checks.ps1` | You need final Stage 9 acceptance evidence. | Runs Stage 0 through Stage 9, including the existing full validation chain and Stage 9 Play Mode smoke/fallback. This is intentionally slow. |
+| Fast | `.\tools\run-stage10-fast-checks.ps1` | You changed current Stage 10 economy presentation, scene wiring, harvest smoke tooling, or economy debug HUD. | Builds/copies `Rts.Core` for Unity, runs Stage 10 generation/validation only, runs Stage 10 Play Mode smoke when batchmode can own the project lock, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
+| Medium | `.\tools\run-stage10-medium-checks.ps1` | You are preparing a local Stage 10 commit. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs Stage 9 immediate dependency validation, then Stage 10 validation and Play Mode smoke/fallback, the `Rts.Core` UnityEngine-free scan, and `git diff --check`. |
+| Full | `.\tools\run-stage10-checks.ps1` | You need final Stage 10 acceptance evidence. | Runs Stage 0 through Stage 10, including the existing full validation chain and Stage 10 Play Mode smoke/fallback. This is intentionally slow. |
 
 ## Stage 8 Examples
 
@@ -51,6 +54,26 @@ Before declaring Stage 9 accepted or using Stage 9 as the base for a later stage
 
 ```powershell
 .\tools\run-stage9-checks.ps1
+```
+
+## Stage 10 Examples
+
+After touching Stage 10 economy visuals, harvest routing, scene wiring, or smoke validation, use:
+
+```powershell
+.\tools\run-stage10-fast-checks.ps1
+```
+
+Before committing Stage 10 economy or Unity presentation changes locally, use:
+
+```powershell
+.\tools\run-stage10-medium-checks.ps1
+```
+
+Before declaring Stage 10 accepted or using Stage 10 as the base for a later stage, use:
+
+```powershell
+.\tools\run-stage10-checks.ps1
 ```
 
 ## Expected Time
@@ -93,3 +116,5 @@ Do not weaken or remove the full chain when adding faster tiers.
 Stage 8.1 implementation hash: c6cfde1111538f204abbb3e6583df3bf8f363858.
 
 Stage 9 implementation hash: pending local commit.
+
+Stage 10 implementation hash: 718ab2a3157a1753b074dc10b43d296800d739b5.

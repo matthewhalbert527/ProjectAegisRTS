@@ -18,7 +18,7 @@ Stage 10 adds deterministic ore harvesting, harvester cargo, refinery unloading,
 - Economy snapshots surfaced through `WorldSnapshot.Economy` plus actor harvest-order flags.
 - Unity bridge methods for harvest and refinery return commands.
 - Unity rendering systems for resource cells, harvester cargo markers, refinery dock state, economy event markers, and the F8 economy debug HUD.
-- Stage 10 scene generation, scene validation, Play Mode smoke validation, and full Stage 0-through-Stage 10 acceptance gate.
+- Stage 10 scene generation, scene validation, Play Mode smoke validation, and fast/medium/full validation tiers.
 
 ## Architecture Boundary
 
@@ -40,10 +40,15 @@ Open `Assets/Rts/Scenes/Stage10_EconomyHarvesting.unity`, press Play, and verify
 - Tick count, pause/resume, single-step, movement, and combat presentation still work.
 - No repeating red console errors.
 
+## Validation Tiers
+
+- `tools/run-stage10-fast-checks.ps1`: current Stage 10 Unity validation, Play Mode smoke or live fallback, UnityEngine-free scan, and `git diff --check`.
+- `tools/run-stage10-medium-checks.ps1`: `Rts.Core` tests, Unity DLL build, Stage 9 immediate dependency validation, Stage 10 validation, UnityEngine-free scan, and `git diff --check`.
+- `tools/run-stage10-checks.ps1`: slow full Stage 0-through-Stage 10 acceptance gate.
+
 ## Known Limits
 
 - Resource art, docking animation, audio, queueing, depletion search, fog, and worker AI remain future stages.
-- Stage 10 validates through the slow full gate for this pass. Faster Stage 10 iteration tiers can be added in the next tooling pass without weakening the full acceptance gate.
 
 ## Commands
 
@@ -53,6 +58,8 @@ Acceptance commands:
 dotnet run --no-restore --project src/Rts.Core.Tests
 .\tools\build-rts-core-for-unity.ps1
 .\tools\run-unity-stage10-validation.ps1
+.\tools\run-stage10-fast-checks.ps1
+.\tools\run-stage10-medium-checks.ps1
 .\tools\run-stage10-checks.ps1
 git diff --check
 ```

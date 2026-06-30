@@ -266,6 +266,8 @@ To validate it from PowerShell:
 
 ```powershell
 .\tools\run-unity-stage10-validation.ps1
+.\tools\run-stage10-fast-checks.ps1
+.\tools\run-stage10-medium-checks.ps1
 .\tools\run-stage10-checks.ps1
 ```
 

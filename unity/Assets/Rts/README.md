@@ -40,6 +40,8 @@ Stage 8.1 adds tiered validation commands from the repository root:
 - `tools/run-stage9-fast-checks.ps1`: current Stage 9 combat iteration only.
 - `tools/run-stage9-medium-checks.ps1`: core tests, Unity DLL build, Stage 8 immediate dependency validation, and Stage 9 validation before local commits.
 - `tools/run-stage9-checks.ps1`: slow full acceptance gate from Stage 0 through Stage 9.
+- `tools/run-stage10-fast-checks.ps1`: current Stage 10 economy iteration only.
+- `tools/run-stage10-medium-checks.ps1`: core tests, Unity DLL build, Stage 9 immediate dependency validation, and Stage 10 validation before local commits.
 - `tools/run-stage10-checks.ps1`: slow full acceptance gate from Stage 0 through Stage 10.
 
 The fast and medium tiers do not weaken acceptance coverage; they make day-to-day Unity asset and tooling edits cheaper to validate.

@@ -112,10 +112,12 @@ Run Stage 10 checks:
 
 ```powershell
 .\tools\run-unity-stage10-validation.ps1
+.\tools\run-stage10-fast-checks.ps1
+.\tools\run-stage10-medium-checks.ps1
 .\tools\run-stage10-checks.ps1
 ```
 
-Stage 10 uses the full Stage 0-through-Stage 10 acceptance gate for this pass. Faster Stage 10 iteration tiers can be added in the next validation-tooling pass without weakening the full gate.
+Use `run-stage10-fast-checks.ps1` for current economy iteration, `run-stage10-medium-checks.ps1` before local commits, and `run-stage10-checks.ps1` as the slow full Stage 0-through-Stage 10 acceptance gate.
 
 Open the Unity project:
 
