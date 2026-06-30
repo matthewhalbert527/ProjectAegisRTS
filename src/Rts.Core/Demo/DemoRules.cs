@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
+using ProjectAegisRTS.Terrain;
 using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Demo
@@ -57,10 +58,23 @@ namespace ProjectAegisRTS.Demo
                 displayName,
                 health,
                 new ProductionDefinition(productionKind, cost, buildTimeTicks, factoryTypeId, false),
-                new MovementDefinition(speedPerTick, turnRate, visualProfile),
+                new MovementDefinition(speedPerTick, turnRate, visualProfile, MovementClassFor(productionKind, visualProfile, typeId)),
                 weapon,
                 animation,
                 new SightDefinition(sightRadius));
+        }
+
+        static MovementClass MovementClassFor(ProductionKind productionKind, string visualProfile, string typeId)
+        {
+            if (productionKind == ProductionKind.Infantry)
+                return MovementClass.Infantry;
+            if (productionKind == ProductionKind.Aircraft)
+                return MovementClass.Aircraft;
+            if (typeId == "harvester")
+                return MovementClass.Harvester;
+            if (visualProfile != null && visualProfile.StartsWith("tracked", System.StringComparison.Ordinal))
+                return MovementClass.Tracked;
+            return MovementClass.Wheeled;
         }
 
         static BuildingDefinition Building(string typeId, string displayName, int health, ProductionKind productionKind, int cost, int buildTimeTicks, string factoryTypeId, int powerGenerated, int powerConsumed, Int2 footprint, bool providesConstructionRadius, int constructionRadius, Int2 unitExitOffset, IReadOnlyList<string> produces, AnimationStateDefinition animation, WeaponDefinition weapon = null, int sightRadius = 5, RadarDefinition radar = null)

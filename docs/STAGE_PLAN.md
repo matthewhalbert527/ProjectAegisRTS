@@ -56,6 +56,10 @@ Complete. Fog of war, radar, and minimap foundation. Adds deterministic per-play
 
 Complete. Skirmish AI foundation. Adds deterministic AI player definitions, difficulty profile, plan state, economy/production/attack/scouting/defense intents, AI command generation through the existing core command pipeline, AI snapshots, `Assets/Rts/Scenes/Stage12_AISkirmishFoundation.unity`, placeholder AI intent/timeline presentation, F6 AI debug HUD, and fast/medium/full Stage 12 validation tiers.
 
+## Stage 13
+
+Complete. Map, terrain, pathing tools, and polish foundation. Adds deterministic terrain definitions, movement classes, passability masks, movement costs, terrain/resource map snapshots, structured path query diagnostics, map validation, `Assets/Rts/Scenes/Stage13_MapTerrainPathing.unity`, placeholder terrain/path debug presentation, F5 map validation HUD, authoring overlay placeholder, and fast/medium/full Stage 13 validation tiers.
+
 ## Later Stages
 
-Map/terrain/pathing tools, feedback foundation, performance/build readiness, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.
+Feedback foundation, performance/build readiness, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.

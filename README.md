@@ -1,6 +1,6 @@
 # ProjectAegisRTS
 
-ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a Meta Quest 3S VR/MR board game and as a PC RTS with a right-side production panel. Stage 0 created the deterministic, Unity-compatible C# simulation core. Stage 1 added a Unity desktop board prototype that consumes that core as a DLL. Stage 2 adds the first PC RTS sidebar, command bar, production queue, selection panel, minimap placeholder, and status log. Stage 3 adds the Quest/OpenXR-ready board placement prototype while preserving the PC scenes. Stage 4 adds a Quest-style left-hand build and selection interface with desktop fallback controls. Stage 5 adds the companion right-hand tactical command interface for movement, placeholder attack commands, command previews, and board manipulation. Stage 6 adds visual-only vehicle, infantry, aircraft, turret, and movement path presentation on top of deterministic snapshots. Stage 7 adds visual-only building animation, power-state, production, and damage-state presentation. Stage 8 adds the concept-art-to-production-prefab pipeline, actor visual definition catalog, generated blockout prefabs, icons, sockets, validation, and showcase scene. Stage 9 adds deterministic combat, weapons, projectiles, damage, death/destruction state, and Unity placeholder combat presentation. Stage 10 adds deterministic ore harvesting, harvester cargo, refinery unloading, economy snapshots/events, and Unity placeholder economy presentation. Stage 11 adds deterministic fog of war, radar status, minimap snapshots, and Unity placeholder fog/minimap presentation. Stage 12 adds deterministic skirmish AI planning, AI intent snapshots, and Unity placeholder AI debug presentation.
+ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a Meta Quest 3S VR/MR board game and as a PC RTS with a right-side production panel. Stage 0 created the deterministic, Unity-compatible C# simulation core. Stage 1 added a Unity desktop board prototype that consumes that core as a DLL. Stage 2 adds the first PC RTS sidebar, command bar, production queue, selection panel, minimap placeholder, and status log. Stage 3 adds the Quest/OpenXR-ready board placement prototype while preserving the PC scenes. Stage 4 adds a Quest-style left-hand build and selection interface with desktop fallback controls. Stage 5 adds the companion right-hand tactical command interface for movement, placeholder attack commands, command previews, and board manipulation. Stage 6 adds visual-only vehicle, infantry, aircraft, turret, and movement path presentation on top of deterministic snapshots. Stage 7 adds visual-only building animation, power-state, production, and damage-state presentation. Stage 8 adds the concept-art-to-production-prefab pipeline, actor visual definition catalog, generated blockout prefabs, icons, sockets, validation, and showcase scene. Stage 9 adds deterministic combat, weapons, projectiles, damage, death/destruction state, and Unity placeholder combat presentation. Stage 10 adds deterministic ore harvesting, harvester cargo, refinery unloading, economy snapshots/events, and Unity placeholder economy presentation. Stage 11 adds deterministic fog of war, radar status, minimap snapshots, and Unity placeholder fog/minimap presentation. Stage 12 adds deterministic skirmish AI planning, AI intent snapshots, and Unity placeholder AI debug presentation. Stage 13 adds deterministic terrain metadata, movement-class passability, path diagnostics, map validation, and Unity placeholder terrain/path debug presentation.
 
 ## Contents
 
@@ -10,7 +10,7 @@ ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a 
 - `external/openra`: copied OpenRA reference source for audit only.
 - `external/redalert_reference`: copied historical reference source, read-only and not used as a code base.
 - `art/concepts`: copied concept cards and generated registries.
-- `unity`: Unity desktop board prototype, Stage 2 PC sidebar scene, Stage 3 XR board placement prototype, Stage 4 left-hand build/selection scene, Stage 5 dual-hand command scene, Stage 6 movement visualization scene, Stage 7 building power/production scene, Stage 8 art pipeline showcase scene, Stage 9 combat scene, Stage 10 economy scene, Stage 11 fog/radar/minimap scene, Stage 12 AI skirmish scene, and setup notes.
+- `unity`: Unity desktop board prototype, Stage 2 PC sidebar scene, Stage 3 XR board placement prototype, Stage 4 left-hand build/selection scene, Stage 5 dual-hand command scene, Stage 6 movement visualization scene, Stage 7 building power/production scene, Stage 8 art pipeline showcase scene, Stage 9 combat scene, Stage 10 economy scene, Stage 11 fog/radar/minimap scene, Stage 12 AI skirmish scene, Stage 13 map terrain pathing scene, and setup notes.
 
 ## Run Tests
 
@@ -141,6 +141,17 @@ Run Stage 12 checks:
 
 Use `run-stage12-fast-checks.ps1` for current AI iteration, `run-stage12-medium-checks.ps1` before local commits, and `run-stage12-checks.ps1` as the slow full Stage 0-through-Stage 12 acceptance gate.
 
+Run Stage 13 checks:
+
+```powershell
+.\tools\run-unity-stage13-validation.ps1
+.\tools\run-stage13-fast-checks.ps1
+.\tools\run-stage13-medium-checks.ps1
+.\tools\run-stage13-checks.ps1
+```
+
+Use `run-stage13-fast-checks.ps1` for current map/pathing iteration, `run-stage13-medium-checks.ps1` before local commits, and `run-stage13-checks.ps1` as the slow full Stage 0-through-Stage 13 acceptance gate.
+
 Open the Unity project:
 
 ```powershell
@@ -161,6 +172,7 @@ Scene paths:
 - `Assets/Rts/Scenes/Stage10_EconomyHarvesting.unity`: Stage 10 economy scene with deterministic ore harvesting, harvester cargo/refinery unloading snapshots, resource markers, economy events, and F8 debug HUD.
 - `Assets/Rts/Scenes/Stage11_FogRadarMinimap.unity`: Stage 11 fog/radar/minimap scene with player-perspective snapshots, fog overlay, radar status, minimap dots, and F7 debug HUD.
 - `Assets/Rts/Scenes/Stage12_AISkirmishFoundation.unity`: Stage 12 AI skirmish scene with deterministic AI intents, command generation, plan timeline, and F6 debug HUD.
+- `Assets/Rts/Scenes/Stage13_MapTerrainPathing.unity`: Stage 13 map terrain pathing scene with deterministic terrain metadata, path diagnostics, map validation, and F5 debug HUD.
 
 Stage 8 art assets:
 
@@ -194,4 +206,9 @@ Stage 12 AI assets:
 - AI render scripts: `unity/Assets/Rts/Scripts/Rendering/Ai/`
 - AI design notes: `docs/STAGE12_AI_DESIGN.md`
 - Stage report: `docs/STAGE12_REPORT.md`
-- Stage report: `docs/STAGE11_REPORT.md`
+
+Stage 13 map/pathing assets:
+
+- Map render scripts: `unity/Assets/Rts/Scripts/Rendering/Map/`
+- Map terrain/pathing design notes: `docs/STAGE13_MAP_TERRAIN_PATHING_DESIGN.md`
+- Stage report: `docs/STAGE13_REPORT.md`

@@ -17,6 +17,7 @@ namespace ProjectAegisRTS.Snapshots
         public RadarSnapshot Radar { get; private set; }
         public MinimapSnapshot Minimap { get; private set; }
         public AiSnapshot Ai { get; private set; }
+        public MapSnapshot Map { get; private set; }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors)
             : this(tick, players, actors, new ProjectileSnapshot[0], new CombatEventSnapshot[0], EconomySnapshot.Empty)
@@ -39,6 +40,11 @@ namespace ProjectAegisRTS.Snapshots
         }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai)
+            : this(tick, players, actors, projectiles, combatEvents, economy, fog, radar, minimap, ai, MapSnapshot.Empty)
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai, MapSnapshot map)
         {
             Tick = tick;
             Players = players;
@@ -50,6 +56,81 @@ namespace ProjectAegisRTS.Snapshots
             Radar = radar ?? RadarSnapshot.Empty;
             Minimap = minimap ?? MinimapSnapshot.Empty;
             Ai = ai ?? AiSnapshot.Empty;
+            Map = map ?? MapSnapshot.Empty;
+        }
+    }
+
+    public sealed class MapSnapshot
+    {
+        public static readonly MapSnapshot Empty = new MapSnapshot(0, 0, new TerrainCellSnapshot[0], new PathDebugSnapshot[0], true, new string[0], new string[0]);
+
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public IReadOnlyList<TerrainCellSnapshot> TerrainCells { get; private set; }
+        public IReadOnlyList<PathDebugSnapshot> RecentPathQueries { get; private set; }
+        public bool IsValid { get; private set; }
+        public IReadOnlyList<string> ValidationErrors { get; private set; }
+        public IReadOnlyList<string> ValidationWarnings { get; private set; }
+
+        public MapSnapshot(int width, int height, IReadOnlyList<TerrainCellSnapshot> terrainCells, IReadOnlyList<PathDebugSnapshot> recentPathQueries, bool isValid, IReadOnlyList<string> validationErrors, IReadOnlyList<string> validationWarnings)
+        {
+            Width = width;
+            Height = height;
+            TerrainCells = terrainCells ?? new TerrainCellSnapshot[0];
+            RecentPathQueries = recentPathQueries ?? new PathDebugSnapshot[0];
+            IsValid = isValid;
+            ValidationErrors = validationErrors ?? new string[0];
+            ValidationWarnings = validationWarnings ?? new string[0];
+        }
+    }
+
+    public sealed class TerrainCellSnapshot
+    {
+        public Int2 Cell { get; private set; }
+        public string Kind { get; private set; }
+        public int MovementCost { get; private set; }
+        public string Passability { get; private set; }
+        public bool IsBlocked { get; private set; }
+        public bool HasBuilding { get; private set; }
+
+        public TerrainCellSnapshot(Int2 cell, string kind, int movementCost, string passability, bool isBlocked, bool hasBuilding)
+        {
+            Cell = cell;
+            Kind = kind;
+            MovementCost = movementCost;
+            Passability = passability;
+            IsBlocked = isBlocked;
+            HasBuilding = hasBuilding;
+        }
+    }
+
+    public sealed class PathDebugSnapshot
+    {
+        public int QueryId { get; private set; }
+        public int Tick { get; private set; }
+        public int ActorId { get; private set; }
+        public Int2 StartCell { get; private set; }
+        public Int2 GoalCell { get; private set; }
+        public string MovementClass { get; private set; }
+        public bool Success { get; private set; }
+        public int TotalCost { get; private set; }
+        public int VisitedCellCount { get; private set; }
+        public string FailureCode { get; private set; }
+        public IReadOnlyList<Int2> Path { get; private set; }
+
+        public PathDebugSnapshot(int queryId, int tick, int actorId, Int2 startCell, Int2 goalCell, string movementClass, bool success, int totalCost, int visitedCellCount, string failureCode, IReadOnlyList<Int2> path)
+        {
+            QueryId = queryId;
+            Tick = tick;
+            ActorId = actorId;
+            StartCell = startCell;
+            GoalCell = goalCell;
+            MovementClass = movementClass;
+            Success = success;
+            TotalCost = totalCost;
+            VisitedCellCount = visitedCellCount;
+            FailureCode = failureCode ?? string.Empty;
+            Path = path ?? new Int2[0];
         }
     }
 

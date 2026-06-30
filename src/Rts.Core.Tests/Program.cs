@@ -11,6 +11,7 @@ using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Production;
 using ProjectAegisRTS.Simulation;
 using ProjectAegisRTS.Snapshots;
+using ProjectAegisRTS.Terrain;
 using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Tests
@@ -68,7 +69,14 @@ namespace ProjectAegisRTS.Tests
                 AiQueuesProductionWhenResourcesAllow,
                 AiDoesNotIssueInvalidCommandsRepeatedly,
                 AiCanIssueAttackIntentIfEnemyExists,
-                AiDeterminismSmokeTest
+                AiDeterminismSmokeTest,
+                TerrainDefinitionsExist,
+                ImpassableTerrainBlocksPath,
+                MovementClassesCanDiffer,
+                PathQueryReturnsStructuredResult,
+                MapValidationCatchesInvalidLayout,
+                MapSnapshotContainsTerrainAndPathDebug,
+                PathingDeterminismSmokeTest
             };
 
             var passed = 0;
@@ -556,6 +564,79 @@ namespace ProjectAegisRTS.Tests
             Assert(a == b, "Expected AI deterministic summaries to match.");
         }
 
+        static void TerrainDefinitionsExist()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            Assert(rules.TerrainDefinitions.ContainsKey(TerrainKind.Clear), "Expected clear terrain definition.");
+            Assert(rules.TerrainDefinitions.ContainsKey(TerrainKind.Water), "Expected water terrain definition.");
+            Assert(!rules.GetTerrainDefinition(TerrainKind.Water).Allows(MovementClass.Wheeled), "Expected wheeled units blocked by water.");
+            Assert(rules.GetTerrainDefinition(TerrainKind.Water).Allows(MovementClass.Aircraft), "Expected aircraft to pass water.");
+        }
+
+        static void ImpassableTerrainBlocksPath()
+        {
+            var world = DemoWorldFactory.CreateMapTerrainDemoWorld();
+            var scout = world.FirstActorOfType("scout_rover", 1);
+            for (var y = 0; y < world.Map.Height; y++)
+                world.SetTerrainCell(new Int2(12, y), TerrainKind.Water);
+
+            var result = world.QueryPath(scout.Id, new Int2(18, 10));
+            Assert(!result.Success, "Expected water wall to block wheeled path.");
+            Assert(result.FailureCode == "Unreachable" || result.FailureCode == "GoalImpassable", "Expected structured failure code, got " + result.FailureCode);
+        }
+
+        static void MovementClassesCanDiffer()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var infantry = (UnitDefinition)rules.GetDefinition("rifle_infantry");
+            var scout = (UnitDefinition)rules.GetDefinition("scout_rover");
+            var tank = (UnitDefinition)rules.GetDefinition("medium_tank");
+            Assert(infantry.Movement.MovementClass == MovementClass.Infantry, "Expected infantry movement class.");
+            Assert(scout.Movement.MovementClass == MovementClass.Wheeled, "Expected wheeled scout movement class.");
+            Assert(tank.Movement.MovementClass == MovementClass.Tracked, "Expected tracked tank movement class.");
+        }
+
+        static void PathQueryReturnsStructuredResult()
+        {
+            var world = DemoWorldFactory.CreateMapTerrainDemoWorld();
+            var tank = world.FirstActorOfType("medium_tank", 1);
+            var result = world.QueryPath(tank.Id, new Int2(18, 12));
+            Assert(result.Success, "Expected tracked tank to path through rough terrain: " + result.FailureCode);
+            Assert(result.Path.Count > 0, "Expected path steps.");
+            Assert(result.TotalCost > 0, "Expected path cost.");
+            Assert(result.VisitedCellCount > 0, "Expected visited-cell count.");
+            Assert(result.MovementClass == MovementClass.Tracked, "Expected tracked query.");
+        }
+
+        static void MapValidationCatchesInvalidLayout()
+        {
+            var world = DemoWorldFactory.CreateMapTerrainDemoWorld();
+            var resourceCell = new Int2(16, 8);
+            world.SetTerrainCell(resourceCell, TerrainKind.Water);
+            var result = world.ValidateMapForPlayer(1);
+            Assert(!result.Success, "Expected invalid resource terrain.");
+            Assert(ContainsText(result.Errors, "ResourceOnImpassableTerrain"), "Expected resource validation error.");
+        }
+
+        static void MapSnapshotContainsTerrainAndPathDebug()
+        {
+            var world = DemoWorldFactory.CreateMapTerrainDemoWorld();
+            var scout = world.FirstActorOfType("scout_rover", 1);
+            world.QueryPath(scout.Id, new Int2(18, 6));
+            var snapshot = world.CreateSnapshot();
+            Assert(snapshot.Map.Width == 32 && snapshot.Map.Height == 32, "Expected map snapshot dimensions.");
+            Assert(snapshot.Map.TerrainCells.Count == 1024, "Expected one terrain snapshot per cell.");
+            Assert(snapshot.Map.RecentPathQueries.Count == 1, "Expected path debug snapshot.");
+            Assert(HasTerrainKind(snapshot.Map, "Road"), "Expected road terrain in snapshot.");
+        }
+
+        static void PathingDeterminismSmokeTest()
+        {
+            var a = RunPathingDeterministicSequence();
+            var b = RunPathingDeterministicSequence();
+            Assert(a == b, "Expected pathing deterministic summaries to match.");
+        }
+
         static string RunDeterministicSequence()
         {
             var world = DemoWorldFactory.CreateMvpWorld();
@@ -603,6 +684,18 @@ namespace ProjectAegisRTS.Tests
         {
             var world = DemoWorldFactory.CreateAiSkirmishDemoWorld();
             RunTicks(world, 128);
+            return world.GetDeterminismSummary();
+        }
+
+        static string RunPathingDeterministicSequence()
+        {
+            var world = DemoWorldFactory.CreateMapTerrainDemoWorld();
+            var scout = world.FirstActorOfType("scout_rover", 1);
+            var infantry = world.FirstActorOfType("rifle_infantry", 1);
+            world.QueryPath(scout.Id, new Int2(18, 6));
+            world.QueryPath(infantry.Id, new Int2(9, 15));
+            world.IssueCommand(new IssueMoveOrderCommand(1, new[] { scout.Id }, new Int2(18, 6)));
+            RunTicks(world, 96);
             return world.GetDeterminismSummary();
         }
 
@@ -675,6 +768,22 @@ namespace ProjectAegisRTS.Tests
                 }
             }
 
+            return false;
+        }
+
+        static bool ContainsText(IReadOnlyList<string> values, string text)
+        {
+            for (var i = 0; i < values.Count; i++)
+                if (values[i].Contains(text))
+                    return true;
+            return false;
+        }
+
+        static bool HasTerrainKind(MapSnapshot snapshot, string kind)
+        {
+            for (var i = 0; i < snapshot.TerrainCells.Count; i++)
+                if (snapshot.TerrainCells[i].Kind == kind)
+                    return true;
             return false;
         }
 

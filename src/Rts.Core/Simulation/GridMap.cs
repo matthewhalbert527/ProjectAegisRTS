@@ -1,13 +1,15 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Actors;
 using ProjectAegisRTS.Core;
+using ProjectAegisRTS.Data;
+using ProjectAegisRTS.Terrain;
 
 namespace ProjectAegisRTS.Simulation
 {
     public sealed class GridMap
     {
         readonly bool[] blocked;
-        readonly int[] terrainFlags;
+        readonly TerrainKind[] terrainKinds;
         readonly Dictionary<Int2, ActorId> buildingOccupancy;
 
         public int Width { get; private set; }
@@ -18,7 +20,7 @@ namespace ProjectAegisRTS.Simulation
             Width = width;
             Height = height;
             blocked = new bool[width * height];
-            terrainFlags = new int[width * height];
+            terrainKinds = new TerrainKind[width * height];
             buildingOccupancy = new Dictionary<Int2, ActorId>();
         }
 
@@ -40,13 +42,24 @@ namespace ProjectAegisRTS.Simulation
 
         public int GetTerrainFlags(Int2 cell)
         {
-            return Contains(cell) ? terrainFlags[Index(cell)] : 0;
+            return Contains(cell) ? (int)terrainKinds[Index(cell)] : 0;
         }
 
         public void SetTerrainFlags(Int2 cell, int flags)
         {
             if (Contains(cell))
-                terrainFlags[Index(cell)] = flags;
+                terrainKinds[Index(cell)] = (TerrainKind)flags;
+        }
+
+        public TerrainKind GetTerrainKind(Int2 cell)
+        {
+            return Contains(cell) ? terrainKinds[Index(cell)] : TerrainKind.Cliff;
+        }
+
+        public void SetTerrainKind(Int2 cell, TerrainKind kind)
+        {
+            if (Contains(cell))
+                terrainKinds[Index(cell)] = kind;
         }
 
         public bool HasBuildingAt(Int2 cell)
@@ -75,7 +88,58 @@ namespace ProjectAegisRTS.Simulation
 
         public bool IsPassableForUnit(Int2 cell)
         {
-            return Contains(cell) && !IsBlocked(cell) && !HasBuildingAt(cell);
+            return IsPassableForUnit(cell, MovementClass.Wheeled, null);
+        }
+
+        public bool IsPassableForUnit(Int2 cell, MovementClass movementClass, RtsRules rules)
+        {
+            if (!Contains(cell) || IsBlocked(cell) || HasBuildingAt(cell))
+                return false;
+
+            return TerrainAllows(cell, movementClass, rules);
+        }
+
+        public bool IsBuildableCell(Int2 cell, RtsRules rules)
+        {
+            return Contains(cell) && !IsBlocked(cell) && !HasBuildingAt(cell) && TerrainAllows(cell, MovementClass.Building, rules);
+        }
+
+        public int GetMovementCost(Int2 cell, MovementClass movementClass, RtsRules rules)
+        {
+            var definition = GetTerrainDefinition(cell, rules);
+            return definition.CostFor(movementClass);
+        }
+
+        public IReadOnlyList<TerrainCellState> CopyTerrainCells()
+        {
+            var cells = new List<TerrainCellState>();
+            for (var y = 0; y < Height; y++)
+                for (var x = 0; x < Width; x++)
+                {
+                    var cell = new Int2(x, y);
+                    cells.Add(new TerrainCellState(cell, GetTerrainKind(cell)));
+                }
+
+            return cells;
+        }
+
+        bool TerrainAllows(Int2 cell, MovementClass movementClass, RtsRules rules)
+        {
+            return GetTerrainDefinition(cell, rules).Allows(movementClass);
+        }
+
+        TerrainDefinition GetTerrainDefinition(Int2 cell, RtsRules rules)
+        {
+            var kind = GetTerrainKind(cell);
+            TerrainDefinition definition;
+            if (rules != null && rules.TryGetTerrainDefinition(kind, out definition))
+                return definition;
+
+            foreach (var fallback in TerrainCatalog.CreateDefaultDefinitions())
+                if (fallback.Kind == kind)
+                    return fallback;
+
+            return new TerrainDefinition(TerrainKind.Cliff, "Unknown", 99, PassabilityMask.None, "unknown");
         }
 
         int Index(Int2 cell)

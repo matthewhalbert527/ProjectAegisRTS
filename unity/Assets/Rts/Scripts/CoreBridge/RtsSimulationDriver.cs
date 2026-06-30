@@ -17,6 +17,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         [SerializeField] bool useEconomyDemoWorld;
         [SerializeField] bool useFogRadarDemoWorld;
         [SerializeField] bool useAiSkirmishDemoWorld;
+        [SerializeField] bool useMapTerrainDemoWorld;
         [SerializeField] bool usePlayerPerspectiveSnapshot;
 
         readonly List<int> selectedActorIds = new List<int>();
@@ -42,6 +43,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public bool UseEconomyDemoWorld { get { return useEconomyDemoWorld; } set { useEconomyDemoWorld = value; } }
         public bool UseFogRadarDemoWorld { get { return useFogRadarDemoWorld; } set { useFogRadarDemoWorld = value; } }
         public bool UseAiSkirmishDemoWorld { get { return useAiSkirmishDemoWorld; } set { useAiSkirmishDemoWorld = value; } }
+        public bool UseMapTerrainDemoWorld { get { return useMapTerrainDemoWorld; } set { useMapTerrainDemoWorld = value; } }
         public bool UsePlayerPerspectiveSnapshot { get { return usePlayerPerspectiveSnapshot; } set { usePlayerPerspectiveSnapshot = value; } }
 
         public string CommandMode
@@ -99,7 +101,9 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult ResetDemoWorld()
         {
-            if (useAiSkirmishDemoWorld)
+            if (useMapTerrainDemoWorld)
+                world = DemoWorldFactory.CreateMapTerrainDemoWorld();
+            else if (useAiSkirmishDemoWorld)
                 world = DemoWorldFactory.CreateAiSkirmishDemoWorld();
             else if (useFogRadarDemoWorld)
                 world = DemoWorldFactory.CreateFogRadarDemoWorld();
@@ -112,7 +116,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             forceLowPower = false;
             tickAccumulator = 0f;
             RefreshSnapshot();
-            return RtsCommandResult.Ok(useAiSkirmishDemoWorld ? "AI skirmish demo world reset." : (useFogRadarDemoWorld ? "Fog/radar demo world reset." : (useEconomyDemoWorld ? "Economy demo world reset." : (useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset."))));
+            return RtsCommandResult.Ok(useMapTerrainDemoWorld ? "Map terrain demo world reset." : (useAiSkirmishDemoWorld ? "AI skirmish demo world reset." : (useFogRadarDemoWorld ? "Fog/radar demo world reset." : (useEconomyDemoWorld ? "Economy demo world reset." : (useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset.")))));
         }
 
         public RtsCommandResult TryCreateCombatDemoWorld()
@@ -121,6 +125,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useEconomyDemoWorld = false;
             useFogRadarDemoWorld = false;
             useAiSkirmishDemoWorld = false;
+            useMapTerrainDemoWorld = false;
             return ResetDemoWorld();
         }
 
@@ -130,6 +135,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useCombatDemoWorld = false;
             useFogRadarDemoWorld = false;
             useAiSkirmishDemoWorld = false;
+            useMapTerrainDemoWorld = false;
             return ResetDemoWorld();
         }
 
@@ -139,6 +145,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useEconomyDemoWorld = false;
             useCombatDemoWorld = false;
             useAiSkirmishDemoWorld = false;
+            useMapTerrainDemoWorld = false;
             usePlayerPerspectiveSnapshot = true;
             return ResetDemoWorld();
         }
@@ -146,6 +153,18 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public RtsCommandResult TryCreateAiSkirmishDemoWorld()
         {
             useAiSkirmishDemoWorld = true;
+            useFogRadarDemoWorld = false;
+            useEconomyDemoWorld = false;
+            useCombatDemoWorld = false;
+            useMapTerrainDemoWorld = false;
+            usePlayerPerspectiveSnapshot = false;
+            return ResetDemoWorld();
+        }
+
+        public RtsCommandResult TryCreateMapTerrainDemoWorld()
+        {
+            useMapTerrainDemoWorld = true;
+            useAiSkirmishDemoWorld = false;
             useFogRadarDemoWorld = false;
             useEconomyDemoWorld = false;
             useCombatDemoWorld = false;

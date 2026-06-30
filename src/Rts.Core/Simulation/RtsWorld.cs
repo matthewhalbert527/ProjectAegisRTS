@@ -12,6 +12,7 @@ using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Production;
 using ProjectAegisRTS.Projectiles;
 using ProjectAegisRTS.Snapshots;
+using ProjectAegisRTS.Terrain;
 using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Simulation
@@ -27,6 +28,7 @@ namespace ProjectAegisRTS.Simulation
         readonly Dictionary<int, PlayerVisibilityState> visibilityStates;
         readonly List<CombatEventSnapshot> recentCombatEvents;
         readonly List<EconomyEventSnapshot> recentEconomyEvents;
+        readonly List<PathDebugSnapshot> recentPathQueries;
         readonly AiSystem aiSystem;
         readonly GridPathfinder pathfinder;
         int nextActorId;
@@ -34,8 +36,10 @@ namespace ProjectAegisRTS.Simulation
         int nextProjectileId;
         int nextCombatEventId;
         int nextEconomyEventId;
+        int nextPathQueryId;
         const int MaxRecentCombatEvents = 64;
         const int MaxRecentEconomyEvents = 64;
+        const int MaxRecentPathQueries = 32;
         const int HarvesterCargoCapacity = 200;
         const int RefineryUnloadRatePerTick = 25;
 
@@ -56,6 +60,7 @@ namespace ProjectAegisRTS.Simulation
             visibilityStates = new Dictionary<int, PlayerVisibilityState>();
             recentCombatEvents = new List<CombatEventSnapshot>();
             recentEconomyEvents = new List<EconomyEventSnapshot>();
+            recentPathQueries = new List<PathDebugSnapshot>();
             aiSystem = new AiSystem();
             pathfinder = new GridPathfinder();
             nextActorId = 1;
@@ -63,6 +68,7 @@ namespace ProjectAegisRTS.Simulation
             nextProjectileId = 1;
             nextCombatEventId = 1;
             nextEconomyEventId = 1;
+            nextPathQueryId = 1;
         }
 
         public IReadOnlyDictionary<int, PlayerState> Players
@@ -157,6 +163,73 @@ namespace ProjectAegisRTS.Simulation
                 throw new InvalidOperationException("Resource cell outside map: " + cell);
 
             resourceCells[cell] = new ResourceCellState(cell, kind, amount);
+            if (Map.GetTerrainKind(cell) == TerrainKind.Clear)
+                Map.SetTerrainKind(cell, TerrainKind.OreField);
+        }
+
+        public void SetTerrainCell(Int2 cell, TerrainKind kind)
+        {
+            if (!Map.Contains(cell))
+                throw new InvalidOperationException("Terrain cell outside map: " + cell);
+
+            Map.SetTerrainKind(cell, kind);
+        }
+
+        public PathQueryResult QueryPath(ActorId actorId, Int2 destinationCell)
+        {
+            ActorState actor;
+            if (!actors.TryGetValue(actorId.Value, out actor))
+            {
+                var missing = new PathQueryResult(false, destinationCell, destinationCell, MovementClass.Wheeled, 0, 0, "ActorMissing", new Int2[0]);
+                RecordPathQuery(0, missing);
+                return missing;
+            }
+
+            var result = QueryPathForActor(actor, destinationCell);
+            RecordPathQuery(actor.Id.Value, result);
+            return result;
+        }
+
+        public MapValidationResult ValidateMapForPlayer(int playerId)
+        {
+            var errors = new List<string>();
+            var warnings = new List<string>();
+
+            if (!players.ContainsKey(playerId))
+                errors.Add("UnknownPlayer:" + playerId);
+
+            foreach (var actor in SortedActors())
+            {
+                if (!Map.Contains(actor.CellPosition))
+                    errors.Add("ActorOutsideMap:" + actor.Id.Value + ":" + actor.CellPosition);
+
+                var definition = Rules.GetDefinition(actor.TypeId);
+                var unit = definition as UnitDefinition;
+                if (unit != null && !Map.IsPassableForUnit(actor.CellPosition, unit.Movement.MovementClass, Rules))
+                    errors.Add("ActorOnImpassableTerrain:" + actor.Id.Value + ":" + actor.CellPosition);
+            }
+
+            foreach (var resource in SortedResources())
+            {
+                if (!Map.Contains(resource.Cell))
+                    errors.Add("ResourceOutsideMap:" + resource.Cell);
+                else if (!Map.IsPassableForUnit(resource.Cell, MovementClass.Harvester, Rules))
+                    errors.Add("ResourceOnImpassableTerrain:" + resource.Cell);
+            }
+
+            foreach (var refinery in SortedRefineries())
+            {
+                ActorState refineryActor;
+                if (!actors.TryGetValue(refinery.ActorId, out refineryActor) || refineryActor.OwnerPlayerId != playerId)
+                    continue;
+                if (!Map.IsPassableForUnit(refinery.DockCell, MovementClass.Harvester, Rules))
+                    errors.Add("RefineryDockBlocked:" + refinery.ActorId + ":" + refinery.DockCell);
+            }
+
+            if (resourceCells.Count == 0)
+                warnings.Add("NoResourceCells");
+
+            return new MapValidationResult(errors, warnings);
         }
 
         public bool TryGetActor(ActorId actorId, out ActorState actor)
@@ -368,8 +441,9 @@ namespace ProjectAegisRTS.Simulation
             var fog = perspectivePlayerId > 0 ? CreateFogSnapshot(perspectivePlayerId) : FogSnapshot.Empty;
             var radar = perspectivePlayerId > 0 ? CreateRadarSnapshot(perspectivePlayerId) : RadarSnapshot.Empty;
             var minimap = perspectivePlayerId > 0 ? CreateMinimapSnapshot(perspectivePlayerId) : MinimapSnapshot.Empty;
+            var map = CreateMapSnapshot(perspectivePlayerId);
 
-            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy, fog, radar, minimap, aiSystem.CreateSnapshot());
+            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy, fog, radar, minimap, aiSystem.CreateSnapshot(), map);
         }
 
         public bool IsCellVisible(int playerId, Int2 cell)
@@ -498,6 +572,37 @@ namespace ProjectAegisRTS.Simulation
                     .Append(resource.Kind).Append(' ')
                     .Append(resource.Amount).Append('/')
                     .Append(resource.MaxAmount)
+                    .AppendLine();
+            }
+
+            for (var y = 0; y < Map.Height; y++)
+                for (var x = 0; x < Map.Width; x++)
+                {
+                    var cell = new Int2(x, y);
+                    var kind = Map.GetTerrainKind(cell);
+                    if (kind == TerrainKind.Clear && !Map.IsBlocked(cell))
+                        continue;
+
+                    sb.Append("terrain ")
+                        .Append(cell).Append(' ')
+                        .Append(kind).Append(' ')
+                        .Append(Map.IsBlocked(cell))
+                        .AppendLine();
+                }
+
+            foreach (var query in recentPathQueries)
+            {
+                sb.Append("path ")
+                    .Append(query.QueryId).Append(' ')
+                    .Append(query.Tick).Append(' ')
+                    .Append(query.ActorId).Append(' ')
+                    .Append(query.StartCell).Append(' ')
+                    .Append(query.GoalCell).Append(' ')
+                    .Append(query.MovementClass).Append(' ')
+                    .Append(query.Success).Append(' ')
+                    .Append(query.TotalCost).Append(' ')
+                    .Append(query.VisitedCellCount).Append(' ')
+                    .Append(query.FailureCode)
                     .AppendLine();
             }
 
@@ -647,11 +752,12 @@ namespace ProjectAegisRTS.Simulation
                     continue;
                 }
 
-                var path = pathfinder.FindPath(Map, actor.CellPosition, command.DestinationCell);
-                if (path.Count == 0)
-                    details.Add("actor " + actorId.Value + ": no path");
+                var path = QueryPathForActor(actor, command.DestinationCell);
+                RecordPathQuery(actor.Id.Value, path);
+                if (!path.Success)
+                    details.Add("actor " + actorId.Value + ": no path (" + path.FailureCode + ")");
                 else
-                    planned[actorId.Value] = path;
+                    planned[actorId.Value] = new List<Int2>(path.Path);
             }
 
             if (details.Count > 0)
@@ -764,10 +870,11 @@ namespace ProjectAegisRTS.Simulation
                     continue;
                 }
 
-                var path = actor.CellPosition.Equals(command.ResourceCell) ? new List<Int2>() : pathfinder.FindPath(Map, actor.CellPosition, command.ResourceCell);
-                if (!actor.CellPosition.Equals(command.ResourceCell) && path.Count == 0)
+                var path = QueryPathForActor(actor, command.ResourceCell);
+                RecordPathQuery(actor.Id.Value, path);
+                if (!path.Success)
                 {
-                    details.Add("actor " + actorId.Value + ": no path to resource");
+                    details.Add("actor " + actorId.Value + ": no path to resource (" + path.FailureCode + ")");
                     continue;
                 }
 
@@ -957,7 +1064,9 @@ namespace ProjectAegisRTS.Simulation
 
             var producerDefinition = Rules.GetDefinition(producer.TypeId) as BuildingDefinition;
             var exitOffset = producerDefinition == null ? new Int2(0, 1) : producerDefinition.UnitExitOffset;
-            var spawnCell = FindNearestSpawnCell(producer.CellPosition + exitOffset);
+            var producedDefinition = Rules.GetDefinition(item.TypeId) as UnitDefinition;
+            var movementClass = producedDefinition == null ? MovementClass.Wheeled : producedDefinition.Movement.MovementClass;
+            var spawnCell = FindNearestSpawnCell(producer.CellPosition + exitOffset, movementClass);
             var unit = CreateActor(item.TypeId, item.PlayerId, spawnCell);
 
             if (!producer.RallyPoint.Equals(producer.CellPosition) && !producer.RallyPoint.Equals(spawnCell))
@@ -966,7 +1075,12 @@ namespace ProjectAegisRTS.Simulation
 
         Int2 FindNearestSpawnCell(Int2 preferred)
         {
-            if (Map.IsPassableForUnit(preferred))
+            return FindNearestSpawnCell(preferred, MovementClass.Wheeled);
+        }
+
+        Int2 FindNearestSpawnCell(Int2 preferred, MovementClass movementClass)
+        {
+            if (Map.IsPassableForUnit(preferred, movementClass, Rules))
                 return preferred;
 
             for (var radius = 1; radius <= 8; radius++)
@@ -979,13 +1093,24 @@ namespace ProjectAegisRTS.Simulation
                             continue;
 
                         var candidate = new Int2(preferred.X + x, preferred.Y + y);
-                        if (Map.IsPassableForUnit(candidate))
+                        if (Map.IsPassableForUnit(candidate, movementClass, Rules))
                             return candidate;
                     }
                 }
             }
 
             return preferred;
+        }
+
+        PathQueryResult QueryPathForActor(ActorState actor, Int2 destinationCell)
+        {
+            return pathfinder.QueryPath(Map, Rules, actor.CellPosition, destinationCell, GetMovementClass(actor));
+        }
+
+        MovementClass GetMovementClass(ActorState actor)
+        {
+            var unit = Rules.GetDefinition(actor.TypeId) as UnitDefinition;
+            return unit == null ? MovementClass.Building : unit.Movement.MovementClass;
         }
 
         void TickMovement()
@@ -1236,6 +1361,40 @@ namespace ProjectAegisRTS.Simulation
             return new MinimapSnapshot(playerId, Map.Width, Map.Height, actorDots, resourceDots);
         }
 
+        MapSnapshot CreateMapSnapshot(int perspectivePlayerId)
+        {
+            var terrainCells = new List<TerrainCellSnapshot>();
+            for (var y = 0; y < Map.Height; y++)
+                for (var x = 0; x < Map.Width; x++)
+                {
+                    var cell = new Int2(x, y);
+                    var kind = Map.GetTerrainKind(cell);
+                    var definition = Rules.GetTerrainDefinition(kind);
+                    terrainCells.Add(new TerrainCellSnapshot(
+                        cell,
+                        kind.ToString(),
+                        definition.MovementCost,
+                        definition.Passability.ToString(),
+                        Map.IsBlocked(cell),
+                        Map.HasBuildingAt(cell)));
+                }
+
+            MapValidationResult validation;
+            if (players.Count == 0)
+                validation = new MapValidationResult(new string[0], new[] { "NoPlayers" });
+            else
+                validation = ValidateMapForPlayer(perspectivePlayerId > 0 ? perspectivePlayerId : SortedPlayers()[0].PlayerId);
+
+            return new MapSnapshot(
+                Map.Width,
+                Map.Height,
+                terrainCells,
+                new List<PathDebugSnapshot>(recentPathQueries),
+                validation.Success,
+                validation.Errors,
+                validation.Warnings);
+        }
+
         CommandResult ValidatePlacement(int playerId, string typeId, Int2 topLeftCell, bool requirePendingPlacement)
         {
             ActorDefinition actorDefinition;
@@ -1251,10 +1410,10 @@ namespace ProjectAegisRTS.Simulation
             {
                 if (!Map.Contains(cell))
                     return CommandResult.Fail("OutsideMap", "The building footprint extends outside the map.");
-                if (Map.IsBlocked(cell))
-                    return CommandResult.Fail("BlockedCell", "The building footprint includes a blocked cell.");
                 if (Map.HasBuildingAt(cell))
                     return CommandResult.Fail("OccupiedCell", "The building footprint overlaps an occupied cell.");
+                if (!Map.IsBuildableCell(cell, Rules))
+                    return CommandResult.Fail("BlockedCell", "The building footprint includes a blocked cell.");
             }
 
             if (!IsInsideConstructionRadius(playerId, footprintCells))
@@ -1681,7 +1840,18 @@ namespace ProjectAegisRTS.Simulation
         {
             actor.Path.Clear();
             if (!actor.CellPosition.Equals(resourceCell))
-                actor.Path.AddRange(pathfinder.FindPath(Map, actor.CellPosition, resourceCell));
+            {
+                var path = QueryPathForActor(actor, resourceCell);
+                RecordPathQuery(actor.Id.Value, path);
+                if (!path.Success)
+                {
+                    harvester.State = HarvesterWorkState.Blocked;
+                    actor.MovementPhase = "blocked";
+                    return;
+                }
+
+                actor.Path.AddRange(path.Path);
+            }
             actor.CurrentOrder = ActorOrderKind.Harvest;
             actor.OrderTargetCell = resourceCell;
             actor.HasHarvestOrder = true;
@@ -1694,7 +1864,18 @@ namespace ProjectAegisRTS.Simulation
         {
             actor.Path.Clear();
             if (!actor.CellPosition.Equals(refinery.DockCell))
-                actor.Path.AddRange(pathfinder.FindPath(Map, actor.CellPosition, refinery.DockCell));
+            {
+                var path = QueryPathForActor(actor, refinery.DockCell);
+                RecordPathQuery(actor.Id.Value, path);
+                if (!path.Success)
+                {
+                    harvester.State = HarvesterWorkState.Blocked;
+                    actor.MovementPhase = "blocked";
+                    return;
+                }
+
+                actor.Path.AddRange(path.Path);
+            }
             actor.CurrentOrder = ActorOrderKind.Harvest;
             actor.OrderTargetCell = refinery.DockCell;
             actor.HasHarvestOrder = true;
@@ -1741,7 +1922,7 @@ namespace ProjectAegisRTS.Simulation
         Int2 GetRefineryDockCell(ActorState actor, BuildingDefinition definition)
         {
             var preferred = actor.CellPosition + definition.UnitExitOffset;
-            return FindNearestSpawnCell(preferred);
+            return FindNearestSpawnCell(preferred, MovementClass.Harvester);
         }
 
         void ClearHarvestState(ActorState actor)
@@ -1771,6 +1952,25 @@ namespace ProjectAegisRTS.Simulation
             recentEconomyEvents.Add(new EconomyEventSnapshot(nextEconomyEventId++, TickNumber, eventType, harvesterActorId, refineryActorId, cell, amount, creditsAwarded));
             while (recentEconomyEvents.Count > MaxRecentEconomyEvents)
                 recentEconomyEvents.RemoveAt(0);
+        }
+
+        void RecordPathQuery(int actorId, PathQueryResult result)
+        {
+            recentPathQueries.Add(new PathDebugSnapshot(
+                nextPathQueryId++,
+                TickNumber,
+                actorId,
+                result.StartCell,
+                result.GoalCell,
+                result.MovementClass.ToString(),
+                result.Success,
+                result.TotalCost,
+                result.VisitedCellCount,
+                result.FailureCode,
+                result.Path));
+
+            while (recentPathQueries.Count > MaxRecentPathQueries)
+                recentPathQueries.RemoveAt(0);
         }
 
         static int Min(int a, int b)

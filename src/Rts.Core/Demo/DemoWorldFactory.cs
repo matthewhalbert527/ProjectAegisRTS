@@ -2,6 +2,7 @@ using ProjectAegisRTS.Ai;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Economy;
 using ProjectAegisRTS.Simulation;
+using ProjectAegisRTS.Terrain;
 
 namespace ProjectAegisRTS.Demo
 {
@@ -101,6 +102,48 @@ namespace ProjectAegisRTS.Demo
                     world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 150);
 
             world.ConfigureAiPlayer(new AiPlayerDefinition(2, new AiDifficultyDefinition("stage12-standard", 16, 3, 2, 12012)));
+            return world;
+        }
+
+        public static RtsWorld CreateMapTerrainDemoWorld()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var world = new RtsWorld(rules, new GridMap(32, 32));
+            world.AddPlayer(1, "Aegis Terrain Player", 5000);
+            world.AddPlayer(2, "Terrain Test Enemy", 5000);
+
+            for (var x = 3; x <= 24; x++)
+                world.SetTerrainCell(new Int2(x, 6), TerrainKind.Road);
+
+            for (var y = 8; y <= 13; y++)
+                for (var x = 12; x <= 15; x++)
+                    world.SetTerrainCell(new Int2(x, y), TerrainKind.Rough);
+
+            for (var y = 12; y <= 18; y++)
+                for (var x = 7; x <= 10; x++)
+                    world.SetTerrainCell(new Int2(x, y), TerrainKind.Forest);
+
+            for (var y = 3; y <= 18; y++)
+                if (y != 6)
+                    world.SetTerrainCell(new Int2(20, y), TerrainKind.Water);
+
+            for (var y = 20; y <= 26; y++)
+                world.SetTerrainCell(new Int2(24, y), TerrainKind.Cliff);
+
+            world.CreateActor("fabrication_hub", 1, new Int2(3, 3));
+            world.CreateActor("refinery", 1, new Int2(6, 6));
+            world.CreateActor("harvester", 1, new Int2(10, 6));
+            world.CreateActor("scout_rover", 1, new Int2(4, 10));
+            world.CreateActor("rifle_infantry", 1, new Int2(6, 10));
+            world.CreateActor("medium_tank", 1, new Int2(5, 12));
+
+            world.CreateActor("rifle_infantry", 2, new Int2(23, 6));
+            world.CreateActor("gun_tower", 2, new Int2(26, 7));
+
+            for (var y = 8; y <= 9; y++)
+                for (var x = 16; x <= 18; x++)
+                    world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 140);
+
             return world;
         }
     }

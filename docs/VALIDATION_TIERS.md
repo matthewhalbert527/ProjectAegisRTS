@@ -1,6 +1,6 @@
 # Validation Tiers
 
-Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration.
+Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration.
 
 ## Tier Summary
 
@@ -21,6 +21,9 @@ Stage 8.1 adds validation tiers so normal development does not need to replay th
 | Fast | `.\tools\run-stage12-fast-checks.ps1` | You changed current Stage 12 AI core, scene wiring, debug HUD, or smoke tooling. | Builds/copies `Rts.Core` for Unity, runs Stage 12 generation/validation only, runs Stage 12 Play Mode smoke when batchmode can own the project lock, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
 | Medium | `.\tools\run-stage12-medium-checks.ps1` | You are preparing a local Stage 12 commit. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs Stage 11 immediate dependency validation, then Stage 12 validation and Play Mode smoke/fallback, the `Rts.Core` UnityEngine-free scan, and `git diff --check`. |
 | Full | `.\tools\run-stage12-checks.ps1` | You need final Stage 12 acceptance evidence. | Runs Stage 0 through Stage 12, including the existing full validation chain and Stage 12 Play Mode smoke/fallback. This is intentionally slow. |
+| Fast | `.\tools\run-stage13-fast-checks.ps1` | You changed current Stage 13 map, terrain, pathing, scene wiring, debug HUD, or smoke tooling. | Builds/copies `Rts.Core` for Unity, runs Stage 13 generation/validation only, runs Stage 13 Play Mode smoke when batchmode can own the project lock, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
+| Medium | `.\tools\run-stage13-medium-checks.ps1` | You are preparing a local Stage 13 commit. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs Stage 12 immediate dependency validation, then Stage 13 validation and Play Mode smoke/fallback, the `Rts.Core` UnityEngine-free scan, and `git diff --check`. |
+| Full | `.\tools\run-stage13-checks.ps1` | You need final Stage 13 acceptance evidence. | Runs Stage 0 through Stage 13, including the existing full validation chain and Stage 13 Play Mode smoke/fallback. This is intentionally slow. |
 
 ## Stage 8 Examples
 
@@ -122,6 +125,26 @@ Before declaring Stage 12 accepted or using Stage 12 as the base for a later sta
 .\tools\run-stage12-checks.ps1
 ```
 
+## Stage 13 Examples
+
+After touching Stage 13 map/terrain/pathing core, Unity terrain/path debug presentation, scene wiring, or smoke validation, use:
+
+```powershell
+.\tools\run-stage13-fast-checks.ps1
+```
+
+Before committing Stage 13 map/pathing or Unity presentation changes locally, use:
+
+```powershell
+.\tools\run-stage13-medium-checks.ps1
+```
+
+Before declaring Stage 13 accepted or using Stage 13 as the base for a later stage, use:
+
+```powershell
+.\tools\run-stage13-checks.ps1
+```
+
 ## Expected Time
 
 Fast checks should usually take minutes because they avoid earlier-stage validation. Medium checks are longer because they include core tests, Unity DLL build, immediate dependency validation, and current-stage validation, but they avoid the full replay where practical. Full checks are the slow acceptance gate and can take much longer because they replay every stage through the current stage.
@@ -167,4 +190,6 @@ Stage 10 implementation hash: 718ab2a3157a1753b074dc10b43d296800d739b5.
 
 Stage 11 implementation hash: ae0f5ee0fd6574e71a885423c63686a0736a1570.
 
-Stage 12 implementation hash: pending local commit.
+Stage 12 implementation hash: 5aca8fb0cc3b7b952adbdcedd5496f88719587f1.
+
+Stage 13 implementation hash: pending local commit.

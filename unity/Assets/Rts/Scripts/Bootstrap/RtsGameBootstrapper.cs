@@ -6,6 +6,7 @@ using ProjectAegisRTS.UnityClient.Rendering;
 using ProjectAegisRTS.UnityClient.Rendering.Ai;
 using ProjectAegisRTS.UnityClient.Rendering.Combat;
 using ProjectAegisRTS.UnityClient.Rendering.Economy;
+using ProjectAegisRTS.UnityClient.Rendering.Map;
 using ProjectAegisRTS.UnityClient.Rendering.Visibility;
 using ProjectAegisRTS.UnityClient.UI;
 using UnityEngine;
@@ -40,6 +41,9 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public MinimapRenderSystem minimapRenderSystem;
         public AiIntentRenderSystem aiIntentRenderSystem;
         public AiPlanTimelineView aiPlanTimelineView;
+        public TerrainDebugRenderer terrainDebugRenderer;
+        public PathDebugRenderer pathDebugRenderer;
+        public MapAuthoringOverlay mapAuthoringOverlay;
         public RtsSimulationDriver simulationDriver;
         public RtsDesktopInputController inputController;
         public RtsDebugHud debugHud;
@@ -101,6 +105,12 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 aiIntentRenderSystem.Initialize(simulationDriver, coordinateMapper);
             if (aiPlanTimelineView != null)
                 aiPlanTimelineView.Initialize(simulationDriver);
+            if (terrainDebugRenderer != null)
+                terrainDebugRenderer.Initialize(simulationDriver, coordinateMapper);
+            if (pathDebugRenderer != null)
+                pathDebugRenderer.Initialize(simulationDriver, coordinateMapper);
+            if (mapAuthoringOverlay != null)
+                mapAuthoringOverlay.Initialize(simulationDriver, coordinateMapper);
             inputController.Initialize(sceneCamera, coordinateMapper, simulationDriver, debugHud);
             debugHud.Initialize(simulationDriver);
             cameraController.Configure(coordinateMapper);

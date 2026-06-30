@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Core;
+using ProjectAegisRTS.Terrain;
 using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Data
@@ -228,12 +229,19 @@ namespace ProjectAegisRTS.Data
         public int SpeedPerTick { get; private set; }
         public int TurnRateDegreesPerTick { get; private set; }
         public string VisualMotionProfileId { get; private set; }
+        public MovementClass MovementClass { get; private set; }
 
         public MovementDefinition(int speedPerTick, int turnRateDegreesPerTick, string visualMotionProfileId)
+            : this(speedPerTick, turnRateDegreesPerTick, visualMotionProfileId, MovementClass.Wheeled)
+        {
+        }
+
+        public MovementDefinition(int speedPerTick, int turnRateDegreesPerTick, string visualMotionProfileId, MovementClass movementClass)
         {
             SpeedPerTick = speedPerTick;
             TurnRateDegreesPerTick = turnRateDegreesPerTick;
             VisualMotionProfileId = visualMotionProfileId;
+            MovementClass = movementClass;
         }
     }
 

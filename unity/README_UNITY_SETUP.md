@@ -323,6 +323,31 @@ To validate it from PowerShell:
 
 Stage 12 preserves the Stage 11 fog/radar/minimap scene and adds deterministic AI intent snapshots, AI intent/timeline placeholder presentation, and `AiDebugHud`.
 
+## Create or Validate the Stage 13 Scene
+
+Stage 13 adds the map, terrain, and pathing diagnostics scene:
+
+```text
+Assets/Rts/Scenes/Stage13_MapTerrainPathing.unity
+```
+
+To create or refresh the scene manually in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 13 > Create Map Terrain Pathing Scene
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage13-validation.ps1
+.\tools\run-stage13-fast-checks.ps1
+.\tools\run-stage13-medium-checks.ps1
+.\tools\run-stage13-checks.ps1
+```
+
+Stage 13 preserves the Stage 12 AI scene and adds deterministic terrain/passability/path debug snapshots, terrain/path placeholder presentation, map validation readouts, and `MapValidationDebugHud`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -336,6 +361,7 @@ Stage 12 preserves the Stage 11 fog/radar/minimap scene and adds deterministic A
 - F8: toggle the Stage 10 economy debug HUD.
 - F7: toggle the Stage 11 fog/radar debug HUD.
 - F6: toggle the Stage 12 AI debug HUD.
+- F5: toggle the Stage 13 map validation debug HUD.
 - F1-F6: switch Stage 2 production tabs.
 - S/M/A: stop, move mode, or attack placeholder command.
 - Backquote: toggle the Stage 1 debug overlay if it is enabled in the scene.
