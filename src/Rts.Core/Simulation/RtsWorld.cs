@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ProjectAegisRTS.Ai;
 using ProjectAegisRTS.Actors;
 using ProjectAegisRTS.Commands;
 using ProjectAegisRTS.Core;
@@ -26,6 +27,7 @@ namespace ProjectAegisRTS.Simulation
         readonly Dictionary<int, PlayerVisibilityState> visibilityStates;
         readonly List<CombatEventSnapshot> recentCombatEvents;
         readonly List<EconomyEventSnapshot> recentEconomyEvents;
+        readonly AiSystem aiSystem;
         readonly GridPathfinder pathfinder;
         int nextActorId;
         int nextQueueItemId;
@@ -54,6 +56,7 @@ namespace ProjectAegisRTS.Simulation
             visibilityStates = new Dictionary<int, PlayerVisibilityState>();
             recentCombatEvents = new List<CombatEventSnapshot>();
             recentEconomyEvents = new List<EconomyEventSnapshot>();
+            aiSystem = new AiSystem();
             pathfinder = new GridPathfinder();
             nextActorId = 1;
             nextQueueItemId = 1;
@@ -97,12 +100,27 @@ namespace ProjectAegisRTS.Simulation
             get { return visibilityStates; }
         }
 
+        public AiSystem AiSystem
+        {
+            get { return aiSystem; }
+        }
+
         public PlayerState AddPlayer(int playerId, string name, int credits)
         {
             var player = new PlayerState(playerId, name, credits);
             players.Add(playerId, player);
             visibilityStates[playerId] = new PlayerVisibilityState(playerId, Map.Width, Map.Height);
             return player;
+        }
+
+        public AiPlanState ConfigureAiPlayer(AiPlayerDefinition definition)
+        {
+            if (definition == null)
+                throw new ArgumentNullException("definition");
+            if (!players.ContainsKey(definition.PlayerId))
+                throw new InvalidOperationException("AI player must be registered before it can be configured: " + definition.PlayerId);
+
+            return aiSystem.RegisterPlayer(definition, TickNumber);
         }
 
         public ActorState CreateActor(string typeId, int ownerPlayerId, Int2 cell)
@@ -202,6 +220,7 @@ namespace ProjectAegisRTS.Simulation
         {
             TickNumber++;
             UpdatePowerAndActorFlags();
+            aiSystem.Tick(this);
             TickProduction();
             TickMovement();
             TickHarvesting();
@@ -350,7 +369,7 @@ namespace ProjectAegisRTS.Simulation
             var radar = perspectivePlayerId > 0 ? CreateRadarSnapshot(perspectivePlayerId) : RadarSnapshot.Empty;
             var minimap = perspectivePlayerId > 0 ? CreateMinimapSnapshot(perspectivePlayerId) : MinimapSnapshot.Empty;
 
-            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy, fog, radar, minimap);
+            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy, fog, radar, minimap, aiSystem.CreateSnapshot());
         }
 
         public bool IsCellVisible(int playerId, Int2 cell)
@@ -417,6 +436,37 @@ namespace ProjectAegisRTS.Simulation
                     .Append(" radar=").Append(radar.IsActive)
                     .Append('/').Append(radar.ProviderActorId)
                     .AppendLine();
+            }
+
+            foreach (var ai in aiSystem.CreateSnapshot().Players)
+            {
+                sb.Append("ai ")
+                    .Append(ai.PlayerId)
+                    .Append(" enabled=").Append(ai.Enabled)
+                    .Append(" difficulty=").Append(ai.DifficultyId)
+                    .Append(" seq=").Append(ai.DecisionSequence)
+                    .Append(" next=").Append(ai.NextDecisionTick)
+                    .Append(" invalid=").Append(ai.ConsecutiveInvalidCommands)
+                    .Append(" plan=").Append(ai.CurrentPlan)
+                    .AppendLine();
+
+                foreach (var intent in ai.RecentIntents)
+                {
+                    sb.Append("ai-intent ")
+                        .Append(intent.SequenceId).Append(' ')
+                        .Append(intent.Tick).Append(' ')
+                        .Append(intent.Kind).Append(' ')
+                        .Append(intent.IntentId).Append(' ')
+                        .Append(intent.CommandType).Append(' ')
+                        .Append(intent.TargetTypeId).Append(' ')
+                        .Append(intent.SourceActorId).Append(' ')
+                        .Append(intent.TargetActorId).Append(' ')
+                        .Append(intent.TargetCell).Append(' ')
+                        .Append(intent.WasCommandIssued).Append(' ')
+                        .Append(intent.CommandSucceeded).Append(' ')
+                        .Append(intent.ResultCode)
+                        .AppendLine();
+                }
             }
 
             foreach (var actor in SortedActors())

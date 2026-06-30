@@ -16,6 +16,7 @@ namespace ProjectAegisRTS.Snapshots
         public FogSnapshot Fog { get; private set; }
         public RadarSnapshot Radar { get; private set; }
         public MinimapSnapshot Minimap { get; private set; }
+        public AiSnapshot Ai { get; private set; }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors)
             : this(tick, players, actors, new ProjectileSnapshot[0], new CombatEventSnapshot[0], EconomySnapshot.Empty)
@@ -33,6 +34,11 @@ namespace ProjectAegisRTS.Snapshots
         }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap)
+            : this(tick, players, actors, projectiles, combatEvents, economy, fog, radar, minimap, AiSnapshot.Empty)
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai)
         {
             Tick = tick;
             Players = players;
@@ -43,6 +49,77 @@ namespace ProjectAegisRTS.Snapshots
             Fog = fog ?? FogSnapshot.Empty;
             Radar = radar ?? RadarSnapshot.Empty;
             Minimap = minimap ?? MinimapSnapshot.Empty;
+            Ai = ai ?? AiSnapshot.Empty;
+        }
+    }
+
+    public sealed class AiSnapshot
+    {
+        public static readonly AiSnapshot Empty = new AiSnapshot(new AiPlayerSnapshot[0]);
+
+        public IReadOnlyList<AiPlayerSnapshot> Players { get; private set; }
+
+        public AiSnapshot(IReadOnlyList<AiPlayerSnapshot> players)
+        {
+            Players = players;
+        }
+    }
+
+    public sealed class AiPlayerSnapshot
+    {
+        public int PlayerId { get; private set; }
+        public bool Enabled { get; private set; }
+        public string DifficultyId { get; private set; }
+        public int DecisionSequence { get; private set; }
+        public int NextDecisionTick { get; private set; }
+        public int ConsecutiveInvalidCommands { get; private set; }
+        public string CurrentPlan { get; private set; }
+        public IReadOnlyList<AiIntentSnapshot> RecentIntents { get; private set; }
+
+        public AiPlayerSnapshot(int playerId, bool enabled, string difficultyId, int decisionSequence, int nextDecisionTick, int consecutiveInvalidCommands, string currentPlan, IReadOnlyList<AiIntentSnapshot> recentIntents)
+        {
+            PlayerId = playerId;
+            Enabled = enabled;
+            DifficultyId = difficultyId;
+            DecisionSequence = decisionSequence;
+            NextDecisionTick = nextDecisionTick;
+            ConsecutiveInvalidCommands = consecutiveInvalidCommands;
+            CurrentPlan = currentPlan;
+            RecentIntents = recentIntents;
+        }
+    }
+
+    public sealed class AiIntentSnapshot
+    {
+        public int SequenceId { get; private set; }
+        public int Tick { get; private set; }
+        public string Kind { get; private set; }
+        public string IntentId { get; private set; }
+        public string CommandType { get; private set; }
+        public string TargetTypeId { get; private set; }
+        public int SourceActorId { get; private set; }
+        public int TargetActorId { get; private set; }
+        public Int2 TargetCell { get; private set; }
+        public bool WasCommandIssued { get; private set; }
+        public bool CommandSucceeded { get; private set; }
+        public string ResultCode { get; private set; }
+        public string Status { get; private set; }
+
+        public AiIntentSnapshot(int sequenceId, int tick, string kind, string intentId, string commandType, string targetTypeId, int sourceActorId, int targetActorId, Int2 targetCell, bool wasCommandIssued, bool commandSucceeded, string resultCode, string status)
+        {
+            SequenceId = sequenceId;
+            Tick = tick;
+            Kind = kind;
+            IntentId = intentId;
+            CommandType = commandType;
+            TargetTypeId = targetTypeId;
+            SourceActorId = sourceActorId;
+            TargetActorId = targetActorId;
+            TargetCell = targetCell;
+            WasCommandIssued = wasCommandIssued;
+            CommandSucceeded = commandSucceeded;
+            ResultCode = resultCode;
+            Status = status;
         }
     }
 

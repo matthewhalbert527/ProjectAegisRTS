@@ -66,6 +66,12 @@ Stage 11 moves per-player fog of war, explored/visible/unexplored cells, sight r
 
 Unity opts into player-perspective snapshots for the Stage 11 scene, renders placeholder fog overlays and minimap dots, and reads radar status for HUD/debug presentation. Unity does not own visibility state, actor hiding, explored cell persistence, or radar activation.
 
+## Stage 12 AI Boundary
+
+Stage 12 adds deterministic skirmish AI to `Rts.Core`. `AiSystem` owns registered AI players, difficulty profile, plan state, decision sequence, recent intents, and command generation. AI planners inspect deterministic world state and submit normal commands through `RtsWorld.IssueCommand`.
+
+Unity reads `AiSnapshot` for debug HUDs, intent counts, and plan timeline presentation. Unity does not choose AI actions, mutate AI state, bypass command validation, or write plan data back into the simulation.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:
@@ -73,11 +79,11 @@ The bridge is intentionally simple:
 - Client submits commands such as `BeginProductionCommand`, `PlaceBuildingCommand`, `IssueMoveOrderCommand`, `IssueAttackOrderCommand`, and `IssueHarvestOrderCommand`.
 - Core validates commands and returns `CommandResult`.
 - Core advances in fixed ticks.
-- Client reads `WorldSnapshot`, `ActorSnapshot`, `ProductionSnapshot`, `PowerSnapshot`, `PlacementPreviewSnapshot`, `ProjectileSnapshot`, `CombatEventSnapshot`, `EconomySnapshot`, `FogSnapshot`, `RadarSnapshot`, and `MinimapSnapshot`.
+- Client reads `WorldSnapshot`, `ActorSnapshot`, `ProductionSnapshot`, `PowerSnapshot`, `PlacementPreviewSnapshot`, `ProjectileSnapshot`, `CombatEventSnapshot`, `EconomySnapshot`, `FogSnapshot`, `RadarSnapshot`, `MinimapSnapshot`, and `AiSnapshot`.
 
 ## Deterministic Tick Loop
 
-The current loop updates power, advances production, advances movement, advances harvesting/refinery unloading, advances combat/projectiles, updates visibility, and refreshes actor flags. State uses integers and fixed cell-scaled positions. The smoke test compares deterministic summaries after replaying the same command sequence twice.
+The current loop updates power, lets deterministic AI planners submit validated commands, advances production, advances movement, advances harvesting/refinery unloading, advances combat/projectiles, updates visibility, and refreshes actor flags. State uses integers and fixed cell-scaled positions. The smoke test compares deterministic summaries after replaying the same command sequence twice.
 
 ## OpenRA Reference Boundary
 

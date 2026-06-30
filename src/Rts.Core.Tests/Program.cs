@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ProjectAegisRTS.Ai;
 using ProjectAegisRTS.Actors;
 using ProjectAegisRTS.Commands;
 using ProjectAegisRTS.Core;
@@ -61,7 +62,13 @@ namespace ProjectAegisRTS.Tests
                 EnemyVisibleWhenInSight,
                 FogSnapshotContainsVisibilityData,
                 RadarSnapshotExists,
-                VisibilityDeterminismSmokeTest
+                VisibilityDeterminismSmokeTest,
+                AiInitializes,
+                AiProducesDeterministicIntents,
+                AiQueuesProductionWhenResourcesAllow,
+                AiDoesNotIssueInvalidCommandsRepeatedly,
+                AiCanIssueAttackIntentIfEnemyExists,
+                AiDeterminismSmokeTest
             };
 
             var passed = 0;
@@ -495,6 +502,60 @@ namespace ProjectAegisRTS.Tests
             Assert(a == b, "Expected visibility deterministic summaries to match.");
         }
 
+        static void AiInitializes()
+        {
+            var world = DemoWorldFactory.CreateAiSkirmishDemoWorld();
+            Assert(world.AiSystem.Plans.ContainsKey(2), "Expected player 2 AI plan state.");
+            var snapshot = world.CreateSnapshot();
+            Assert(snapshot.Ai.Players.Count == 1, "Expected one AI snapshot.");
+            Assert(snapshot.Ai.Players[0].PlayerId == 2, "Expected player 2 AI snapshot.");
+        }
+
+        static void AiProducesDeterministicIntents()
+        {
+            var world = DemoWorldFactory.CreateAiSkirmishDemoWorld();
+            world.Tick();
+            var snapshot = world.CreateSnapshot();
+            Assert(snapshot.Ai.Players[0].RecentIntents.Count >= 5, "Expected Stage 12 AI intents.");
+            Assert(HasAiIntent(snapshot, "Economy"), "Expected economy intent.");
+            Assert(HasAiIntent(snapshot, "Production"), "Expected production intent.");
+            Assert(HasAiIntent(snapshot, "Attack"), "Expected attack intent.");
+            Assert(HasAiIntent(snapshot, "Scouting"), "Expected scouting placeholder intent.");
+            Assert(HasAiIntent(snapshot, "Defense"), "Expected defense placeholder intent.");
+        }
+
+        static void AiQueuesProductionWhenResourcesAllow()
+        {
+            var world = DemoWorldFactory.CreateAiSkirmishDemoWorld();
+            world.Tick();
+            Assert(world.Players[2].ProductionQueue.Count > 0, "Expected AI production queue item.");
+            Assert(HasAiIntent(world.CreateSnapshot(), "Production", "QueueProduction"), "Expected queue production intent.");
+        }
+
+        static void AiDoesNotIssueInvalidCommandsRepeatedly()
+        {
+            var world = DemoWorldFactory.CreateAiSkirmishDemoWorld();
+            RunTicks(world, 96);
+            var snapshot = world.CreateSnapshot();
+            Assert(snapshot.Ai.Players[0].ConsecutiveInvalidCommands == 0, "Expected no repeated invalid AI commands.");
+        }
+
+        static void AiCanIssueAttackIntentIfEnemyExists()
+        {
+            var world = DemoWorldFactory.CreateAiSkirmishDemoWorld();
+            world.Tick();
+            var scout = world.FirstActorOfType("scout_rover", 2);
+            Assert(scout.CurrentOrder == ActorOrderKind.Attack, "Expected AI scout to receive attack order.");
+            Assert(HasAiIntent(world.CreateSnapshot(), "Attack", "BasicAttackWave"), "Expected attack-wave intent.");
+        }
+
+        static void AiDeterminismSmokeTest()
+        {
+            var a = RunAiDeterministicSequence();
+            var b = RunAiDeterministicSequence();
+            Assert(a == b, "Expected AI deterministic summaries to match.");
+        }
+
         static string RunDeterministicSequence()
         {
             var world = DemoWorldFactory.CreateMvpWorld();
@@ -535,6 +596,13 @@ namespace ProjectAegisRTS.Tests
             world.IssueCommand(new IssueMoveOrderCommand(1, new[] { scout.Id }, new Int2(20, 20)));
             RunTicks(world, 220);
             world.CreateSnapshot(1);
+            return world.GetDeterminismSummary();
+        }
+
+        static string RunAiDeterministicSequence()
+        {
+            var world = DemoWorldFactory.CreateAiSkirmishDemoWorld();
+            RunTicks(world, 128);
             return world.GetDeterminismSummary();
         }
 
@@ -586,6 +654,27 @@ namespace ProjectAegisRTS.Tests
             for (var i = 0; i < snapshot.Cells.Count; i++)
                 if (snapshot.Cells[i].Cell.Equals(cell) && snapshot.Cells[i].Visibility == visibility)
                     return true;
+            return false;
+        }
+
+        static bool HasAiIntent(WorldSnapshot snapshot, string kind)
+        {
+            return HasAiIntent(snapshot, kind, null);
+        }
+
+        static bool HasAiIntent(WorldSnapshot snapshot, string kind, string intentId)
+        {
+            for (var playerIndex = 0; playerIndex < snapshot.Ai.Players.Count; playerIndex++)
+            {
+                var player = snapshot.Ai.Players[playerIndex];
+                for (var intentIndex = 0; intentIndex < player.RecentIntents.Count; intentIndex++)
+                {
+                    var intent = player.RecentIntents[intentIndex];
+                    if (intent.Kind == kind && (intentId == null || intent.IntentId == intentId))
+                        return true;
+                }
+            }
+
             return false;
         }
 

@@ -52,6 +52,10 @@ Complete. Economy, resource harvesting, and refinery loop. Adds deterministic or
 
 Complete. Fog of war, radar, and minimap foundation. Adds deterministic per-player visibility state, explored/visible/unexplored cells, sight/radar definitions, player-perspective snapshots that hide unseen enemies, fog/radar/minimap snapshots, `Assets/Rts/Scenes/Stage11_FogRadarMinimap.unity`, placeholder fog overlay, minimap dots, F7 fog debug HUD, and fast/medium/full Stage 11 validation tiers.
 
+## Stage 12
+
+Complete. Skirmish AI foundation. Adds deterministic AI player definitions, difficulty profile, plan state, economy/production/attack/scouting/defense intents, AI command generation through the existing core command pipeline, AI snapshots, `Assets/Rts/Scenes/Stage12_AISkirmishFoundation.unity`, placeholder AI intent/timeline presentation, F6 AI debug HUD, and fast/medium/full Stage 12 validation tiers.
+
 ## Later Stages
 
-Skirmish AI, map/terrain/pathing tools, feedback foundation, performance/build readiness, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.
+Map/terrain/pathing tools, feedback foundation, performance/build readiness, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, optimization, accessibility, and release packaging.

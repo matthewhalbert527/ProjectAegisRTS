@@ -1,3 +1,4 @@
+using ProjectAegisRTS.Ai;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Economy;
 using ProjectAegisRTS.Simulation;
@@ -73,6 +74,33 @@ namespace ProjectAegisRTS.Demo
                 for (var x = 14; x <= 16; x++)
                     world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 100);
 
+            return world;
+        }
+
+        public static RtsWorld CreateAiSkirmishDemoWorld()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var world = new RtsWorld(rules, new GridMap(32, 32));
+            world.AddPlayer(1, "Aegis Skirmish Player", 5000);
+            world.AddPlayer(2, "Deterministic AI Player", 3000);
+
+            world.CreateActor("fabrication_hub", 1, new Int2(3, 3));
+            world.CreateActor("light_tank", 1, new Int2(15, 9));
+            world.CreateActor("rifle_infantry", 1, new Int2(16, 10));
+
+            world.CreateActor("fabrication_hub", 2, new Int2(20, 20));
+            world.CreateActor("power_plant", 2, new Int2(24, 20));
+            world.CreateActor("refinery", 2, new Int2(20, 24));
+            world.CreateActor("barracks", 2, new Int2(24, 23));
+            world.CreateActor("harvester", 2, new Int2(18, 24));
+            world.CreateActor("rifle_infantry", 2, new Int2(13, 9));
+            world.CreateActor("scout_rover", 2, new Int2(12, 9));
+
+            for (var y = 22; y <= 23; y++)
+                for (var x = 16; x <= 18; x++)
+                    world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 150);
+
+            world.ConfigureAiPlayer(new AiPlayerDefinition(2, new AiDifficultyDefinition("stage12-standard", 16, 3, 2, 12012)));
             return world;
         }
     }

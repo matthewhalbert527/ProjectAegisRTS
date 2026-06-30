@@ -3,6 +3,7 @@ using ProjectAegisRTS.UnityClient.CameraControls;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.InputControls;
 using ProjectAegisRTS.UnityClient.Rendering;
+using ProjectAegisRTS.UnityClient.Rendering.Ai;
 using ProjectAegisRTS.UnityClient.Rendering.Combat;
 using ProjectAegisRTS.UnityClient.Rendering.Economy;
 using ProjectAegisRTS.UnityClient.Rendering.Visibility;
@@ -37,6 +38,8 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public VisibilityDebugRenderer visibilityDebugRenderer;
         public RadarSnapshotAdapter radarSnapshotAdapter;
         public MinimapRenderSystem minimapRenderSystem;
+        public AiIntentRenderSystem aiIntentRenderSystem;
+        public AiPlanTimelineView aiPlanTimelineView;
         public RtsSimulationDriver simulationDriver;
         public RtsDesktopInputController inputController;
         public RtsDebugHud debugHud;
@@ -94,6 +97,10 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 radarSnapshotAdapter.driver = simulationDriver;
             if (minimapRenderSystem != null)
                 minimapRenderSystem.Initialize(simulationDriver, coordinateMapper);
+            if (aiIntentRenderSystem != null)
+                aiIntentRenderSystem.Initialize(simulationDriver, coordinateMapper);
+            if (aiPlanTimelineView != null)
+                aiPlanTimelineView.Initialize(simulationDriver);
             inputController.Initialize(sceneCamera, coordinateMapper, simulationDriver, debugHud);
             debugHud.Initialize(simulationDriver);
             cameraController.Configure(coordinateMapper);

@@ -1,6 +1,6 @@
 # Rts Unity Assets
 
-Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface. Stage 6 adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` for visual-only movement profiles, controllers, path preview, and debug HUD. Stage 7 adds `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity` for visual-only building animation, power, production, and damage-state presentation. Stage 8 adds `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity` for concept references, actor visual definitions, generated blockout prefabs, sockets, icons, validation, and resolver integration. Stage 9 adds `Assets/Rts/Scenes/Stage9_CombatWeaponsDamage.unity` for deterministic combat presentation, projectile visuals, combat events, and damage/death placeholders. Stage 10 adds `Assets/Rts/Scenes/Stage10_EconomyHarvesting.unity` for deterministic economy presentation, resource visuals, harvester cargo, refinery unloading, and economy events. Stage 11 adds `Assets/Rts/Scenes/Stage11_FogRadarMinimap.unity` for deterministic fog, radar, and minimap presentation.
+Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and submits commands back into the deterministic simulation. Stage 2 keeps that board and adds the first PC RTS uGUI layer in `Assets/Rts/Scenes/Stage2_PCSidebar.unity`. Stage 3 adds `Assets/Rts/Scenes/Stage3_XRBoardPlacement.unity` for Quest/OpenXR-ready board placement with desktop fallback controls. Stage 4 adds `Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity` for the Quest-style left-hand build and selection interface. Stage 5 adds `Assets/Rts/Scenes/Stage5_DualHandCommand.unity` for right-hand tactical commands alongside the left-hand build/selection interface. Stage 6 adds `Assets/Rts/Scenes/Stage6_MovementVisualization.unity` for visual-only movement profiles, controllers, path preview, and debug HUD. Stage 7 adds `Assets/Rts/Scenes/Stage7_BuildingPowerProduction.unity` for visual-only building animation, power, production, and damage-state presentation. Stage 8 adds `Assets/Rts/Scenes/Stage8_ArtPipelineShowcase.unity` for concept references, actor visual definitions, generated blockout prefabs, sockets, icons, validation, and resolver integration. Stage 9 adds `Assets/Rts/Scenes/Stage9_CombatWeaponsDamage.unity` for deterministic combat presentation, projectile visuals, combat events, and damage/death placeholders. Stage 10 adds `Assets/Rts/Scenes/Stage10_EconomyHarvesting.unity` for deterministic economy presentation, resource visuals, harvester cargo, refinery unloading, and economy events. Stage 11 adds `Assets/Rts/Scenes/Stage11_FogRadarMinimap.unity` for deterministic fog, radar, and minimap presentation. Stage 12 adds `Assets/Rts/Scenes/Stage12_AISkirmishFoundation.unity` for deterministic AI intent presentation.
 
 ## Folder Roles
 
@@ -8,9 +8,9 @@ Stage 1 adds a desktop board prototype that renders `Rts.Core` snapshots and sub
 - `Scripts/Board`: Stage 3 board transform model and placement controller.
 - `Scripts/CoreBridge`: Unity-to-core adapters, command helpers, and board coordinate mapping.
 - `Scripts/Input`: desktop mouse/keyboard input plus XR-safe placement, left-hand, and right-hand adapters/placeholders.
-- `Scripts/Rendering`: board, actor, selection, low-power, production, interpolation, movement profile, vehicle, infantry, aircraft, turret, path-preview, building animation, combat visuals, economy visuals, and visibility/fog/minimap visuals.
+- `Scripts/Rendering`: board, actor, selection, low-power, production, interpolation, movement profile, vehicle, infantry, aircraft, turret, path-preview, building animation, combat visuals, economy visuals, visibility/fog/minimap visuals, and AI intent/timeline visuals.
 - `Scripts/Art`: Stage 8 actor visual definitions, concept references, prefab descriptors, sockets, resolver, and showcase components.
-- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, Stage 5 right-hand command UI, Stage 6 movement debug HUD, Stage 7 building animation debug HUD, Stage 8 art pipeline debug HUD, Stage 9 combat debug HUD, Stage 10 economy debug HUD, and Stage 11 fog debug HUD.
+- `Scripts/UI`: Stage 1 IMGUI debug HUD, Stage 2 uGUI desktop sidebar controllers, Stage 3 board placement HUD, Stage 4 left-hand wrist/radial UI, Stage 5 right-hand command UI, Stage 6 movement debug HUD, Stage 7 building animation debug HUD, Stage 8 art pipeline debug HUD, Stage 9 combat debug HUD, Stage 10 economy debug HUD, Stage 11 fog debug HUD, and Stage 12 AI debug HUD.
 - `Scripts/Camera`: desktop camera controls.
 - `Scripts/Utilities`: generated runtime materials.
 - `Editor`: scene generator menu item and batchmode entry point.
@@ -32,6 +32,8 @@ Stage 10 consumes economy snapshot and event data through Unity-only render syst
 
 Stage 11 consumes fog/radar/minimap snapshot data through Unity-only render systems for fog overlays, visibility debug readouts, radar state, minimap actor dots, and debug HUD readouts. It never writes visibility, explored state, actor hiding, or radar activation back into `Rts.Core`.
 
+Stage 12 consumes AI snapshot data through Unity-only render systems for intent counts, plan timeline readouts, and debug HUD readouts. It never chooses AI commands or writes plan state back into `Rts.Core`.
+
 ## Validation Tiers
 
 Stage 8.1 adds tiered validation commands from the repository root:
@@ -48,6 +50,9 @@ Stage 8.1 adds tiered validation commands from the repository root:
 - `tools/run-stage11-fast-checks.ps1`: current Stage 11 fog/radar/minimap iteration only.
 - `tools/run-stage11-medium-checks.ps1`: core tests, Unity DLL build, Stage 10 immediate dependency validation, and Stage 11 validation before local commits.
 - `tools/run-stage11-checks.ps1`: slow full acceptance gate from Stage 0 through Stage 11.
+- `tools/run-stage12-fast-checks.ps1`: current Stage 12 AI iteration only.
+- `tools/run-stage12-medium-checks.ps1`: core tests, Unity DLL build, Stage 11 immediate dependency validation, and Stage 12 validation before local commits.
+- `tools/run-stage12-checks.ps1`: slow full acceptance gate from Stage 0 through Stage 12.
 
 The fast and medium tiers do not weaken acceptance coverage; they make day-to-day Unity asset and tooling edits cheaper to validate.
 
@@ -194,3 +199,11 @@ The fast and medium tiers do not weaken acceptance coverage; they make day-to-da
 - `Scripts/UI/Common/FogDebugHud.cs`: F7 debug HUD and fog demo reset control.
 - `Editor/Stage11SceneCreator.cs`: creates `Stage11_FogRadarMinimap.unity`.
 - `Editor/Stage11SceneValidator.cs` and `Stage11PlayModeSmokeValidator.cs`: validate scene structure and runtime fog/radar/minimap behavior.
+
+## Stage 12 AI Skirmish Foundation
+
+- `Scripts/Rendering/Ai/AiIntentRenderSystem.cs`: reads `AiSnapshot` intent data for validation/debug counts.
+- `Scripts/Rendering/Ai/AiPlanTimelineView.cs`: reads AI plan sequence and intent timeline data.
+- `Scripts/UI/Common/AiDebugHud.cs`: F6 debug HUD and AI demo reset control.
+- `Editor/Stage12SceneCreator.cs`: creates `Stage12_AISkirmishFoundation.unity`.
+- `Editor/Stage12SceneValidator.cs` and `Stage12PlayModeSmokeValidator.cs`: validate scene structure and runtime AI intent behavior.

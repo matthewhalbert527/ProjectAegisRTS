@@ -298,6 +298,31 @@ To validate it from PowerShell:
 
 Stage 11 preserves the Stage 10 economy scene and adds player-perspective snapshots, fog overlay presentation, radar status, minimap dots, and `FogDebugHud`.
 
+## Create or Validate the Stage 12 Scene
+
+Stage 12 adds the AI skirmish foundation scene:
+
+```text
+Assets/Rts/Scenes/Stage12_AISkirmishFoundation.unity
+```
+
+To create or refresh the scene manually in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 12 > Create AI Skirmish Foundation Scene
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-unity-stage12-validation.ps1
+.\tools\run-stage12-fast-checks.ps1
+.\tools\run-stage12-medium-checks.ps1
+.\tools\run-stage12-checks.ps1
+```
+
+Stage 12 preserves the Stage 11 fog/radar/minimap scene and adds deterministic AI intent snapshots, AI intent/timeline placeholder presentation, and `AiDebugHud`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -310,6 +335,7 @@ Stage 11 preserves the Stage 10 economy scene and adds player-perspective snapsh
 - L: toggle forced low-power demo state.
 - F8: toggle the Stage 10 economy debug HUD.
 - F7: toggle the Stage 11 fog/radar debug HUD.
+- F6: toggle the Stage 12 AI debug HUD.
 - F1-F6: switch Stage 2 production tabs.
 - S/M/A: stop, move mode, or attack placeholder command.
 - Backquote: toggle the Stage 1 debug overlay if it is enabled in the scene.
