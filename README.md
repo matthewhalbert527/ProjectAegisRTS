@@ -174,7 +174,7 @@ Run Stage 15 checks:
 
 Use `run-stage15-fast-checks.ps1` for current performance/build-readiness iteration, `run-stage15-medium-checks.ps1` before local commits, and `run-stage15-checks.ps1` as the full Stage 0-through-Stage 15 acceptance gate.
 
-Stage 15.1 keeps medium validation flat: Stage 9 and later medium scripts run core tests once, build/copy `Rts.Core` once, then call direct prior-stage and current-stage Unity validation. They must not call prior medium scripts. `git diff --check` remains the whitespace gate; Windows line-ending conversion warnings are non-fatal when that command passes. See `docs/VALIDATION_TIERS.md`.
+Stage 15.1 keeps medium validation flat: Stage 9 and later medium scripts run core tests once, build/copy `Rts.Core` once, then call direct prior-stage and current-stage Unity validation. They must not call prior medium scripts. The guard command `.\tools\audit-medium-validation-recursion.ps1` now fails if Stage 9-15 medium scripts reintroduce recursive medium dependencies, and Stage 15 full still remains the final Stage 0-through-Stage 15 acceptance gate. `git diff --check` remains the whitespace gate; Windows line-ending conversion warnings are non-fatal when that command passes. See `docs/VALIDATION_TIERS.md`.
 
 Open the Unity project:
 

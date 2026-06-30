@@ -76,3 +76,4 @@ Write-ValidationSection 'Whitespace check'
 Invoke-GitDiffCheck -RepoRoot $repoRoot
 
 Write-Host "Stage $Stage flattened full acceptance gate passed."
+$global:LASTEXITCODE = 0

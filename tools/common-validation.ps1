@@ -168,9 +168,29 @@ function Invoke-GitDiffCheck {
     param([string]$RepoRoot)
 
     Write-Host 'Running git diff whitespace check.'
-    git -C $RepoRoot diff --check
-    if ($LASTEXITCODE -ne 0) {
-        throw "git diff --check failed with exit code $LASTEXITCODE."
+    $stdoutPath = [System.IO.Path]::GetTempFileName()
+    $stderrPath = [System.IO.Path]::GetTempFileName()
+
+    try {
+        $arguments = "-C `"$RepoRoot`" diff --check"
+        $process = Start-Process -FilePath 'git' -ArgumentList $arguments -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+        $standardOutput = Get-Content -LiteralPath $stdoutPath -Raw
+        $standardError = Get-Content -LiteralPath $stderrPath -Raw
+
+        if ($standardOutput) {
+            Write-Host $standardOutput.TrimEnd()
+        }
+        if ($standardError) {
+            Write-Host $standardError.TrimEnd()
+        }
+
+        if ($process.ExitCode -ne 0) {
+            throw "git diff --check failed with exit code $($process.ExitCode)."
+        }
+
+        $global:LASTEXITCODE = 0
+    } finally {
+        Remove-Item -LiteralPath $stdoutPath, $stderrPath -Force -ErrorAction SilentlyContinue
     }
 }
 

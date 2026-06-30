@@ -1,6 +1,6 @@
 # Validation Tiers
 
-Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. Stage 14 follows it for feedback iteration. Stage 15 follows it for performance/build-readiness iteration. Stage 15.1 flattens the Stage 9-through-Stage 15 medium tiers so they validate the immediate prior stage directly instead of recursively calling prior medium checks. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration. Stage 9 and later full gates use `tools\run-stage-full-chain-checks.ps1` to walk Stage 0 through the current stage once instead of recursively replaying lower full gates.
+Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. Stage 14 follows it for feedback iteration. Stage 15 follows it for performance/build-readiness iteration. Stage 15.1 flattens the Stage 9-through-Stage 15 medium tiers so they validate the immediate prior stage directly instead of recursively calling prior medium checks. A follow-up Stage 15.1 hardening pass added `tools\audit-medium-validation-recursion.ps1` after runtime output showed recursive medium sections were still possible to miss. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration. Stage 9 and later full gates use `tools\run-stage-full-chain-checks.ps1` to walk Stage 0 through the current stage once instead of recursively replaying lower full gates.
 
 ## Tier Summary
 
@@ -36,6 +36,14 @@ Stage 8.1 adds validation tiers so normal development does not need to replay th
 Medium checks must not call earlier `run-stage*-medium-checks.ps1` scripts. A medium check runs `Rts.Core` tests once, builds/copies `Rts.Core` once, calls the immediate prior stage's Unity validation script directly with `-SkipCoreBuild`, calls the current stage's Unity validation script with `-SkipCoreBuild`, then runs the UnityEngine-free scan and `git diff --check`.
 
 For example, `run-stage15-medium-checks.ps1` calls `run-unity-stage14-validation.ps1 -SkipCoreBuild` and `run-unity-stage15-validation.ps1 -SkipCoreBuild`. It must not call `run-stage14-medium-checks.ps1`.
+
+The machine-enforced guardrail is:
+
+```powershell
+.\tools\audit-medium-validation-recursion.ps1
+```
+
+This audit scans Stage 9 through Stage 15 medium scripts and fails if a prior medium dependency or old "medium validation as the immediate dependency" wording returns. Stage 13, Stage 14, and Stage 15 medium scripts run the audit before tests, and the Stage 15 full gate runs it before the full acceptance chain.
 
 Full checks are different: they remain the final Stage 0-through-current-stage acceptance gates and must not be weakened to match medium scope.
 

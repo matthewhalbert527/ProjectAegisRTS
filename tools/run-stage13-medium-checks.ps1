@@ -14,6 +14,13 @@ Write-Host 'Purpose: pre-commit confidence for Stage 13 changes.'
 Write-Host 'Scope: Rts.Core tests, one Unity DLL build, direct Stage 12 Unity validation as the immediate dependency, Stage 13 validation, Stage 13 Play Mode smoke or live fallback, Rts.Core UnityEngine scan, and git diff whitespace check.'
 Write-Host 'This medium tier does not call prior medium checks. Use run-stage13-checks.ps1 for final Stage 0-through-Stage 13 acceptance.'
 
+Write-ValidationSection 'Medium recursion audit'
+$global:LASTEXITCODE = 0
+& (Join-Path $repoRoot 'tools\audit-medium-validation-recursion.ps1')
+if ($LASTEXITCODE -ne 0) {
+    throw "audit-medium-validation-recursion.ps1 failed with exit code $LASTEXITCODE."
+}
+
 Write-ValidationSection 'Rts.Core tests'
 Invoke-DotNetRunNoRestore -DotNetPath $dotnet -ProjectPath (Join-Path $repoRoot 'src\Rts.Core.Tests')
 if ($LASTEXITCODE -ne 0) {

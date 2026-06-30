@@ -44,6 +44,8 @@ Stage 15.1 keeps the fast/medium/full split explicit:
 
 The Stage 15 medium script must not call `run-stage14-medium-checks.ps1`; it calls `run-unity-stage14-validation.ps1 -SkipCoreBuild` instead. Windows CRLF conversion warnings are not failures when `git diff --check` passes.
 
+Stage 15.1 required a corrective hardening pass after runtime output still showed prior medium sections. `tools\audit-medium-validation-recursion.ps1` now scans Stage 9 through Stage 15 medium scripts and fails if a medium script calls another medium script or uses the old medium-dependency wording. Stage 15 medium and Stage 15 full run this audit before continuing.
+
 The pushed Stage 15 checkpoint is `codex/overnight-stage10-stage15` at `04c6c768bd6cdda74c6593a7d046de62ac27a39b`. Stage 15.1 tooling cleanup is on `codex/stage-15-1-validation-flattening`.
 
 ## Limitations

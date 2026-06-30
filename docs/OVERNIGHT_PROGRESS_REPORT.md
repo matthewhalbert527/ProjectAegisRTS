@@ -65,7 +65,7 @@
 ## Blockers
 
 - No gameplay or compile blocker remains for Stage 15.
-- Full-chain orchestration has been flattened for Stage 9 and later full gates. Stage 15.1 additionally flattens Stage 9-through-Stage 15 medium gates so they call direct prior-stage Unity validation instead of prior medium scripts.
+- Full-chain orchestration has been flattened for Stage 9 and later full gates. Stage 15.1 additionally flattens Stage 9-through-Stage 15 medium gates so they call direct prior-stage Unity validation instead of prior medium scripts, and `tools\audit-medium-validation-recursion.ps1` now guards against regressions after runtime output exposed the original medium recursion issue.
 
 ## Morning Command
 
