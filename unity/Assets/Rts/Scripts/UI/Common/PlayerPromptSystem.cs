@@ -8,6 +8,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
     public sealed class PlayerPromptSystem : MonoBehaviour
     {
         public RtsSimulationDriver driver;
+        public VerticalSliceMissionFlowController missionFlowController;
         public VerticalSliceProgressTracker progressTracker;
         public bool visible = true;
         public KeyCode toggleKey = KeyCode.P;
@@ -20,6 +21,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
         {
             driver = simulationDriver;
             progressTracker = tracker;
+            if (missionFlowController == null)
+                missionFlowController = FindAnyObjectByType<VerticalSliceMissionFlowController>();
             RefreshPrompt();
         }
 
@@ -29,6 +32,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                 driver = FindAnyObjectByType<RtsSimulationDriver>();
             if (progressTracker == null)
                 progressTracker = FindAnyObjectByType<VerticalSliceProgressTracker>();
+            if (missionFlowController == null)
+                missionFlowController = FindAnyObjectByType<VerticalSliceMissionFlowController>();
             RefreshPrompt();
         }
 
@@ -75,7 +80,15 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                 return "Match complete. Restart or return to the menu from the result screen.";
 
             if (driver.HasPlacementMode)
-                return "Place " + driver.PendingPlacementTypeId + " on a clear fine-grid footprint, or press Escape to cancel.";
+                return "Buildings snap to the fine placement grid. Green footprint is valid; red footprint is blocked.";
+
+            if (missionFlowController == null)
+                missionFlowController = FindAnyObjectByType<VerticalSliceMissionFlowController>();
+            if (missionFlowController != null)
+            {
+                missionFlowController.Refresh();
+                return missionFlowController.CurrentInstructionText;
+            }
 
             if (progressTracker == null)
                 progressTracker = FindAnyObjectByType<VerticalSliceProgressTracker>();

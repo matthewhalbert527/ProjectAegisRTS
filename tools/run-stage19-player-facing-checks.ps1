@@ -3,16 +3,15 @@ param(
     [switch]$SkipPlayerBuild,
     [switch]$SkipPlayerLog,
     [switch]$SkipCoreBuild,
-    [switch]$SkipStage18Dependency,
-    [switch]$SkipStage18Validation,
-    [switch]$SkipStage18_5Validation
+    [switch]$SkipStage18_5Validation,
+    [switch]$SkipStage19Validation
 )
 
 $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot 'common-validation.ps1')
 
-function Test-Stage18_5LogForRedErrors {
+function Test-Stage19LogForRedErrors {
     param([string]$Path)
 
     if (-not (Test-Path -LiteralPath $Path)) {
@@ -48,8 +47,8 @@ $corePath = Join-Path $repoRoot 'src\Rts.Core'
 
 New-Item -ItemType Directory -Force -Path $logRoot | Out-Null
 
-Write-ValidationSection 'Stage 18.5 player-facing checks'
-Write-Host 'Scope: optional Stage 18 player-facing dependency, Stage 18.5 validation and smoke, optional Windows player build/log inspection through Stage 18, UnityEngine-free scan, and git diff whitespace check.'
+Write-ValidationSection 'Stage 19 player-facing checks'
+Write-Host 'Scope: core tests/build, medium recursion audit, direct Stage 18.5 player-facing/build-flow validation, Stage 19 Unity validation, optional Windows player build/log inspection, UnityEngine-free scan, and git diff whitespace check.'
 
 if ($SkipCoreBuild) {
     Write-Host 'Skipping Rts.Core tests/build; caller already ran them.'
@@ -73,47 +72,65 @@ if ($LASTEXITCODE -ne 0) {
     throw "audit-medium-validation-recursion.ps1 failed with exit code $LASTEXITCODE."
 }
 
-if ($SkipStage18Dependency) {
-    Write-Host 'Skipping Stage 18 player-facing dependency; caller is using a targeted Stage 18.5/Stage 19 validation tier.'
+if ($SkipStage18_5Validation) {
+    Write-Host 'Skipping Stage 18.5 player-facing validation; caller already ran it.'
 } else {
-    Write-ValidationSection 'Stage 18 player-facing dependency'
-    $stage18Args = @{
+    Write-ValidationSection 'Stage 18.5 player-facing dependency'
+    $stage18_5Args = @{
         SkipCoreBuild = $true
     }
     if ($SkipPlayerBuild) {
-        $stage18Args['SkipPlayerBuild'] = $true
+        $stage18_5Args['SkipPlayerBuild'] = $true
     }
     if ($SkipPlayerLog) {
-        $stage18Args['SkipPlayerLog'] = $true
+        $stage18_5Args['SkipPlayerLog'] = $true
     }
-    if ($SkipStage18Validation) {
-        $stage18Args['SkipStage18Validation'] = $true
-    }
-    $stage18PlayerFacingScript = Join-Path $repoRoot 'tools\run-stage18-player-facing-checks.ps1'
-    & $stage18PlayerFacingScript @stage18Args
+    $stage18_5Args['SkipStage18Dependency'] = $true
+    $stage18_5PlayerFacingScript = Join-Path $repoRoot 'tools\run-stage18-5-player-facing-checks.ps1'
+    & $stage18_5PlayerFacingScript @stage18_5Args
     if ($LASTEXITCODE -ne 0) {
-        throw "run-stage18-player-facing-checks.ps1 failed with exit code $LASTEXITCODE."
+        throw "run-stage18-5-player-facing-checks.ps1 failed with exit code $LASTEXITCODE."
     }
 }
 
-if ($SkipStage18_5Validation) {
-    Write-Host 'Skipping Stage 18.5 Unity validation; caller already ran it.'
+if ($SkipStage19Validation) {
+    Write-Host 'Skipping Stage 19 Unity validation; caller already ran it.'
 } else {
-    Write-ValidationSection 'Stage 18.5 Unity validation'
-    & (Join-Path $repoRoot 'tools\run-unity-stage18-5-validation.ps1') -SkipCoreBuild
+    Write-ValidationSection 'Stage 19 Unity validation'
+    & (Join-Path $repoRoot 'tools\run-unity-stage19-validation.ps1') -SkipCoreBuild
     if ($LASTEXITCODE -ne 0) {
-        throw "run-unity-stage18-5-validation.ps1 failed with exit code $LASTEXITCODE."
+        throw "run-unity-stage19-validation.ps1 failed with exit code $LASTEXITCODE."
     }
 }
 
-Write-ValidationSection 'Stage 18.5 Unity log inspection'
+Write-ValidationSection 'Stage 19 Unity log inspection'
 $logsToInspect = @(
-    (Join-Path $logRoot 'stage18-5-configure.log'),
-    (Join-Path $logRoot 'stage18-5-validate.log'),
-    (Join-Path $logRoot 'stage18-5-playmode-smoke.log')
+    (Join-Path $logRoot 'stage19-configure.log'),
+    (Join-Path $logRoot 'stage19-validate.log'),
+    (Join-Path $logRoot 'stage19-playmode-smoke.log')
 )
 foreach ($log in $logsToInspect) {
-    Test-Stage18_5LogForRedErrors -Path $log
+    Test-Stage19LogForRedErrors -Path $log
+}
+
+if ($SkipPlayerBuild) {
+    Write-Host 'Skipping Windows player build.'
+} else {
+    Write-ValidationSection 'Windows player build'
+    & (Join-Path $repoRoot 'tools\build-windows-player-stage16.ps1')
+    if ($LASTEXITCODE -ne 0) {
+        throw "build-windows-player-stage16.ps1 failed with exit code $LASTEXITCODE."
+    }
+}
+
+if ($SkipPlayerLog) {
+    Write-Host 'Skipping Player.log inspection.'
+} else {
+    Write-ValidationSection 'Player.log inspection'
+    & (Join-Path $repoRoot 'tools\inspect-latest-player-log.ps1') -CopyToDebugLogs
+    if ($LASTEXITCODE -ne 0) {
+        throw "inspect-latest-player-log.ps1 failed with exit code $LASTEXITCODE."
+    }
 }
 
 Write-ValidationSection 'Rts.Core UnityEngine-free scan'
@@ -125,4 +142,4 @@ Repair-UnityGeneratedValidationWhitespace -RepoRoot $repoRoot
 Write-ValidationSection 'Whitespace check'
 Invoke-GitDiffCheck -RepoRoot $repoRoot
 
-Write-Host 'Stage 18.5 player-facing checks passed.'
+Write-Host 'Stage 19 player-facing checks passed.'

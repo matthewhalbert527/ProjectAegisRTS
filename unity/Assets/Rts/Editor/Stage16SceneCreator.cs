@@ -64,6 +64,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var controller = GetOrAdd<VerticalSliceScenarioController>(game);
             var progressTracker = GetOrAdd<VerticalSliceProgressTracker>(game);
+            var missionFlow = GetOrAdd<VerticalSliceMissionFlowController>(game);
             var objectiveHud = GetOrAdd<MatchObjectiveHud>(game);
             var playerObjectiveHud = GetOrAdd<PlayerObjectiveHud>(game);
             var checklistHud = GetOrAdd<VerticalSliceChecklistHud>(game);
@@ -76,7 +77,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var playerInitializer = GetOrAdd<PlayerBuildSceneInitializer>(game);
             var debugVisibility = GetOrAdd<DebugHudVisibilityController>(game);
             var bootstrapper = GetOrAdd<RtsGameBootstrapper>(game);
-            EnsureDesktopHud(bootstrapper, driver, progressTracker);
+            EnsureDesktopHud(bootstrapper, driver, progressTracker, missionFlow);
 
             controller.driver = driver;
             controller.objectiveHud = objectiveHud;
@@ -86,6 +87,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             controller.resetWorldOnInitialize = true;
 
             progressTracker.driver = driver;
+            missionFlow.driver = driver;
+            missionFlow.progressTracker = progressTracker;
 
             objectiveHud.driver = driver;
             objectiveHud.scenarioController = controller;
@@ -98,10 +101,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             playerObjectiveHud.visible = true;
 
             checklistHud.driver = driver;
+            checklistHud.missionFlowController = missionFlow;
             checklistHud.progressTracker = progressTracker;
             checklistHud.visible = true;
 
             promptSystem.driver = driver;
+            promptSystem.missionFlowController = missionFlow;
             promptSystem.progressTracker = progressTracker;
             promptSystem.visible = true;
 
@@ -136,6 +141,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             bootstrapper.simulationDriver = driver;
             bootstrapper.verticalSliceScenarioController = controller;
+            bootstrapper.verticalSliceMissionFlowController = missionFlow;
             bootstrapper.verticalSliceProgressTracker = progressTracker;
             bootstrapper.matchObjectiveHud = objectiveHud;
             bootstrapper.playerObjectiveHud = playerObjectiveHud;
@@ -225,7 +231,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             EditorBuildSettings.scenes = scenes.ToArray();
         }
 
-        static void EnsureDesktopHud(RtsGameBootstrapper bootstrapper, RtsSimulationDriver driver, VerticalSliceProgressTracker progressTracker)
+        static void EnsureDesktopHud(RtsGameBootstrapper bootstrapper, RtsSimulationDriver driver, VerticalSliceProgressTracker progressTracker, VerticalSliceMissionFlowController missionFlow)
         {
             EnsureEventSystem();
             var canvas = UnityEngine.Object.FindFirstObjectByType<Canvas>();
@@ -240,6 +246,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var router = GetOrAdd<DesktopUiCommandRouter>(hudRootObject);
             hudRoot.bootstrapper = bootstrapper;
             hudRoot.driver = driver;
+            hudRoot.missionFlowController = missionFlow;
             hudRoot.progressTracker = progressTracker;
             hudRoot.canvas = canvas;
             hudRoot.commandRouter = router;

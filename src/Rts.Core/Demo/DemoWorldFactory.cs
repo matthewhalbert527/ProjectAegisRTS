@@ -183,7 +183,9 @@ namespace ProjectAegisRTS.Demo
             world.CreateActor("harvester", 1, new Int2(8, 12));
             world.CreateActor("scout_rover", 1, new Int2(10, 11));
             world.CreateActor("light_tank", 1, new Int2(14, 10));
+            world.CreateActor("light_tank", 1, new Int2(13, 12));
             world.CreateActor("rifle_infantry", 1, new Int2(12, 11));
+            world.CreateActor("rocket_infantry", 1, new Int2(11, 12));
 
             world.CreateActor("fabrication_hub", 2, new Int2(23, 22));
             world.CreateActor("power_plant", 2, new Int2(20, 22));
@@ -191,14 +193,14 @@ namespace ProjectAegisRTS.Demo
             world.CreateActor("war_factory", 2, new Int2(18, 24));
             world.CreateActor("refinery", 2, new Int2(27, 17));
             world.CreateActor("gun_tower", 2, new Int2(22, 20));
-            world.CreateActor("medium_tank", 2, new Int2(18, 10));
-            world.CreateActor("rifle_infantry", 2, new Int2(17, 10));
+            world.CreateActor("medium_tank", 2, new Int2(20, 14));
+            world.CreateActor("rifle_infantry", 2, new Int2(21, 15));
             world.CreateActor("scout_rover", 2, new Int2(21, 20));
             world.CreateActor("harvester", 2, new Int2(26, 21));
 
-            for (var y = 8; y <= 9; y++)
-                for (var x = 15; x <= 18; x++)
-                    world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 180);
+            for (var y = 11; y <= 13; y++)
+                for (var x = 14; x <= 17; x++)
+                    world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 220);
 
             for (var y = 14; y <= 16; y++)
                 for (var x = 25; x <= 28; x++)

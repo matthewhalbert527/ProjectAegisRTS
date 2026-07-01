@@ -70,7 +70,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
             if (!driver.HasPlacementMode)
             {
-                label.text = "Placement inactive.\nCompleted buildings will appear here.";
+                label.text = "Placement inactive.\nCompleted buildings appear here.";
                 cancelButton.interactable = false;
                 return;
             }
@@ -91,7 +91,12 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 placementFootprint = building.PlacementFootprintCells.X + "x" + building.PlacementFootprintCells.Y + " fine";
             }
 
-            label.text = "Placing: " + driver.PendingPlacementTypeId + "\nFootprint: " + footprint + " / " + placementFootprint + "\n" + previewText + "\nLeft-click fine grid to place.";
+            label.text =
+                "Placing: " + driver.PendingPlacementTypeId + "\n" +
+                "Footprint: " + footprint + " / " + placementFootprint + "\n" +
+                "Buildings snap to the fine placement grid.\n" +
+                "Green footprint is valid; red footprint is blocked.\n" +
+                previewText;
         }
 
         static string FriendlyError(string errorCode)
@@ -102,8 +107,12 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return "outside the board.";
             if (errorCode == "OccupiedCell")
                 return "space is occupied.";
+            if (errorCode == "BlockedCell")
+                return "terrain is blocked.";
             if (errorCode == "OutsideConstructionRadius")
                 return "place closer to your Fabrication Hub.";
+            if (errorCode == "NoCompletedBuildingPending")
+                return "wait for production to finish.";
             return errorCode.Replace("_", " ");
         }
     }

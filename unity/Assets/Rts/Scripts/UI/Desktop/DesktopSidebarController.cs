@@ -10,6 +10,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
     public sealed class DesktopSidebarController : MonoBehaviour
     {
         RtsSimulationDriver driver;
+        VerticalSliceMissionFlowController missionFlowController;
         VerticalSliceProgressTracker progressTracker;
         Text titleText;
         Text readoutText;
@@ -23,10 +24,12 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             PlacementModePanel placement,
             SelectionPanelController selection,
             MinimapPlaceholderController minimap,
-            VerticalSliceProgressTracker tracker = null)
+            VerticalSliceProgressTracker tracker = null,
+            VerticalSliceMissionFlowController missionFlow = null)
         {
             driver = simulationDriver;
             progressTracker = tracker;
+            missionFlowController = missionFlow;
             BuildIfNeeded();
         }
 
@@ -52,7 +55,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             readoutText = GetOrCreateText("Readout", "Waiting for simulation...", 14, new Color(0.88f, 0.94f, 0.98f, 1f), TextAnchor.UpperLeft);
             readoutText.rectTransform.anchorMin = new Vector2(0f, 1f);
             readoutText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            readoutText.rectTransform.offsetMin = new Vector2(14f, -102f);
+            readoutText.rectTransform.offsetMin = new Vector2(14f, -204f);
             readoutText.rectTransform.offsetMax = new Vector2(-14f, -46f);
         }
 
@@ -80,11 +83,19 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 progressTracker = FindAnyObjectByType<VerticalSliceProgressTracker>();
             if (progressTracker != null)
                 progressTracker.Refresh();
+            if (missionFlowController == null)
+                missionFlowController = FindAnyObjectByType<VerticalSliceMissionFlowController>();
+            if (missionFlowController != null)
+                missionFlowController.Refresh();
+
+            var guidance = missionFlowController != null ? missionFlowController.CurrentInstructionText : (progressTracker == null ? "Follow the checklist." : progressTracker.currentChecklistPrompt);
+            var action = missionFlowController != null ? missionFlowController.NextRecommendedAction : (progressTracker == null ? "Follow checklist." : ("Recommended: " + progressTracker.recommendedTypeId));
 
             readoutText.text =
-                "Credits: " + player.Credits + "    Power: " + player.Power.Generated + " / " + player.Power.Consumed + "\n" +
-                "State: " + player.Power.State + "    Mode: " + driver.CommandMode + "\n" +
-                "Next: " + (progressTracker == null ? "Follow the checklist." : progressTracker.currentChecklistPrompt);
+                "Credits " + player.Credits + "    Power " + player.Power.Generated + "/" + player.Power.Consumed + " (" + player.Power.State + ")\n" +
+                "Mode: " + driver.CommandMode + "\n" +
+                action + "\n" +
+                "Next: " + guidance;
         }
     }
 }

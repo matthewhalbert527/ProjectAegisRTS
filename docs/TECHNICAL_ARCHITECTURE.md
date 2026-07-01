@@ -116,6 +116,14 @@ Unity reads the fine placement metadata through snapshots and `BoardCoordinateMa
 
 Fine building occupancy is projected back to coarse blocked cells so existing pathing and movement continue to respect placed buildings without rewriting the movement model in this stage.
 
+## Stage 19 Mission Flow Boundary
+
+Stage 19 adds Unity-only mission guidance on top of the Stage 16 match and Stage 18.5 fine placement systems. `VerticalSliceMissionFlowController` and the expanded `VerticalSliceProgressTracker` read snapshots, local selection, production queue state, economy events, combat events, scenario objectives, placement mode, and match outcome.
+
+They may choose current player-facing text, recommended sidebar items, checklist rows, and validation expectations. They do not complete objectives, grant resources, place buildings, damage actors, alter AI, resolve victory, or write state back into `Rts.Core`.
+
+Stage 19 also adds a normal-command victory validation path. Unity selects local combat units and issues normal move/attack commands through `RtsSimulationDriver`; `Rts.Core` still validates range, target legality, damage, objective completion, and match outcome.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

@@ -91,6 +91,7 @@ namespace ProjectAegisRTS.Tests
                 VerticalSliceWorldHasFog,
                 VerticalSliceWorldHasAiPlayer,
                 MatchStartsRunning,
+                VerticalSliceCanReachVictoryWithNormalCombatPath,
                 DestroyEnemyBaseTriggersVictory,
                 DestroyPlayerBaseTriggersDefeat,
                 ObjectiveSnapshotMatchesMatchOutcome,
@@ -782,6 +783,48 @@ namespace ProjectAegisRTS.Tests
             Assert(HasObjectiveState(snapshot.Scenario, "destroy_enemy_base", ScenarioObjectiveState.Completed), "Expected completed destroy objective.");
         }
 
+        static void VerticalSliceCanReachVictoryWithNormalCombatPath()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            world.StartMatch();
+            var enemyHub = world.FirstActorOfType("fabrication_hub", 2);
+            var combatUnits = CollectOwnedCombatUnitIds(world, 1);
+            Assert(combatUnits.Count >= 3, "Expected a Stage 19 starter combat group.");
+
+            for (var i = 0; i < combatUnits.Count; i++)
+            {
+                var move = world.IssueCommand(new IssueMoveOrderCommand(1, new[] { combatUnits[i] }, new Int2(20, 21)));
+                Assert(move.Success, "Expected combat unit move to staging cell: " + move.ErrorCode);
+            }
+
+            RunTicks(world, 260);
+
+            var attackUnits = new List<ActorId>();
+            for (var i = 0; i < combatUnits.Count; i++)
+            {
+                ActorState actor;
+                if (!world.TryGetActor(combatUnits[i], out actor) || actor.IsDestroyed)
+                    continue;
+
+                var definition = world.Rules.GetDefinition(actor.TypeId);
+                if (definition.Weapon != null &&
+                    definition.Weapon.CanTargetBuildings &&
+                    actor.CellPosition.ManhattanDistanceTo(enemyHub.CellPosition) <= definition.Weapon.RangeCells)
+                    attackUnits.Add(actor.Id);
+            }
+
+            Assert(attackUnits.Count >= 3, "Expected combat units to reach enemy hub attack range.");
+            var attack = world.IssueCommand(new IssueAttackOrderCommand(1, attackUnits, enemyHub.Id));
+            Assert(attack.Success, "Expected normal attack order against enemy hub: " + attack.ErrorCode);
+
+            RunTicks(world, 900);
+            var snapshot = world.CreateSnapshot(1);
+            Assert(enemyHub.IsDestroyed, "Expected normal combat to destroy the enemy hub.");
+            Assert(snapshot.Match.Phase == MatchPhase.Won, "Expected normal combat victory phase.");
+            Assert(snapshot.Match.LocalPlayerOutcome == PlayerOutcome.Victory, "Expected normal combat victory outcome.");
+            Assert(HasObjectiveState(snapshot.Scenario, "destroy_enemy_base", ScenarioObjectiveState.Completed), "Expected normal combat to complete destroy objective.");
+        }
+
         static void DestroyPlayerBaseTriggersDefeat()
         {
             var world = DemoWorldFactory.CreateVerticalSliceWorld();
@@ -908,6 +951,20 @@ namespace ProjectAegisRTS.Tests
             var result = world.IssueCommand(new IssueHarvestOrderCommand(1, new[] { harvester.Id }, new Int2(15, 8)));
             Assert(result.Success, "Expected harvest order success: " + result.ErrorCode);
             return world;
+        }
+
+        static List<ActorId> CollectOwnedCombatUnitIds(RtsWorld world, int playerId)
+        {
+            var ids = new List<ActorId>();
+            foreach (var pair in world.Actors)
+            {
+                var actor = pair.Value;
+                var definition = world.Rules.GetDefinition(actor.TypeId);
+                if (actor.OwnerPlayerId == playerId && !actor.IsDestroyed && definition is UnitDefinition && definition.Weapon != null)
+                    ids.Add(actor.Id);
+            }
+
+            return ids;
         }
 
         static RtsWorld CombatWorldWithTankAttack()

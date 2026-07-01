@@ -64,6 +64,7 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public PcBuildReadinessReporter pcBuildReadinessReporter;
         public RenderStatsHud renderStatsHud;
         public VerticalSliceScenarioController verticalSliceScenarioController;
+        public VerticalSliceMissionFlowController verticalSliceMissionFlowController;
         public VerticalSliceProgressTracker verticalSliceProgressTracker;
         public MatchObjectiveHud matchObjectiveHud;
         public PlayerObjectiveHud playerObjectiveHud;
@@ -186,6 +187,8 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 verticalSliceDebugActions.Initialize(simulationDriver);
             if (verticalSliceProgressTracker != null)
                 verticalSliceProgressTracker.Initialize(simulationDriver);
+            if (verticalSliceMissionFlowController != null)
+                verticalSliceMissionFlowController.Initialize(simulationDriver, verticalSliceProgressTracker);
             if (matchObjectiveHud != null)
                 matchObjectiveHud.Initialize(simulationDriver, verticalSliceScenarioController, verticalSliceDebugActions);
             if (playerObjectiveHud != null)
@@ -233,6 +236,8 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 matchObjectiveHud = GetOrAdd<MatchObjectiveHud>(gameObject);
             if (verticalSliceProgressTracker == null)
                 verticalSliceProgressTracker = GetOrAdd<VerticalSliceProgressTracker>(gameObject);
+            if (verticalSliceMissionFlowController == null)
+                verticalSliceMissionFlowController = GetOrAdd<VerticalSliceMissionFlowController>(gameObject);
             if (playerObjectiveHud == null)
                 playerObjectiveHud = GetOrAdd<PlayerObjectiveHud>(gameObject);
             if (verticalSliceChecklistHud == null)

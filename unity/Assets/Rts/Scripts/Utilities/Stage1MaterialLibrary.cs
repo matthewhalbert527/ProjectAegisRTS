@@ -7,6 +7,8 @@ namespace ProjectAegisRTS.UnityClient.Utilities
         public Material Board { get; private set; }
         public Material BoardEdge { get; private set; }
         public Material GridLine { get; private set; }
+        public Material FineGridLine { get; private set; }
+        public Material CoarseGridLine { get; private set; }
         public Material HoverCell { get; private set; }
         public Material PlacementValid { get; private set; }
         public Material PlacementInvalid { get; private set; }
@@ -36,6 +38,8 @@ namespace ProjectAegisRTS.UnityClient.Utilities
                 Board = CreateMaterial(shader, "Stage1 Board Surface", new Color(0.24f, 0.29f, 0.26f, 1f)),
                 BoardEdge = CreateMaterial(shader, "Stage1 Board Edge", new Color(0.12f, 0.15f, 0.17f, 1f)),
                 GridLine = CreateMaterial(shader, "Stage1 Grid Line", new Color(0.58f, 0.66f, 0.62f, 1f)),
+                FineGridLine = CreateMaterial(shader, "Stage1 Fine Grid Line", new Color(0.36f, 0.43f, 0.40f, 1f)),
+                CoarseGridLine = CreateMaterial(shader, "Stage1 Coarse Grid Line", new Color(0.72f, 0.82f, 0.74f, 1f)),
                 HoverCell = CreateMaterial(shader, "Stage1 Hover Cell", new Color(0.35f, 0.70f, 0.95f, 0.55f)),
                 PlacementValid = CreateMaterial(shader, "Stage1 Placement Valid", new Color(0.25f, 0.85f, 0.45f, 0.6f)),
                 PlacementInvalid = CreateMaterial(shader, "Stage1 Placement Invalid", new Color(0.95f, 0.25f, 0.18f, 0.65f)),

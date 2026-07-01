@@ -145,9 +145,9 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             for (var x = 0; x <= mapper.PlacementBoardWidth; x++)
             {
                 var isCoarse = x % mapper.PlacementGridScale == 0;
-                var height = isCoarse ? 0.023f : 0.02f;
-                var width = isCoarse ? 0.015f : 0.006f;
-                CreateLine("Grid X " + x, new Vector3(x * mapper.PlacementCellSizeMeters, height, 0f), new Vector3(x * mapper.PlacementCellSizeMeters, height, mapper.BoardHeight * mapper.CellSizeMeters), width);
+                var height = isCoarse ? 0.026f : 0.02f;
+                var width = isCoarse ? 0.018f : 0.004f;
+                CreateLine("Grid X " + x, new Vector3(x * mapper.PlacementCellSizeMeters, height, 0f), new Vector3(x * mapper.PlacementCellSizeMeters, height, mapper.BoardHeight * mapper.CellSizeMeters), width, isCoarse ? materials.CoarseGridLine : materials.FineGridLine);
                 if (!isCoarse)
                     FineGridLineCount++;
             }
@@ -155,15 +155,15 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             for (var y = 0; y <= mapper.PlacementBoardHeight; y++)
             {
                 var isCoarse = y % mapper.PlacementGridScale == 0;
-                var height = isCoarse ? 0.024f : 0.021f;
-                var width = isCoarse ? 0.015f : 0.006f;
-                CreateLine("Grid Y " + y, new Vector3(0f, height, y * mapper.PlacementCellSizeMeters), new Vector3(mapper.BoardWidth * mapper.CellSizeMeters, height, y * mapper.PlacementCellSizeMeters), width);
+                var height = isCoarse ? 0.027f : 0.021f;
+                var width = isCoarse ? 0.018f : 0.004f;
+                CreateLine("Grid Y " + y, new Vector3(0f, height, y * mapper.PlacementCellSizeMeters), new Vector3(mapper.BoardWidth * mapper.CellSizeMeters, height, y * mapper.PlacementCellSizeMeters), width, isCoarse ? materials.CoarseGridLine : materials.FineGridLine);
                 if (!isCoarse)
                     FineGridLineCount++;
             }
         }
 
-        void CreateLine(string lineName, Vector3 start, Vector3 end, float width)
+        void CreateLine(string lineName, Vector3 start, Vector3 end, float width, Material material)
         {
             var lineObject = new GameObject(lineName);
             lineObject.transform.SetParent(transform, false);
@@ -173,7 +173,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             line.SetPosition(0, start);
             line.SetPosition(1, end);
             line.widthMultiplier = width;
-            line.sharedMaterial = materials.GridLine;
+            line.sharedMaterial = material != null ? material : materials.GridLine;
         }
 
         GameObject CreateFlatCell(string objectName, Material material)

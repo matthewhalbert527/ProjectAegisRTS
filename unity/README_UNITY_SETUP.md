@@ -506,6 +506,26 @@ To validate from PowerShell:
 
 Stage 18.5 adds a 2x authoritative placement grid in `Rts.Core`, renders thinner fine-grid lines with stronger coarse boundaries, snaps building placement to fine cells, and keeps normal selection/move/attack commands on coarse cells. A legacy 2 x 2 building now uses a 4 x 4 fine footprint while keeping the same physical size. The Windows player still exports to `build\windows-player-stage16\ProjectAegisRTS.exe`.
 
+## Stage 19 Mission Flow Tuning
+
+Stage 19 keeps the same Boot and Stage 16 scenes, then tunes the player-facing vertical slice around the fine placement grid:
+
+```text
+Assets/Rts/Scenes/Stage16_5_Boot.unity
+Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity
+```
+
+To validate from PowerShell:
+
+```powershell
+.\tools\run-unity-stage19-validation.ps1
+.\tools\run-stage19-fast-checks.ps1
+.\tools\run-stage19-medium-checks.ps1
+.\tools\run-stage19-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+Stage 19 adds a Unity-only mission flow controller, 15 tutorial beats, compact/expanded checklist guidance, fine-grid placement copy, better sidebar recommendations, tuned resource/enemy spacing, and a non-debug victory smoke path. The Windows player still exports to `build\windows-player-stage16\ProjectAegisRTS.exe`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -523,8 +543,9 @@ Stage 18.5 adds a 2x authoritative placement grid in `Rts.Core`, renders thinner
 - F4: toggle the Stage 14 feedback debug HUD.
 - F3: toggle the Stage 15 render stats HUD.
 - O: toggle the Stage 16 match/objective HUD.
-- C: toggle the Stage 18 build-order checklist.
-- P: toggle the Stage 18 next-step prompt.
+- C: toggle the Stage 19 mission-flow checklist.
+- Tab: expand or compact the Stage 19 checklist.
+- P: toggle the Stage 19 next-step prompt.
 - Y: toggle the Stage 16 integrated systems debug HUD.
 - F1 or H: toggle the Stage 17 player controls overlay.
 - F1-F6: switch Stage 2 production tabs.
@@ -631,6 +652,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 17 is player-facing polish for the vertical slice; it is not final tutorial design, final options UI, final campaign flow, final balance, or final art.
 - Stage 18 is tester-guided playability for the vertical slice; it is not a final tutorial, final mission script, final UX, final balance, or final art pass.
 - Stage 18.5 is a placement-resolution pass; movement/pathing still use coarse command cells while building placement and building occupancy use fine cells.
+- Stage 19 is mission-flow tuning for the prototype slice; it is not a full campaign system, final tutorial, advanced AI, final balance, or final art pass.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

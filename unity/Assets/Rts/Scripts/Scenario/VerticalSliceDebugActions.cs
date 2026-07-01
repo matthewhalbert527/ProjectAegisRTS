@@ -8,7 +8,7 @@ namespace ProjectAegisRTS.UnityClient.Scenario
     {
         public RtsSimulationDriver driver;
         public int creditGrantAmount = 1000;
-        public Int2 defaultHarvestCell = new Int2(15, 8);
+        public Int2 defaultHarvestCell = new Int2(14, 11);
 
         public string LastAction { get; private set; }
 
@@ -82,7 +82,7 @@ namespace ProjectAegisRTS.UnityClient.Scenario
             if (!select.Success)
                 return Remember(select);
 
-            return Remember(driver.TryIssueHarvestSelectedAtCell(defaultHarvestCell));
+            return Remember(driver.TryIssueHarvestSelectedAtCell(FindHarvestCell()));
         }
 
         public RtsCommandResult IssueAttack()
@@ -94,11 +94,11 @@ namespace ProjectAegisRTS.UnityClient.Scenario
             if (!driver.TryFindFirstEnemyCombatActor(out targetActorId))
                 return Remember(RtsCommandResult.Fail("EnemyMissing", "No enemy combat actor is available."));
 
-            var select = driver.TrySelectFirstOwnedCombatActor();
+            var select = driver.TrySelectOwnedCombatGroup();
             if (!select.Success)
                 return Remember(select);
 
-            return Remember(driver.TryIssueAttackSelectedToActor(targetActorId));
+            return Remember(driver.TryIssueDebugAttackSelectedToKnownActor(targetActorId));
         }
 
         public RtsCommandResult DestroyEnemyBase()
@@ -121,6 +121,22 @@ namespace ProjectAegisRTS.UnityClient.Scenario
         {
             LastAction = result == null ? string.Empty : result.ToString();
             return result;
+        }
+
+        Int2 FindHarvestCell()
+        {
+            var snapshot = driver == null ? null : driver.LatestSnapshot;
+            if (snapshot == null)
+                return defaultHarvestCell;
+
+            for (var i = 0; i < snapshot.Economy.Resources.Count; i++)
+            {
+                var resource = snapshot.Economy.Resources[i];
+                if (!resource.IsDepleted && resource.Amount > 0)
+                    return resource.Cell;
+            }
+
+            return defaultHarvestCell;
         }
     }
 }

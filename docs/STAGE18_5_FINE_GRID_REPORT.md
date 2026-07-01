@@ -48,6 +48,10 @@ This gives real fine placement authority without rewriting movement, fog, minima
 - Existing building balance is intentionally unchanged.
 - Future stages can introduce truly smaller fine-footprint structures without changing this grid model.
 
+## Stage 19 Follow-Up
+
+Stage 19 builds on this grid by tuning mission flow and placement guidance. Coarse grid boundaries are visually stronger, fine grid lines are quieter, placement prompts explain green/red footprints, and the vertical-slice checklist now includes explicit fine-grid placement beats for Power Plant and Refinery.
+
 ## Validation Plan
 
 Run these acceptance commands from the repository root:

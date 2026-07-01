@@ -88,6 +88,10 @@ Complete. Tester-guided playability pass. Adds snapshot-derived checklist/progre
 
 Complete. Fine placement grid / footprint resolution pass. Adds an authoritative 2x placement grid in `Rts.Core`, converts legacy building footprints to fine footprints, keeps physical building and board scale stable, projects fine building occupancy back to coarse pathing cells, updates Unity grid/preview/input/selection to use fine placement cells, and adds Stage 18.5 validation tiers while preserving Stage 0-18 behavior.
 
+## Stage 19
+
+Complete. Mission flow / tutorial beats / fine-grid playability tuning. Adds a Unity-only mission flow controller, 15 objective-gated player guidance beats, compact/expanded checklist presentation, sidebar/production/placement readability improvements, conservative resource/enemy/base pacing changes, a normal-command victory path test, Player.log inspection hardening, and Stage 19 validation tiers while preserving Stage 0-18.5 behavior.
+
 ## Later Stages
 
-Next later stages include Stage 19 mission tuning, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.
+Next later stages include Stage 20 production model replacement, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

@@ -21,6 +21,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         public RtsSimulationDriver driver;
         public Canvas canvas;
         public DesktopUiCommandRouter commandRouter;
+        public VerticalSliceMissionFlowController missionFlowController;
         public VerticalSliceProgressTracker progressTracker;
         public DesktopSidebarController sidebarController;
         public ProductionCategoryTabs categoryTabs;
@@ -54,9 +55,9 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return;
 
             commandRouter.Initialize(driver, statusLog);
-            sidebarController.Initialize(driver, commandRouter, categoryTabs, productionGrid, productionQueue, placementPanel, selectionPanel, minimap, progressTracker);
+            sidebarController.Initialize(driver, commandRouter, categoryTabs, productionGrid, productionQueue, placementPanel, selectionPanel, minimap, progressTracker, missionFlowController);
             categoryTabs.Initialize(productionGrid, statusLog);
-            productionGrid.Initialize(driver, commandRouter, categoryTabs, productionGridColumns, progressTracker);
+            productionGrid.Initialize(driver, commandRouter, categoryTabs, productionGridColumns, progressTracker, missionFlowController);
             productionQueue.Initialize(driver, commandRouter);
             placementPanel.Initialize(driver, commandRouter);
             selectionPanel.Initialize(driver, commandRouter);
@@ -82,6 +83,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 driver = FindAnyObjectByType<RtsSimulationDriver>();
             if (progressTracker == null)
                 progressTracker = FindAnyObjectByType<VerticalSliceProgressTracker>();
+            if (missionFlowController == null)
+                missionFlowController = FindAnyObjectByType<VerticalSliceMissionFlowController>();
             if (canvas == null)
                 canvas = GetComponentInParent<Canvas>();
             if (EventSystem.current == null && FindAnyObjectByType<EventSystem>() == null)
@@ -127,9 +130,9 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             if (productionQueue == null)
                 productionQueue = CreatePanel("Production Queue", typeof(ProductionQueuePanel), SidebarPanel(520f, 120f)).GetComponent<ProductionQueuePanel>();
             if (placementPanel == null)
-                placementPanel = CreatePanel("Placement Panel", typeof(PlacementModePanel), SidebarPanel(650f, 84f)).GetComponent<PlacementModePanel>();
+                placementPanel = CreatePanel("Placement Panel", typeof(PlacementModePanel), SidebarPanel(642f, 122f)).GetComponent<PlacementModePanel>();
             if (selectionPanel == null)
-                selectionPanel = CreatePanel("Selection Panel", typeof(SelectionPanelController), SidebarPanel(742f, 150f)).GetComponent<SelectionPanelController>();
+                selectionPanel = CreatePanel("Selection Panel", typeof(SelectionPanelController), SidebarPanel(772f, 120f)).GetComponent<SelectionPanelController>();
             if (minimap == null)
                 minimap = CreatePanel("Minimap", typeof(MinimapPlaceholderController), SidebarPanel(56f, minimapSize)).GetComponent<MinimapPlaceholderController>();
             if (commandBar == null)
@@ -183,8 +186,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             ApplyPanelLayout(categoryTabs, SidebarPanel(220f, 34f));
             ApplyPanelLayout(productionGrid, SidebarPanel(260f, 255f));
             ApplyPanelLayout(productionQueue, SidebarPanel(520f, 120f));
-            ApplyPanelLayout(placementPanel, SidebarPanel(650f, 84f));
-            ApplyPanelLayout(selectionPanel, SidebarPanel(742f, 150f));
+            ApplyPanelLayout(placementPanel, SidebarPanel(642f, 122f));
+            ApplyPanelLayout(selectionPanel, SidebarPanel(772f, 120f));
             ApplyPanelLayout(minimap, SidebarPanel(56f, minimapSize));
             ApplyPanelLayout(commandBar, new Vector2(0f, 0f), new Vector2(1f, 0f), Vector2.zero, new Vector2(-sidebarWidth, bottomCommandBarHeight));
             ApplyPanelLayout(statusLog, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(12f, bottomCommandBarHeight + 8f), new Vector2(-sidebarWidth - 12f, bottomCommandBarHeight + 102f));

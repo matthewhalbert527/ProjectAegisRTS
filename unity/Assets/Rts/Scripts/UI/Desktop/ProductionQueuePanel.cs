@@ -138,7 +138,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             if (item == null)
                 return string.Empty;
             if (item.State == "CompletedPendingPlacement")
-                return "Ready: press B or click card to place";
+                return "Ready: place on grid";
             return item.State;
         }
 

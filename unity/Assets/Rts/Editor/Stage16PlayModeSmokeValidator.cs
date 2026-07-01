@@ -131,6 +131,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 3, 0.05f);
                 RequireSuccess(debugActions.QueueProduction("power_plant"), "production command");
                 StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 3, 0.05f);
+                RequireSuccess(driver.TrySelectOwnedCombatGroup(), "combat group selection");
+                RequireSuccess(driver.TryIssueMoveSelectedToCell(new Int2(18, 14)), "combat staging move");
+                StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 220, 0.05f);
                 RequireSuccess(debugActions.IssueAttack(), "attack command");
                 StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 12, 0.05f);
 

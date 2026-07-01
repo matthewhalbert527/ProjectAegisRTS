@@ -178,6 +178,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var progressTracker = GetOrAdd<VerticalSliceProgressTracker>(game);
             progressTracker.driver = driver;
+            var missionFlow = GetOrAdd<VerticalSliceMissionFlowController>(game);
+            missionFlow.driver = driver;
+            missionFlow.progressTracker = progressTracker;
 
             var objectiveHud = GetOrAdd<MatchObjectiveHud>(game);
             objectiveHud.visible = true;
@@ -190,11 +193,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var checklistHud = GetOrAdd<VerticalSliceChecklistHud>(game);
             checklistHud.driver = driver;
+            checklistHud.missionFlowController = missionFlow;
             checklistHud.progressTracker = progressTracker;
             checklistHud.visible = true;
 
             var promptSystem = GetOrAdd<PlayerPromptSystem>(game);
             promptSystem.driver = driver;
+            promptSystem.missionFlowController = missionFlow;
             promptSystem.progressTracker = progressTracker;
             promptSystem.visible = true;
 
@@ -216,6 +221,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var bootstrapper = GetOrAdd<RtsGameBootstrapper>(game);
             bootstrapper.startPaused = false;
+            bootstrapper.verticalSliceMissionFlowController = missionFlow;
             bootstrapper.verticalSliceProgressTracker = progressTracker;
             bootstrapper.playerObjectiveHud = playerObjectiveHud;
             bootstrapper.verticalSliceChecklistHud = checklistHud;

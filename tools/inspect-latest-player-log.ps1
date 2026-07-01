@@ -71,13 +71,11 @@ if ($hit) {
     exit 1
 }
 
-if ($CopyToDebugLogs) {
-    $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-    $debugLogRoot = Join-Path $repoRoot 'debug-logs'
-    New-Item -ItemType Directory -Force -Path $debugLogRoot | Out-Null
-    Copy-Item -LiteralPath $latest.FullName -Destination (Join-Path $debugLogRoot 'latest-player.log') -Force
-    Write-Host "Copied latest Player.log to $(Join-Path $debugLogRoot 'latest-player.log')"
-}
+$repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
+$debugLogRoot = Join-Path $repoRoot 'debug-logs'
+New-Item -ItemType Directory -Force -Path $debugLogRoot | Out-Null
+Copy-Item -LiteralPath $latest.FullName -Destination (Join-Path $debugLogRoot 'latest-player.log') -Force
+Write-Host "Copied latest Player.log to $(Join-Path $debugLogRoot 'latest-player.log')"
 
 Write-Host 'Player.log inspection passed; no red-error signatures found.'
 $global:LASTEXITCODE = 0

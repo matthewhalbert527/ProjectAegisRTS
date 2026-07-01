@@ -23,16 +23,18 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         readonly List<Card> cards = new List<Card>();
         RtsSimulationDriver driver;
         DesktopUiCommandRouter router;
+        VerticalSliceMissionFlowController missionFlowController;
         VerticalSliceProgressTracker progressTracker;
         DesktopProductionCategory activeCategory = DesktopProductionCategory.Buildings;
         int columns = 2;
         string lastBuildKey = string.Empty;
 
-        public void Initialize(RtsSimulationDriver simulationDriver, DesktopUiCommandRouter commandRouter, ProductionCategoryTabs tabs, int productionGridColumns, VerticalSliceProgressTracker tracker = null)
+        public void Initialize(RtsSimulationDriver simulationDriver, DesktopUiCommandRouter commandRouter, ProductionCategoryTabs tabs, int productionGridColumns, VerticalSliceProgressTracker tracker = null, VerticalSliceMissionFlowController missionFlow = null)
         {
             driver = simulationDriver;
             router = commandRouter;
             progressTracker = tracker;
+            missionFlowController = missionFlow;
             columns = Mathf.Max(1, productionGridColumns);
             BuildIfNeeded();
             RebuildCards();
@@ -126,6 +128,10 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 RebuildCards();
             if (progressTracker != null)
                 progressTracker.Refresh();
+            if (missionFlowController == null)
+                missionFlowController = FindAnyObjectByType<VerticalSliceMissionFlowController>();
+            if (missionFlowController != null)
+                missionFlowController.Refresh();
 
             for (var i = 0; i < cards.Count; i++)
             {
@@ -148,7 +154,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
                 card.Label.text =
                     definition.DisplayName + "\n" +
-                    BuildGroup(card.TypeId) + "  Cost " + definition.Production.Cost + "\n" +
+                    BuildGroup(card.TypeId) + "  $" + definition.Production.Cost + "\n" +
                     RecommendationLabel(card.TypeId) +
                     status;
 
@@ -191,16 +197,18 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         {
             if (progressTracker == null)
                 progressTracker = FindAnyObjectByType<VerticalSliceProgressTracker>();
-            if (progressTracker == null || progressTracker.recommendedTypeId != typeId)
+            var recommended = missionFlowController != null ? missionFlowController.RecommendedTypeId : (progressTracker == null ? string.Empty : progressTracker.recommendedTypeId);
+            if (recommended != typeId)
                 return string.Empty;
-            return "NEXT: ";
+            return "NEXT ";
         }
 
         Color CardColor(string typeId, bool future, string missingFactory, bool pending)
         {
             if (pending)
                 return new Color(0.20f, 0.42f, 0.28f, 0.98f);
-            if (progressTracker != null && progressTracker.recommendedTypeId == typeId)
+            var recommended = missionFlowController != null ? missionFlowController.RecommendedTypeId : (progressTracker == null ? string.Empty : progressTracker.recommendedTypeId);
+            if (recommended == typeId)
                 return new Color(0.28f, 0.43f, 0.20f, 1f);
             if (future || !string.IsNullOrEmpty(missingFactory))
                 return new Color(0.12f, 0.13f, 0.15f, 0.78f);

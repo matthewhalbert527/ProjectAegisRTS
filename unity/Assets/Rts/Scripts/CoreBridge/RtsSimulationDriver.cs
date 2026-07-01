@@ -300,11 +300,33 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 {
                     var snapshot = latestSnapshot.Actors[i];
                     ActorDefinition snapshotDefinition;
+                    if (snapshot.OwnerId != playerId && !snapshot.IsDestroyed && Rules.TryGetDefinition(snapshot.TypeId, out snapshotDefinition) && snapshotDefinition is UnitDefinition && snapshotDefinition.Weapon != null)
+                    {
+                        actorId = snapshot.ActorId;
+                        return true;
+                    }
+                }
+
+                for (var i = 0; i < latestSnapshot.Actors.Count; i++)
+                {
+                    var snapshot = latestSnapshot.Actors[i];
+                    ActorDefinition snapshotDefinition;
                     if (snapshot.OwnerId != playerId && !snapshot.IsDestroyed && Rules.TryGetDefinition(snapshot.TypeId, out snapshotDefinition) && snapshotDefinition.Weapon != null)
                     {
                         actorId = snapshot.ActorId;
                         return true;
                     }
+                }
+            }
+
+            foreach (var pair in world.Actors)
+            {
+                var actor = pair.Value;
+                ActorDefinition definition;
+                if (actor.OwnerPlayerId != playerId && !actor.IsDestroyed && Rules.TryGetDefinition(actor.TypeId, out definition) && definition is UnitDefinition && definition.Weapon != null)
+                {
+                    actorId = actor.Id.Value;
+                    return true;
                 }
             }
 
@@ -345,6 +367,31 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             }
 
             return RtsCommandResult.Fail("CombatActorMissing", "No owned combat actor is available.");
+        }
+
+        public RtsCommandResult TrySelectOwnedCombatGroup()
+        {
+            if (world == null || Rules == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            var actorIds = new List<int>();
+            foreach (var pair in world.Actors)
+            {
+                var actor = pair.Value;
+                ActorDefinition definition;
+                if (actor.OwnerPlayerId == playerId &&
+                    !actor.IsDestroyed &&
+                    Rules.TryGetDefinition(actor.TypeId, out definition) &&
+                    definition is UnitDefinition &&
+                    definition.Weapon != null)
+                    actorIds.Add(actor.Id.Value);
+            }
+
+            if (actorIds.Count == 0)
+                return RtsCommandResult.Fail("CombatActorMissing", "No owned combat units are available.");
+
+            actorIds.Sort();
+            return SetSelectedActorIds(actorIds);
         }
 
         public void SetHoveredCell(Int2 cell)
@@ -526,6 +573,77 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             var result = RtsCommandAdapter.IssueAttackOrder(world, playerId, armedActorIds, targetActorId);
             RefreshSnapshot();
             EmitCommandFeedback(FeedbackEventType.Attack, result, target.CellPosition, armedActorIds.Count > 0 ? armedActorIds[0] : 0, "Attack");
+            return result;
+        }
+
+        public RtsCommandResult TryIssueDebugAttackSelectedToKnownActor(int targetActorId)
+        {
+            if (world == null)
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, Int2.Zero, 0, "Debug attack");
+                return fail;
+            }
+            if (selectedActorIds.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoSelection", "Select an armed actor before issuing a debug attack command.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, Int2.Zero, 0, "Debug attack");
+                return fail;
+            }
+
+            ActorState target;
+            if (!world.Actors.TryGetValue(targetActorId, out target) || target.IsDestroyed)
+            {
+                var fail = RtsCommandResult.Fail("TargetMissing", "No live target actor exists for the debug attack command.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, Int2.Zero, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Debug attack");
+                return fail;
+            }
+            if (target.OwnerPlayerId == playerId)
+            {
+                var fail = RtsCommandResult.Fail("TargetFriendly", "Select an enemy actor as the debug attack target.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, target.CellPosition, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Debug attack");
+                return fail;
+            }
+            ActorDefinition targetDefinition;
+            if (!Rules.TryGetDefinition(target.TypeId, out targetDefinition))
+            {
+                var fail = RtsCommandResult.Fail("TargetDefinitionMissing", "No target definition exists for the debug attack command.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, target.CellPosition, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Debug attack");
+                return fail;
+            }
+
+            var armedActorIds = new List<int>();
+            for (var i = 0; i < selectedActorIds.Count; i++)
+            {
+                ActorState actor;
+                ActorDefinition definition;
+                if (!world.Actors.TryGetValue(selectedActorIds[i], out actor) || actor.IsDestroyed || !Rules.TryGetDefinition(actor.TypeId, out definition))
+                    continue;
+                if (actor.OwnerPlayerId != playerId || definition.Weapon == null)
+                    continue;
+                if (targetDefinition.Kind == ActorKind.Building && !definition.Weapon.CanTargetBuildings)
+                    continue;
+                if (targetDefinition.Kind == ActorKind.Unit && !definition.Weapon.CanTargetUnits)
+                    continue;
+
+                var distance = actor.CellPosition.ManhattanDistanceTo(target.CellPosition);
+                if (distance < definition.Weapon.MinRangeCells || distance > definition.Weapon.RangeCells)
+                    continue;
+
+                if (definition.Weapon != null)
+                    armedActorIds.Add(actor.Id.Value);
+            }
+
+            if (armedActorIds.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoArmedSelection", "The current selection has no armed actors.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, target.CellPosition, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Debug attack");
+                return fail;
+            }
+
+            var result = RtsCommandAdapter.IssueAttackOrder(world, playerId, armedActorIds, targetActorId);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Attack, result, target.CellPosition, armedActorIds.Count > 0 ? armedActorIds[0] : 0, "Debug attack");
             return result;
         }
 
