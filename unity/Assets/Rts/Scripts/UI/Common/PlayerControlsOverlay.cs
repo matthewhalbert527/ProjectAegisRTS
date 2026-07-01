@@ -44,6 +44,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             GUILayout.Label("B: enter placement for a completed building");
             GUILayout.Label("Escape: cancel placement or clear selection");
             GUILayout.Label("O: toggle objective HUD");
+            GUILayout.Label("C: toggle build-order checklist");
+            GUILayout.Label("P: toggle next-step prompt");
             GUILayout.Label("F1 or H: close this overlay");
             GUILayout.Space(8f);
             if (GUILayout.Button("Close", GUILayout.Height(32f)))

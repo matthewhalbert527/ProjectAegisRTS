@@ -68,7 +68,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 if (item == null)
                     continue;
 
-                rows[i].Label.text = item.TypeId + "  " + item.State + "  " + item.ProgressTicks + "/" + item.BuildTimeTicks;
+                rows[i].Label.text = DisplayType(item.TypeId) + "  " + DisplayState(item) + "  " + item.ProgressTicks + "/" + item.BuildTimeTicks;
                 rows[i].Progress.value = item.BuildTimeTicks <= 0 ? 0f : Mathf.Clamp01(item.ProgressTicks / (float)item.BuildTimeTicks);
             }
         }
@@ -97,7 +97,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 layout.childForceExpandWidth = false;
                 rowObject.AddComponent<RectTransform>().sizeDelta = new Vector2(340f, 30f);
 
-                var label = RtsUiFactory.CreateText(rowObject.transform, "Label", item.TypeId, 11, Color.white, TextAnchor.MiddleLeft);
+                var label = RtsUiFactory.CreateText(rowObject.transform, "Label", DisplayType(item.TypeId), 11, Color.white, TextAnchor.MiddleLeft);
                 label.rectTransform.sizeDelta = new Vector2(168f, 28f);
                 var progress = RtsUiFactory.CreateProgressBar(rowObject.transform, "Progress");
                 progress.GetComponent<RectTransform>().sizeDelta = new Vector2(92f, 14f);
@@ -131,6 +131,20 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 if (player.Production[i].QueueItemId == queueItemId)
                     return player.Production[i];
             return null;
+        }
+
+        static string DisplayState(ProductionSnapshot item)
+        {
+            if (item == null)
+                return string.Empty;
+            if (item.State == "CompletedPendingPlacement")
+                return "Ready: press B or click card to place";
+            return item.State;
+        }
+
+        static string DisplayType(string typeId)
+        {
+            return string.IsNullOrEmpty(typeId) ? "item" : typeId.Replace("_", " ");
         }
     }
 }

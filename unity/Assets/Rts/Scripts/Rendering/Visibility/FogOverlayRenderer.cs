@@ -14,8 +14,8 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Visibility
 
         public RtsSimulationDriver driver;
         public BoardCoordinateMapper mapper;
-        public Color unexploredColor = new Color(0.02f, 0.03f, 0.04f, 0.18f);
-        public Color exploredColor = new Color(0.08f, 0.11f, 0.13f, 0.08f);
+        public Color unexploredColor = new Color(0.02f, 0.03f, 0.04f, 0.10f);
+        public Color exploredColor = new Color(0.08f, 0.11f, 0.13f, 0.04f);
         Transform fogRoot;
         Material unexploredMaterial;
         Material exploredMaterial;
@@ -125,7 +125,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Visibility
 
         static Material CreateTransparentMaterial(string materialName)
         {
-            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            var shader = Shader.Find("Sprites/Default") ?? Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
             var material = new Material(shader);
             material.name = materialName;
             return material;
@@ -154,9 +154,15 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Visibility
                 material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
             if (material.HasProperty("_ZWrite"))
                 material.SetFloat("_ZWrite", 0f);
+            if (material.HasProperty("_AlphaClip"))
+                material.SetFloat("_AlphaClip", 0f);
+            if (material.HasProperty("_Mode"))
+                material.SetFloat("_Mode", 3f);
 
+            material.SetOverrideTag("RenderType", "Transparent");
             material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
             material.EnableKeyword("_ALPHABLEND_ON");
+            material.DisableKeyword("_ALPHATEST_ON");
             material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
         }
 

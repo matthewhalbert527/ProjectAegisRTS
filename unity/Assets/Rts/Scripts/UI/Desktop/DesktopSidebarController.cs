@@ -1,5 +1,6 @@
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.Scenario;
 using ProjectAegisRTS.UnityClient.UI.Common;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,6 +10,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
     public sealed class DesktopSidebarController : MonoBehaviour
     {
         RtsSimulationDriver driver;
+        VerticalSliceProgressTracker progressTracker;
         Text titleText;
         Text readoutText;
 
@@ -20,9 +22,11 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             ProductionQueuePanel queue,
             PlacementModePanel placement,
             SelectionPanelController selection,
-            MinimapPlaceholderController minimap)
+            MinimapPlaceholderController minimap,
+            VerticalSliceProgressTracker tracker = null)
         {
             driver = simulationDriver;
+            progressTracker = tracker;
             BuildIfNeeded();
         }
 
@@ -45,7 +49,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             titleText.rectTransform.offsetMin = new Vector2(14f, -42f);
             titleText.rectTransform.offsetMax = new Vector2(-14f, -8f);
 
-            readoutText = GetOrCreateText("Readout", "Waiting for simulation...", 13, new Color(0.85f, 0.90f, 0.95f, 1f), TextAnchor.UpperLeft);
+            readoutText = GetOrCreateText("Readout", "Waiting for simulation...", 14, new Color(0.88f, 0.94f, 0.98f, 1f), TextAnchor.UpperLeft);
             readoutText.rectTransform.anchorMin = new Vector2(0f, 1f);
             readoutText.rectTransform.anchorMax = new Vector2(1f, 1f);
             readoutText.rectTransform.offsetMin = new Vector2(14f, -102f);
@@ -72,11 +76,15 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return;
             }
 
+            if (progressTracker == null)
+                progressTracker = FindAnyObjectByType<VerticalSliceProgressTracker>();
+            if (progressTracker != null)
+                progressTracker.Refresh();
+
             readoutText.text =
-                "Credits: " + player.Credits + "\n" +
-                "Power: " + player.Power.Generated + " / " + player.Power.Consumed + "  " + player.Power.State + "\n" +
-                "Actors: " + snapshot.Actors.Count + "    Tick: " + snapshot.Tick + "\n" +
-                "Mode: " + driver.CommandMode;
+                "Credits: " + player.Credits + "    Power: " + player.Power.Generated + " / " + player.Power.Consumed + "\n" +
+                "State: " + player.Power.State + "    Mode: " + driver.CommandMode + "\n" +
+                "Next: " + (progressTracker == null ? "Follow the checklist." : progressTracker.currentChecklistPrompt);
         }
     }
 }

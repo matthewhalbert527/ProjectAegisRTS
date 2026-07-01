@@ -4,11 +4,11 @@ param()
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$forbiddenScriptPattern = 'run-stage(?:8|9|10|11|12|13|14|15|16|17)-medium-checks(?:\.ps1)?'
+$forbiddenScriptPattern = 'run-stage(?:8|9|10|11|12|13|14|15|16|17|18)-medium-checks(?:\.ps1)?'
 $forbiddenTextPattern = 'medium validation as the immediate dependency'
 $failures = @()
 
-foreach ($stage in 9..17) {
+foreach ($stage in 9..18) {
     $scriptName = "run-stage$stage-medium-checks.ps1"
     $scriptPath = Join-Path $repoRoot "tools\$scriptName"
     if (-not (Test-Path -LiteralPath $scriptPath)) {
@@ -58,5 +58,5 @@ if ($failures.Count -gt 0) {
     exit 1
 }
 
-Write-Host 'Medium validation recursion audit passed: Stage 9-17 medium scripts use direct Unity validation dependencies only.'
+Write-Host 'Medium validation recursion audit passed: Stage 9-18 medium scripts use direct Unity validation dependencies only.'
 $global:LASTEXITCODE = 0

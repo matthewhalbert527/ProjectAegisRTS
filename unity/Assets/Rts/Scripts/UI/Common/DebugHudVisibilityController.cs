@@ -52,6 +52,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
         {
             "MatchObjectiveHud",
             "PlayerObjectiveHud",
+            "VerticalSliceChecklistHud",
+            "PlayerPromptSystem",
             "PlayerPromptHud",
             "MatchResultHud"
         };
@@ -190,6 +192,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
         {
             return IsHudVisible<MatchObjectiveHud>() &&
                 IsHudVisible<PlayerObjectiveHud>() &&
+                IsHudVisible<VerticalSliceChecklistHud>() &&
+                IsHudVisible<PlayerPromptSystem>() &&
                 IsHudVisible<PlayerPromptHud>() &&
                 IsHudVisible<MatchResultHud>();
         }

@@ -14,9 +14,9 @@ namespace ProjectAegisRTS.UnityClient.Boot
         public bool startScenarioOnLoad = true;
         public bool hideDebugPanelsOnStart = true;
         public bool cancelPlacementOnStart = true;
-        public Vector3 cameraPosition = new Vector3(16f, 34f, -4f);
+        public Vector3 cameraPosition = new Vector3(16f, 30f, -2f);
         public Vector3 cameraRotationEuler = new Vector3(60f, 0f, 0f);
-        public float cameraOrthographicSize = 22f;
+        public float cameraOrthographicSize = 18f;
 
         DebugHudVisibilityController debugVisibility;
 
@@ -73,7 +73,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
             camera.orthographic = true;
             camera.orthographicSize = cameraOrthographicSize;
             camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = new Color(0.07f, 0.085f, 0.095f, 1f);
+            camera.backgroundColor = new Color(0.10f, 0.12f, 0.13f, 1f);
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 1000f;
             camera.transform.position = cameraPosition;
@@ -94,7 +94,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
         static void ConfigureLighting()
         {
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.66f, 0.70f, 0.72f, 1f);
+            RenderSettings.ambientLight = new Color(0.82f, 0.84f, 0.82f, 1f);
 
             var light = FindAnyObjectByType<Light>();
             if (light == null)
@@ -105,7 +105,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
             }
 
             light.type = LightType.Directional;
-            light.intensity = 1.65f;
+            light.intensity = 2.05f;
             light.transform.rotation = Quaternion.Euler(54f, -35f, 0f);
         }
 
@@ -124,11 +124,36 @@ namespace ProjectAegisRTS.UnityClient.Boot
         {
             var objectiveHud = FindAnyObjectByType<PlayerObjectiveHud>();
             if (objectiveHud != null)
+            {
+                objectiveHud.area = PlayerHudLayout.ObjectiveArea;
                 objectiveHud.visible = true;
+            }
+
+            var checklistHud = FindAnyObjectByType<VerticalSliceChecklistHud>();
+            if (checklistHud != null)
+            {
+                checklistHud.area = PlayerHudLayout.ChecklistArea;
+                checklistHud.visible = true;
+            }
+
+            var promptSystem = FindAnyObjectByType<PlayerPromptSystem>();
+            if (promptSystem != null)
+                promptSystem.visible = true;
 
             var promptHud = FindAnyObjectByType<PlayerPromptHud>();
             if (promptHud != null)
+            {
+                promptHud.area = PlayerHudLayout.PromptArea;
                 promptHud.visible = true;
+            }
+
+            var matchHud = FindAnyObjectByType<MatchObjectiveHud>();
+            if (matchHud != null)
+            {
+                matchHud.area = PlayerHudLayout.MatchArea;
+                matchHud.visible = true;
+                matchHud.showDebugActions = false;
+            }
 
             var controlsOverlay = FindAnyObjectByType<PlayerControlsOverlay>();
             if (controlsOverlay != null)
@@ -137,6 +162,17 @@ namespace ProjectAegisRTS.UnityClient.Boot
             var resultHud = FindAnyObjectByType<MatchResultHud>();
             if (resultHud != null)
                 resultHud.visible = true;
+
+            var desktopHud = FindAnyObjectByType<ProjectAegisRTS.UnityClient.UI.Desktop.DesktopRtsHudRoot>();
+            if (desktopHud != null)
+                desktopHud.showDebugOverlay = false;
+
+            var statusLog = FindAnyObjectByType<RtsStatusLog>();
+            if (statusLog != null)
+            {
+                statusLog.visible = false;
+                statusLog.gameObject.SetActive(false);
+            }
         }
 
         static void StartScenarioIfAvailable()

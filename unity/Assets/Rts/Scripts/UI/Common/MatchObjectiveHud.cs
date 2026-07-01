@@ -13,7 +13,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
         public VerticalSliceDebugActions debugActions;
         public bool visible = true;
         public bool showDebugActions;
-        public Rect area = new Rect(12f, 360f, 380f, 132f);
+        public Rect area = PlayerHudLayout.MatchArea;
 
         public void Initialize(RtsSimulationDriver simulationDriver, VerticalSliceScenarioController controller, VerticalSliceDebugActions actions)
         {
@@ -34,9 +34,9 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                 return;
 
             var snapshot = driver.LatestSnapshot;
-            GUILayout.BeginArea(area, GUI.skin.box);
+            var previousMatrix = PlayerHudLayout.BeginArea(area);
             GUILayout.Label("Match Controls");
-            GUILayout.Label("Phase " + snapshot.Match.Phase + "  Outcome " + snapshot.Match.LocalPlayerOutcome);
+            GUILayout.Label(MatchStatus(snapshot.Match.Phase, snapshot.Match.LocalPlayerOutcome));
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Start") && scenarioController != null)
@@ -64,7 +64,18 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             }
 
             GUILayout.Label("Last: " + LastStatus());
-            GUILayout.EndArea();
+            PlayerHudLayout.EndArea(previousMatrix);
+        }
+
+        static string MatchStatus(MatchPhase phase, PlayerOutcome outcome)
+        {
+            if (phase == MatchPhase.Won || outcome == PlayerOutcome.Victory)
+                return "Victory: enemy base destroyed.";
+            if (phase == MatchPhase.Lost || outcome == PlayerOutcome.Defeat)
+                return "Defeat: player base destroyed.";
+            if (phase == MatchPhase.Draw || outcome == PlayerOutcome.Draw)
+                return "Draw: both bases destroyed.";
+            return "Phase " + phase + "  Outcome " + outcome;
         }
 
         string LastStatus()

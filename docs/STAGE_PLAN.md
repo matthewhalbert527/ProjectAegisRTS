@@ -80,6 +80,10 @@ Complete. Player-facing boot/build flow and runtime hardening. Adds `Assets/Rts/
 
 Complete. Player-facing vertical-slice polish. Adds clearer boot menu labels, controls/help, prototype options, in-match objective/status HUD, input prompts, hidden-by-default controls overlay, win/loss result screen, player-facing default validation hooks, Player.log/Unity log inspection, and fast/medium/full Stage 17 validation tiers while preserving deterministic `Rts.Core` authority.
 
+## Stage 18
+
+Complete. Tester-guided playability pass. Adds snapshot-derived checklist/progress tracking, next-step prompts, clearer sidebar production states, objective/match consistency tests, high-resolution player HUD layout, brighter EXE camera/lighting/fog defaults, stricter hidden-debug/status-log validation, Player.log inspection, and fast/medium/full Stage 18 validation tiers while preserving Stage 0-17 behavior.
+
 ## Later Stages
 
 Next later stages include multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

@@ -162,9 +162,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             initializer.startScenarioOnLoad = true;
             initializer.hideDebugPanelsOnStart = true;
             initializer.cancelPlacementOnStart = true;
-            initializer.cameraPosition = new Vector3(16f, 34f, -4f);
+            initializer.cameraPosition = new Vector3(16f, 30f, -2f);
             initializer.cameraRotationEuler = new Vector3(60f, 0f, 0f);
-            initializer.cameraOrthographicSize = 22f;
+            initializer.cameraOrthographicSize = 18f;
 
             var debugVisibility = GetOrAdd<DebugHudVisibilityController>(game);
             debugVisibility.showDebugPanelsByDefault = false;
@@ -176,16 +176,31 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             controller.startOnInitialize = true;
             controller.resetWorldOnInitialize = true;
 
+            var progressTracker = GetOrAdd<VerticalSliceProgressTracker>(game);
+            progressTracker.driver = driver;
+
             var objectiveHud = GetOrAdd<MatchObjectiveHud>(game);
             objectiveHud.visible = true;
             objectiveHud.showDebugActions = false;
 
             var playerObjectiveHud = GetOrAdd<PlayerObjectiveHud>(game);
             playerObjectiveHud.driver = driver;
+            playerObjectiveHud.progressTracker = progressTracker;
             playerObjectiveHud.visible = true;
+
+            var checklistHud = GetOrAdd<VerticalSliceChecklistHud>(game);
+            checklistHud.driver = driver;
+            checklistHud.progressTracker = progressTracker;
+            checklistHud.visible = true;
+
+            var promptSystem = GetOrAdd<PlayerPromptSystem>(game);
+            promptSystem.driver = driver;
+            promptSystem.progressTracker = progressTracker;
+            promptSystem.visible = true;
 
             var playerPromptHud = GetOrAdd<PlayerPromptHud>(game);
             playerPromptHud.driver = driver;
+            playerPromptHud.promptSystem = promptSystem;
             playerPromptHud.visible = true;
 
             var controlsOverlay = GetOrAdd<PlayerControlsOverlay>(game);
@@ -201,7 +216,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var bootstrapper = GetOrAdd<RtsGameBootstrapper>(game);
             bootstrapper.startPaused = false;
+            bootstrapper.verticalSliceProgressTracker = progressTracker;
             bootstrapper.playerObjectiveHud = playerObjectiveHud;
+            bootstrapper.verticalSliceChecklistHud = checklistHud;
+            bootstrapper.playerPromptSystem = promptSystem;
             bootstrapper.playerPromptHud = playerPromptHud;
             bootstrapper.playerControlsOverlay = controlsOverlay;
             bootstrapper.matchResultHud = matchResultHud;
@@ -220,32 +238,32 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 return;
 
             camera.orthographic = true;
-            camera.orthographicSize = 22f;
+            camera.orthographicSize = 18f;
             camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = new Color(0.07f, 0.085f, 0.095f, 1f);
+            camera.backgroundColor = new Color(0.10f, 0.12f, 0.13f, 1f);
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 1000f;
-            camera.transform.position = new Vector3(16f, 34f, -4f);
+            camera.transform.position = new Vector3(16f, 30f, -2f);
             camera.transform.rotation = Quaternion.Euler(60f, 0f, 0f);
 
             var cameraController = camera.GetComponent<RtsCameraController>();
             if (cameraController != null)
             {
                 cameraController.preserveConfiguredTransform = true;
-                cameraController.orthographicSize = 22f;
-                cameraController.maxHeight = 34f;
+                cameraController.orthographicSize = 18f;
+                cameraController.maxHeight = 30f;
             }
 
             if (UnityEngine.Object.FindFirstObjectByType<AudioListener>() == null)
                 camera.gameObject.AddComponent<AudioListener>();
 
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.66f, 0.70f, 0.72f, 1f);
+            RenderSettings.ambientLight = new Color(0.82f, 0.84f, 0.82f, 1f);
             var light = UnityEngine.Object.FindFirstObjectByType<Light>();
             if (light != null)
             {
                 light.type = LightType.Directional;
-                light.intensity = 1.65f;
+                light.intensity = 2.05f;
                 light.transform.rotation = Quaternion.Euler(54f, -35f, 0f);
             }
         }

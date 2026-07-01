@@ -62,8 +62,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var bootstrapper = Require<RtsGameBootstrapper>("RtsGameBootstrapper");
             var driver = Require<RtsSimulationDriver>("RtsSimulationDriver");
             var controller = Require<VerticalSliceScenarioController>("VerticalSliceScenarioController");
+            var progressTracker = Require<VerticalSliceProgressTracker>("VerticalSliceProgressTracker");
             var objectiveHud = Require<MatchObjectiveHud>("MatchObjectiveHud");
             var playerObjectiveHud = Require<PlayerObjectiveHud>("PlayerObjectiveHud");
+            var checklistHud = Require<VerticalSliceChecklistHud>("VerticalSliceChecklistHud");
+            var promptSystem = Require<PlayerPromptSystem>("PlayerPromptSystem");
             var playerPromptHud = Require<PlayerPromptHud>("PlayerPromptHud");
             var controlsOverlay = Require<PlayerControlsOverlay>("PlayerControlsOverlay");
             var matchResultHud = Require<MatchResultHud>("MatchResultHud");
@@ -97,8 +100,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (!driver.UsePlayerPerspectiveSnapshot)
                 throw new InvalidOperationException("Stage 16 scene must use player-perspective snapshots for fog/minimap.");
             if (bootstrapper.verticalSliceScenarioController != controller ||
+                bootstrapper.verticalSliceProgressTracker != progressTracker ||
                 bootstrapper.matchObjectiveHud != objectiveHud ||
                 bootstrapper.playerObjectiveHud != playerObjectiveHud ||
+                bootstrapper.verticalSliceChecklistHud != checklistHud ||
+                bootstrapper.playerPromptSystem != promptSystem ||
                 bootstrapper.playerPromptHud != playerPromptHud ||
                 bootstrapper.playerControlsOverlay != controlsOverlay ||
                 bootstrapper.matchResultHud != matchResultHud ||
@@ -107,7 +113,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 throw new InvalidOperationException("Stage 16 bootstrapper scenario references are incomplete.");
             if (!initializer.frameCameraOnStart || !initializer.startScenarioOnLoad || !initializer.hideDebugPanelsOnStart || !initializer.cancelPlacementOnStart)
                 throw new InvalidOperationException("Stage 16 player build initializer defaults are incomplete.");
-            if (Math.Abs(initializer.cameraOrthographicSize - 22f) > 0.01f)
+            if (Math.Abs(initializer.cameraOrthographicSize - 18f) > 0.01f)
                 throw new InvalidOperationException("Stage 16 player build initializer must use the player-readable camera size.");
             if (debugVisibility.showDebugPanelsByDefault)
                 throw new InvalidOperationException("Stage 16 debug panels must be hidden by default.");
@@ -117,8 +123,17 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 throw new InvalidOperationException("Stage 16 objective HUD debug actions must be hidden by default.");
             if (!playerObjectiveHud.visible)
                 throw new InvalidOperationException("Stage 16 player objective HUD must be visible by default.");
+            if (!checklistHud.visible)
+                throw new InvalidOperationException("Stage 16 checklist HUD must be visible by default.");
+            if (!promptSystem.visible)
+                throw new InvalidOperationException("Stage 16 prompt system must be visible by default.");
             if (!playerPromptHud.visible)
                 throw new InvalidOperationException("Stage 16 player prompt HUD must be visible by default.");
+            if (playerObjectiveHud.area != PlayerHudLayout.ObjectiveArea ||
+                checklistHud.area != PlayerHudLayout.ChecklistArea ||
+                playerPromptHud.area != PlayerHudLayout.PromptArea ||
+                objectiveHud.area != PlayerHudLayout.MatchArea)
+                throw new InvalidOperationException("Stage 16 player HUD layout does not match the non-overlapping player defaults.");
             if (controlsOverlay.visible)
                 throw new InvalidOperationException("Stage 16 controls overlay must be hidden by default.");
             if (!matchResultHud.visible)
@@ -145,8 +160,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 throw new InvalidOperationException("Stage 16 camera missing.");
             if (!camera.orthographic)
                 throw new InvalidOperationException("Stage 16 camera must be orthographic.");
-            if (Math.Abs(camera.orthographicSize - 22f) > 0.01f)
-                throw new InvalidOperationException("Stage 16 camera orthographic size must be 22.");
+            if (Math.Abs(camera.orthographicSize - 18f) > 0.01f)
+                throw new InvalidOperationException("Stage 16 camera orthographic size must be 18.");
             if (camera.clearFlags != CameraClearFlags.SolidColor)
                 throw new InvalidOperationException("Stage 16 camera must use a solid player-readable background.");
             if (Math.Abs(camera.nearClipPlane - 0.1f) > 0.01f || Math.Abs(camera.farClipPlane - 1000f) > 0.01f)

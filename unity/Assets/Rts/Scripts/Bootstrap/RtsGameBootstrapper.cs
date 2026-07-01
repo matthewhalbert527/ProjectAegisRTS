@@ -64,8 +64,11 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public PcBuildReadinessReporter pcBuildReadinessReporter;
         public RenderStatsHud renderStatsHud;
         public VerticalSliceScenarioController verticalSliceScenarioController;
+        public VerticalSliceProgressTracker verticalSliceProgressTracker;
         public MatchObjectiveHud matchObjectiveHud;
         public PlayerObjectiveHud playerObjectiveHud;
+        public VerticalSliceChecklistHud verticalSliceChecklistHud;
+        public PlayerPromptSystem playerPromptSystem;
         public PlayerPromptHud playerPromptHud;
         public PlayerControlsOverlay playerControlsOverlay;
         public MatchResultHud matchResultHud;
@@ -181,12 +184,18 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 renderStatsHud.Initialize(runtimePerformanceStats, sceneComplexityReporter, performanceBudgetLibrary, questBuildReadinessReporter, pcBuildReadinessReporter);
             if (verticalSliceDebugActions != null)
                 verticalSliceDebugActions.Initialize(simulationDriver);
+            if (verticalSliceProgressTracker != null)
+                verticalSliceProgressTracker.Initialize(simulationDriver);
             if (matchObjectiveHud != null)
                 matchObjectiveHud.Initialize(simulationDriver, verticalSliceScenarioController, verticalSliceDebugActions);
             if (playerObjectiveHud != null)
-                playerObjectiveHud.Initialize(simulationDriver);
+                playerObjectiveHud.Initialize(simulationDriver, verticalSliceProgressTracker);
+            if (verticalSliceChecklistHud != null)
+                verticalSliceChecklistHud.Initialize(simulationDriver, verticalSliceProgressTracker);
+            if (playerPromptSystem != null)
+                playerPromptSystem.Initialize(simulationDriver, verticalSliceProgressTracker);
             if (playerPromptHud != null)
-                playerPromptHud.Initialize(simulationDriver);
+                playerPromptHud.Initialize(simulationDriver, playerPromptSystem);
             if (matchResultHud != null)
                 matchResultHud.Initialize(simulationDriver, verticalSliceScenarioController);
             if (integratedSystemsStatusHud != null)
@@ -222,8 +231,14 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 debugHud = GetOrAdd<RtsDebugHud>(gameObject);
             if (matchObjectiveHud == null)
                 matchObjectiveHud = GetOrAdd<MatchObjectiveHud>(gameObject);
+            if (verticalSliceProgressTracker == null)
+                verticalSliceProgressTracker = GetOrAdd<VerticalSliceProgressTracker>(gameObject);
             if (playerObjectiveHud == null)
                 playerObjectiveHud = GetOrAdd<PlayerObjectiveHud>(gameObject);
+            if (verticalSliceChecklistHud == null)
+                verticalSliceChecklistHud = GetOrAdd<VerticalSliceChecklistHud>(gameObject);
+            if (playerPromptSystem == null)
+                playerPromptSystem = GetOrAdd<PlayerPromptSystem>(gameObject);
             if (playerPromptHud == null)
                 playerPromptHud = GetOrAdd<PlayerPromptHud>(gameObject);
             if (playerControlsOverlay == null)

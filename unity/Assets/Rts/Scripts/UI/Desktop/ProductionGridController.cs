@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.Scenario;
 using ProjectAegisRTS.UnityClient.UI.Common;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,19 +17,22 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             public Button Button;
             public Text Label;
             public Slider Progress;
+            public Image Background;
         }
 
         readonly List<Card> cards = new List<Card>();
         RtsSimulationDriver driver;
         DesktopUiCommandRouter router;
+        VerticalSliceProgressTracker progressTracker;
         DesktopProductionCategory activeCategory = DesktopProductionCategory.Buildings;
         int columns = 2;
         string lastBuildKey = string.Empty;
 
-        public void Initialize(RtsSimulationDriver simulationDriver, DesktopUiCommandRouter commandRouter, ProductionCategoryTabs tabs, int productionGridColumns)
+        public void Initialize(RtsSimulationDriver simulationDriver, DesktopUiCommandRouter commandRouter, ProductionCategoryTabs tabs, int productionGridColumns, VerticalSliceProgressTracker tracker = null)
         {
             driver = simulationDriver;
             router = commandRouter;
+            progressTracker = tracker;
             columns = Mathf.Max(1, productionGridColumns);
             BuildIfNeeded();
             RebuildCards();
@@ -87,6 +91,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return;
 
             var button = RtsUiFactory.CreateButton(transform, "Production " + typeId, definition.DisplayName);
+            var background = button.GetComponent<Image>();
             var rect = button.GetComponent<RectTransform>();
             rect.sizeDelta = new Vector2(164f, 84f);
 
@@ -109,7 +114,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                     router.QueueProduction(captured);
             });
 
-            cards.Add(new Card { TypeId = typeId, Button = button, Label = label, Progress = progress });
+            cards.Add(new Card { TypeId = typeId, Button = button, Label = label, Progress = progress, Background = background });
         }
 
         void RefreshCards()
@@ -119,6 +124,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
             if (cards.Count == 0)
                 RebuildCards();
+            if (progressTracker != null)
+                progressTracker.Refresh();
 
             for (var i = 0; i < cards.Count; i++)
             {
@@ -130,17 +137,23 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 ProductionSnapshot production = FindProduction(card.TypeId);
                 var pending = production != null && production.State == "CompletedPendingPlacement";
                 var future = DesktopProductionCatalog.IsFuturePlaceholder(card.TypeId) && !DesktopProductionCatalog.IsActiveMvp(card.TypeId);
-                card.Button.interactable = !future || pending;
+                var missingFactory = MissingFactory(definition);
+                card.Button.interactable = (!future && string.IsNullOrEmpty(missingFactory)) || pending;
 
-                var status = future ? "future" : "ready";
+                var status = future ? "Future placeholder" : "Ready";
+                if (!string.IsNullOrEmpty(missingFactory))
+                    status = "Requires " + DisplayType(missingFactory);
                 if (production != null)
-                    status = production.State;
+                    status = pending ? "Ready to place" : production.State + " " + production.ProgressTicks + "/" + production.BuildTimeTicks;
 
                 card.Label.text =
                     definition.DisplayName + "\n" +
-                    card.TypeId + "\n" +
-                    "Cost " + definition.Production.Cost + "  Ticks " + definition.Production.BuildTimeTicks + "\n" +
+                    BuildGroup(card.TypeId) + "  Cost " + definition.Production.Cost + "\n" +
+                    RecommendationLabel(card.TypeId) +
                     status;
+
+                if (card.Background != null)
+                    card.Background.color = CardColor(card.TypeId, future, missingFactory, pending);
 
                 if (production != null && production.BuildTimeTicks > 0)
                 {
@@ -165,6 +178,51 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                     return player.Production[i];
 
             return null;
+        }
+
+        string MissingFactory(ActorDefinition definition)
+        {
+            if (definition == null || definition.Production == null || string.IsNullOrEmpty(definition.Production.FactoryTypeId))
+                return string.Empty;
+            return driver != null && driver.HasOwnedActorOfType(definition.Production.FactoryTypeId) ? string.Empty : definition.Production.FactoryTypeId;
+        }
+
+        string RecommendationLabel(string typeId)
+        {
+            if (progressTracker == null)
+                progressTracker = FindAnyObjectByType<VerticalSliceProgressTracker>();
+            if (progressTracker == null || progressTracker.recommendedTypeId != typeId)
+                return string.Empty;
+            return "NEXT: ";
+        }
+
+        Color CardColor(string typeId, bool future, string missingFactory, bool pending)
+        {
+            if (pending)
+                return new Color(0.20f, 0.42f, 0.28f, 0.98f);
+            if (progressTracker != null && progressTracker.recommendedTypeId == typeId)
+                return new Color(0.28f, 0.43f, 0.20f, 1f);
+            if (future || !string.IsNullOrEmpty(missingFactory))
+                return new Color(0.12f, 0.13f, 0.15f, 0.78f);
+            return new Color(0.18f, 0.22f, 0.27f, 0.95f);
+        }
+
+        static string BuildGroup(string typeId)
+        {
+            if (typeId == "power_plant" || typeId == "advanced_power_plant")
+                return "Power";
+            if (typeId == "refinery" || typeId == "harvester")
+                return "Economy";
+            if (typeId == "barracks" || typeId == "war_factory" || typeId == "dual_helipad")
+                return "Production";
+            if (typeId.Contains("tank") || typeId.Contains("infantry") || typeId.Contains("tower") || typeId.Contains("aircraft"))
+                return "Combat";
+            return "Support";
+        }
+
+        static string DisplayType(string typeId)
+        {
+            return string.IsNullOrEmpty(typeId) ? "producer" : typeId.Replace("_", " ");
         }
     }
 }

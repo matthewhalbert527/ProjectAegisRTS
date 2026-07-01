@@ -102,6 +102,12 @@ Stage 17 adds player-facing Unity UI on top of the Stage 16 match snapshots. `Pl
 
 The Options menu stores local prototype preferences with `PlayerPrefs`. It may apply presentation settings such as fullscreen and audio volume, but it does not alter authoritative simulation state. The match result screen restarts through `VerticalSliceScenarioController` and returns to the boot scene through Unity scene loading.
 
+## Stage 18 Tester Guidance Boundary
+
+Stage 18 keeps the same simulation boundary and adds player guidance on top. `VerticalSliceProgressTracker`, `VerticalSliceChecklistHud`, `PlayerPromptSystem`, and the sidebar read snapshots, local selection, placement state, and scenario objective state. They may recommend build-order actions and improve presentation, but they do not complete objectives, grant resources, alter production, or resolve win/loss state.
+
+The Stage 18 validators assert that Boot is still first, debug/status panels are hidden by default, placement UI starts hidden, objective and match state agree after victory/defeat, and `Rts.Core` remains free of UnityEngine references.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

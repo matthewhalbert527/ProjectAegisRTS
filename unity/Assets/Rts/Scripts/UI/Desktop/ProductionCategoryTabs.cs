@@ -62,9 +62,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return;
 
             RtsUiFactory.Stretch(gameObject, Vector2.zero, Vector2.zero);
-            var layout = GetComponent<GridLayoutGroup>();
-            if (layout == null && GetComponent<LayoutGroup>() == null)
-                layout = gameObject.AddComponent<GridLayoutGroup>();
+            var layout = EnsureSingleGridLayout();
             if (layout != null)
             {
                 layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
@@ -84,6 +82,35 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 button.onClick.AddListener(() => SetActiveCategory(captured));
                 buttons[i] = button;
             }
+        }
+
+        GridLayoutGroup EnsureSingleGridLayout()
+        {
+            var layouts = GetComponents<LayoutGroup>();
+            GridLayoutGroup grid = null;
+            for (var i = 0; i < layouts.Length; i++)
+            {
+                var candidate = layouts[i] as GridLayoutGroup;
+                if (candidate != null && grid == null)
+                {
+                    grid = candidate;
+                    continue;
+                }
+
+                DestroyComponent(layouts[i]);
+            }
+
+            return grid != null ? grid : gameObject.AddComponent<GridLayoutGroup>();
+        }
+
+        static void DestroyComponent(Component component)
+        {
+            if (component == null)
+                return;
+            if (Application.isPlaying)
+                Destroy(component);
+            else
+                DestroyImmediate(component);
         }
 
         Button GetOrCreateCategoryButton(DesktopProductionCategory category)

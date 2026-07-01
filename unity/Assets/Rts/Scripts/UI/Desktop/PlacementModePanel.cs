@@ -79,7 +79,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             PlacementPreviewSnapshot preview;
             var previewText = "Hover a board cell.";
             if (driver.TryGetPlacementPreview(out preview))
-                previewText = preview.CanPlace ? "Valid at " + preview.TopLeftCell : "Invalid: " + preview.ErrorCode;
+                previewText = preview.CanPlace ? "Valid: click to place at " + preview.TopLeftCell : "Invalid placement: " + FriendlyError(preview.ErrorCode);
 
             ActorDefinition definition;
             var footprint = "n/a";
@@ -90,6 +90,19 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             }
 
             label.text = "Placing: " + driver.PendingPlacementTypeId + "\nFootprint: " + footprint + "\n" + previewText + "\nLeft-click board to place.";
+        }
+
+        static string FriendlyError(string errorCode)
+        {
+            if (string.IsNullOrEmpty(errorCode))
+                return "choose a clear powered area.";
+            if (errorCode == "OutsideMap")
+                return "outside the board.";
+            if (errorCode == "Occupied")
+                return "space is occupied.";
+            if (errorCode == "TooFarFromConstructionYard")
+                return "place closer to your Fabrication Hub.";
+            return errorCode.Replace("_", " ");
         }
     }
 }

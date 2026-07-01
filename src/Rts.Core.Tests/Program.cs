@@ -88,6 +88,7 @@ namespace ProjectAegisRTS.Tests
                 MatchStartsRunning,
                 DestroyEnemyBaseTriggersVictory,
                 DestroyPlayerBaseTriggersDefeat,
+                ObjectiveSnapshotMatchesMatchOutcome,
                 VerticalSliceDeterminismSmokeTest
             };
 
@@ -735,6 +736,29 @@ namespace ProjectAegisRTS.Tests
             Assert(snapshot.Match.Phase == MatchPhase.Lost, "Expected player base destruction to lose the match.");
             Assert(snapshot.Match.LocalPlayerOutcome == PlayerOutcome.Defeat, "Expected local defeat outcome.");
             Assert(HasObjectiveState(snapshot.Scenario, "protect_player_base", ScenarioObjectiveState.Failed), "Expected failed protect objective.");
+        }
+
+        static void ObjectiveSnapshotMatchesMatchOutcome()
+        {
+            var victoryWorld = DemoWorldFactory.CreateVerticalSliceWorld();
+            victoryWorld.StartMatch();
+            var enemyHub = victoryWorld.FirstActorOfType("fabrication_hub", 2);
+            victoryWorld.ApplyScenarioDamage(1, enemyHub.Id, 9999, "test_objective_victory");
+            var victory = victoryWorld.CreateSnapshot(1);
+            Assert(victory.Match.Phase == MatchPhase.Won, "Expected victory phase.");
+            Assert(victory.Match.LocalPlayerOutcome == PlayerOutcome.Victory, "Expected victory outcome.");
+            Assert(HasObjectiveState(victory.Scenario, "destroy_enemy_base", ScenarioObjectiveState.Completed), "Expected completed destroy objective after victory.");
+            Assert(HasObjectiveState(victory.Scenario, "protect_player_base", ScenarioObjectiveState.Completed), "Expected protected-base objective completed after victory.");
+
+            var defeatWorld = DemoWorldFactory.CreateVerticalSliceWorld();
+            defeatWorld.StartMatch();
+            var playerHub = defeatWorld.FirstActorOfType("fabrication_hub", 1);
+            defeatWorld.ApplyScenarioDamage(2, playerHub.Id, 9999, "test_objective_defeat");
+            var defeat = defeatWorld.CreateSnapshot(1);
+            Assert(defeat.Match.Phase == MatchPhase.Lost, "Expected defeat phase.");
+            Assert(defeat.Match.LocalPlayerOutcome == PlayerOutcome.Defeat, "Expected defeat outcome.");
+            Assert(HasObjectiveState(defeat.Scenario, "destroy_enemy_base", ScenarioObjectiveState.Failed), "Expected destroy objective failed after defeat.");
+            Assert(HasObjectiveState(defeat.Scenario, "protect_player_base", ScenarioObjectiveState.Failed), "Expected protect objective failed after defeat.");
         }
 
         static void VerticalSliceDeterminismSmokeTest()

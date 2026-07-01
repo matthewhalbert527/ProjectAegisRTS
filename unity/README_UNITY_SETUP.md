@@ -460,6 +460,32 @@ To validate from PowerShell:
 
 Stage 17 adds the Options screen, in-match objective/status HUD, prompt HUD, hidden-by-default controls overlay, win/loss result screen, player-facing smoke validation, and Unity/Player log inspection. The Windows player still exports to `build\windows-player-stage16\ProjectAegisRTS.exe`.
 
+## Stage 18 Tester Playability
+
+Stage 18 keeps the same Boot and Stage 16 scenes, then adds tester-guided playability:
+
+```text
+Assets/Rts/Scenes/Stage16_5_Boot.unity
+Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity
+```
+
+To configure or refresh Stage 18 manually in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 18 > Configure Tester Playability Pass
+```
+
+To validate from PowerShell:
+
+```powershell
+.\tools\run-unity-stage18-validation.ps1
+.\tools\run-stage18-fast-checks.ps1
+.\tools\run-stage18-medium-checks.ps1
+.\tools\run-stage18-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+Stage 18 adds the build-order checklist, snapshot-derived progress tracker, next-step prompt system, clearer sidebar production states, non-overlapping scaled HUD layout, brighter player-build camera/fog defaults, and stricter hidden-debug/status-log validation. The Windows player still exports to `build\windows-player-stage16\ProjectAegisRTS.exe`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -477,6 +503,8 @@ Stage 17 adds the Options screen, in-match objective/status HUD, prompt HUD, hid
 - F4: toggle the Stage 14 feedback debug HUD.
 - F3: toggle the Stage 15 render stats HUD.
 - O: toggle the Stage 16 match/objective HUD.
+- C: toggle the Stage 18 build-order checklist.
+- P: toggle the Stage 18 next-step prompt.
 - Y: toggle the Stage 16 integrated systems debug HUD.
 - F1 or H: toggle the Stage 17 player controls overlay.
 - F1-F6: switch Stage 2 production tabs.
@@ -581,6 +609,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 15 uses placeholder budgets/readiness checks; it is not final Quest profiling or release packaging.
 - Stage 16 is a vertical slice with simple base-destroy objectives; it is not campaign scripting, multiplayer, replay, save/load, final balance, or final art.
 - Stage 17 is player-facing polish for the vertical slice; it is not final tutorial design, final options UI, final campaign flow, final balance, or final art.
+- Stage 18 is tester-guided playability for the vertical slice; it is not a final tutorial, final mission script, final UX, final balance, or final art pass.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

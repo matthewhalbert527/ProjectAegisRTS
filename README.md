@@ -1,6 +1,6 @@
 # ProjectAegisRTS
 
-ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a Meta Quest 3S VR/MR board game and as a PC RTS with a right-side production panel. Stage 0 created the deterministic, Unity-compatible C# simulation core. Stage 1 added a Unity desktop board prototype that consumes that core as a DLL. Stage 2 adds the first PC RTS sidebar, command bar, production queue, selection panel, minimap placeholder, and status log. Stage 3 adds the Quest/OpenXR-ready board placement prototype while preserving the PC scenes. Stage 4 adds a Quest-style left-hand build and selection interface with desktop fallback controls. Stage 5 adds the companion right-hand tactical command interface for movement, placeholder attack commands, command previews, and board manipulation. Stage 6 adds visual-only vehicle, infantry, aircraft, turret, and movement path presentation on top of deterministic snapshots. Stage 7 adds visual-only building animation, power-state, production, and damage-state presentation. Stage 8 adds the concept-art-to-production-prefab pipeline, actor visual definition catalog, generated blockout prefabs, icons, sockets, validation, and showcase scene. Stage 9 adds deterministic combat, weapons, projectiles, damage, death/destruction state, and Unity placeholder combat presentation. Stage 10 adds deterministic ore harvesting, harvester cargo, refinery unloading, economy snapshots/events, and Unity placeholder economy presentation. Stage 11 adds deterministic fog of war, radar status, minimap snapshots, and Unity placeholder fog/minimap presentation. Stage 12 adds deterministic skirmish AI planning, AI intent snapshots, and Unity placeholder AI debug presentation. Stage 13 adds deterministic terrain metadata, movement-class passability, path diagnostics, map validation, and Unity placeholder terrain/path debug presentation. Stage 14 adds snapshot-driven placeholder feedback presentation. Stage 15 adds performance/build-readiness scaffolding. Stage 16 adds an integrated playable vertical slice with match objectives, victory/defeat, and all prior gameplay/presentation systems in one scene. Stage 17 polishes the player-facing vertical slice with clearer boot/options/help flow, objective/prompt HUDs, win/loss screens, player-facing validation, log inspection, and fast/medium/full validation tiers.
+ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a Meta Quest 3S VR/MR board game and as a PC RTS with a right-side production panel. Stage 0 created the deterministic, Unity-compatible C# simulation core. Stage 1 added a Unity desktop board prototype that consumes that core as a DLL. Stage 2 adds the first PC RTS sidebar, command bar, production queue, selection panel, minimap placeholder, and status log. Stage 3 adds the Quest/OpenXR-ready board placement prototype while preserving the PC scenes. Stage 4 adds a Quest-style left-hand build and selection interface with desktop fallback controls. Stage 5 adds the companion right-hand tactical command interface for movement, placeholder attack commands, command previews, and board manipulation. Stage 6 adds visual-only vehicle, infantry, aircraft, turret, and movement path presentation on top of deterministic snapshots. Stage 7 adds visual-only building animation, power-state, production, and damage-state presentation. Stage 8 adds the concept-art-to-production-prefab pipeline, actor visual definition catalog, generated blockout prefabs, icons, sockets, validation, and showcase scene. Stage 9 adds deterministic combat, weapons, projectiles, damage, death/destruction state, and Unity placeholder combat presentation. Stage 10 adds deterministic ore harvesting, harvester cargo, refinery unloading, economy snapshots/events, and Unity placeholder economy presentation. Stage 11 adds deterministic fog of war, radar status, minimap snapshots, and Unity placeholder fog/minimap presentation. Stage 12 adds deterministic skirmish AI planning, AI intent snapshots, and Unity placeholder AI debug presentation. Stage 13 adds deterministic terrain metadata, movement-class passability, path diagnostics, map validation, and Unity placeholder terrain/path debug presentation. Stage 14 adds snapshot-driven placeholder feedback presentation. Stage 15 adds performance/build-readiness scaffolding. Stage 16 adds an integrated playable vertical slice with match objectives, victory/defeat, and all prior gameplay/presentation systems in one scene. Stage 17 polishes the player-facing vertical slice with clearer boot/options/help flow, objective/prompt HUDs, win/loss screens, player-facing validation, log inspection, and fast/medium/full validation tiers. Stage 18 adds tester-guided playability: a build-order checklist, clearer prompts/sidebar states, EXE readability fixes, objective consistency checks, and Stage 18 validation tiers.
 
 ## Contents
 
@@ -10,7 +10,7 @@ ProjectAegisRTS is a staged foundation for a modern RTS that can later run as a 
 - `external/openra`: copied OpenRA reference source for audit only.
 - `external/redalert_reference`: copied historical reference source, read-only and not used as a code base.
 - `art/concepts`: copied concept cards and generated registries.
-- `unity`: Unity desktop board prototype, Stage 2 PC sidebar scene, Stage 3 XR board placement prototype, Stage 4 left-hand build/selection scene, Stage 5 dual-hand command scene, Stage 6 movement visualization scene, Stage 7 building power/production scene, Stage 8 art pipeline showcase scene, Stage 9 combat scene, Stage 10 economy scene, Stage 11 fog/radar/minimap scene, Stage 12 AI skirmish scene, Stage 13 map terrain pathing scene, Stage 14 feedback scene, Stage 15 performance/build-readiness scene, Stage 16 playable vertical slice scene, and setup notes.
+- `unity`: Unity desktop board prototype, Stage 2 PC sidebar scene, Stage 3 XR board placement prototype, Stage 4 left-hand build/selection scene, Stage 5 dual-hand command scene, Stage 6 movement visualization scene, Stage 7 building power/production scene, Stage 8 art pipeline showcase scene, Stage 9 combat scene, Stage 10 economy scene, Stage 11 fog/radar/minimap scene, Stage 12 AI skirmish scene, Stage 13 map terrain pathing scene, Stage 14 feedback scene, Stage 15 performance/build-readiness scene, Stage 16/17/18 playable vertical slice flow, and setup notes.
 
 ## Run Tests
 
@@ -174,7 +174,7 @@ Run Stage 15 checks:
 
 Use `run-stage15-fast-checks.ps1` for current performance/build-readiness iteration, `run-stage15-medium-checks.ps1` before local commits, and `run-stage15-checks.ps1` as the full Stage 0-through-Stage 15 acceptance gate.
 
-Stage 15.1 keeps medium validation flat: Stage 9 and later medium scripts run core tests once, build/copy `Rts.Core` once, then call direct prior-stage and current-stage Unity validation. They must not call prior medium scripts. The guard command `.\tools\audit-medium-validation-recursion.ps1` now fails if Stage 9-17 medium scripts reintroduce recursive medium dependencies, and Stage 17 full is the current final Stage 0-through-Stage 17 acceptance gate. `git diff --check` remains the whitespace gate; Windows line-ending conversion warnings are non-fatal when that command passes. See `docs/VALIDATION_TIERS.md`.
+Stage 15.1 keeps medium validation flat: Stage 9 and later medium scripts run core tests once, build/copy `Rts.Core` once, then call direct prior-stage and current-stage Unity validation. They must not call prior medium scripts. The guard command `.\tools\audit-medium-validation-recursion.ps1` now fails if Stage 9-18 medium scripts reintroduce recursive medium dependencies, and Stage 18 full is the current final Stage 0-through-Stage 18 acceptance gate. `git diff --check` remains the whitespace gate; Windows line-ending conversion warnings are non-fatal when that command passes. See `docs/VALIDATION_TIERS.md`.
 
 Run Stage 16 checks:
 
@@ -208,6 +208,18 @@ Stage 17 adds player-facing polish and validation tiers:
 
 Use `run-stage17-fast-checks.ps1` for UI polish iteration, `run-stage17-medium-checks.ps1` before local commits, and `run-stage17-checks.ps1` as the full Stage 0-through-Stage 17 acceptance gate. The Windows player path remains `build\windows-player-stage16\ProjectAegisRTS.exe`.
 
+Stage 18 adds tester-guided playability and validation tiers:
+
+```powershell
+.\tools\run-unity-stage18-validation.ps1
+.\tools\run-stage18-fast-checks.ps1
+.\tools\run-stage18-medium-checks.ps1
+.\tools\run-stage18-player-facing-checks.ps1 -SkipPlayerBuild
+.\tools\run-stage18-checks.ps1
+```
+
+Use `run-stage18-fast-checks.ps1` while iterating, `run-stage18-medium-checks.ps1` before local commits, and `run-stage18-checks.ps1` as the full Stage 0-through-Stage 18 acceptance gate. The Windows player path remains `build\windows-player-stage16\ProjectAegisRTS.exe`.
+
 Open the Unity project:
 
 ```powershell
@@ -232,7 +244,7 @@ Scene paths:
 - `Assets/Rts/Scenes/Stage14_FeedbackPolish.unity`: Stage 14 feedback scene with snapshot-driven placeholder audio/VFX/UI/haptic events and F4 debug HUD.
 - `Assets/Rts/Scenes/Stage15_PerformanceBuildReadiness.unity`: Stage 15 performance/build-readiness scene with pooling, runtime stats, scene complexity, quality profiles, build-readiness reporters, and F3 render stats HUD.
 - `Assets/Rts/Scenes/Stage16_5_Boot.unity`: Stage 16.5 player-facing boot/menu scene for Windows player builds.
-- `Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity`: Stage 16/17 integrated playable vertical slice with match/objective HUD, player prompts, result screen, PC sidebar, dual-hand controls, economy, combat, fog/minimap, AI, terrain/pathing, feedback, and performance presentation.
+- `Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity`: Stage 16/17/18 integrated playable vertical slice with match/objective HUD, checklist, player prompts, result screen, PC sidebar, dual-hand controls, economy, combat, fog/minimap, AI, terrain/pathing, feedback, and performance presentation.
 
 Stage 8 art assets:
 
@@ -301,3 +313,5 @@ Stage 16 vertical slice assets:
 - Stage 16.5 player build guide: `docs/STAGE16_5_PLAYER_BUILD_GUIDE.md`
 - Stage 17 player-facing polish: `docs/STAGE17_PLAYER_FACING_POLISH.md`
 - Stage 17 report: `docs/STAGE17_REPORT.md`
+- Stage 18 tester playability guide: `docs/STAGE18_TESTER_PLAYABILITY_GUIDE.md`
+- Stage 18 report: `docs/STAGE18_REPORT.md`

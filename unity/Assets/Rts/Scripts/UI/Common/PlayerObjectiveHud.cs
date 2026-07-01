@@ -1,6 +1,7 @@
 using ProjectAegisRTS.Scenarios;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.Scenario;
 using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.UI.Common
@@ -8,18 +9,22 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
     public sealed class PlayerObjectiveHud : MonoBehaviour
     {
         public RtsSimulationDriver driver;
+        public VerticalSliceProgressTracker progressTracker;
         public bool visible = true;
-        public Rect area = new Rect(12f, 12f, 380f, 220f);
+        public Rect area = PlayerHudLayout.ObjectiveArea;
 
-        public void Initialize(RtsSimulationDriver simulationDriver)
+        public void Initialize(RtsSimulationDriver simulationDriver, VerticalSliceProgressTracker tracker = null)
         {
             driver = simulationDriver;
+            progressTracker = tracker;
         }
 
         void Awake()
         {
             if (driver == null)
                 driver = FindAnyObjectByType<RtsSimulationDriver>();
+            if (progressTracker == null)
+                progressTracker = FindAnyObjectByType<VerticalSliceProgressTracker>();
         }
 
         void OnGUI()
@@ -30,7 +35,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             var snapshot = driver.LatestSnapshot;
             var player = driver.GetLocalPlayerSnapshot();
 
-            GUILayout.BeginArea(area, GUI.skin.box);
+            var previousMatrix = PlayerHudLayout.BeginArea(area);
             GUILayout.Label("Objective");
             GUILayout.Label("Build economy. Produce combat units. Destroy enemy base.");
             GUILayout.Space(6f);
@@ -53,7 +58,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                     GUILayout.Label(StateLabel(objective.State) + " " + objective.Description);
                 }
             }
-            GUILayout.EndArea();
+            PlayerHudLayout.EndArea(previousMatrix);
         }
 
         static string StateLabel(ScenarioObjectiveState state)
@@ -99,8 +104,21 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             return active + " active, " + pending + " ready to place";
         }
 
-        static string EnemyBaseSummary(WorldSnapshot snapshot)
+        string EnemyBaseSummary(WorldSnapshot snapshot)
         {
+            if (progressTracker == null)
+                progressTracker = FindAnyObjectByType<VerticalSliceProgressTracker>();
+            if (progressTracker != null)
+            {
+                progressTracker.Refresh();
+                if (progressTracker.hasWon || progressTracker.enemyBaseDestroyed)
+                    return "Enemy base: destroyed. Victory condition met.";
+                if (progressTracker.hasDamagedEnemyBase)
+                    return "Enemy base: damaged. Keep attacking.";
+                if (!progressTracker.hasDiscoveredEnemy)
+                    return "Enemy base: not scouted yet.";
+            }
+
             var localPlayerId = snapshot.Match.LocalPlayerId;
             for (var i = 0; i < snapshot.Actors.Count; i++)
             {
@@ -109,7 +127,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                     return actor.IsDestroyed ? "Enemy base: destroyed" : "Enemy base: " + actor.Health + " / " + actor.MaxHealth;
             }
 
-            return "Enemy base: destroyed";
+            return "Enemy base: hidden by fog.";
         }
     }
 }

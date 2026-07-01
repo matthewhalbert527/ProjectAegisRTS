@@ -77,3 +77,7 @@ The Windows player log is usually under:
 ```
 
 Stage 17 player-facing validation scans Player.log when a player build is produced and a matching log exists.
+
+## Stage 18 Follow-Up
+
+Stage 18 builds on this player-facing flow with a checklist/progress tracker, next-step prompt system, sidebar readability pass, brighter EXE view defaults, and stricter validation that debug/status panels stay hidden by default. See `docs/STAGE18_REPORT.md` and `docs/STAGE18_TESTER_PLAYABILITY_GUIDE.md`.

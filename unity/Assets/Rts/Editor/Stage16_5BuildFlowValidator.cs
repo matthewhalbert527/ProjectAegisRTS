@@ -99,6 +99,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var initializer = Require<PlayerBuildSceneInitializer>("PlayerBuildSceneInitializer");
             var objectiveHud = Require<MatchObjectiveHud>("MatchObjectiveHud");
             var playerObjectiveHud = Require<PlayerObjectiveHud>("PlayerObjectiveHud");
+            var checklistHud = Require<VerticalSliceChecklistHud>("VerticalSliceChecklistHud");
+            var promptSystem = Require<PlayerPromptSystem>("PlayerPromptSystem");
             var playerPromptHud = Require<PlayerPromptHud>("PlayerPromptHud");
             var controlsOverlay = Require<PlayerControlsOverlay>("PlayerControlsOverlay");
             var matchResultHud = Require<MatchResultHud>("MatchResultHud");
@@ -111,7 +113,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 throw new InvalidOperationException("Stage 16 player initializer is missing player-facing defaults.");
             if (!objectiveHud.visible || objectiveHud.showDebugActions)
                 throw new InvalidOperationException("Stage 16 objective HUD/default debug action state is incorrect.");
-            if (!playerObjectiveHud.visible || !playerPromptHud.visible || controlsOverlay.visible || !matchResultHud.visible)
+            if (!playerObjectiveHud.visible || !checklistHud.visible || !promptSystem.visible || !playerPromptHud.visible || controlsOverlay.visible || !matchResultHud.visible)
                 throw new InvalidOperationException("Stage 16 player HUD/default overlay state is incorrect.");
             if (systemsHud.visible)
                 throw new InvalidOperationException("Stage 16 integrated systems debug HUD is visible by default.");

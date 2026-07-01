@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateRange(1, 17)]
+    [ValidateRange(1, 18)]
     [int]$Stage
 )
 

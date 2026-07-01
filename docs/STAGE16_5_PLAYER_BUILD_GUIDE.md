@@ -61,6 +61,8 @@ Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity
 - Escape: cancel placement or clear selection.
 - B: enter placement for a completed building.
 - O: toggle objective HUD.
+- C: toggle the Stage 18 build-order checklist.
+- P: toggle the Stage 18 next-step prompt.
 - Y, Backquote, F3-F12: developer/debug HUD toggles.
 
 Debug panels are hidden by default in the player-facing flow. Existing hotkeys still toggle them for development.
@@ -87,4 +89,15 @@ Player logs are normally written to:
 
 ```text
 %USERPROFILE%\AppData\LocalLow\DefaultCompany\ProjectAegisRTS\Player.log
+```
+
+## Stage 18 Tester Playability
+
+Stage 18 keeps the same EXE path and scenes but adds a visible build-order checklist, next-step prompt system, clearer sidebar card states, brighter player-build camera/fog defaults, and scaled HUD layout for high-resolution displays.
+
+Use:
+
+```powershell
+.\tools\run-stage18-player-facing-checks.ps1 -SkipPlayerBuild
+.\tools\build-windows-player-stage16.ps1
 ```

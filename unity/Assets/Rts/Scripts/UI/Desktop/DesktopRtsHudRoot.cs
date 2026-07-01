@@ -1,6 +1,7 @@
 using ProjectAegisRTS.UnityClient.Bootstrap;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.InputControls;
+using ProjectAegisRTS.UnityClient.Scenario;
 using ProjectAegisRTS.UnityClient.UI.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -20,6 +21,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         public RtsSimulationDriver driver;
         public Canvas canvas;
         public DesktopUiCommandRouter commandRouter;
+        public VerticalSliceProgressTracker progressTracker;
         public DesktopSidebarController sidebarController;
         public ProductionCategoryTabs categoryTabs;
         public ProductionGridController productionGrid;
@@ -52,9 +54,9 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return;
 
             commandRouter.Initialize(driver, statusLog);
-            sidebarController.Initialize(driver, commandRouter, categoryTabs, productionGrid, productionQueue, placementPanel, selectionPanel, minimap);
+            sidebarController.Initialize(driver, commandRouter, categoryTabs, productionGrid, productionQueue, placementPanel, selectionPanel, minimap, progressTracker);
             categoryTabs.Initialize(productionGrid, statusLog);
-            productionGrid.Initialize(driver, commandRouter, categoryTabs, productionGridColumns);
+            productionGrid.Initialize(driver, commandRouter, categoryTabs, productionGridColumns, progressTracker);
             productionQueue.Initialize(driver, commandRouter);
             placementPanel.Initialize(driver, commandRouter);
             selectionPanel.Initialize(driver, commandRouter);
@@ -78,6 +80,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 bootstrapper = FindAnyObjectByType<RtsGameBootstrapper>();
             if (driver == null)
                 driver = FindAnyObjectByType<RtsSimulationDriver>();
+            if (progressTracker == null)
+                progressTracker = FindAnyObjectByType<VerticalSliceProgressTracker>();
             if (canvas == null)
                 canvas = GetComponentInParent<Canvas>();
             if (EventSystem.current == null && FindAnyObjectByType<EventSystem>() == null)

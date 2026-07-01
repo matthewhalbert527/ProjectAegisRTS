@@ -38,7 +38,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
             if (GUILayout.Button("Quit", GUILayout.Height(32f)) && controller != null)
                 controller.Quit();
             GUILayout.Space(8f);
-            GUILayout.Label("Stage 17 player-facing polish");
+            GUILayout.Label("Stage 18 tester playability pass");
             GUILayout.EndArea();
         }
     }

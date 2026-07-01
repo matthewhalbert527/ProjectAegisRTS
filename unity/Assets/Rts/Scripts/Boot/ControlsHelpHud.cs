@@ -30,6 +30,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
             GUILayout.Label("Right click moves selected units or attacks an enemy under the cursor.");
             GUILayout.Label("Use the right sidebar to build economy, infantry, vehicles, and defenses.");
             GUILayout.Label("Build a refinery near ore, produce combat units, then destroy the enemy base.");
+            GUILayout.Label("Follow the checklist: power, refinery, harvest, barracks, infantry, war factory, tank, scout, attack.");
             GUILayout.Space(8f);
             GUILayout.Label("Space: pause or resume");
             GUILayout.Label("Period or N: single-step while paused");
@@ -37,6 +38,8 @@ namespace ProjectAegisRTS.UnityClient.Boot
             GUILayout.Label("B: enter placement for a completed building");
             GUILayout.Label("Escape: cancel placement or clear selection");
             GUILayout.Label("O: toggle objective HUD");
+            GUILayout.Label("C: toggle build-order checklist");
+            GUILayout.Label("P: toggle next-step prompt");
             GUILayout.Label("F1 or H: toggle in-match controls overlay");
             GUILayout.Label("Backquote and function keys: developer debug panels");
             GUILayout.Space(10f);
