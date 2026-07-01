@@ -434,6 +434,32 @@ To validate or build from PowerShell:
 
 The player build starts from Boot, then loads `Stage16_PlayableVerticalSlice`. Debug panels and placement controls are hidden by default, while the objective HUD remains visible. The exported-log root issue was a repeated `ProductionCategoryTabs.BuildIfNeeded()` `NullReferenceException` caused by adding a duplicate `GridLayoutGroup` to prebuilt UI.
 
+## Stage 17 Player-Facing Polish
+
+Stage 17 keeps the same Boot and Stage 16 scenes, then adds clearer player-facing UI:
+
+```text
+Assets/Rts/Scenes/Stage16_5_Boot.unity
+Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity
+```
+
+To configure or refresh Stage 17 manually in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 17 > Configure Player-Facing Polish
+```
+
+To validate from PowerShell:
+
+```powershell
+.\tools\run-unity-stage17-validation.ps1
+.\tools\run-stage17-fast-checks.ps1
+.\tools\run-stage17-medium-checks.ps1
+.\tools\run-stage17-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+Stage 17 adds the Options screen, in-match objective/status HUD, prompt HUD, hidden-by-default controls overlay, win/loss result screen, player-facing smoke validation, and Unity/Player log inspection. The Windows player still exports to `build\windows-player-stage16\ProjectAegisRTS.exe`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -452,6 +478,7 @@ The player build starts from Boot, then loads `Stage16_PlayableVerticalSlice`. D
 - F3: toggle the Stage 15 render stats HUD.
 - O: toggle the Stage 16 match/objective HUD.
 - Y: toggle the Stage 16 integrated systems debug HUD.
+- F1 or H: toggle the Stage 17 player controls overlay.
 - F1-F6: switch Stage 2 production tabs.
 - S/M/A: stop, move mode, or attack placeholder command.
 - Backquote: toggle the Stage 1 debug overlay if it is enabled in the scene.
@@ -553,6 +580,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 14 uses placeholder/silent feedback assets; it is not final audio, VFX, haptics, or UI polish.
 - Stage 15 uses placeholder budgets/readiness checks; it is not final Quest profiling or release packaging.
 - Stage 16 is a vertical slice with simple base-destroy objectives; it is not campaign scripting, multiplayer, replay, save/load, final balance, or final art.
+- Stage 17 is player-facing polish for the vertical slice; it is not final tutorial design, final options UI, final campaign flow, final balance, or final art.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

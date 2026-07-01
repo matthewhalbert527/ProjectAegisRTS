@@ -78,12 +78,15 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var controller = Require<GameBootController>("GameBootController");
             var menu = Require<MainMenuHud>("MainMenuHud");
             Require<ControlsHelpHud>("ControlsHelpHud");
+            var options = Require<OptionsMenuHud>("OptionsMenuHud");
             var settings = Require<BuildModeSettings>("BuildModeSettings");
 
             if (controller.verticalSliceSceneName != "Stage16_PlayableVerticalSlice")
                 throw new InvalidOperationException("GameBootController must load Stage16_PlayableVerticalSlice.");
             if (!menu.visible)
                 throw new InvalidOperationException("Main menu must be visible by default.");
+            if (options.visible)
+                throw new InvalidOperationException("Options menu must be hidden by default.");
             if (settings.showDebugPanelsByDefault || !settings.startInBootMenu || !settings.defaultCleanHud || !settings.enableDeveloperHotkeys)
                 throw new InvalidOperationException("Stage 16.5 build mode settings do not match player-build defaults.");
         }
@@ -95,6 +98,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var debugVisibility = Require<DebugHudVisibilityController>("DebugHudVisibilityController");
             var initializer = Require<PlayerBuildSceneInitializer>("PlayerBuildSceneInitializer");
             var objectiveHud = Require<MatchObjectiveHud>("MatchObjectiveHud");
+            var playerObjectiveHud = Require<PlayerObjectiveHud>("PlayerObjectiveHud");
+            var playerPromptHud = Require<PlayerPromptHud>("PlayerPromptHud");
+            var controlsOverlay = Require<PlayerControlsOverlay>("PlayerControlsOverlay");
+            var matchResultHud = Require<MatchResultHud>("MatchResultHud");
             var systemsHud = Require<IntegratedSystemsStatusHud>("IntegratedSystemsStatusHud");
             Require<DesktopRtsHudRoot>("DesktopRtsHudRoot");
 
@@ -104,10 +111,18 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 throw new InvalidOperationException("Stage 16 player initializer is missing player-facing defaults.");
             if (!objectiveHud.visible || objectiveHud.showDebugActions)
                 throw new InvalidOperationException("Stage 16 objective HUD/default debug action state is incorrect.");
+            if (!playerObjectiveHud.visible || !playerPromptHud.visible || controlsOverlay.visible || !matchResultHud.visible)
+                throw new InvalidOperationException("Stage 16 player HUD/default overlay state is incorrect.");
             if (systemsHud.visible)
                 throw new InvalidOperationException("Stage 16 integrated systems debug HUD is visible by default.");
+            if (!debugVisibility.AreDebugPanelsHiddenByDefault())
+                throw new InvalidOperationException("Stage 16 debug panels are not hidden by the visibility controller.");
+            if (!debugVisibility.IsPlayerHudVisible())
+                throw new InvalidOperationException("Stage 16 player HUD is not visible according to the visibility controller.");
             if (AnyPlacementPanelActive())
                 throw new InvalidOperationException("Stage 16 placement UI must be hidden by default.");
+            if (!debugVisibility.IsPlacementUiHiddenByDefault())
+                throw new InvalidOperationException("Stage 16 placement UI is not hidden according to the visibility controller.");
         }
 
         static bool AnyPlacementPanelActive()

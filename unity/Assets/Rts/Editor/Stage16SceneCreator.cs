@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ProjectAegisRTS.UnityClient.Boot;
 using ProjectAegisRTS.UnityClient.Bootstrap;
+using ProjectAegisRTS.UnityClient.CameraControls;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.Scenario;
 using ProjectAegisRTS.UnityClient.UI.Common;
@@ -63,6 +64,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var controller = GetOrAdd<VerticalSliceScenarioController>(game);
             var objectiveHud = GetOrAdd<MatchObjectiveHud>(game);
+            var playerObjectiveHud = GetOrAdd<PlayerObjectiveHud>(game);
+            var playerPromptHud = GetOrAdd<PlayerPromptHud>(game);
+            var playerControlsOverlay = GetOrAdd<PlayerControlsOverlay>(game);
+            var matchResultHud = GetOrAdd<MatchResultHud>(game);
             var systemsHud = GetOrAdd<IntegratedSystemsStatusHud>(game);
             var debugActions = GetOrAdd<VerticalSliceDebugActions>(game);
             var playerInitializer = GetOrAdd<PlayerBuildSceneInitializer>(game);
@@ -83,6 +88,18 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             objectiveHud.visible = true;
             objectiveHud.showDebugActions = false;
 
+            playerObjectiveHud.driver = driver;
+            playerObjectiveHud.visible = true;
+
+            playerPromptHud.driver = driver;
+            playerPromptHud.visible = true;
+
+            playerControlsOverlay.visible = false;
+
+            matchResultHud.driver = driver;
+            matchResultHud.scenarioController = controller;
+            matchResultHud.visible = true;
+
             systemsHud.driver = driver;
             systemsHud.visible = false;
 
@@ -93,6 +110,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             playerInitializer.startScenarioOnLoad = true;
             playerInitializer.hideDebugPanelsOnStart = true;
             playerInitializer.cancelPlacementOnStart = true;
+            playerInitializer.cameraPosition = new Vector3(16f, 34f, -4f);
+            playerInitializer.cameraRotationEuler = new Vector3(60f, 0f, 0f);
+            playerInitializer.cameraOrthographicSize = 22f;
 
             debugVisibility.showDebugPanelsByDefault = false;
             debugVisibility.hideDebugPanelsOnStart = true;
@@ -102,6 +122,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             bootstrapper.simulationDriver = driver;
             bootstrapper.verticalSliceScenarioController = controller;
             bootstrapper.matchObjectiveHud = objectiveHud;
+            bootstrapper.playerObjectiveHud = playerObjectiveHud;
+            bootstrapper.playerPromptHud = playerPromptHud;
+            bootstrapper.playerControlsOverlay = playerControlsOverlay;
+            bootstrapper.matchResultHud = matchResultHud;
             bootstrapper.integratedSystemsStatusHud = systemsHud;
             bootstrapper.verticalSliceDebugActions = debugActions;
             bootstrapper.startPaused = false;
@@ -117,24 +141,33 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (camera == null)
                 return;
             camera.orthographic = true;
-            camera.orthographicSize = 28f;
+            camera.orthographicSize = 22f;
             camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = new Color(0.035f, 0.045f, 0.055f, 1f);
+            camera.backgroundColor = new Color(0.07f, 0.085f, 0.095f, 1f);
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 1000f;
-            camera.transform.position = new Vector3(16f, 38f, -26f);
+            camera.transform.position = new Vector3(16f, 34f, -4f);
             camera.transform.rotation = Quaternion.Euler(60f, 0f, 0f);
+
+            var cameraController = camera.GetComponent<RtsCameraController>();
+            if (cameraController != null)
+            {
+                cameraController.preserveConfiguredTransform = true;
+                cameraController.orthographicSize = 22f;
+                cameraController.maxHeight = 34f;
+            }
+
             if (UnityEngine.Object.FindFirstObjectByType<AudioListener>() == null)
                 camera.gameObject.AddComponent<AudioListener>();
 
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.42f, 0.46f, 0.50f, 1f);
+            RenderSettings.ambientLight = new Color(0.66f, 0.70f, 0.72f, 1f);
             var light = UnityEngine.Object.FindFirstObjectByType<Light>();
             if (light != null)
             {
                 light.type = LightType.Directional;
-                light.intensity = 1.2f;
-                light.transform.rotation = Quaternion.Euler(50f, -35f, 0f);
+                light.intensity = 1.65f;
+                light.transform.rotation = Quaternion.Euler(54f, -35f, 0f);
             }
         }
 

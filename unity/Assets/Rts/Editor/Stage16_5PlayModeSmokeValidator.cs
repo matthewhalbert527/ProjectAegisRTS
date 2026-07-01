@@ -45,10 +45,21 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 var boot = Require<GameBootController>("GameBootController");
                 var menu = Require<MainMenuHud>("MainMenuHud");
                 var controls = Require<ControlsHelpHud>("ControlsHelpHud");
-                if (!menu.visible || controls.visible)
+                var options = Require<OptionsMenuHud>("OptionsMenuHud");
+                if (!menu.visible || controls.visible || options.visible)
                     throw new InvalidOperationException("Stage 16.5 boot menu/default controls visibility is incorrect.");
                 if (boot.verticalSliceSceneName != "Stage16_PlayableVerticalSlice")
                     throw new InvalidOperationException("Stage 16.5 Start path does not target Stage16_PlayableVerticalSlice.");
+
+                boot.ShowControls();
+                if (menu.visible || !controls.visible || options.visible)
+                    throw new InvalidOperationException("Stage 16.5 controls screen did not open cleanly.");
+                boot.ShowOptions();
+                if (menu.visible || controls.visible || !options.visible)
+                    throw new InvalidOperationException("Stage 16.5 options screen did not open cleanly.");
+                boot.ShowMainMenu();
+                if (!menu.visible || controls.visible || options.visible)
+                    throw new InvalidOperationException("Stage 16.5 main menu did not restore cleanly.");
 
                 Stage16PlayModeSmokeValidator.RunStage16PlayModeSmoke();
                 ValidateStage16PresentationAfterSmoke();
@@ -80,9 +91,17 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 throw new InvalidOperationException("Stage 16 runtime snapshot has no actors.");
 
             var objectiveHud = Require<MatchObjectiveHud>("MatchObjectiveHud");
+            var playerObjectiveHud = Require<PlayerObjectiveHud>("PlayerObjectiveHud");
+            var playerPromptHud = Require<PlayerPromptHud>("PlayerPromptHud");
+            var controlsOverlay = Require<PlayerControlsOverlay>("PlayerControlsOverlay");
+            var matchResultHud = Require<MatchResultHud>("MatchResultHud");
             var systemsHud = Require<IntegratedSystemsStatusHud>("IntegratedSystemsStatusHud");
-            if (!objectiveHud.visible)
+            if (!objectiveHud.visible || !playerObjectiveHud.visible || !playerPromptHud.visible)
                 throw new InvalidOperationException("Stage 16 player-facing objective HUD is hidden.");
+            if (controlsOverlay.visible)
+                throw new InvalidOperationException("Stage 16 controls overlay is visible by default.");
+            if (!matchResultHud.visible)
+                throw new InvalidOperationException("Stage 16 match result HUD is disabled.");
             if (objectiveHud.showDebugActions || systemsHud.visible)
                 throw new InvalidOperationException("Stage 16 debug panels are visible by default.");
             if (driver.HasPlacementMode || AnyPlacementPanelActive())

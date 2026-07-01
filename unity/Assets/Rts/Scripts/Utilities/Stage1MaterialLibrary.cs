@@ -33,9 +33,9 @@ namespace ProjectAegisRTS.UnityClient.Utilities
 
             return new Stage1MaterialLibrary
             {
-                Board = CreateMaterial(shader, "Stage1 Board Surface", new Color(0.16f, 0.19f, 0.17f, 1f)),
-                BoardEdge = CreateMaterial(shader, "Stage1 Board Edge", new Color(0.08f, 0.10f, 0.12f, 1f)),
-                GridLine = CreateMaterial(shader, "Stage1 Grid Line", new Color(0.42f, 0.49f, 0.46f, 1f)),
+                Board = CreateMaterial(shader, "Stage1 Board Surface", new Color(0.24f, 0.29f, 0.26f, 1f)),
+                BoardEdge = CreateMaterial(shader, "Stage1 Board Edge", new Color(0.12f, 0.15f, 0.17f, 1f)),
+                GridLine = CreateMaterial(shader, "Stage1 Grid Line", new Color(0.58f, 0.66f, 0.62f, 1f)),
                 HoverCell = CreateMaterial(shader, "Stage1 Hover Cell", new Color(0.35f, 0.70f, 0.95f, 0.55f)),
                 PlacementValid = CreateMaterial(shader, "Stage1 Placement Valid", new Color(0.25f, 0.85f, 0.45f, 0.6f)),
                 PlacementInvalid = CreateMaterial(shader, "Stage1 Placement Invalid", new Color(0.95f, 0.25f, 0.18f, 0.65f)),

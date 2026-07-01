@@ -14,8 +14,8 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Visibility
 
         public RtsSimulationDriver driver;
         public BoardCoordinateMapper mapper;
-        public Color unexploredColor = new Color(0.02f, 0.03f, 0.04f, 0.32f);
-        public Color exploredColor = new Color(0.08f, 0.11f, 0.13f, 0.16f);
+        public Color unexploredColor = new Color(0.02f, 0.03f, 0.04f, 0.18f);
+        public Color exploredColor = new Color(0.08f, 0.11f, 0.13f, 0.08f);
         Transform fogRoot;
         Material unexploredMaterial;
         Material exploredMaterial;

@@ -12,6 +12,7 @@ namespace ProjectAegisRTS.UnityClient.CameraControls
         public float maxHeight = 38f;
         public bool useOrthographicStage1View = true;
         public float orthographicSize = 28f;
+        public bool preserveConfiguredTransform;
 
         BoardCoordinateMapper mapper;
         Camera controlledCamera;
@@ -34,8 +35,11 @@ namespace ProjectAegisRTS.UnityClient.CameraControls
                     controlledCamera.orthographicSize = orthographicSize;
             }
 
-            transform.position = new Vector3(center.x, maxHeight, center.z - 42f);
-            transform.rotation = Quaternion.Euler(60f, 0f, 0f);
+            if (!preserveConfiguredTransform)
+            {
+                transform.position = new Vector3(center.x, maxHeight, center.z - 42f);
+                transform.rotation = Quaternion.Euler(60f, 0f, 0f);
+            }
         }
 
         void Update()

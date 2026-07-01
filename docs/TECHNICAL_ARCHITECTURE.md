@@ -96,6 +96,12 @@ Stage 16 adds deterministic match flow to `Rts.Core`. `MatchState` owns start/re
 
 Unity reads those snapshots through `VerticalSliceScenarioController`, `MatchObjectiveHud`, and `IntegratedSystemsStatusHud`. Unity debug actions call safe scenario APIs for damage, credit grants, map reveal, production, harvest, and attack smoke paths. Unity does not mutate actor health, credits, visibility, objective state, or match state directly.
 
+## Stage 17 Player-Facing UI Boundary
+
+Stage 17 adds player-facing Unity UI on top of the Stage 16 match snapshots. `PlayerObjectiveHud`, `PlayerPromptHud`, `PlayerControlsOverlay`, and `MatchResultHud` read `WorldSnapshot`, local selection, and deterministic match state. They do not own gameplay rules, win/loss detection, production, placement, combat, economy, or AI.
+
+The Options menu stores local prototype preferences with `PlayerPrefs`. It may apply presentation settings such as fullscreen and audio volume, but it does not alter authoritative simulation state. The match result screen restarts through `VerticalSliceScenarioController` and returns to the boot scene through Unity scene loading.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

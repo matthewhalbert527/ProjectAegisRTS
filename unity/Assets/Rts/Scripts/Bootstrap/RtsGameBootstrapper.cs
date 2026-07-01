@@ -65,6 +65,10 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public RenderStatsHud renderStatsHud;
         public VerticalSliceScenarioController verticalSliceScenarioController;
         public MatchObjectiveHud matchObjectiveHud;
+        public PlayerObjectiveHud playerObjectiveHud;
+        public PlayerPromptHud playerPromptHud;
+        public PlayerControlsOverlay playerControlsOverlay;
+        public MatchResultHud matchResultHud;
         public IntegratedSystemsStatusHud integratedSystemsStatusHud;
         public VerticalSliceDebugActions verticalSliceDebugActions;
         public RtsSimulationDriver simulationDriver;
@@ -179,6 +183,12 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 verticalSliceDebugActions.Initialize(simulationDriver);
             if (matchObjectiveHud != null)
                 matchObjectiveHud.Initialize(simulationDriver, verticalSliceScenarioController, verticalSliceDebugActions);
+            if (playerObjectiveHud != null)
+                playerObjectiveHud.Initialize(simulationDriver);
+            if (playerPromptHud != null)
+                playerPromptHud.Initialize(simulationDriver);
+            if (matchResultHud != null)
+                matchResultHud.Initialize(simulationDriver, verticalSliceScenarioController);
             if (integratedSystemsStatusHud != null)
                 integratedSystemsStatusHud.Initialize(simulationDriver);
             if (verticalSliceScenarioController != null)
@@ -210,6 +220,16 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 inputController = GetOrAdd<RtsDesktopInputController>(gameObject);
             if (debugHud == null)
                 debugHud = GetOrAdd<RtsDebugHud>(gameObject);
+            if (matchObjectiveHud == null)
+                matchObjectiveHud = GetOrAdd<MatchObjectiveHud>(gameObject);
+            if (playerObjectiveHud == null)
+                playerObjectiveHud = GetOrAdd<PlayerObjectiveHud>(gameObject);
+            if (playerPromptHud == null)
+                playerPromptHud = GetOrAdd<PlayerPromptHud>(gameObject);
+            if (playerControlsOverlay == null)
+                playerControlsOverlay = GetOrAdd<PlayerControlsOverlay>(gameObject);
+            if (matchResultHud == null)
+                matchResultHud = GetOrAdd<MatchResultHud>(gameObject);
 
             if (sceneCamera == null)
             {

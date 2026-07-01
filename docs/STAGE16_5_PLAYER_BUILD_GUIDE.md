@@ -55,6 +55,7 @@ Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity
 
 - Left click: select units/buildings.
 - Right click: issue movement or contextual command.
+- F1 or H: toggle the Stage 17 in-match controls overlay.
 - Space: pause/resume.
 - Period or N: single-step.
 - Escape: cancel placement or clear selection.
@@ -63,3 +64,27 @@ Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity
 - Y, Backquote, F3-F12: developer/debug HUD toggles.
 
 Debug panels are hidden by default in the player-facing flow. Existing hotkeys still toggle them for development.
+
+## Stage 17 Player-Facing Polish
+
+Stage 17 keeps the same EXE path and boot scene but adds:
+
+- Options screen placeholder.
+- Player objective/status HUD.
+- Prompt HUD.
+- Hidden-by-default controls overlay.
+- Win/loss result screen with Restart Scenario, Return to Main Menu, and Quit.
+- Player-facing validation and log inspection scripts.
+
+Use:
+
+```powershell
+.\tools\run-stage17-player-facing-checks.ps1 -SkipPlayerBuild
+.\tools\build-windows-player-stage16.ps1
+```
+
+Player logs are normally written to:
+
+```text
+%USERPROFILE%\AppData\LocalLow\DefaultCompany\ProjectAegisRTS\Player.log
+```

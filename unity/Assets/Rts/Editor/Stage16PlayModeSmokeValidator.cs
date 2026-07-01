@@ -59,6 +59,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 var driver = RequireEnabled<RtsSimulationDriver>("RtsSimulationDriver");
                 var controller = RequireEnabled<VerticalSliceScenarioController>("VerticalSliceScenarioController");
                 var objectiveHud = RequireEnabled<MatchObjectiveHud>("MatchObjectiveHud");
+                var playerObjectiveHud = RequireEnabled<PlayerObjectiveHud>("PlayerObjectiveHud");
+                var playerPromptHud = RequireEnabled<PlayerPromptHud>("PlayerPromptHud");
+                var controlsOverlay = RequireEnabled<PlayerControlsOverlay>("PlayerControlsOverlay");
+                var matchResultHud = RequireEnabled<MatchResultHud>("MatchResultHud");
                 var systemsHud = RequireEnabled<IntegratedSystemsStatusHud>("IntegratedSystemsStatusHud");
                 var debugActions = RequireEnabled<VerticalSliceDebugActions>("VerticalSliceDebugActions");
                 var playerInitializer = RequireEnabled<PlayerBuildSceneInitializer>("PlayerBuildSceneInitializer");
@@ -85,12 +89,22 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
                 if (!objectiveHud.visible)
                     throw new InvalidOperationException("Stage 16 objective HUD is hidden by default.");
+                if (!playerObjectiveHud.visible || !playerPromptHud.visible)
+                    throw new InvalidOperationException("Stage 16 player-facing HUD is hidden by default.");
+                if (controlsOverlay.visible)
+                    throw new InvalidOperationException("Stage 16 controls overlay is visible by default.");
                 if (objectiveHud.showDebugActions)
                     throw new InvalidOperationException("Stage 16 objective HUD debug actions are visible by default.");
                 if (systemsHud.visible)
                     throw new InvalidOperationException("Stage 16 systems debug HUD is visible by default.");
                 if (driver.HasPlacementMode)
                     throw new InvalidOperationException("Stage 16 placement mode is active by default.");
+                if (!debugVisibility.AreDebugPanelsHiddenByDefault())
+                    throw new InvalidOperationException("Stage 16 debug visibility controller reports visible debug panels.");
+                if (!debugVisibility.IsPlacementUiHiddenByDefault())
+                    throw new InvalidOperationException("Stage 16 placement UI is visible by default.");
+                if (!debugVisibility.IsPlayerHudVisible())
+                    throw new InvalidOperationException("Stage 16 player HUD is not visible by default.");
                 if (AnyPlayerBuildDebugPanelActive())
                     throw new InvalidOperationException("Stage 16 player build has debug/status panels visible by default.");
                 if (!fogRenderer.IsUsingTransparentMaterials || fogRenderer.unexploredColor.a > 0.45f || fogRenderer.exploredColor.a > 0.30f)
@@ -124,13 +138,19 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 snapshot = RequireSnapshot(driver);
                 if (snapshot.Match.Phase != MatchPhase.Won)
                     throw new InvalidOperationException("Stage 16 enemy base destruction did not trigger victory.");
+                if (!matchResultHud.HasResultToShow)
+                    throw new InvalidOperationException("Stage 16 match result HUD did not show victory.");
 
                 RequireSuccess(controller.ResetScenario(), "scenario reset");
                 StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 2, 0.05f);
+                if (matchResultHud.HasResultToShow)
+                    throw new InvalidOperationException("Stage 16 match result HUD stayed visible after restart.");
                 RequireSuccess(debugActions.DestroyPlayerBase(), "player base destruction");
                 snapshot = RequireSnapshot(driver);
                 if (snapshot.Match.Phase != MatchPhase.Lost)
                     throw new InvalidOperationException("Stage 16 player base destruction did not trigger defeat.");
+                if (!matchResultHud.HasResultToShow)
+                    throw new InvalidOperationException("Stage 16 match result HUD did not show defeat.");
 
                 if (RedErrors.Count > 0)
                     throw new InvalidOperationException("Red console errors were produced during Stage 16 smoke validation: " + string.Join(" | ", RedErrors.ToArray()));

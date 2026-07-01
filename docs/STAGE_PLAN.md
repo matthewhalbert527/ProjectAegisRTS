@@ -76,6 +76,10 @@ Complete. Integrated playable vertical slice. Adds deterministic match/scenario/
 
 Complete. Player-facing boot/build flow and runtime hardening. Adds `Assets/Rts/Scenes/Stage16_5_Boot.unity`, boot/menu HUDs, player build settings, debug-panel visibility control, Stage 16 camera/placement/default HUD initialization, Windows player build scripts, and build-flow validation without adding Stage 17 gameplay scope.
 
+## Stage 17
+
+Complete. Player-facing vertical-slice polish. Adds clearer boot menu labels, controls/help, prototype options, in-match objective/status HUD, input prompts, hidden-by-default controls overlay, win/loss result screen, player-facing default validation hooks, Player.log/Unity log inspection, and fast/medium/full Stage 17 validation tiers while preserving deterministic `Rts.Core` authority.
+
 ## Later Stages
 
 Next later stages include multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

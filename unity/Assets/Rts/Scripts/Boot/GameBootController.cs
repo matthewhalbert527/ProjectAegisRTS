@@ -9,6 +9,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
         public BuildModeSettings settings;
         public MainMenuHud mainMenu;
         public ControlsHelpHud controlsHelp;
+        public OptionsMenuHud optionsMenu;
 
         void Awake()
         {
@@ -18,11 +19,25 @@ namespace ProjectAegisRTS.UnityClient.Boot
                 mainMenu = FindAnyObjectByType<MainMenuHud>();
             if (controlsHelp == null)
                 controlsHelp = FindAnyObjectByType<ControlsHelpHud>();
+            if (optionsMenu == null)
+                optionsMenu = FindAnyObjectByType<OptionsMenuHud>();
 
+            ShowMainMenu(settings == null || settings.startInBootMenu);
+        }
+
+        public void ShowMainMenu()
+        {
+            ShowMainMenu(true);
+        }
+
+        void ShowMainMenu(bool showMenu)
+        {
             if (mainMenu != null)
-                mainMenu.SetVisible(settings == null || settings.startInBootMenu);
+                mainMenu.SetVisible(showMenu);
             if (controlsHelp != null)
                 controlsHelp.SetVisible(false);
+            if (optionsMenu != null)
+                optionsMenu.SetVisible(false);
         }
 
         public void StartVerticalSlice()
@@ -36,14 +51,28 @@ namespace ProjectAegisRTS.UnityClient.Boot
                 mainMenu.SetVisible(false);
             if (controlsHelp != null)
                 controlsHelp.SetVisible(true);
+            if (optionsMenu != null)
+                optionsMenu.SetVisible(false);
+        }
+
+        public void ShowOptions()
+        {
+            if (mainMenu != null)
+                mainMenu.SetVisible(false);
+            if (controlsHelp != null)
+                controlsHelp.SetVisible(false);
+            if (optionsMenu != null)
+                optionsMenu.SetVisible(true);
         }
 
         public void HideControls()
         {
-            if (controlsHelp != null)
-                controlsHelp.SetVisible(false);
-            if (mainMenu != null)
-                mainMenu.SetVisible(true);
+            ShowMainMenu();
+        }
+
+        public void HideOptions()
+        {
+            ShowMainMenu();
         }
 
         public void Quit()

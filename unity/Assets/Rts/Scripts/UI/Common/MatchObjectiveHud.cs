@@ -13,7 +13,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
         public VerticalSliceDebugActions debugActions;
         public bool visible = true;
         public bool showDebugActions;
-        public Rect area = new Rect(12f, 12f, 360f, 238f);
+        public Rect area = new Rect(12f, 360f, 380f, 132f);
 
         public void Initialize(RtsSimulationDriver simulationDriver, VerticalSliceScenarioController controller, VerticalSliceDebugActions actions)
         {
@@ -35,13 +35,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
 
             var snapshot = driver.LatestSnapshot;
             GUILayout.BeginArea(area, GUI.skin.box);
-            GUILayout.Label("Stage 16 Vertical Slice");
-            GUILayout.Label("Tick " + snapshot.Tick + "  Phase " + snapshot.Match.Phase + "  Outcome " + snapshot.Match.LocalPlayerOutcome);
-            for (var i = 0; i < snapshot.Scenario.Objectives.Count; i++)
-            {
-                var objective = snapshot.Scenario.Objectives[i];
-                GUILayout.Label(StateLabel(objective.State) + " " + objective.Description);
-            }
+            GUILayout.Label("Match Controls");
+            GUILayout.Label("Phase " + snapshot.Match.Phase + "  Outcome " + snapshot.Match.LocalPlayerOutcome);
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Start") && scenarioController != null)
@@ -70,17 +65,6 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
 
             GUILayout.Label("Last: " + LastStatus());
             GUILayout.EndArea();
-        }
-
-        static string StateLabel(ScenarioObjectiveState state)
-        {
-            if (state == ScenarioObjectiveState.Completed)
-                return "[done]";
-            if (state == ScenarioObjectiveState.Failed)
-                return "[fail]";
-            if (state == ScenarioObjectiveState.Active)
-                return "[open]";
-            return "[idle]";
         }
 
         string LastStatus()
