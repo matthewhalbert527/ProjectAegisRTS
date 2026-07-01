@@ -11,6 +11,7 @@ namespace ProjectAegisRTS.UnityClient.UI.XR.LeftHand
     {
         public RtsSimulationDriver driver;
         public LeftHandSelectionController selectionController;
+        public bool visible = true;
         Text readoutText;
 
         void Start()
@@ -32,6 +33,10 @@ namespace ProjectAegisRTS.UnityClient.UI.XR.LeftHand
         public void Refresh()
         {
             BuildIfNeeded();
+            gameObject.SetActive(visible);
+            if (!visible)
+                return;
+
             var selected = driver == null ? "none" : driver.SelectedActorIdsText();
             var candidate = selectionController == null || selectionController.CurrentCandidate == null ? "none" : selectionController.CurrentCandidate.ToString();
             var candidates = selectionController == null ? new List<LeftHandSelectionCandidate>() : selectionController.Candidates;

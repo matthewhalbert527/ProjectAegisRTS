@@ -38,6 +38,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
 
             if (frameCameraOnStart)
                 ConfigureCamera();
+            ConfigureLighting();
 
             if (debugVisibility == null)
                 debugVisibility = GetComponent<DebugHudVisibilityController>();
@@ -69,6 +70,8 @@ namespace ProjectAegisRTS.UnityClient.Boot
 
             camera.orthographic = true;
             camera.orthographicSize = cameraOrthographicSize;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(0.035f, 0.045f, 0.055f, 1f);
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 1000f;
             camera.transform.position = cameraPosition;
@@ -76,6 +79,24 @@ namespace ProjectAegisRTS.UnityClient.Boot
 
             if (FindAnyObjectByType<AudioListener>() == null)
                 camera.gameObject.AddComponent<AudioListener>();
+        }
+
+        static void ConfigureLighting()
+        {
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.42f, 0.46f, 0.50f, 1f);
+
+            var light = FindAnyObjectByType<Light>();
+            if (light == null)
+            {
+                var lightObject = new GameObject("Directional Light");
+                light = lightObject.AddComponent<Light>();
+                light.type = LightType.Directional;
+            }
+
+            light.type = LightType.Directional;
+            light.intensity = 1.2f;
+            light.transform.rotation = Quaternion.Euler(50f, -35f, 0f);
         }
 
         static void CancelPlacementModes()

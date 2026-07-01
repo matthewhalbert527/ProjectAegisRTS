@@ -91,6 +91,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     throw new InvalidOperationException("Stage 16 systems debug HUD is visible by default.");
                 if (driver.HasPlacementMode)
                     throw new InvalidOperationException("Stage 16 placement mode is active by default.");
+                if (AnyPlayerBuildDebugPanelActive())
+                    throw new InvalidOperationException("Stage 16 player build has debug/status panels visible by default.");
+                if (!fogRenderer.IsUsingTransparentMaterials || fogRenderer.unexploredColor.a > 0.45f || fogRenderer.exploredColor.a > 0.30f)
+                    throw new InvalidOperationException("Stage 16 fog overlay is too opaque for the player build.");
 
                 var snapshot = RequireSnapshot(driver);
                 if (snapshot.Match.Phase != MatchPhase.Running)
@@ -218,6 +222,32 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             if (type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
                 RedErrors.Add(condition);
+        }
+
+        static bool AnyPlayerBuildDebugPanelActive()
+        {
+            var behaviours = Resources.FindObjectsOfTypeAll<MonoBehaviour>();
+            for (var i = 0; i < behaviours.Length; i++)
+            {
+                var behaviour = behaviours[i];
+                if (behaviour == null || behaviour.gameObject == null || !behaviour.gameObject.scene.IsValid())
+                    continue;
+
+                if (IsHiddenPlayerBuildPanel(behaviour.GetType().Name) && behaviour.gameObject.activeInHierarchy)
+                    return true;
+            }
+
+            return false;
+        }
+
+        static bool IsHiddenPlayerBuildPanel(string typeName)
+        {
+            return typeName == "RightHandCommandHud" ||
+                typeName == "RightHandStatusPanel" ||
+                typeName == "LeftHandStatusHud" ||
+                typeName == "LeftHandSelectionPanel" ||
+                typeName == "LeftHandRadialMenuView" ||
+                typeName == "RtsStatusLog";
         }
     }
 }

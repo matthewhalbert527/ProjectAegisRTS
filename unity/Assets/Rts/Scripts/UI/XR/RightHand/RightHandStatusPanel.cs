@@ -10,6 +10,7 @@ namespace ProjectAegisRTS.UnityClient.UI.XR.RightHand
         public Stage5DualHandModeCoordinator coordinator;
         public RightHandCommandRouter commandRouter;
         public BoardPlacementController boardPlacement;
+        public bool visible = true;
         Text readoutText;
 
         void Start()
@@ -25,6 +26,10 @@ namespace ProjectAegisRTS.UnityClient.UI.XR.RightHand
         public void Refresh()
         {
             BuildIfNeeded();
+            gameObject.SetActive(visible);
+            if (!visible)
+                return;
+
             var mode = coordinator == null ? RightHandCommandMode.Disabled : coordinator.CurrentMode;
             var board = boardPlacement != null && boardPlacement.IsPlacementModeActive ? "board placement active" : "board placement inactive";
             var result = commandRouter == null || string.IsNullOrEmpty(commandRouter.LastCommandResult) ? "none" : commandRouter.LastCommandResult;

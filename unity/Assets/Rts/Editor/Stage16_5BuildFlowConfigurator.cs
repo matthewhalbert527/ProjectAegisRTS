@@ -192,12 +192,24 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             camera.orthographic = true;
             camera.orthographicSize = 28f;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(0.035f, 0.045f, 0.055f, 1f);
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 1000f;
             camera.transform.position = new Vector3(16f, 38f, -26f);
             camera.transform.rotation = Quaternion.Euler(60f, 0f, 0f);
             if (UnityEngine.Object.FindFirstObjectByType<AudioListener>() == null)
                 camera.gameObject.AddComponent<AudioListener>();
+
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.42f, 0.46f, 0.50f, 1f);
+            var light = UnityEngine.Object.FindFirstObjectByType<Light>();
+            if (light != null)
+            {
+                light.type = LightType.Directional;
+                light.intensity = 1.2f;
+                light.transform.rotation = Quaternion.Euler(50f, -35f, 0f);
+            }
         }
 
         static void ConfigureBuildSettings()

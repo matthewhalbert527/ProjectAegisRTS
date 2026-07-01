@@ -14,6 +14,8 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Visibility
 
         public RtsSimulationDriver driver;
         public BoardCoordinateMapper mapper;
+        public Color unexploredColor = new Color(0.02f, 0.03f, 0.04f, 0.32f);
+        public Color exploredColor = new Color(0.08f, 0.11f, 0.13f, 0.16f);
         Transform fogRoot;
         Material unexploredMaterial;
         Material exploredMaterial;
@@ -21,6 +23,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Visibility
         public int UnexploredCellCount { get; private set; }
         public int ExploredCellCount { get; private set; }
         public int VisibleCellCount { get; private set; }
+        public bool IsUsingTransparentMaterials { get; private set; }
 
         void Update()
         {
@@ -110,16 +113,60 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Visibility
         void EnsureMaterials()
         {
             if (unexploredMaterial == null)
-            {
-                unexploredMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
-                unexploredMaterial.color = new Color(0.01f, 0.015f, 0.02f, 0.86f);
-            }
+                unexploredMaterial = CreateTransparentMaterial("Stage16 Fog Unexplored");
 
             if (exploredMaterial == null)
+                exploredMaterial = CreateTransparentMaterial("Stage16 Fog Explored");
+
+            ApplyTransparentMaterial(unexploredMaterial, unexploredColor);
+            ApplyTransparentMaterial(exploredMaterial, exploredColor);
+            IsUsingTransparentMaterials = IsTransparentMaterial(unexploredMaterial) && IsTransparentMaterial(exploredMaterial);
+        }
+
+        static Material CreateTransparentMaterial(string materialName)
+        {
+            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            var material = new Material(shader);
+            material.name = materialName;
+            return material;
+        }
+
+        static void ApplyTransparentMaterial(Material material, Color color)
+        {
+            if (material == null)
+                return;
+
+            if (material.HasProperty("_BaseColor"))
+                material.SetColor("_BaseColor", color);
+            if (material.HasProperty("_Color"))
             {
-                exploredMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
-                exploredMaterial.color = new Color(0.08f, 0.11f, 0.13f, 0.45f);
+                material.color = color;
+                material.SetColor("_Color", color);
             }
+
+            if (material.HasProperty("_Surface"))
+                material.SetFloat("_Surface", 1f);
+            if (material.HasProperty("_Blend"))
+                material.SetFloat("_Blend", 0f);
+            if (material.HasProperty("_SrcBlend"))
+                material.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            if (material.HasProperty("_DstBlend"))
+                material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            if (material.HasProperty("_ZWrite"))
+                material.SetFloat("_ZWrite", 0f);
+
+            material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            material.EnableKeyword("_ALPHABLEND_ON");
+            material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+        }
+
+        static bool IsTransparentMaterial(Material material)
+        {
+            if (material == null)
+                return false;
+            if (material.renderQueue >= (int)UnityEngine.Rendering.RenderQueue.Transparent)
+                return true;
+            return material.HasProperty("_ZWrite") && Mathf.Approximately(material.GetFloat("_ZWrite"), 0f);
         }
     }
 }

@@ -123,6 +123,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 throw new InvalidOperationException("Stage 16 camera must be orthographic.");
             if (Math.Abs(camera.orthographicSize - 28f) > 0.01f)
                 throw new InvalidOperationException("Stage 16 camera orthographic size must be 28.");
+            if (camera.clearFlags != CameraClearFlags.SolidColor)
+                throw new InvalidOperationException("Stage 16 camera must use a solid player-readable background.");
             if (Math.Abs(camera.nearClipPlane - 0.1f) > 0.01f || Math.Abs(camera.farClipPlane - 1000f) > 0.01f)
                 throw new InvalidOperationException("Stage 16 camera clipping planes are incorrect.");
         }

@@ -9,6 +9,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
     {
         readonly List<string> messages = new List<string>();
         public int maxMessages = 8;
+        public bool visible = true;
         public Text outputText;
 
         string lastMessage = string.Empty;
@@ -17,6 +18,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
         void Start()
         {
             BuildIfNeeded();
+            gameObject.SetActive(visible);
             RefreshText();
         }
 

@@ -25,7 +25,20 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             "ConceptArtCardView",
             "RightHandCommandHud",
             "RightHandStatusPanel",
-            "LeftHandStatusHud"
+            "LeftHandStatusHud",
+            "LeftHandSelectionPanel",
+            "LeftHandRadialMenuView",
+            "RtsStatusLog"
+        };
+
+        static readonly string[] DeactivateWhenHiddenTypeNames =
+        {
+            "RightHandCommandHud",
+            "RightHandStatusPanel",
+            "LeftHandStatusHud",
+            "LeftHandSelectionPanel",
+            "LeftHandRadialMenuView",
+            "RtsStatusLog"
         };
 
         static readonly string[] PlacementPanelTypeNames =
@@ -85,6 +98,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                     continue;
 
                 SetBoolFieldOrProperty(behaviour, type, "visible", visible);
+                if (Contains(DeactivateWhenHiddenTypeNames, type.Name))
+                    behaviour.gameObject.SetActive(visible);
             }
         }
 
