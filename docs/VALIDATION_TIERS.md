@@ -1,6 +1,6 @@
 # Validation Tiers
 
-Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. Stage 14 follows it for feedback iteration. Stage 15 follows it for performance/build-readiness iteration. Stage 16 follows it for playable vertical-slice iteration. Stage 17 follows it for player-facing polish. Stage 18 follows it for tester-guided playability. Stage 18.5 follows it for fine placement grid iteration. Stage 19 follows it for mission flow and fine-grid playability tuning. Stage 15.1 flattens the Stage 9-through-Stage 19 medium tiers so they validate direct dependencies instead of recursively calling prior medium checks. A follow-up hardening pass added `tools\audit-medium-validation-recursion.ps1` after runtime output showed recursive medium sections were still possible to miss. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration. Stage 9 and later full gates use `tools\run-stage-full-chain-checks.ps1` to walk Stage 0 through the current stage once instead of recursively replaying lower full gates.
+Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. Stage 14 follows it for feedback iteration. Stage 15 follows it for performance/build-readiness iteration. Stage 16 follows it for playable vertical-slice iteration. Stage 17 follows it for player-facing polish. Stage 18 follows it for tester-guided playability. Stage 18.5 follows it for fine placement grid iteration. Stage 19 follows it for mission flow and fine-grid playability tuning. Stage 19.5 follows it for the PC sidebar and pause menu rework. Stage 15.1 flattens the Stage 9-through-Stage 19.5 medium tiers so they validate direct dependencies instead of recursively calling prior medium checks. A follow-up hardening pass added `tools\audit-medium-validation-recursion.ps1` after runtime output showed recursive medium sections were still possible to miss. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration. Stage 9 and later full gates use `tools\run-stage-full-chain-checks.ps1` to walk Stage 0 through the current stage once instead of recursively replaying lower full gates.
 
 ## Tier Summary
 
@@ -45,6 +45,9 @@ Stage 8.1 adds validation tiers so normal development does not need to replay th
 | Fast | `.\tools\run-stage19-fast-checks.ps1` | You changed current Stage 19 mission flow, checklist/prompt/sidebar guidance, fine-grid readability, pacing, validators, or docs. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs Stage 19 Unity validation and Play Mode smoke, audits medium recursion, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
 | Medium | `.\tools\run-stage19-medium-checks.ps1` | You are preparing a local Stage 19 commit. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs direct Stage 18.5 Unity/player-facing validation dependencies, runs Stage 19 validation and player-facing checks with the player build skipped, audits medium recursion, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
 | Full | `.\tools\run-stage19-checks.ps1` | You need final Stage 19 acceptance evidence. | Runs the slow full Stage 0-through-Stage 19 gate through Stage 18.5 dependencies, Stage 19 player-facing validation, medium recursion audit, the UnityEngine-free scan, and whitespace checks. |
+| Fast | `.\tools\run-stage19-5-fast-checks.ps1` | You changed current Stage 19.5 right sidebar, pause menu, PC/XR UI mode defaults, validators, or docs. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs Stage 19.5 Unity validation and Play Mode smoke, audits medium recursion, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
+| Medium | `.\tools\run-stage19-5-medium-checks.ps1` | You are preparing a local Stage 19.5 commit. | Runs `Rts.Core` tests, builds/copies the Unity DLL, runs direct Stage 19 Unity/player-facing validation dependencies, runs Stage 19.5 validation and player-facing checks with the player build skipped, audits medium recursion, checks `Rts.Core` for `UnityEngine`, and runs `git diff --check`. |
+| Full | `.\tools\run-stage19-5-checks.ps1` | You need final Stage 19.5 acceptance evidence. | Runs the slow full Stage 0-through-Stage 19.5 gate through Stage 19 dependencies, Stage 19.5 player-facing validation, medium recursion audit, the UnityEngine-free scan, and whitespace checks. |
 
 ## Medium Flattening Rule
 
@@ -58,7 +61,7 @@ The machine-enforced guardrail is:
 .\tools\audit-medium-validation-recursion.ps1
 ```
 
-This audit scans Stage 9 through Stage 19 medium scripts and fails if a prior medium dependency or old "medium validation as the immediate dependency" wording returns. Stage 13 and later medium scripts run the audit before tests, and the Stage 19 full gate runs it before the full acceptance chain.
+This audit scans Stage 9 through Stage 19.5 medium scripts and fails if a prior medium dependency or old "medium validation as the immediate dependency" wording returns. Stage 13 and later medium scripts run the audit before tests, and the Stage 19.5 full gate runs it before the full acceptance chain.
 
 Full checks are different: they remain the final Stage 0-through-current-stage acceptance gates and must not be weakened to match medium scope.
 
@@ -362,11 +365,37 @@ For a focused player-facing smoke without rebuilding the EXE:
 .\tools\run-stage19-player-facing-checks.ps1 -SkipPlayerBuild
 ```
 
+## Stage 19.5 Examples
+
+After touching the right-side PC sidebar, pause menu, PC/XR UI mode defaults, player-facing layout, or Stage 19.5 validators, use:
+
+```powershell
+.\tools\run-stage19-5-fast-checks.ps1
+```
+
+Before committing Stage 19.5 UI changes locally, use:
+
+```powershell
+.\tools\run-stage19-5-medium-checks.ps1
+```
+
+Before declaring Stage 19.5 accepted or handing off a player build, use:
+
+```powershell
+.\tools\run-stage19-5-checks.ps1
+```
+
+For a focused player-facing smoke without rebuilding the EXE:
+
+```powershell
+.\tools\run-stage19-5-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
 ## Expected Time
 
 Fast checks should usually take minutes because they avoid earlier-stage validation. Medium checks are longer because they include core tests, Unity DLL build, immediate dependency validation, and current-stage validation, but they avoid the full replay where practical. Full checks are the slow acceptance gate and can take much longer because they validate every stage through the current stage. Stage 9 and later full checks avoid recursively nesting lower full gates, so they should scale roughly with the number of stages instead of repeating prior stages many times.
 
-Stage 15.1 keeps medium checks to one core test run and one Unity DLL build per medium command. Direct Unity validation calls use `-SkipCoreBuild` after that build, which keeps failure output clear without introducing fragile cache state. Stage 17 keeps the same principle and treats Stage 16.5 build-flow validation as the direct immediate dependency. Stage 18 keeps the same principle with direct Stage 17 dependencies and Stage 18-specific player-facing checks. Stage 18.5 keeps Stage 18 as the direct dependency and then runs fine-grid validation without calling any prior medium script. Stage 19 keeps Stage 18.5 as the direct dependency and then runs mission-flow validation without calling any prior medium script.
+Stage 15.1 keeps medium checks to one core test run and one Unity DLL build per medium command. Direct Unity validation calls use `-SkipCoreBuild` after that build, which keeps failure output clear without introducing fragile cache state. Stage 17 keeps the same principle and treats Stage 16.5 build-flow validation as the direct immediate dependency. Stage 18 keeps the same principle with direct Stage 17 dependencies and Stage 18-specific player-facing checks. Stage 18.5 keeps Stage 18 as the direct dependency and then runs fine-grid validation without calling any prior medium script. Stage 19 keeps Stage 18.5 as the direct dependency and then runs mission-flow validation without calling any prior medium script. Stage 19.5 keeps Stage 19 as the direct dependency and then runs PC-sidebar/pause validation without calling any prior medium script.
 
 ## Why Full Validation Still Matters
 

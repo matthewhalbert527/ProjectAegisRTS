@@ -4,9 +4,15 @@ using ProjectAegisRTS.UnityClient.Boot;
 using ProjectAegisRTS.UnityClient.Bootstrap;
 using ProjectAegisRTS.UnityClient.CameraControls;
 using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.InputControls.Desktop;
+using ProjectAegisRTS.UnityClient.InputControls.XR;
+using ProjectAegisRTS.UnityClient.Rendering;
 using ProjectAegisRTS.UnityClient.Scenario;
+using ProjectAegisRTS.UnityClient.Selection;
 using ProjectAegisRTS.UnityClient.UI.Common;
 using ProjectAegisRTS.UnityClient.UI.Desktop;
+using ProjectAegisRTS.UnityClient.UI.XR.LeftHand;
+using ProjectAegisRTS.UnityClient.UI.XR.RightHand;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -72,12 +78,16 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var playerPromptHud = GetOrAdd<PlayerPromptHud>(game);
             var playerControlsOverlay = GetOrAdd<PlayerControlsOverlay>(game);
             var matchResultHud = GetOrAdd<MatchResultHud>(game);
+            var pauseMenuController = GetOrAdd<PauseMenuController>(game);
+            var pauseMenuHud = GetOrAdd<PauseMenuHud>(game);
+            var uiMode = GetOrAdd<PlayerFacingUiModeController>(game);
             var systemsHud = GetOrAdd<IntegratedSystemsStatusHud>(game);
             var debugActions = GetOrAdd<VerticalSliceDebugActions>(game);
             var playerInitializer = GetOrAdd<PlayerBuildSceneInitializer>(game);
             var debugVisibility = GetOrAdd<DebugHudVisibilityController>(game);
             var bootstrapper = GetOrAdd<RtsGameBootstrapper>(game);
             EnsureDesktopHud(bootstrapper, driver, progressTracker, missionFlow);
+            EnsureDualHandCompatibility(game, driver);
 
             controller.driver = driver;
             controller.objectiveHud = objectiveHud;
@@ -120,6 +130,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             matchResultHud.scenarioController = controller;
             matchResultHud.visible = true;
 
+            pauseMenuController.driver = driver;
+            pauseMenuController.scenarioController = controller;
+            pauseMenuController.hud = pauseMenuHud;
+            pauseMenuController.blockGameplayInput = true;
+            pauseMenuController.suppressSceneLoadsForValidation = false;
+            pauseMenuController.suppressApplicationQuitForValidation = false;
+            pauseMenuHud.Initialize(pauseMenuController);
+
             systemsHud.driver = driver;
             systemsHud.visible = false;
 
@@ -139,6 +157,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             debugVisibility.keepPlacementPanelsSynced = true;
             debugVisibility.ApplyPlayerFacingDefaults();
 
+            uiMode.pcPlayerFacingMode = true;
+            uiMode.allowSimulatedXrMenusInPcMode = false;
+            uiMode.debugVisibility = debugVisibility;
+
             bootstrapper.simulationDriver = driver;
             bootstrapper.verticalSliceScenarioController = controller;
             bootstrapper.verticalSliceMissionFlowController = missionFlow;
@@ -150,9 +172,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             bootstrapper.playerPromptHud = playerPromptHud;
             bootstrapper.playerControlsOverlay = playerControlsOverlay;
             bootstrapper.matchResultHud = matchResultHud;
+            bootstrapper.pauseMenuController = pauseMenuController;
+            bootstrapper.pauseMenuHud = pauseMenuHud;
+            bootstrapper.playerFacingUiModeController = uiMode;
             bootstrapper.integratedSystemsStatusHud = systemsHud;
             bootstrapper.verticalSliceDebugActions = debugActions;
             bootstrapper.startPaused = false;
+            uiMode.ApplyModeDefaults();
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             UpdateBuildScenes();
@@ -244,14 +270,91 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var hudRoot = GetOrAdd<DesktopRtsHudRoot>(hudRootObject);
             var router = GetOrAdd<DesktopUiCommandRouter>(hudRootObject);
+            var layout = GetOrAdd<CncStyleSidebarLayout>(hudRootObject);
             hudRoot.bootstrapper = bootstrapper;
             hudRoot.driver = driver;
             hudRoot.missionFlowController = missionFlow;
             hudRoot.progressTracker = progressTracker;
             hudRoot.canvas = canvas;
             hudRoot.commandRouter = router;
+            hudRoot.cncSidebarLayout = layout;
             hudRoot.showDebugOverlay = false;
             hudRoot.Initialize();
+        }
+
+        static void EnsureDualHandCompatibility(GameObject game, RtsSimulationDriver driver)
+        {
+            var mapper = UnityEngine.Object.FindFirstObjectByType<BoardCoordinateMapper>();
+            var boardRenderer = UnityEngine.Object.FindFirstObjectByType<BoardRenderer>();
+            var camera = Camera.main != null ? Camera.main : UnityEngine.Object.FindFirstObjectByType<Camera>();
+            var statusLog = UnityEngine.Object.FindFirstObjectByType<RtsStatusLog>();
+
+            var leftObject = GameObject.Find("Stage4 Left Hand Controllers");
+            if (leftObject == null)
+                leftObject = new GameObject("Stage4 Left Hand Controllers");
+            var leftDesktop = GetOrAdd<DesktopLeftHandInputSource>(leftObject);
+            leftDesktop.sceneCamera = camera;
+            var leftXr = GetOrAdd<XrLeftHandInputAdapter>(leftObject);
+            leftXr.adapterEnabled = false;
+            var leftRouter = GetOrAdd<LeftHandCommandRouter>(leftObject);
+            var buildMenu = GetOrAdd<LeftHandBuildMenuController>(leftObject);
+            var selection = GetOrAdd<LeftHandSelectionController>(leftObject);
+            var lasso = GetOrAdd<LeftHandLassoSelectionController>(leftObject);
+            var leftCoordinator = GetOrAdd<Stage4ModeCoordinator>(leftObject);
+
+            leftRouter.driver = driver;
+            leftRouter.statusLog = statusLog;
+            leftRouter.buildMenu = buildMenu;
+            leftRouter.selectionController = selection;
+            leftRouter.modeCoordinator = leftCoordinator;
+            buildMenu.driver = driver;
+            buildMenu.commandRouter = leftRouter;
+            selection.driver = driver;
+            selection.mapper = mapper;
+            selection.commandRouter = leftRouter;
+            selection.statusLog = statusLog;
+            lasso.driver = driver;
+            lasso.mapper = mapper;
+            lasso.boardRenderer = boardRenderer;
+            lasso.commandRouter = leftRouter;
+            leftCoordinator.driver = driver;
+            leftCoordinator.mapper = mapper;
+            leftCoordinator.boardRenderer = boardRenderer;
+            leftCoordinator.desktopInput = leftDesktop;
+            leftCoordinator.xrInput = leftXr;
+            leftCoordinator.buildMenu = buildMenu;
+            leftCoordinator.commandRouter = leftRouter;
+            leftCoordinator.selectionController = selection;
+            leftCoordinator.lassoController = lasso;
+
+            var preview = game.GetComponent<CommandPreviewRenderer>();
+            if (preview == null)
+                preview = game.AddComponent<CommandPreviewRenderer>();
+            preview.mapper = mapper;
+
+            var rightObject = GameObject.Find("Stage5 Right Hand Controllers");
+            if (rightObject == null)
+                rightObject = new GameObject("Stage5 Right Hand Controllers");
+            var rightDesktop = GetOrAdd<DesktopRightHandInputSource>(rightObject);
+            rightDesktop.sceneCamera = camera;
+            var rightXr = GetOrAdd<XrRightHandInputAdapter>(rightObject);
+            rightXr.adapterEnabled = false;
+            var rightRouter = GetOrAdd<RightHandCommandRouter>(rightObject);
+            var rightReticle = GetOrAdd<RightHandCommandReticle>(rightObject);
+            var rightCoordinator = GetOrAdd<Stage5DualHandModeCoordinator>(rightObject);
+
+            rightRouter.driver = driver;
+            rightRouter.statusLog = statusLog;
+            rightRouter.previewRenderer = preview;
+            rightReticle.previewRenderer = preview;
+            rightCoordinator.driver = driver;
+            rightCoordinator.mapper = mapper;
+            rightCoordinator.boardRenderer = boardRenderer;
+            rightCoordinator.leftHandCoordinator = leftCoordinator;
+            rightCoordinator.desktopInput = rightDesktop;
+            rightCoordinator.xrInput = rightXr;
+            rightCoordinator.commandRouter = rightRouter;
+            rightCoordinator.commandReticle = rightReticle;
         }
 
         static void EnsureEventSystem()

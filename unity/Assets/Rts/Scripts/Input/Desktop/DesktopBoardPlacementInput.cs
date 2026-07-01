@@ -1,4 +1,5 @@
 using ProjectAegisRTS.UnityClient.Board;
+using ProjectAegisRTS.UnityClient.UI.Common;
 using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.InputControls.Desktop
@@ -12,10 +13,16 @@ namespace ProjectAegisRTS.UnityClient.InputControls.Desktop
         public float yawSpeed = 75f;
         public float heightSpeed = 1.2f;
         public float scaleSpeed = 0.35f;
+        PauseMenuController pauseMenu;
 
         void Update()
         {
             if (controller == null)
+                return;
+
+            if (pauseMenu == null)
+                pauseMenu = FindAnyObjectByType<PauseMenuController>();
+            if (pauseMenu != null && (pauseMenu.BlocksGameplayInput() || Input.GetKeyDown(KeyCode.Escape)))
                 return;
 
             if (Input.GetKeyDown(KeyCode.Tab))

@@ -4,10 +4,10 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
 {
     public static class PlayerHudLayout
     {
-        public static readonly Rect ObjectiveArea = new Rect(12f, 12f, 420f, 258f);
-        public static readonly Rect PromptArea = new Rect(12f, 282f, 420f, 106f);
-        public static readonly Rect MatchArea = new Rect(12f, 400f, 420f, 132f);
-        public static readonly Rect ChecklistArea = new Rect(452f, 12f, 430f, 326f);
+        public static readonly Rect ObjectiveArea = new Rect(12f, 12f, 360f, 210f);
+        public static readonly Rect PromptArea = new Rect(12f, 232f, 360f, 86f);
+        public static readonly Rect MatchArea = new Rect(12f, 330f, 360f, 112f);
+        public static readonly Rect ChecklistArea = new Rect(12f, 454f, 360f, 260f);
 
         public static Matrix4x4 BeginArea(Rect area)
         {

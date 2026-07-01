@@ -124,6 +124,12 @@ They may choose current player-facing text, recommended sidebar items, checklist
 
 Stage 19 also adds a normal-command victory validation path. Unity selects local combat units and issues normal move/attack commands through `RtsSimulationDriver`; `Rts.Core` still validates range, target legality, damage, objective completion, and match outcome.
 
+## Stage 19.5 PC UI Boundary
+
+Stage 19.5 reorganizes Unity-only player UI for the Windows build. `CncStyleSidebarLayout` arranges existing desktop HUD components into a right-side PC sidebar, and `PlayerFacingUiModeController` hides XR left-hand/right-hand fallback menus in PC player-facing mode. These systems do not submit gameplay commands directly; production, placement, selection, and orders still route through the existing command routers and `RtsSimulationDriver`.
+
+`PauseMenuController` opens a Unity UI overlay on Escape, pauses/resumes through `RtsSimulationDriver`, restarts through `VerticalSliceScenarioController`, and uses Unity scene/application APIs for menu/quit actions. It blocks local Unity input while open but does not mutate `Rts.Core` state outside the existing pause/reset command paths.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

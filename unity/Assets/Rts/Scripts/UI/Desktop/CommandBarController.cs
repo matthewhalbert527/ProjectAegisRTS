@@ -10,6 +10,9 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         RtsSimulationDriver driver;
         DesktopUiCommandRouter router;
         Text modeText;
+        RectTransform buttonRoot;
+
+        public bool showDeveloperCommands;
 
         public void Initialize(RtsSimulationDriver simulationDriver, DesktopUiCommandRouter commandRouter)
         {
@@ -20,6 +23,10 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
         void Update()
         {
+            var pause = FindAnyObjectByType<PauseMenuController>();
+            if (pause != null && pause.BlocksGameplayInput())
+                return;
+
             if (Input.GetKeyDown(KeyCode.S) && router != null)
                 router.StopSelected();
             if (Input.GetKeyDown(KeyCode.M) && router != null)
@@ -38,16 +45,15 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             RtsUiFactory.Stretch(gameObject, Vector2.zero, Vector2.zero);
             RtsUiFactory.AddPanel(gameObject, new Color(0.05f, 0.06f, 0.08f, 0.88f));
 
-            var layout = GetComponent<HorizontalLayoutGroup>();
-            if (layout == null && GetComponent<LayoutGroup>() == null)
-                layout = gameObject.AddComponent<HorizontalLayoutGroup>();
-            if (layout != null)
-            {
-                layout.padding = new RectOffset(10, 10, 10, 10);
-                layout.spacing = 6f;
-                layout.childForceExpandWidth = false;
-            }
+            RemoveLayoutGroups(gameObject);
 
+            modeText = GetOrCreateText("Mode Text", "Command Mode: Normal", 12, Color.white, TextAnchor.MiddleLeft);
+            modeText.rectTransform.anchorMin = new Vector2(0f, 1f);
+            modeText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            modeText.rectTransform.offsetMin = new Vector2(8f, -24f);
+            modeText.rectTransform.offsetMax = new Vector2(-8f, -4f);
+
+            buttonRoot = GetOrCreateButtonRoot();
             AddButton("Stop", () => router.StopSelected());
             AddButton("Move", () => router.SetMoveMode());
             AddButton("Attack", () => router.SetAttackPlaceholderMode());
@@ -57,23 +63,76 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             AddButton("Repair", () => router.Placeholder("Repair"));
             AddButton("Sell", () => router.Placeholder("Sell"));
             AddButton("Power", () => router.TogglePowerSelected());
-            AddButton("Pause", () => router.TogglePause());
-            AddButton("Step", () => router.StepTick());
-            AddButton("Low Power", () => router.TriggerLowPowerDemo());
 
-            modeText = GetOrCreateText("Mode Text", "Command Mode: Normal", 12, Color.white, TextAnchor.MiddleLeft);
-            modeText.rectTransform.sizeDelta = new Vector2(190f, 32f);
+            RemoveLegacyButton("Pause");
+            RemoveLegacyButton("Step");
+            RemoveLegacyButton("Low Power");
+            if (showDeveloperCommands)
+            {
+                AddButton("Step", () => router.StepTick());
+                AddButton("Low Power", () => router.TriggerLowPowerDemo());
+            }
         }
 
         void AddButton(string text, UnityEngine.Events.UnityAction action)
         {
-            var child = transform.Find(text);
+            if (buttonRoot == null)
+                buttonRoot = GetOrCreateButtonRoot();
+
+            var child = buttonRoot.Find(text);
             var button = child != null ? child.GetComponent<Button>() : null;
             if (button == null)
-                button = RtsUiFactory.CreateButton(transform, text, text);
-            button.GetComponent<RectTransform>().sizeDelta = new Vector2(84f, 34f);
+                button = RtsUiFactory.CreateButton(buttonRoot, text, text);
+            button.GetComponent<RectTransform>().sizeDelta = new Vector2(112f, 30f);
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(action);
+        }
+
+        RectTransform GetOrCreateButtonRoot()
+        {
+            var child = transform.Find("Command Buttons");
+            var rootObject = child != null ? child.gameObject : new GameObject("Command Buttons");
+            if (child == null)
+                rootObject.transform.SetParent(transform, false);
+
+            var rect = rootObject.GetComponent<RectTransform>();
+            if (rect == null)
+                rect = rootObject.AddComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 0f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.offsetMin = new Vector2(8f, 8f);
+            rect.offsetMax = new Vector2(-8f, -30f);
+
+            RemoveLayoutGroups(rootObject);
+            var grid = rootObject.AddComponent<GridLayoutGroup>();
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 3;
+            grid.cellSize = new Vector2(112f, 30f);
+            grid.spacing = new Vector2(6f, 5f);
+            return rect;
+        }
+
+        void RemoveLegacyButton(string text)
+        {
+            var child = transform.Find(text);
+            if (child == null)
+                return;
+            if (Application.isPlaying)
+                Destroy(child.gameObject);
+            else
+                DestroyImmediate(child.gameObject);
+        }
+
+        static void RemoveLayoutGroups(GameObject target)
+        {
+            var groups = target.GetComponents<LayoutGroup>();
+            for (var i = 0; i < groups.Length; i++)
+            {
+                if (Application.isPlaying)
+                    Destroy(groups[i]);
+                else
+                    DestroyImmediate(groups[i]);
+            }
         }
 
         Text GetOrCreateText(string objectName, string text, int fontSize, Color color, TextAnchor anchor)

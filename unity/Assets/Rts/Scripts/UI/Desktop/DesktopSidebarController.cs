@@ -14,6 +14,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         VerticalSliceProgressTracker progressTracker;
         Text titleText;
         Text readoutText;
+        float cncReadoutTop = 266f;
+        float cncReadoutHeight = 74f;
 
         public void Initialize(
             RtsSimulationDriver simulationDriver,
@@ -55,8 +57,29 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             readoutText = GetOrCreateText("Readout", "Waiting for simulation...", 14, new Color(0.88f, 0.94f, 0.98f, 1f), TextAnchor.UpperLeft);
             readoutText.rectTransform.anchorMin = new Vector2(0f, 1f);
             readoutText.rectTransform.anchorMax = new Vector2(1f, 1f);
-            readoutText.rectTransform.offsetMin = new Vector2(14f, -204f);
-            readoutText.rectTransform.offsetMax = new Vector2(-14f, -46f);
+            ApplyCncReadoutLayout(cncReadoutTop, cncReadoutHeight);
+        }
+
+        public void ApplyCncReadoutLayout(float top, float height)
+        {
+            cncReadoutTop = top;
+            cncReadoutHeight = height;
+            if (titleText != null)
+            {
+                titleText.text = "ProjectAegisRTS";
+                titleText.rectTransform.anchorMin = new Vector2(0f, 1f);
+                titleText.rectTransform.anchorMax = new Vector2(1f, 1f);
+                titleText.rectTransform.offsetMin = new Vector2(14f, -34f);
+                titleText.rectTransform.offsetMax = new Vector2(-14f, -6f);
+            }
+
+            if (readoutText == null)
+                return;
+
+            readoutText.rectTransform.anchorMin = new Vector2(0f, 1f);
+            readoutText.rectTransform.anchorMax = new Vector2(1f, 1f);
+            readoutText.rectTransform.offsetMin = new Vector2(14f, -top - height);
+            readoutText.rectTransform.offsetMax = new Vector2(-14f, -top);
         }
 
         Text GetOrCreateText(string objectName, string text, int fontSize, Color color, TextAnchor anchor)
@@ -92,10 +115,17 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             var action = missionFlowController != null ? missionFlowController.NextRecommendedAction : (progressTracker == null ? "Follow checklist." : ("Recommended: " + progressTracker.recommendedTypeId));
 
             readoutText.text =
-                "Credits " + player.Credits + "    Power " + player.Power.Generated + "/" + player.Power.Consumed + " (" + player.Power.State + ")\n" +
+                "Credits: " + player.Credits + "   Power: " + player.Power.Generated + "/" + player.Power.Consumed + " " + player.Power.State + "\n" +
                 "Mode: " + driver.CommandMode + "\n" +
                 action + "\n" +
-                "Next: " + guidance;
+                Shorten(guidance, 82);
+        }
+
+        static string Shorten(string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length <= maxLength)
+                return value;
+            return value.Substring(0, maxLength - 3) + "...";
         }
     }
 }

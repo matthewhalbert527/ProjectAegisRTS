@@ -4,7 +4,7 @@ param()
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$forbiddenScriptPattern = 'run-stage(?:8|9|10|11|12|13|14|15|16|17|18|18-5|19)-medium-checks(?:\.ps1)?'
+$forbiddenScriptPattern = 'run-stage(?:8|9|10|11|12|13|14|15|16|17|18|18-5|19|19-5)-medium-checks(?:\.ps1)?'
 $forbiddenTextPattern = 'medium validation as the immediate dependency'
 $failures = @()
 
@@ -121,10 +121,47 @@ if (-not (Test-Path -LiteralPath $stage19ScriptPath)) {
     }
 }
 
+$stage19_5ScriptName = 'run-stage19-5-medium-checks.ps1'
+$stage19_5ScriptPath = Join-Path $repoRoot "tools\$stage19_5ScriptName"
+if (-not (Test-Path -LiteralPath $stage19_5ScriptPath)) {
+    $failures += "Missing medium validation script: $stage19_5ScriptPath"
+} else {
+    $lines = Get-Content -LiteralPath $stage19_5ScriptPath
+    for ($lineNumber = 0; $lineNumber -lt $lines.Count; $lineNumber++) {
+        $line = $lines[$lineNumber]
+        $trimmed = $line.Trim()
+
+        if ($line -match $forbiddenScriptPattern) {
+            $ownNameInComment = $line -match [regex]::Escape($stage19_5ScriptName) -and $trimmed.StartsWith('#')
+            if (-not $ownNameInComment) {
+                $failures += "${stage19_5ScriptName}:$($lineNumber + 1) contains forbidden medium dependency text: $trimmed"
+            }
+        }
+
+        if ($line -match $forbiddenTextPattern) {
+            $failures += "${stage19_5ScriptName}:$($lineNumber + 1) contains old medium dependency wording: $trimmed"
+        }
+    }
+
+    $content = $lines -join "`n"
+    if ($content -notmatch [regex]::Escape('run-unity-stage19-validation.ps1')) {
+        $failures += "$stage19_5ScriptName does not call direct Stage 19 Unity validation."
+    }
+    if ($content -notmatch [regex]::Escape('run-stage19-player-facing-checks.ps1')) {
+        $failures += "$stage19_5ScriptName does not call direct Stage 19 player-facing validation."
+    }
+    if ($content -notmatch [regex]::Escape('-SkipStage19Validation')) {
+        $failures += "$stage19_5ScriptName does not skip the older Stage 19 dependency for its targeted Stage 19.5 player-facing check."
+    }
+    if ($content -notmatch [regex]::Escape('run-unity-stage19-5-validation.ps1')) {
+        $failures += "$stage19_5ScriptName does not call direct Stage 19.5 Unity validation."
+    }
+}
+
 if ($failures.Count -gt 0) {
     Write-Error "Medium validation recursion audit failed:`n$($failures -join "`n")"
     exit 1
 }
 
-Write-Host 'Medium validation recursion audit passed: Stage 9-19 medium scripts use direct Unity validation dependencies only.'
+Write-Host 'Medium validation recursion audit passed: Stage 9-19.5 medium scripts use direct Unity validation dependencies only.'
 $global:LASTEXITCODE = 0

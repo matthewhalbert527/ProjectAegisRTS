@@ -526,13 +526,31 @@ To validate from PowerShell:
 
 Stage 19 adds a Unity-only mission flow controller, 15 tutorial beats, compact/expanded checklist guidance, fine-grid placement copy, better sidebar recommendations, tuned resource/enemy spacing, and a non-debug victory smoke path. The Windows player still exports to `build\windows-player-stage16\ProjectAegisRTS.exe`.
 
+## Stage 19.5 PC Sidebar And Pause Menu
+
+Stage 19.5 keeps the same Boot and Stage 16 scenes, then reorganizes the Windows player UI:
+
+```text
+Assets/Rts/Scenes/Stage16_5_Boot.unity
+Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity
+```
+
+```powershell
+.\tools\run-unity-stage19-5-validation.ps1
+.\tools\run-stage19-5-fast-checks.ps1
+.\tools\run-stage19-5-medium-checks.ps1
+.\tools\run-stage19-5-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+The PC player-facing build now defaults to a right-side CnC/OpenRA-style sidebar: minimap top-right, credits/power/status under it, production tabs/cards/queue, placement readout, selection details, and command buttons. The left side is reserved for compact objective/checklist/prompt HUDs. Quest/MR left-hand and right-hand UI remains available for XR scenes, but it is hidden and input-suppressed in the default Windows build. Escape opens a centered pause menu with Resume, Restart Mission, Settings, Controls, Quit to Menu, and Quit Game.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
 - Right click: move selected mobile units.
-- Space: pause or resume.
-- Period or N: single-step one tick.
-- Escape: cancel placement or clear selection.
+- Escape: open the pause menu.
+- Space: quick pause or resume.
+- Period or N: developer single-step one tick.
 - P/B/W/R/G: queue power plant, barracks, war factory, refinery, gun tower.
 - I/T/H: queue rifle infantry, light tank, harvester.
 - L: toggle forced low-power demo state.
@@ -653,6 +671,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 18 is tester-guided playability for the vertical slice; it is not a final tutorial, final mission script, final UX, final balance, or final art pass.
 - Stage 18.5 is a placement-resolution pass; movement/pathing still use coarse command cells while building placement and building occupancy use fine cells.
 - Stage 19 is mission-flow tuning for the prototype slice; it is not a full campaign system, final tutorial, advanced AI, final balance, or final art pass.
+- Stage 19.5 is PC UI layout and pause-menu work; it is not final chrome art, final icons, or final settings UX.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

@@ -62,6 +62,8 @@ No scenario damage or debug victory action is used for this validation path.
 - Player-facing: `.\tools\run-stage19-player-facing-checks.ps1 -SkipPlayerBuild`
 - Full: `.\tools\run-stage19-checks.ps1`
 
+Stage 19.5 builds on this mission flow by reorganizing the Windows player UI into a right-side PC sidebar and adding an Esc pause menu. See `docs/STAGE19_5_PC_SIDEBAR_PAUSE_MENU.md` and `docs/STAGE19_5_UI_REWORK_REPORT.md`.
+
 Medium validation remains non-recursive and is guarded by:
 
 ```powershell

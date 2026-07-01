@@ -31,6 +31,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         public SelectionPanelController selectionPanel;
         public CommandBarController commandBar;
         public MinimapPlaceholderController minimap;
+        public CncStyleSidebarLayout cncSidebarLayout;
         public RtsStatusLog statusLog;
 
         bool initialized;
@@ -63,6 +64,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             selectionPanel.Initialize(driver, commandRouter);
             commandBar.Initialize(driver, commandRouter);
             minimap.Initialize(driver);
+            if (cncSidebarLayout != null)
+                cncSidebarLayout.ApplyLayout();
 
             var input = FindAnyObjectByType<RtsDesktopInputController>();
             if (input != null)
@@ -120,6 +123,10 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 commandBar = GetComponentInChildren<CommandBarController>(true);
             if (minimap == null)
                 minimap = GetComponentInChildren<MinimapPlaceholderController>(true);
+            if (cncSidebarLayout == null)
+                cncSidebarLayout = GetComponent<CncStyleSidebarLayout>();
+            if (cncSidebarLayout == null)
+                cncSidebarLayout = gameObject.AddComponent<CncStyleSidebarLayout>();
 
             if (sidebarController == null)
                 sidebarController = CreatePanel("Right Sidebar", typeof(DesktopSidebarController), new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-sidebarWidth, 0f), Vector2.zero).GetComponent<DesktopSidebarController>();
@@ -141,6 +148,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 statusLog = CreatePanel("Status Log", typeof(RtsStatusLog), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(12f, bottomCommandBarHeight + 8f), new Vector2(-sidebarWidth - 12f, bottomCommandBarHeight + 102f)).GetComponent<RtsStatusLog>();
 
             ApplyPanelLayouts();
+            cncSidebarLayout.Initialize(this, sidebarController, categoryTabs, productionGrid, productionQueue, placementPanel, selectionPanel, commandBar, minimap);
             SetStatusLogVisible(showDebugOverlay);
         }
 
@@ -191,6 +199,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             ApplyPanelLayout(minimap, SidebarPanel(56f, minimapSize));
             ApplyPanelLayout(commandBar, new Vector2(0f, 0f), new Vector2(1f, 0f), Vector2.zero, new Vector2(-sidebarWidth, bottomCommandBarHeight));
             ApplyPanelLayout(statusLog, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(12f, bottomCommandBarHeight + 8f), new Vector2(-sidebarWidth - 12f, bottomCommandBarHeight + 102f));
+            if (cncSidebarLayout != null)
+                cncSidebarLayout.ApplyLayout();
         }
 
         static void ApplyPanelLayout(Component component, SidebarPanelRect panel)

@@ -32,16 +32,16 @@ namespace ProjectAegisRTS.UnityClient.Boot
             GUILayout.Label("Build a refinery near ore, produce combat units, then destroy the enemy base.");
             GUILayout.Label("Follow the checklist: power, refinery, harvest, barracks, infantry, war factory, tank, scout, attack.");
             GUILayout.Space(8f);
-            GUILayout.Label("Space: pause or resume");
-            GUILayout.Label("Period or N: single-step while paused");
+            GUILayout.Label("Escape: open pause menu");
+            GUILayout.Label("Space: quick pause or resume");
+            GUILayout.Label("Period or N: developer single-step while paused");
             GUILayout.Label("M / A / F: move, attack, force-attack command modes");
             GUILayout.Label("B: enter placement for a completed building");
-            GUILayout.Label("Escape: cancel placement or clear selection");
             GUILayout.Label("O: toggle objective HUD");
             GUILayout.Label("C: toggle build-order checklist");
             GUILayout.Label("P: toggle next-step prompt");
             GUILayout.Label("F1 or H: toggle in-match controls overlay");
-            GUILayout.Label("Backquote and function keys: developer debug panels");
+            GUILayout.Label("F8-F12: developer debug panels when enabled");
             GUILayout.Space(10f);
             if (GUILayout.Button("Back", GUILayout.Height(32f)) && controller != null)
                 controller.HideControls();

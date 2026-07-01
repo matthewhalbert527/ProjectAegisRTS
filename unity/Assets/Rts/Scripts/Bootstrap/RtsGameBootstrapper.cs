@@ -73,6 +73,9 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public PlayerPromptHud playerPromptHud;
         public PlayerControlsOverlay playerControlsOverlay;
         public MatchResultHud matchResultHud;
+        public PauseMenuController pauseMenuController;
+        public PauseMenuHud pauseMenuHud;
+        public PlayerFacingUiModeController playerFacingUiModeController;
         public IntegratedSystemsStatusHud integratedSystemsStatusHud;
         public VerticalSliceDebugActions verticalSliceDebugActions;
         public RtsSimulationDriver simulationDriver;
@@ -201,6 +204,10 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 playerPromptHud.Initialize(simulationDriver, playerPromptSystem);
             if (matchResultHud != null)
                 matchResultHud.Initialize(simulationDriver, verticalSliceScenarioController);
+            if (pauseMenuController != null)
+                pauseMenuController.Initialize(simulationDriver, verticalSliceScenarioController);
+            if (playerFacingUiModeController != null)
+                playerFacingUiModeController.ApplyModeDefaults();
             if (integratedSystemsStatusHud != null)
                 integratedSystemsStatusHud.Initialize(simulationDriver);
             if (verticalSliceScenarioController != null)
@@ -250,6 +257,12 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 playerControlsOverlay = GetOrAdd<PlayerControlsOverlay>(gameObject);
             if (matchResultHud == null)
                 matchResultHud = GetOrAdd<MatchResultHud>(gameObject);
+            if (pauseMenuController == null)
+                pauseMenuController = GetOrAdd<PauseMenuController>(gameObject);
+            if (pauseMenuHud == null)
+                pauseMenuHud = GetOrAdd<PauseMenuHud>(gameObject);
+            if (playerFacingUiModeController == null)
+                playerFacingUiModeController = GetOrAdd<PlayerFacingUiModeController>(gameObject);
 
             if (sceneCamera == null)
             {

@@ -92,6 +92,10 @@ Complete. Fine placement grid / footprint resolution pass. Adds an authoritative
 
 Complete. Mission flow / tutorial beats / fine-grid playability tuning. Adds a Unity-only mission flow controller, 15 objective-gated player guidance beats, compact/expanded checklist presentation, sidebar/production/placement readability improvements, conservative resource/enemy/base pacing changes, a normal-command victory path test, Player.log inspection hardening, and Stage 19 validation tiers while preserving Stage 0-18.5 behavior.
 
+## Stage 19.5
+
+Complete. CnC-style PC sidebar and pause menu rework. Consolidates the Windows player UI into a right-side sidebar with minimap, credits/power/status, production tabs/cards/queue, placement, selection, and command buttons; hides XR left-hand/right-hand build UI in PC mode; reserves the left side for objective/checklist/prompts; adds a centered Esc pause menu; and adds Stage 19.5 validation tiers while preserving Stage 0-19 behavior.
+
 ## Later Stages
 
 Next later stages include Stage 20 production model replacement, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

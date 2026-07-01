@@ -48,6 +48,10 @@ namespace ProjectAegisRTS.UnityClient.Boot
             if (debugVisibility != null && hideDebugPanelsOnStart)
                 debugVisibility.ApplyPlayerFacingDefaults();
 
+            var uiMode = FindAnyObjectByType<PlayerFacingUiModeController>();
+            if (uiMode != null)
+                uiMode.ApplyModeDefaults();
+
             if (cancelPlacementOnStart)
                 CancelPlacementModes();
             ApplyPlayerHudDefaults();
@@ -163,9 +167,20 @@ namespace ProjectAegisRTS.UnityClient.Boot
             if (resultHud != null)
                 resultHud.visible = true;
 
+            var pauseMenu = FindAnyObjectByType<PauseMenuController>();
+            if (pauseMenu != null)
+            {
+                pauseMenu.blockGameplayInput = true;
+                if (pauseMenu.hud != null)
+                    pauseMenu.hud.Hide();
+            }
+
             var desktopHud = FindAnyObjectByType<ProjectAegisRTS.UnityClient.UI.Desktop.DesktopRtsHudRoot>();
             if (desktopHud != null)
+            {
                 desktopHud.showDebugOverlay = false;
+                desktopHud.Initialize();
+            }
 
             var statusLog = FindAnyObjectByType<RtsStatusLog>();
             if (statusLog != null)

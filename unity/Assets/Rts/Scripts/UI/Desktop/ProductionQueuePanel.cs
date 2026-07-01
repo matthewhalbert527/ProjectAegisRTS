@@ -95,7 +95,10 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 var layout = rowObject.AddComponent<HorizontalLayoutGroup>();
                 layout.spacing = 4f;
                 layout.childForceExpandWidth = false;
-                rowObject.AddComponent<RectTransform>().sizeDelta = new Vector2(340f, 30f);
+                var rowRect = rowObject.GetComponent<RectTransform>();
+                if (rowRect == null)
+                    rowRect = rowObject.AddComponent<RectTransform>();
+                rowRect.sizeDelta = new Vector2(340f, 30f);
 
                 var label = RtsUiFactory.CreateText(rowObject.transform, "Label", DisplayType(item.TypeId), 11, Color.white, TextAnchor.MiddleLeft);
                 label.rectTransform.sizeDelta = new Vector2(168f, 28f);

@@ -1,6 +1,7 @@
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.UI;
+using ProjectAegisRTS.UnityClient.UI.Common;
 using ProjectAegisRTS.UnityClient.UI.Desktop;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,6 +15,7 @@ namespace ProjectAegisRTS.UnityClient.InputControls
         RtsSimulationDriver driver;
         RtsDebugHud debugHud;
         DesktopUiCommandRouter commandRouter;
+        PauseMenuController pauseMenu;
         Int2 hoveredCell;
         bool hasHoveredCell;
 
@@ -34,6 +36,14 @@ namespace ProjectAegisRTS.UnityClient.InputControls
         {
             if (sceneCamera == null || mapper == null || driver == null)
                 return;
+
+            if (pauseMenu == null)
+                pauseMenu = FindAnyObjectByType<PauseMenuController>();
+            if (pauseMenu != null && (pauseMenu.BlocksGameplayInput() || Input.GetKeyDown(KeyCode.Escape)))
+            {
+                driver.ClearHoveredCell();
+                return;
+            }
 
             UpdateHoveredCell();
             HandleKeyboard();

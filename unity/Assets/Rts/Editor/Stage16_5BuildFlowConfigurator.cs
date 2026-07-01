@@ -216,6 +216,21 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             matchResultHud.scenarioController = controller;
             matchResultHud.visible = true;
 
+            var pauseMenuController = GetOrAdd<PauseMenuController>(game);
+            var pauseMenuHud = GetOrAdd<PauseMenuHud>(game);
+            pauseMenuController.driver = driver;
+            pauseMenuController.scenarioController = controller;
+            pauseMenuController.hud = pauseMenuHud;
+            pauseMenuController.blockGameplayInput = true;
+            pauseMenuController.suppressSceneLoadsForValidation = false;
+            pauseMenuController.suppressApplicationQuitForValidation = false;
+            pauseMenuHud.Initialize(pauseMenuController);
+
+            var uiMode = GetOrAdd<PlayerFacingUiModeController>(game);
+            uiMode.pcPlayerFacingMode = true;
+            uiMode.allowSimulatedXrMenusInPcMode = false;
+            uiMode.debugVisibility = debugVisibility;
+
             var systemsHud = GetOrAdd<IntegratedSystemsStatusHud>(game);
             systemsHud.visible = false;
 
@@ -229,6 +244,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             bootstrapper.playerPromptHud = playerPromptHud;
             bootstrapper.playerControlsOverlay = controlsOverlay;
             bootstrapper.matchResultHud = matchResultHud;
+            bootstrapper.pauseMenuController = pauseMenuController;
+            bootstrapper.pauseMenuHud = pauseMenuHud;
+            bootstrapper.playerFacingUiModeController = uiMode;
+            uiMode.ApplyModeDefaults();
 
             var boardPlacement = UnityEngine.Object.FindFirstObjectByType<BoardPlacementController>();
             if (boardPlacement != null)
