@@ -151,7 +151,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             for (var i = 0; i < frames; i++)
             {
                 driver.ManualUpdate(deltaTime);
-                boardRenderer.UpdateHover(driver.HasHoveredCell ? (Int2?)driver.HoveredCell : null);
+                boardRenderer.UpdateHover(driver.HasHoveredCell ? (Int2?)driver.HoveredCell : null, driver.HoveredCellIsPlacementCell);
                 PlacementPreviewSnapshot preview;
                 boardRenderer.UpdatePlacementPreview(driver.TryGetPlacementPreview(out preview) ? preview : null);
                 actorRenderer.RenderSnapshot(driver.LatestSnapshot, driver.SelectedActorIds, deltaTime);
@@ -190,7 +190,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 {
                     var cell = new Int2(x, y);
                     if (driver.IsPlacementValidAtCell(cell, out preview))
-                        return cell;
+                        return preview.TopLeftCell;
                 }
             }
 

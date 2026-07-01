@@ -108,10 +108,13 @@ namespace ProjectAegisRTS.UnityClient.Selection
             if (building == null)
                 return actor.CellPosition.ManhattanDistanceTo(cell) <= radius;
 
-            return cell.X >= actor.CellPosition.X - radius &&
-                   cell.Y >= actor.CellPosition.Y - radius &&
-                   cell.X < actor.CellPosition.X + building.FootprintCells.X + radius &&
-                   cell.Y < actor.CellPosition.Y + building.FootprintCells.Y + radius;
+            Int2 min;
+            Int2 max;
+            BuildingCoarseBounds(actor, building, out min, out max);
+            return cell.X >= min.X - radius &&
+                   cell.Y >= min.Y - radius &&
+                   cell.X <= max.X + radius &&
+                   cell.Y <= max.Y + radius;
         }
 
         static bool ActorIntersectsRect(ActorSnapshot actor, ActorDefinition definition, int minX, int maxX, int minY, int maxY)
@@ -120,9 +123,19 @@ namespace ProjectAegisRTS.UnityClient.Selection
             if (building == null)
                 return actor.CellPosition.X >= minX && actor.CellPosition.X <= maxX && actor.CellPosition.Y >= minY && actor.CellPosition.Y <= maxY;
 
-            var actorMaxX = actor.CellPosition.X + building.FootprintCells.X - 1;
-            var actorMaxY = actor.CellPosition.Y + building.FootprintCells.Y - 1;
-            return actor.CellPosition.X <= maxX && actorMaxX >= minX && actor.CellPosition.Y <= maxY && actorMaxY >= minY;
+            Int2 actorMin;
+            Int2 actorMax;
+            BuildingCoarseBounds(actor, building, out actorMin, out actorMax);
+            return actorMin.X <= maxX && actorMax.X >= minX && actorMin.Y <= maxY && actorMax.Y >= minY;
+        }
+
+        static void BuildingCoarseBounds(ActorSnapshot actor, BuildingDefinition building, out Int2 min, out Int2 max)
+        {
+            var placementFootprint = actor.PlacementFootprintCells.Equals(Int2.Zero) ? building.PlacementFootprintCells : actor.PlacementFootprintCells;
+            min = PlacementGridMetrics.PlacementCellToCoarseCell(actor.PlacementTopLeftCell);
+            max = PlacementGridMetrics.PlacementCellToCoarseCell(new Int2(
+                actor.PlacementTopLeftCell.X + placementFootprint.X - 1,
+                actor.PlacementTopLeftCell.Y + placementFootprint.Y - 1));
         }
 
         static float DistanceToRay(Ray ray, Vector3 point)

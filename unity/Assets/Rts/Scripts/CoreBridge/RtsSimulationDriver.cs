@@ -29,6 +29,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         WorldSnapshot latestSnapshot;
         Int2 hoveredCell;
         bool hasHoveredCell;
+        bool hoveredCellIsPlacementCell;
         string pendingPlacementTypeId = string.Empty;
         bool forceLowPower;
         float tickAccumulator;
@@ -40,6 +41,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public IReadOnlyList<int> SelectedActorIds { get { return selectedActorIds; } }
         public bool HasHoveredCell { get { return hasHoveredCell; } }
         public Int2 HoveredCell { get { return hoveredCell; } }
+        public bool HoveredCellIsPlacementCell { get { return hoveredCellIsPlacementCell; } }
+        public Int2 HoveredCoarseCell { get { return hoveredCellIsPlacementCell ? PlacementGridMetrics.PlacementCellToCoarseCell(hoveredCell) : hoveredCell; } }
         public bool HasPlacementMode { get { return !string.IsNullOrEmpty(pendingPlacementTypeId); } }
         public string PendingPlacementTypeId { get { return pendingPlacementTypeId; } }
         public int PlayerId { get { return playerId; } }
@@ -346,13 +349,20 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public void SetHoveredCell(Int2 cell)
         {
+            SetHoveredCell(cell, false);
+        }
+
+        public void SetHoveredCell(Int2 cell, bool isPlacementCell)
+        {
             hoveredCell = cell;
+            hoveredCellIsPlacementCell = isPlacementCell;
             hasHoveredCell = true;
         }
 
         public void ClearHoveredCell()
         {
             hasHoveredCell = false;
+            hoveredCellIsPlacementCell = false;
         }
 
         public RtsCommandResult TrySelectActorAtCell(Int2 cell)
@@ -727,7 +737,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             if (!HasPlacementMode || world == null)
                 return false;
 
-            preview = world.PreviewPlacement(playerId, pendingPlacementTypeId, cell);
+            var placementCell = hoveredCellIsPlacementCell && cell.Equals(hoveredCell) ? cell : PlacementGridMetrics.CoarseCellToPlacementCell(cell);
+            preview = world.PreviewPlacement(playerId, pendingPlacementTypeId, placementCell);
             return preview != null && preview.CanPlace;
         }
 
@@ -784,7 +795,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             if (!HasPlacementMode || !hasHoveredCell || world == null)
                 return false;
 
-            preview = world.PreviewPlacement(playerId, pendingPlacementTypeId, hoveredCell);
+            var placementCell = hoveredCellIsPlacementCell ? hoveredCell : PlacementGridMetrics.CoarseCellToPlacementCell(hoveredCell);
+            preview = world.PreviewPlacement(playerId, pendingPlacementTypeId, placementCell);
             return true;
         }
 
@@ -812,7 +824,9 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public string HoveredCellText()
         {
-            return hasHoveredCell ? hoveredCell.ToString() : "none";
+            if (!hasHoveredCell)
+                return "none";
+            return hoveredCellIsPlacementCell ? hoveredCell + " fine (" + HoveredCoarseCell + " coarse)" : hoveredCell.ToString();
         }
 
         public bool TryGetDefinition(string typeId, out ActorDefinition definition)
@@ -908,10 +922,16 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             if (building == null)
                 return actor.CellPosition.Equals(cell);
 
-            return cell.X >= actor.CellPosition.X &&
-                   cell.Y >= actor.CellPosition.Y &&
-                   cell.X < actor.CellPosition.X + building.FootprintCells.X &&
-                   cell.Y < actor.CellPosition.Y + building.FootprintCells.Y;
+            var placementFootprint = actor.PlacementFootprintCells.Equals(Int2.Zero) ? building.PlacementFootprintCells : actor.PlacementFootprintCells;
+            var min = PlacementGridMetrics.PlacementCellToCoarseCell(actor.PlacementTopLeftCell);
+            var max = PlacementGridMetrics.PlacementCellToCoarseCell(new Int2(
+                actor.PlacementTopLeftCell.X + placementFootprint.X - 1,
+                actor.PlacementTopLeftCell.Y + placementFootprint.Y - 1));
+
+            return cell.X >= min.X &&
+                   cell.Y >= min.Y &&
+                   cell.X <= max.X &&
+                   cell.Y <= max.Y;
         }
 
         bool TryFindOwnedActorOfType(string typeId, out int actorId)

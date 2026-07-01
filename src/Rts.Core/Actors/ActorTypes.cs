@@ -35,6 +35,8 @@ namespace ProjectAegisRTS.Actors
         public int OwnerPlayerId { get; private set; }
         public string TypeId { get; private set; }
         public Int2 CellPosition { get; set; }
+        public Int2 PlacementTopLeftCell { get; private set; }
+        public Int2 PlacementFootprintCells { get; private set; }
         public Int2 WorldPositionFixed { get; set; }
         public int Health { get; set; }
         public ActorOrderKind CurrentOrder { get; set; }
@@ -72,6 +74,8 @@ namespace ProjectAegisRTS.Actors
             OwnerPlayerId = ownerPlayerId;
             TypeId = typeId;
             CellPosition = cellPosition;
+            PlacementTopLeftCell = PlacementGridMetrics.CoarseCellToPlacementCell(cellPosition);
+            PlacementFootprintCells = Int2.Zero;
             WorldPositionFixed = FixedMath.CellCenter(cellPosition);
             Health = health;
             CurrentOrder = ActorOrderKind.Idle;
@@ -101,6 +105,13 @@ namespace ProjectAegisRTS.Actors
             DestroyedByActorId = 0;
             ActiveWeaponId = string.Empty;
             HasHarvestOrder = false;
+        }
+
+        public void SetBuildingPlacement(Int2 topLeftPlacementCell, Int2 placementFootprintCells)
+        {
+            PlacementTopLeftCell = topLeftPlacementCell;
+            PlacementFootprintCells = placementFootprintCells;
+            WorldPositionFixed = PlacementGridMetrics.PlacementFootprintCenterFixed(topLeftPlacementCell, placementFootprintCells);
         }
     }
 }

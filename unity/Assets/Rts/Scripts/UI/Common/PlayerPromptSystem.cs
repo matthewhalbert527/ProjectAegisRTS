@@ -75,7 +75,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                 return "Match complete. Restart or return to the menu from the result screen.";
 
             if (driver.HasPlacementMode)
-                return "Place " + driver.PendingPlacementTypeId + " on a clear footprint, or press Escape to cancel.";
+                return "Place " + driver.PendingPlacementTypeId + " on a clear fine-grid footprint, or press Escape to cancel.";
 
             if (progressTracker == null)
                 progressTracker = FindAnyObjectByType<VerticalSliceProgressTracker>();

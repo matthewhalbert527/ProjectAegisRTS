@@ -9,13 +9,23 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
     {
         public int BoardWidth { get; private set; }
         public int BoardHeight { get; private set; }
+        public int PlacementGridScale { get; private set; }
+        public int PlacementBoardWidth { get { return BoardWidth * PlacementGridScale; } }
+        public int PlacementBoardHeight { get { return BoardHeight * PlacementGridScale; } }
         public float CellSizeMeters { get; private set; }
+        public float PlacementCellSizeMeters { get { return CellSizeMeters / Mathf.Max(1, PlacementGridScale); } }
         public Transform BoardRoot { get; private set; }
 
         public void Configure(int boardWidth, int boardHeight, float cellSizeMeters, Transform boardRoot)
         {
+            Configure(boardWidth, boardHeight, cellSizeMeters, boardRoot, PlacementGridMetrics.PlacementGridScale);
+        }
+
+        public void Configure(int boardWidth, int boardHeight, float cellSizeMeters, Transform boardRoot, int placementGridScale)
+        {
             BoardWidth = Mathf.Max(1, boardWidth);
             BoardHeight = Mathf.Max(1, boardHeight);
+            PlacementGridScale = Mathf.Max(1, placementGridScale);
             CellSizeMeters = Mathf.Max(0.1f, cellSizeMeters);
             BoardRoot = boardRoot != null ? boardRoot : transform;
         }
@@ -25,12 +35,28 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return cell.X >= 0 && cell.Y >= 0 && cell.X < BoardWidth && cell.Y < BoardHeight;
         }
 
+        public bool IsInsidePlacementBoard(Int2 placementCell)
+        {
+            return placementCell.X >= 0 && placementCell.Y >= 0 && placementCell.X < PlacementBoardWidth && placementCell.Y < PlacementBoardHeight;
+        }
+
         public Vector3 CellToWorldCenter(Int2 cell)
         {
             var local = new Vector3(
                 (cell.X + 0.5f) * CellSizeMeters,
                 0f,
                 (cell.Y + 0.5f) * CellSizeMeters);
+
+            return Root.TransformPoint(local);
+        }
+
+        public Vector3 PlacementCellToWorldCenter(Int2 placementCell)
+        {
+            var placementCellSize = PlacementCellSizeMeters;
+            var local = new Vector3(
+                (placementCell.X + 0.5f) * placementCellSize,
+                0f,
+                (placementCell.Y + 0.5f) * placementCellSize);
 
             return Root.TransformPoint(local);
         }
@@ -50,10 +76,12 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             var building = definition as BuildingDefinition;
             if (building != null)
             {
+                var placementFootprint = actor.PlacementFootprintCells.Equals(Int2.Zero) ? building.PlacementFootprintCells : actor.PlacementFootprintCells;
+                var placementCellSize = PlacementCellSizeMeters;
                 var local = new Vector3(
-                    (actor.CellPosition.X + building.FootprintCells.X * 0.5f) * CellSizeMeters,
+                    (actor.PlacementTopLeftCell.X + placementFootprint.X * 0.5f) * placementCellSize,
                     0f,
-                    (actor.CellPosition.Y + building.FootprintCells.Y * 0.5f) * CellSizeMeters);
+                    (actor.PlacementTopLeftCell.Y + placementFootprint.Y * 0.5f) * placementCellSize);
 
                 return Root.TransformPoint(local);
             }
@@ -62,6 +90,16 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         }
 
         public bool TryRayToCell(Ray ray, out Int2 cell, out Vector3 hitPoint)
+        {
+            return TryRayToGridCell(ray, CellSizeMeters, BoardWidth, BoardHeight, out cell, out hitPoint);
+        }
+
+        public bool TryRayToPlacementCell(Ray ray, out Int2 placementCell, out Vector3 hitPoint)
+        {
+            return TryRayToGridCell(ray, PlacementCellSizeMeters, PlacementBoardWidth, PlacementBoardHeight, out placementCell, out hitPoint);
+        }
+
+        bool TryRayToGridCell(Ray ray, float gridCellSizeMeters, int gridWidth, int gridHeight, out Int2 cell, out Vector3 hitPoint)
         {
             cell = Int2.Zero;
             hitPoint = Vector3.zero;
@@ -73,10 +111,10 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
             hitPoint = ray.GetPoint(distance);
             var local = Root.InverseTransformPoint(hitPoint);
-            var x = Mathf.FloorToInt(local.x / CellSizeMeters);
-            var y = Mathf.FloorToInt(local.z / CellSizeMeters);
+            var x = Mathf.FloorToInt(local.x / gridCellSizeMeters);
+            var y = Mathf.FloorToInt(local.z / gridCellSizeMeters);
             var candidate = new Int2(x, y);
-            if (!IsInsideBoard(candidate))
+            if (candidate.X < 0 || candidate.Y < 0 || candidate.X >= gridWidth || candidate.Y >= gridHeight)
                 return false;
 
             cell = candidate;

@@ -77,6 +77,9 @@ namespace ProjectAegisRTS.Snapshots
 
         public int Width { get; private set; }
         public int Height { get; private set; }
+        public int PlacementGridScale { get; private set; }
+        public int PlacementWidth { get; private set; }
+        public int PlacementHeight { get; private set; }
         public IReadOnlyList<TerrainCellSnapshot> TerrainCells { get; private set; }
         public IReadOnlyList<PathDebugSnapshot> RecentPathQueries { get; private set; }
         public bool IsValid { get; private set; }
@@ -84,9 +87,17 @@ namespace ProjectAegisRTS.Snapshots
         public IReadOnlyList<string> ValidationWarnings { get; private set; }
 
         public MapSnapshot(int width, int height, IReadOnlyList<TerrainCellSnapshot> terrainCells, IReadOnlyList<PathDebugSnapshot> recentPathQueries, bool isValid, IReadOnlyList<string> validationErrors, IReadOnlyList<string> validationWarnings)
+            : this(width, height, PlacementGridMetrics.PlacementGridScale, width * PlacementGridMetrics.PlacementGridScale, height * PlacementGridMetrics.PlacementGridScale, terrainCells, recentPathQueries, isValid, validationErrors, validationWarnings)
+        {
+        }
+
+        public MapSnapshot(int width, int height, int placementGridScale, int placementWidth, int placementHeight, IReadOnlyList<TerrainCellSnapshot> terrainCells, IReadOnlyList<PathDebugSnapshot> recentPathQueries, bool isValid, IReadOnlyList<string> validationErrors, IReadOnlyList<string> validationWarnings)
         {
             Width = width;
             Height = height;
+            PlacementGridScale = placementGridScale;
+            PlacementWidth = placementWidth;
+            PlacementHeight = placementHeight;
             TerrainCells = terrainCells ?? new TerrainCellSnapshot[0];
             RecentPathQueries = recentPathQueries ?? new PathDebugSnapshot[0];
             IsValid = isValid;
@@ -268,6 +279,9 @@ namespace ProjectAegisRTS.Snapshots
         public int AttackTargetActorId { get; private set; }
         public Int2 AttackTargetCell { get; private set; }
         public bool HasHarvestOrder { get; private set; }
+        public Int2 PlacementTopLeftCell { get; private set; }
+        public Int2 PlacementFootprintCells { get; private set; }
+        public int PlacementGridScale { get; private set; }
 
         public ActorSnapshot(
             int actorId,
@@ -323,7 +337,10 @@ namespace ProjectAegisRTS.Snapshots
                 false,
                 0,
                 cellPosition,
-                false)
+                false,
+                null,
+                null,
+                PlacementGridMetrics.PlacementGridScale)
         {
         }
 
@@ -360,7 +377,10 @@ namespace ProjectAegisRTS.Snapshots
             bool isAttacking,
             int attackTargetActorId,
             Int2 attackTargetCell,
-            bool hasHarvestOrder = false)
+            bool hasHarvestOrder = false,
+            Int2? placementTopLeftCell = null,
+            Int2? placementFootprintCells = null,
+            int placementGridScale = PlacementGridMetrics.PlacementGridScale)
         {
             ActorId = actorId;
             TypeId = typeId;
@@ -395,6 +415,9 @@ namespace ProjectAegisRTS.Snapshots
             AttackTargetActorId = attackTargetActorId;
             AttackTargetCell = attackTargetCell;
             HasHarvestOrder = hasHarvestOrder;
+            PlacementTopLeftCell = placementTopLeftCell.HasValue ? placementTopLeftCell.Value : PlacementGridMetrics.CoarseCellToPlacementCell(cellPosition);
+            PlacementFootprintCells = placementFootprintCells.HasValue ? placementFootprintCells.Value : Int2.Zero;
+            PlacementGridScale = placementGridScale;
         }
     }
 
@@ -726,14 +749,23 @@ namespace ProjectAegisRTS.Snapshots
         public bool CanPlace { get; private set; }
         public string ErrorCode { get; private set; }
         public IReadOnlyList<Int2> FootprintCells { get; private set; }
+        public int PlacementGridScale { get; private set; }
+        public Int2 PlacementFootprintCells { get; private set; }
 
         public PlacementPreviewSnapshot(string typeId, Int2 topLeftCell, bool canPlace, string errorCode, IReadOnlyList<Int2> footprintCells)
+            : this(typeId, topLeftCell, canPlace, errorCode, footprintCells, PlacementGridMetrics.PlacementGridScale, Int2.Zero)
+        {
+        }
+
+        public PlacementPreviewSnapshot(string typeId, Int2 topLeftCell, bool canPlace, string errorCode, IReadOnlyList<Int2> footprintCells, int placementGridScale, Int2 placementFootprintCells)
         {
             TypeId = typeId;
             TopLeftCell = topLeftCell;
             CanPlace = canPlace;
             ErrorCode = errorCode;
             FootprintCells = footprintCells;
+            PlacementGridScale = placementGridScale;
+            PlacementFootprintCells = placementFootprintCells;
         }
     }
 }

@@ -305,6 +305,7 @@ namespace ProjectAegisRTS.Data
     public sealed class BuildingDefinition : ActorDefinition
     {
         public Int2 FootprintCells { get; private set; }
+        public Int2 PlacementFootprintCells { get; private set; }
         public bool ProvidesConstructionRadius { get; private set; }
         public int ConstructionRadiusCells { get; private set; }
         public Int2 UnitExitOffset { get; private set; }
@@ -328,6 +329,7 @@ namespace ProjectAegisRTS.Data
             : base(typeId, displayName, ActorKind.Building, maxHealth, production, power, animation, weapon, new DeathDefinition(180, "building_death_placeholder"), sight, radar)
         {
             FootprintCells = footprintCells;
+            PlacementFootprintCells = PlacementGridMetrics.CoarseFootprintToPlacementFootprint(footprintCells);
             ProvidesConstructionRadius = providesConstructionRadius;
             ConstructionRadiusCells = constructionRadiusCells;
             UnitExitOffset = unitExitOffset;

@@ -92,7 +92,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     for (var i = 0; i < 60 && !seenTypes.Contains(FeedbackEventType.ProductionCompleted); i++)
                         StepRuntime(driver, boardRenderer, actorRenderer, bus, 1, 0.1f);
                     RequireSuccess(driver.TryEnterPlacementModeForFirstPending(), "enter placement mode");
-                    RequireSuccess(driver.TryPlacePendingBuildingAtCell(new Int2(7, 3)), "building placement");
+                    RequireSuccess(driver.TryPlacePendingBuildingAtCell(PlacementGridMetrics.CoarseCellToPlacementCell(new Int2(7, 3))), "building placement");
                     StepRuntime(driver, boardRenderer, actorRenderer, bus, 2, 0.1f);
 
                     RequireSuccess(driver.TryForceLowPowerOrCreateLowPowerDemoCondition(), "low-power command");

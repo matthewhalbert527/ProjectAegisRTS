@@ -11,9 +11,13 @@ namespace ProjectAegisRTS.Simulation
         readonly bool[] blocked;
         readonly TerrainKind[] terrainKinds;
         readonly Dictionary<Int2, ActorId> buildingOccupancy;
+        readonly Dictionary<Int2, ActorId> placementBuildingOccupancy;
 
         public int Width { get; private set; }
         public int Height { get; private set; }
+        public int PlacementGridScale { get { return PlacementGridMetrics.PlacementGridScale; } }
+        public int PlacementWidth { get { return Width * PlacementGridScale; } }
+        public int PlacementHeight { get { return Height * PlacementGridScale; } }
 
         public GridMap(int width, int height)
         {
@@ -22,11 +26,20 @@ namespace ProjectAegisRTS.Simulation
             blocked = new bool[width * height];
             terrainKinds = new TerrainKind[width * height];
             buildingOccupancy = new Dictionary<Int2, ActorId>();
+            placementBuildingOccupancy = new Dictionary<Int2, ActorId>();
         }
 
         public bool Contains(Int2 cell)
         {
             return cell.X >= 0 && cell.Y >= 0 && cell.X < Width && cell.Y < Height;
+        }
+
+        public bool ContainsPlacementCell(Int2 placementCell)
+        {
+            return placementCell.X >= 0 &&
+                placementCell.Y >= 0 &&
+                placementCell.X < PlacementWidth &&
+                placementCell.Y < PlacementHeight;
         }
 
         public bool IsBlocked(Int2 cell)
@@ -67,23 +80,52 @@ namespace ProjectAegisRTS.Simulation
             return buildingOccupancy.ContainsKey(cell);
         }
 
+        public bool HasBuildingAtPlacementCell(Int2 placementCell)
+        {
+            return placementBuildingOccupancy.ContainsKey(placementCell);
+        }
+
         public bool TryGetBuildingAt(Int2 cell, out ActorId actorId)
         {
             return buildingOccupancy.TryGetValue(cell, out actorId);
         }
 
+        public bool TryGetBuildingAtPlacementCell(Int2 placementCell, out ActorId actorId)
+        {
+            return placementBuildingOccupancy.TryGetValue(placementCell, out actorId);
+        }
+
         public void OccupyBuilding(Int2 topLeft, Int2 footprint, ActorId actorId)
         {
-            for (var y = 0; y < footprint.Y; y++)
-                for (var x = 0; x < footprint.X; x++)
-                    buildingOccupancy[new Int2(topLeft.X + x, topLeft.Y + y)] = actorId;
+            OccupyBuildingAtPlacement(
+                PlacementGridMetrics.CoarseCellToPlacementCell(topLeft),
+                PlacementGridMetrics.CoarseFootprintToPlacementFootprint(footprint),
+                actorId);
+        }
+
+        public void OccupyBuildingAtPlacement(Int2 topLeftPlacementCell, Int2 placementFootprint, ActorId actorId)
+        {
+            for (var y = 0; y < placementFootprint.Y; y++)
+                for (var x = 0; x < placementFootprint.X; x++)
+                    placementBuildingOccupancy[new Int2(topLeftPlacementCell.X + x, topLeftPlacementCell.Y + y)] = actorId;
+
+            RebuildCoarseBuildingOccupancy();
         }
 
         public void ClearBuilding(Int2 topLeft, Int2 footprint)
         {
-            for (var y = 0; y < footprint.Y; y++)
-                for (var x = 0; x < footprint.X; x++)
-                    buildingOccupancy.Remove(new Int2(topLeft.X + x, topLeft.Y + y));
+            ClearBuildingAtPlacement(
+                PlacementGridMetrics.CoarseCellToPlacementCell(topLeft),
+                PlacementGridMetrics.CoarseFootprintToPlacementFootprint(footprint));
+        }
+
+        public void ClearBuildingAtPlacement(Int2 topLeftPlacementCell, Int2 placementFootprint)
+        {
+            for (var y = 0; y < placementFootprint.Y; y++)
+                for (var x = 0; x < placementFootprint.X; x++)
+                    placementBuildingOccupancy.Remove(new Int2(topLeftPlacementCell.X + x, topLeftPlacementCell.Y + y));
+
+            RebuildCoarseBuildingOccupancy();
         }
 
         public bool IsPassableForUnit(Int2 cell)
@@ -102,6 +144,15 @@ namespace ProjectAegisRTS.Simulation
         public bool IsBuildableCell(Int2 cell, RtsRules rules)
         {
             return Contains(cell) && !IsBlocked(cell) && !HasBuildingAt(cell) && TerrainAllows(cell, MovementClass.Building, rules);
+        }
+
+        public bool IsBuildablePlacementCell(Int2 placementCell, RtsRules rules)
+        {
+            if (!ContainsPlacementCell(placementCell) || HasBuildingAtPlacementCell(placementCell))
+                return false;
+
+            var coarseCell = PlacementGridMetrics.PlacementCellToCoarseCell(placementCell);
+            return Contains(coarseCell) && !IsBlocked(coarseCell) && TerrainAllows(coarseCell, MovementClass.Building, rules);
         }
 
         public int GetMovementCost(Int2 cell, MovementClass movementClass, RtsRules rules)
@@ -140,6 +191,13 @@ namespace ProjectAegisRTS.Simulation
                     return fallback;
 
             return new TerrainDefinition(TerrainKind.Cliff, "Unknown", 99, PassabilityMask.None, "unknown");
+        }
+
+        void RebuildCoarseBuildingOccupancy()
+        {
+            buildingOccupancy.Clear();
+            foreach (var pair in placementBuildingOccupancy)
+                buildingOccupancy[PlacementGridMetrics.PlacementCellToCoarseCell(pair.Key)] = pair.Value;
         }
 
         int Index(Int2 cell)

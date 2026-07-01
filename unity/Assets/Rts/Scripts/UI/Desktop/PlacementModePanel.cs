@@ -83,13 +83,15 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
             ActorDefinition definition;
             var footprint = "n/a";
+            var placementFootprint = "n/a";
             if (driver.TryGetDefinition(driver.PendingPlacementTypeId, out definition) && definition is BuildingDefinition)
             {
                 var building = (BuildingDefinition)definition;
-                footprint = building.FootprintCells.X + "x" + building.FootprintCells.Y;
+                footprint = building.FootprintCells.X + "x" + building.FootprintCells.Y + " coarse";
+                placementFootprint = building.PlacementFootprintCells.X + "x" + building.PlacementFootprintCells.Y + " fine";
             }
 
-            label.text = "Placing: " + driver.PendingPlacementTypeId + "\nFootprint: " + footprint + "\n" + previewText + "\nLeft-click board to place.";
+            label.text = "Placing: " + driver.PendingPlacementTypeId + "\nFootprint: " + footprint + " / " + placementFootprint + "\n" + previewText + "\nLeft-click fine grid to place.";
         }
 
         static string FriendlyError(string errorCode)
@@ -98,9 +100,9 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return "choose a clear powered area.";
             if (errorCode == "OutsideMap")
                 return "outside the board.";
-            if (errorCode == "Occupied")
+            if (errorCode == "OccupiedCell")
                 return "space is occupied.";
-            if (errorCode == "TooFarFromConstructionYard")
+            if (errorCode == "OutsideConstructionRadius")
                 return "place closer to your Fabrication Hub.";
             return errorCode.Replace("_", " ");
         }

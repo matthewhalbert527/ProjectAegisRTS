@@ -140,6 +140,16 @@ namespace ProjectAegisRTS.Simulation
 
         public ActorState CreateActor(string typeId, int ownerPlayerId, Int2 cell)
         {
+            return CreateActorInternal(typeId, ownerPlayerId, cell, PlacementGridMetrics.CoarseCellToPlacementCell(cell));
+        }
+
+        ActorState CreateActorAtPlacementCell(string typeId, int ownerPlayerId, Int2 topLeftPlacementCell)
+        {
+            return CreateActorInternal(typeId, ownerPlayerId, PlacementGridMetrics.PlacementCellToCoarseCell(topLeftPlacementCell), topLeftPlacementCell);
+        }
+
+        ActorState CreateActorInternal(string typeId, int ownerPlayerId, Int2 cell, Int2 topLeftPlacementCell)
+        {
             var definition = Rules.GetDefinition(typeId);
             var actor = new ActorState(new ActorId(nextActorId++), ownerPlayerId, typeId, cell, definition.MaxHealth);
             actor.AnimationStateId = definition.Animation.IdleStateId;
@@ -153,7 +163,8 @@ namespace ProjectAegisRTS.Simulation
             var building = definition as BuildingDefinition;
             if (building != null)
             {
-                Map.OccupyBuilding(cell, building.FootprintCells, actor.Id);
+                actor.SetBuildingPlacement(topLeftPlacementCell, building.PlacementFootprintCells);
+                Map.OccupyBuildingAtPlacement(topLeftPlacementCell, building.PlacementFootprintCells, actor.Id);
                 if (typeId == "refinery")
                     refineries[actor.Id.Value] = new RefineryState(actor.Id.Value, GetRefineryDockCell(actor, building), RefineryUnloadRatePerTick);
             }
@@ -374,9 +385,10 @@ namespace ProjectAegisRTS.Simulation
 
         public PlacementPreviewSnapshot PreviewPlacement(int playerId, string typeId, Int2 topLeftCell)
         {
-            var footprint = GetFootprintCells(typeId, topLeftCell);
+            var footprint = GetPlacementFootprintCells(typeId, topLeftCell);
             var result = ValidatePlacement(playerId, typeId, topLeftCell, false);
-            return new PlacementPreviewSnapshot(typeId, topLeftCell, result.Success, result.ErrorCode, footprint);
+            var footprintSize = GetPlacementFootprintSize(typeId);
+            return new PlacementPreviewSnapshot(typeId, topLeftCell, result.Success, result.ErrorCode, footprint, PlacementGridMetrics.PlacementGridScale, footprintSize);
         }
 
         public WorldSnapshot CreateSnapshot()
@@ -417,6 +429,7 @@ namespace ProjectAegisRTS.Simulation
 
                 var definition = Rules.GetDefinition(actor.TypeId);
                 var unit = definition as UnitDefinition;
+                var building = definition as BuildingDefinition;
                 var turnRate = unit == null ? 0 : unit.Movement.TurnRateDegreesPerTick;
 
                 actorSnapshots.Add(new ActorSnapshot(
@@ -452,7 +465,10 @@ namespace ProjectAegisRTS.Simulation
                     actor.IsAttacking,
                     actor.AttackTargetActorId,
                     actor.AttackTargetCell,
-                    actor.HasHarvestOrder));
+                    actor.HasHarvestOrder,
+                    actor.PlacementTopLeftCell,
+                    building == null ? Int2.Zero : building.PlacementFootprintCells,
+                    PlacementGridMetrics.PlacementGridScale));
             }
 
             var projectileSnapshots = new List<ProjectileSnapshot>();
@@ -636,6 +652,7 @@ namespace ProjectAegisRTS.Simulation
                     .Append(actor.TypeId).Append(' ')
                     .Append(actor.OwnerPlayerId).Append(' ')
                     .Append(actor.CellPosition).Append(' ')
+                    .Append(actor.PlacementTopLeftCell).Append(' ')
                     .Append(actor.WorldPositionFixed).Append(' ')
                     .Append(actor.Health).Append(' ')
                     .Append(actor.FacingDegrees).Append(' ')
@@ -798,7 +815,7 @@ namespace ProjectAegisRTS.Simulation
             if (!validation.Success)
                 return validation;
 
-            var actor = CreateActor(command.TypeId, command.PlayerId, command.TopLeftCell);
+            var actor = CreateActorAtPlacementCell(command.TypeId, command.PlayerId, command.TopLeftCell);
             RemoveFirstPendingPlacement(command.PlayerId, command.TypeId);
             UpdatePowerAndActorFlags();
             return CommandResult.Ok("Building placed as actor " + actor.Id.Value + ".");
@@ -1474,6 +1491,9 @@ namespace ProjectAegisRTS.Simulation
             return new MapSnapshot(
                 Map.Width,
                 Map.Height,
+                Map.PlacementGridScale,
+                Map.PlacementWidth,
+                Map.PlacementHeight,
                 terrainCells,
                 new List<PathDebugSnapshot>(recentPathQueries),
                 validation.Success,
@@ -1491,14 +1511,14 @@ namespace ProjectAegisRTS.Simulation
             if (building == null)
                 return CommandResult.Fail("NotABuilding", "Only building definitions can be placed.");
 
-            var footprintCells = GetFootprintCells(typeId, topLeftCell);
+            var footprintCells = GetPlacementFootprintCells(typeId, topLeftCell);
             foreach (var cell in footprintCells)
             {
-                if (!Map.Contains(cell))
+                if (!Map.ContainsPlacementCell(cell))
                     return CommandResult.Fail("OutsideMap", "The building footprint extends outside the map.");
-                if (Map.HasBuildingAt(cell))
+                if (Map.HasBuildingAtPlacementCell(cell))
                     return CommandResult.Fail("OccupiedCell", "The building footprint overlaps an occupied cell.");
-                if (!Map.IsBuildableCell(cell, Rules))
+                if (!Map.IsBuildablePlacementCell(cell, Rules))
                     return CommandResult.Fail("BlockedCell", "The building footprint includes a blocked cell.");
             }
 
@@ -1511,7 +1531,7 @@ namespace ProjectAegisRTS.Simulation
             return CommandResult.Ok("Placement is valid.");
         }
 
-        List<Int2> GetFootprintCells(string typeId, Int2 topLeftCell)
+        List<Int2> GetPlacementFootprintCells(string typeId, Int2 topLeftCell)
         {
             var result = new List<Int2>();
             ActorDefinition actorDefinition;
@@ -1522,11 +1542,21 @@ namespace ProjectAegisRTS.Simulation
             if (building == null)
                 return result;
 
-            for (var y = 0; y < building.FootprintCells.Y; y++)
-                for (var x = 0; x < building.FootprintCells.X; x++)
+            for (var y = 0; y < building.PlacementFootprintCells.Y; y++)
+                for (var x = 0; x < building.PlacementFootprintCells.X; x++)
                     result.Add(new Int2(topLeftCell.X + x, topLeftCell.Y + y));
 
             return result;
+        }
+
+        Int2 GetPlacementFootprintSize(string typeId)
+        {
+            ActorDefinition actorDefinition;
+            if (!Rules.TryGetDefinition(typeId, out actorDefinition))
+                return Int2.Zero;
+
+            var building = actorDefinition as BuildingDefinition;
+            return building == null ? Int2.Zero : building.PlacementFootprintCells;
         }
 
         bool IsInsideConstructionRadius(int playerId, IReadOnlyList<Int2> footprintCells)
@@ -1541,7 +1571,7 @@ namespace ProjectAegisRTS.Simulation
                     continue;
 
                 foreach (var cell in footprintCells)
-                    if (cell.ManhattanDistanceTo(provider.CellPosition) <= providerDefinition.ConstructionRadiusCells)
+                    if (cell.ManhattanDistanceTo(provider.PlacementTopLeftCell) <= providerDefinition.ConstructionRadiusCells * PlacementGridMetrics.PlacementGridScale)
                         return true;
             }
 

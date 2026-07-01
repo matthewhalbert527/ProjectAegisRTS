@@ -84,6 +84,10 @@ Complete. Player-facing vertical-slice polish. Adds clearer boot menu labels, co
 
 Complete. Tester-guided playability pass. Adds snapshot-derived checklist/progress tracking, next-step prompts, clearer sidebar production states, objective/match consistency tests, high-resolution player HUD layout, brighter EXE camera/lighting/fog defaults, stricter hidden-debug/status-log validation, Player.log inspection, and fast/medium/full Stage 18 validation tiers while preserving Stage 0-17 behavior.
 
+## Stage 18.5
+
+Complete. Fine placement grid / footprint resolution pass. Adds an authoritative 2x placement grid in `Rts.Core`, converts legacy building footprints to fine footprints, keeps physical building and board scale stable, projects fine building occupancy back to coarse pathing cells, updates Unity grid/preview/input/selection to use fine placement cells, and adds Stage 18.5 validation tiers while preserving Stage 0-18 behavior.
+
 ## Later Stages
 
-Next later stages include multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.
+Next later stages include Stage 19 mission tuning, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

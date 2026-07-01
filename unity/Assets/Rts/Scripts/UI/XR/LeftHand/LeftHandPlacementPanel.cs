@@ -41,7 +41,8 @@ namespace ProjectAegisRTS.UnityClient.UI.XR.LeftHand
             var cellText = hoveredCell.HasValue ? hoveredCell.Value.ToString() : "none";
             var status = preview == null ? "hover board" : (preview.CanPlace ? "valid" : "invalid " + preview.ErrorCode);
             var footprint = preview == null || preview.FootprintCells == null ? 0 : preview.FootprintCells.Count;
-            readoutText.text = "Placing: " + driver.PendingPlacementTypeId + "\nCell: " + cellText + "\nStatus: " + status + "\nFootprint cells: " + footprint + "\nLeft click/Enter confirm, Esc cancel";
+            var fineSize = preview == null ? "n/a" : preview.PlacementFootprintCells.X + "x" + preview.PlacementFootprintCells.Y;
+            readoutText.text = "Placing: " + driver.PendingPlacementTypeId + "\nFine cell: " + cellText + "\nStatus: " + status + "\nFine footprint: " + fineSize + " (" + footprint + " cells)\nLeft click/Enter confirm, Esc cancel";
         }
 
         public RtsCommandResult ConfirmPlacement()

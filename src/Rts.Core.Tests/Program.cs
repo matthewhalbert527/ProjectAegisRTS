@@ -28,6 +28,11 @@ namespace ProjectAegisRTS.Tests
                 BuildingPlacementFailsOutsideMap,
                 BuildingPlacementFailsOnOccupiedFootprint,
                 BuildingPlacementSucceedsWithinConstructionRadius,
+                BuildingDefinitionsExposeFinePlacementFootprints,
+                PlacementPreviewUsesFineGrid,
+                BuildingPlacementSucceedsAtFineOffset,
+                FinePlacementRejectsPartialOverlap,
+                PlacementSnapshotsExposeFineGridMetadata,
                 ProductionDeductsCredits,
                 ProductionCompletesAfterExpectedTicks,
                 UnitSpawnsFromBarracks,
@@ -123,23 +128,75 @@ namespace ProjectAegisRTS.Tests
         static void BuildingPlacementFailsOutsideMap()
         {
             var world = DemoWorldFactory.CreateMvpWorld();
-            var result = world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", new Int2(31, 31)));
+            var result = world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", PlacementCell(31, 31)));
             Assert(!result.Success && result.ErrorCode == "OutsideMap", "Expected OutsideMap, got " + result.ErrorCode);
         }
 
         static void BuildingPlacementFailsOnOccupiedFootprint()
         {
             var world = WorldWithCompletedPowerPlant();
-            var result = world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", new Int2(4, 4)));
+            var result = world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", PlacementCell(4, 4)));
             Assert(!result.Success && result.ErrorCode == "OccupiedCell", "Expected OccupiedCell, got " + result.ErrorCode);
         }
 
         static void BuildingPlacementSucceedsWithinConstructionRadius()
         {
             var world = WorldWithCompletedPowerPlant();
-            var result = world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", new Int2(8, 4)));
+            var result = world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", PlacementCell(8, 4)));
             Assert(result.Success, "Expected placement success: " + result.ErrorCode);
             Assert(world.FirstActorOfType("power_plant", 1) != null, "Expected placed power plant.");
+        }
+
+        static void BuildingDefinitionsExposeFinePlacementFootprints()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var powerPlant = (BuildingDefinition)rules.GetDefinition("power_plant");
+            var warFactory = (BuildingDefinition)rules.GetDefinition("war_factory");
+            Assert(powerPlant.FootprintCells.Equals(new Int2(2, 2)), "Expected legacy 2x2 power plant footprint.");
+            Assert(powerPlant.PlacementFootprintCells.Equals(new Int2(4, 4)), "Expected fine 4x4 power plant footprint.");
+            Assert(warFactory.FootprintCells.Equals(new Int2(3, 2)), "Expected legacy 3x2 war factory footprint.");
+            Assert(warFactory.PlacementFootprintCells.Equals(new Int2(6, 4)), "Expected fine 6x4 war factory footprint.");
+        }
+
+        static void PlacementPreviewUsesFineGrid()
+        {
+            var world = DemoWorldFactory.CreateMvpWorld();
+            var preview = world.PreviewPlacement(1, "power_plant", PlacementCell(8, 4));
+            Assert(preview.PlacementGridScale == 2, "Expected 2x placement grid scale.");
+            Assert(preview.PlacementFootprintCells.Equals(new Int2(4, 4)), "Expected 4x4 fine footprint.");
+            Assert(preview.FootprintCells.Count == 16, "Expected 16 fine footprint cells.");
+            Assert(preview.FootprintCells[0].Equals(new Int2(16, 8)), "Expected fine top-left footprint cell.");
+        }
+
+        static void BuildingPlacementSucceedsAtFineOffset()
+        {
+            var world = WorldWithCompletedPowerPlant();
+            var result = world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", new Int2(15, 8)));
+            Assert(result.Success, "Expected half-cell fine placement success: " + result.ErrorCode);
+            var actor = world.FirstActorOfType("power_plant", 1);
+            Assert(actor != null, "Expected placed power plant.");
+            Assert(actor.PlacementTopLeftCell.Equals(new Int2(15, 8)), "Expected fine placement top-left to be retained.");
+            Assert(actor.CellPosition.Equals(new Int2(7, 4)), "Expected coarse compatibility cell from fine placement.");
+        }
+
+        static void FinePlacementRejectsPartialOverlap()
+        {
+            var world = WorldWithCompletedPowerPlant();
+            var result = world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", new Int2(11, 8)));
+            Assert(!result.Success && result.ErrorCode == "OccupiedCell", "Expected fine overlap rejection, got " + result.ErrorCode);
+        }
+
+        static void PlacementSnapshotsExposeFineGridMetadata()
+        {
+            var world = DemoWorldFactory.CreateMvpWorld();
+            var snapshot = world.CreateSnapshot();
+            Assert(snapshot.Map.PlacementGridScale == 2, "Expected map placement grid scale in snapshot.");
+            Assert(snapshot.Map.PlacementWidth == snapshot.Map.Width * 2, "Expected doubled placement map width.");
+            Assert(snapshot.Map.PlacementHeight == snapshot.Map.Height * 2, "Expected doubled placement map height.");
+            var hub = FindActor(snapshot, "fabrication_hub", 1);
+            Assert(hub != null, "Expected fabrication hub snapshot.");
+            Assert(hub.PlacementTopLeftCell.Equals(PlacementCell(4, 4)), "Expected hub fine placement top-left.");
+            Assert(hub.PlacementFootprintCells.Equals(new Int2(6, 6)), "Expected hub fine footprint.");
         }
 
         static void ProductionDeductsCredits()
@@ -775,7 +832,7 @@ namespace ProjectAegisRTS.Tests
             var scout = world.FirstActorOfType("scout_rover", 1);
             world.IssueCommand(new BeginProductionCommand(1, hub.Id, "power_plant"));
             RunTicks(world, 20);
-            world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", new Int2(8, 4)));
+            world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", PlacementCell(8, 4)));
             world.IssueCommand(new IssueMoveOrderCommand(1, new[] { scout.Id }, new Int2(16, 10)));
             RunTicks(world, 96);
             return world.GetDeterminismSummary();
@@ -887,6 +944,14 @@ namespace ProjectAegisRTS.Tests
             return false;
         }
 
+        static ActorSnapshot FindActor(WorldSnapshot snapshot, string typeId, int ownerId)
+        {
+            for (var i = 0; i < snapshot.Actors.Count; i++)
+                if (snapshot.Actors[i].TypeId == typeId && snapshot.Actors[i].OwnerId == ownerId)
+                    return snapshot.Actors[i];
+            return null;
+        }
+
         static bool HasCellVisibility(FogSnapshot snapshot, Int2 cell, CellVisibility visibility)
         {
             for (var i = 0; i < snapshot.Cells.Count; i++)
@@ -956,9 +1021,14 @@ namespace ProjectAegisRTS.Tests
             var hub = world.FirstActorOfType("fabrication_hub", 1);
             world.IssueCommand(new BeginProductionCommand(1, hub.Id, "barracks"));
             RunTicks(world, 24);
-            var place = world.IssueCommand(new PlaceBuildingCommand(1, "barracks", new Int2(4, 8)));
+            var place = world.IssueCommand(new PlaceBuildingCommand(1, "barracks", PlacementCell(4, 8)));
             Assert(place.Success, "Expected barracks placement success: " + place.ErrorCode);
             return world;
+        }
+
+        static Int2 PlacementCell(int coarseX, int coarseY)
+        {
+            return PlacementGridMetrics.CoarseCellToPlacementCell(new Int2(coarseX, coarseY));
         }
 
         static void RunTicks(RtsWorld world, int ticks)

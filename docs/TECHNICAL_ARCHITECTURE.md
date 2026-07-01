@@ -108,6 +108,14 @@ Stage 18 keeps the same simulation boundary and adds player guidance on top. `Ve
 
 The Stage 18 validators assert that Boot is still first, debug/status panels are hidden by default, placement UI starts hidden, objective and match state agree after victory/defeat, and `Rts.Core` remains free of UnityEngine references.
 
+## Stage 18.5 Fine Placement Grid Boundary
+
+Stage 18.5 moves building placement and building occupancy to a 2x fine placement grid inside `Rts.Core`. Coarse map cells still drive terrain, resources, fog, pathing, movement commands, and high-level compatibility. Fine placement cells drive `PlaceBuildingCommand` validation, building top-left placement, footprint occupancy, placement previews, and building snapshot metadata.
+
+Unity reads the fine placement metadata through snapshots and `BoardCoordinateMapper`. It can render the denser grid, snap placement rays to fine cells, and draw fine footprint previews, but it does not own placement validity or occupancy. Normal selection, move, attack, and harvest command targets remain coarse command cells unless a building placement mode is active.
+
+Fine building occupancy is projected back to coarse blocked cells so existing pathing and movement continue to respect placed buildings without rewriting the movement model in this stage.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

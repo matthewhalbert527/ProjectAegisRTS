@@ -471,7 +471,7 @@ namespace ProjectAegisRTS.Ai
 
             for (var i = 0; i < offsets.Length; i++)
             {
-                var candidate = hub.CellPosition + offsets[i];
+                var candidate = PlacementGridMetrics.CoarseCellToPlacementCell(hub.CellPosition + offsets[i]);
                 var preview = world.PreviewPlacement(playerId, typeId, candidate);
                 if (preview.CanPlace)
                     return candidate;

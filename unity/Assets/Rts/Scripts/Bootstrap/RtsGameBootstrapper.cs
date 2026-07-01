@@ -95,7 +95,7 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
             simulationDriver.ManualUpdate(Time.deltaTime);
 
             var hovered = simulationDriver.HasHoveredCell ? (ProjectAegisRTS.Core.Int2?)simulationDriver.HoveredCell : null;
-            boardRenderer.UpdateHover(hovered);
+            boardRenderer.UpdateHover(hovered, simulationDriver.HoveredCellIsPlacementCell);
 
             PlacementPreviewSnapshot preview;
             boardRenderer.UpdatePlacementPreview(simulationDriver.TryGetPlacementPreview(out preview) ? preview : null);

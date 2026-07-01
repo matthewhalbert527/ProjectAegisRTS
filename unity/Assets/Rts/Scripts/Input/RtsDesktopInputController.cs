@@ -44,10 +44,14 @@ namespace ProjectAegisRTS.UnityClient.InputControls
         {
             Vector3 hitPoint;
             var ray = sceneCamera.ScreenPointToRay(Input.mousePosition);
-            if (mapper.TryRayToCell(ray, out hoveredCell, out hitPoint))
+            var usePlacementGrid = driver.HasPlacementMode;
+            var hasCell = usePlacementGrid
+                ? mapper.TryRayToPlacementCell(ray, out hoveredCell, out hitPoint)
+                : mapper.TryRayToCell(ray, out hoveredCell, out hitPoint);
+            if (hasCell)
             {
                 hasHoveredCell = true;
-                driver.SetHoveredCell(hoveredCell);
+                driver.SetHoveredCell(hoveredCell, usePlacementGrid);
             }
             else
             {
@@ -68,17 +72,17 @@ namespace ProjectAegisRTS.UnityClient.InputControls
                     if (driver.HasPlacementMode)
                         commandRouter.PlaceAtHoveredCell();
                     else if (commandRouter.CurrentMode == DesktopCommandMode.Move)
-                        commandRouter.IssueMoveToCell(hoveredCell);
+                        commandRouter.IssueMoveToCell(CommandCell());
                     else if (commandRouter.CurrentMode == DesktopCommandMode.AttackPlaceholder)
-                        commandRouter.IssueAttackToCell(hoveredCell);
+                        commandRouter.IssueAttackToCell(CommandCell());
                     else
-                        commandRouter.SelectAtCell(hoveredCell);
+                        commandRouter.SelectAtCell(CommandCell());
                 }
                 else
                 {
                     var result = driver.HasPlacementMode
                         ? driver.TryPlacePendingBuildingAtCell(hoveredCell)
-                        : driver.TrySelectActorAtCell(hoveredCell);
+                        : driver.TrySelectActorAtCell(CommandCell());
                     Record(result);
                 }
             }
@@ -86,10 +90,15 @@ namespace ProjectAegisRTS.UnityClient.InputControls
             if (Input.GetMouseButtonDown(1))
             {
                 if (commandRouter != null)
-                    commandRouter.IssueMoveToCell(hoveredCell);
+                    commandRouter.IssueMoveToCell(CommandCell());
                 else
-                    Record(driver.TryIssueMoveSelectedToCell(hoveredCell));
+                    Record(driver.TryIssueMoveSelectedToCell(CommandCell()));
             }
+        }
+
+        Int2 CommandCell()
+        {
+            return driver != null && driver.HoveredCellIsPlacementCell ? driver.HoveredCoarseCell : hoveredCell;
         }
 
         void HandleKeyboard()

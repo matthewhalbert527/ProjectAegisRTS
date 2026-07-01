@@ -486,6 +486,26 @@ To validate from PowerShell:
 
 Stage 18 adds the build-order checklist, snapshot-derived progress tracker, next-step prompt system, clearer sidebar production states, non-overlapping scaled HUD layout, brighter player-build camera/fog defaults, and stricter hidden-debug/status-log validation. The Windows player still exports to `build\windows-player-stage16\ProjectAegisRTS.exe`.
 
+## Stage 18.5 Fine Placement Grid
+
+Stage 18.5 keeps the same Boot and Stage 16 scenes, then doubles placement resolution without changing board scale:
+
+```text
+Assets/Rts/Scenes/Stage16_5_Boot.unity
+Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity
+```
+
+To validate from PowerShell:
+
+```powershell
+.\tools\run-unity-stage18-5-validation.ps1
+.\tools\run-stage18-5-fast-checks.ps1
+.\tools\run-stage18-5-medium-checks.ps1
+.\tools\run-stage18-5-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+Stage 18.5 adds a 2x authoritative placement grid in `Rts.Core`, renders thinner fine-grid lines with stronger coarse boundaries, snaps building placement to fine cells, and keeps normal selection/move/attack commands on coarse cells. A legacy 2 x 2 building now uses a 4 x 4 fine footprint while keeping the same physical size. The Windows player still exports to `build\windows-player-stage16\ProjectAegisRTS.exe`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -610,6 +630,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 16 is a vertical slice with simple base-destroy objectives; it is not campaign scripting, multiplayer, replay, save/load, final balance, or final art.
 - Stage 17 is player-facing polish for the vertical slice; it is not final tutorial design, final options UI, final campaign flow, final balance, or final art.
 - Stage 18 is tester-guided playability for the vertical slice; it is not a final tutorial, final mission script, final UX, final balance, or final art pass.
+- Stage 18.5 is a placement-resolution pass; movement/pathing still use coarse command cells while building placement and building occupancy use fine cells.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.

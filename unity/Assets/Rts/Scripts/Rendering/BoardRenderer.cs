@@ -13,6 +13,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         BoardCoordinateMapper mapper;
         Stage1MaterialLibrary materials;
         GameObject hoverCell;
+        public int FineGridLineCount { get; private set; }
 
         public void Initialize(BoardCoordinateMapper coordinateMapper)
         {
@@ -28,6 +29,11 @@ namespace ProjectAegisRTS.UnityClient.Rendering
 
         public void UpdateHover(Int2? hovered)
         {
+            UpdateHover(hovered, false);
+        }
+
+        public void UpdateHover(Int2? hovered, bool placementGridCell)
+        {
             if (hoverCell == null || mapper == null)
                 return;
 
@@ -38,7 +44,9 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             }
 
             hoverCell.SetActive(true);
-            hoverCell.transform.position = mapper.CellToWorldCenter(hovered.Value) + Vector3.up * 0.035f;
+            hoverCell.transform.position = (placementGridCell ? mapper.PlacementCellToWorldCenter(hovered.Value) : mapper.CellToWorldCenter(hovered.Value)) + Vector3.up * 0.035f;
+            var size = (placementGridCell ? mapper.PlacementCellSizeMeters : mapper.CellSizeMeters) * 0.94f;
+            hoverCell.transform.localScale = new Vector3(size, 0.035f, size);
         }
 
         public void UpdatePlacementPreview(PlacementPreviewSnapshot preview)
@@ -55,6 +63,11 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         public void SetHoveredCell(Int2? hovered)
         {
             UpdateHover(hovered);
+        }
+
+        public void SetHoveredCell(Int2? hovered, bool placementGridCell)
+        {
+            UpdateHover(hovered, placementGridCell);
         }
 
         public void SetPlacementPreview(IReadOnlyList<Int2> footprintCells, bool isValid)
@@ -81,7 +94,9 @@ namespace ProjectAegisRTS.UnityClient.Rendering
                 }
 
                 cellObject.SetActive(true);
-                cellObject.transform.position = mapper.CellToWorldCenter(footprintCells[i]) + Vector3.up * 0.045f;
+                cellObject.transform.position = mapper.PlacementCellToWorldCenter(footprintCells[i]) + Vector3.up * 0.045f;
+                var size = mapper.PlacementCellSizeMeters * 0.94f;
+                cellObject.transform.localScale = new Vector3(size, 0.035f, size);
                 SetMaterial(cellObject, isValid ? materials.PlacementValid : materials.PlacementInvalid);
             }
         }
@@ -126,14 +141,29 @@ namespace ProjectAegisRTS.UnityClient.Rendering
 
         void CreateGridLines()
         {
-            for (var x = 0; x <= mapper.BoardWidth; x++)
-                CreateLine("Grid X " + x, new Vector3(x * mapper.CellSizeMeters, 0.02f, 0f), new Vector3(x * mapper.CellSizeMeters, 0.02f, mapper.BoardHeight * mapper.CellSizeMeters));
+            FineGridLineCount = 0;
+            for (var x = 0; x <= mapper.PlacementBoardWidth; x++)
+            {
+                var isCoarse = x % mapper.PlacementGridScale == 0;
+                var height = isCoarse ? 0.023f : 0.02f;
+                var width = isCoarse ? 0.015f : 0.006f;
+                CreateLine("Grid X " + x, new Vector3(x * mapper.PlacementCellSizeMeters, height, 0f), new Vector3(x * mapper.PlacementCellSizeMeters, height, mapper.BoardHeight * mapper.CellSizeMeters), width);
+                if (!isCoarse)
+                    FineGridLineCount++;
+            }
 
-            for (var y = 0; y <= mapper.BoardHeight; y++)
-                CreateLine("Grid Y " + y, new Vector3(0f, 0.021f, y * mapper.CellSizeMeters), new Vector3(mapper.BoardWidth * mapper.CellSizeMeters, 0.021f, y * mapper.CellSizeMeters));
+            for (var y = 0; y <= mapper.PlacementBoardHeight; y++)
+            {
+                var isCoarse = y % mapper.PlacementGridScale == 0;
+                var height = isCoarse ? 0.024f : 0.021f;
+                var width = isCoarse ? 0.015f : 0.006f;
+                CreateLine("Grid Y " + y, new Vector3(0f, height, y * mapper.PlacementCellSizeMeters), new Vector3(mapper.BoardWidth * mapper.CellSizeMeters, height, y * mapper.PlacementCellSizeMeters), width);
+                if (!isCoarse)
+                    FineGridLineCount++;
+            }
         }
 
-        void CreateLine(string lineName, Vector3 start, Vector3 end)
+        void CreateLine(string lineName, Vector3 start, Vector3 end, float width)
         {
             var lineObject = new GameObject(lineName);
             lineObject.transform.SetParent(transform, false);
@@ -142,7 +172,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             line.positionCount = 2;
             line.SetPosition(0, start);
             line.SetPosition(1, end);
-            line.widthMultiplier = 0.015f;
+            line.widthMultiplier = width;
             line.sharedMaterial = materials.GridLine;
         }
 

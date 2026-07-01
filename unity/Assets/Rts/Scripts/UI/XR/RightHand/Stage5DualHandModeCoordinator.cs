@@ -125,17 +125,20 @@ namespace ProjectAegisRTS.UnityClient.UI.XR.RightHand
             Ray ray = default(Ray);
             Int2 cell = Int2.Zero;
             Vector3 hit = Vector3.zero;
-            var hasCell = source.TryGetRay(out ray) && mapper != null && mapper.TryRayToCell(ray, out cell, out hit);
+            var usePlacementGrid = driver != null && driver.HasPlacementMode;
+            var hasCell = source.TryGetRay(out ray) &&
+                mapper != null &&
+                (usePlacementGrid ? mapper.TryRayToPlacementCell(ray, out cell, out hit) : mapper.TryRayToCell(ray, out cell, out hit));
             if (driver != null)
             {
                 if (hasCell)
-                    driver.SetHoveredCell(cell);
+                    driver.SetHoveredCell(cell, usePlacementGrid);
                 else
                     driver.ClearHoveredCell();
             }
 
             if (boardRenderer != null)
-                boardRenderer.SetHoveredCell(hasCell ? (Int2?)cell : null);
+                boardRenderer.SetHoveredCell(hasCell ? (Int2?)cell : null, usePlacementGrid);
             if (commandReticle != null)
             {
                 if (hasCell)
