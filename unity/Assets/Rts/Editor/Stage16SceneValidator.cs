@@ -1,4 +1,5 @@
 using System;
+using ProjectAegisRTS.UnityClient.Boot;
 using ProjectAegisRTS.UnityClient.Art;
 using ProjectAegisRTS.UnityClient.Bootstrap;
 using ProjectAegisRTS.UnityClient.CoreBridge;
@@ -64,6 +65,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var objectiveHud = Require<MatchObjectiveHud>("MatchObjectiveHud");
             var statusHud = Require<IntegratedSystemsStatusHud>("IntegratedSystemsStatusHud");
             var debugActions = Require<VerticalSliceDebugActions>("VerticalSliceDebugActions");
+            var initializer = Require<PlayerBuildSceneInitializer>("PlayerBuildSceneInitializer");
+            var debugVisibility = Require<DebugHudVisibilityController>("DebugHudVisibilityController");
 
             Require<BoardRenderer>("BoardRenderer");
             Require<ActorRenderSystem>("ActorRenderSystem");
@@ -94,10 +97,34 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 bootstrapper.integratedSystemsStatusHud != statusHud ||
                 bootstrapper.verticalSliceDebugActions != debugActions)
                 throw new InvalidOperationException("Stage 16 bootstrapper scenario references are incomplete.");
+            if (!initializer.frameCameraOnStart || !initializer.startScenarioOnLoad || !initializer.hideDebugPanelsOnStart || !initializer.cancelPlacementOnStart)
+                throw new InvalidOperationException("Stage 16 player build initializer defaults are incomplete.");
+            if (debugVisibility.showDebugPanelsByDefault)
+                throw new InvalidOperationException("Stage 16 debug panels must be hidden by default.");
+            if (!objectiveHud.visible)
+                throw new InvalidOperationException("Stage 16 objective HUD must be visible by default.");
+            if (objectiveHud.showDebugActions)
+                throw new InvalidOperationException("Stage 16 objective HUD debug actions must be hidden by default.");
+            if (statusHud.visible)
+                throw new InvalidOperationException("Stage 16 integrated systems debug HUD must be hidden by default.");
+            ValidateCameraDefaults();
             if (!System.IO.File.Exists(Stage15SceneCreator.ScenePath))
                 throw new InvalidOperationException("Previous stage scene missing: " + Stage15SceneCreator.ScenePath);
 
             Debug.Log("Stage 16 scene validation passed.");
+        }
+
+        static void ValidateCameraDefaults()
+        {
+            var camera = Camera.main != null ? Camera.main : UnityEngine.Object.FindFirstObjectByType<Camera>();
+            if (camera == null)
+                throw new InvalidOperationException("Stage 16 camera missing.");
+            if (!camera.orthographic)
+                throw new InvalidOperationException("Stage 16 camera must be orthographic.");
+            if (Math.Abs(camera.orthographicSize - 28f) > 0.01f)
+                throw new InvalidOperationException("Stage 16 camera orthographic size must be 28.");
+            if (Math.Abs(camera.nearClipPlane - 0.1f) > 0.01f || Math.Abs(camera.farClipPlane - 1000f) > 0.01f)
+                throw new InvalidOperationException("Stage 16 camera clipping planes are incorrect.");
         }
 
         static void RequireObject(string name)

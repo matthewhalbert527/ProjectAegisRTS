@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ProjectAegisRTS.UnityClient.Boot;
 using ProjectAegisRTS.UnityClient.Bootstrap;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.Scenario;
@@ -64,6 +65,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var objectiveHud = GetOrAdd<MatchObjectiveHud>(game);
             var systemsHud = GetOrAdd<IntegratedSystemsStatusHud>(game);
             var debugActions = GetOrAdd<VerticalSliceDebugActions>(game);
+            var playerInitializer = GetOrAdd<PlayerBuildSceneInitializer>(game);
+            var debugVisibility = GetOrAdd<DebugHudVisibilityController>(game);
             var bootstrapper = GetOrAdd<RtsGameBootstrapper>(game);
             EnsureDesktopHud(bootstrapper, driver);
 
@@ -78,12 +81,23 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             objectiveHud.scenarioController = controller;
             objectiveHud.debugActions = debugActions;
             objectiveHud.visible = true;
+            objectiveHud.showDebugActions = false;
 
             systemsHud.driver = driver;
-            systemsHud.visible = true;
+            systemsHud.visible = false;
 
             debugActions.driver = driver;
             debugActions.creditGrantAmount = 1000;
+
+            playerInitializer.frameCameraOnStart = true;
+            playerInitializer.startScenarioOnLoad = true;
+            playerInitializer.hideDebugPanelsOnStart = true;
+            playerInitializer.cancelPlacementOnStart = true;
+
+            debugVisibility.showDebugPanelsByDefault = false;
+            debugVisibility.hideDebugPanelsOnStart = true;
+            debugVisibility.keepPlacementPanelsSynced = true;
+            debugVisibility.ApplyPlayerFacingDefaults();
 
             bootstrapper.simulationDriver = driver;
             bootstrapper.verticalSliceScenarioController = controller;
@@ -108,11 +122,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             camera.farClipPlane = 1000f;
             camera.transform.position = new Vector3(16f, 38f, -26f);
             camera.transform.rotation = Quaternion.Euler(60f, 0f, 0f);
+            if (UnityEngine.Object.FindFirstObjectByType<AudioListener>() == null)
+                camera.gameObject.AddComponent<AudioListener>();
         }
 
         static void UpdateBuildScenes()
         {
-            var paths = new[]
+            var stagePaths = new[]
             {
                 "Assets/Rts/Scenes/Stage1_DesktopBoard.unity",
                 "Assets/Rts/Scenes/Stage2_PCSidebar.unity",
@@ -133,9 +149,16 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             };
 
             var scenes = new List<EditorBuildSettingsScene>();
-            for (var i = 0; i < paths.Length; i++)
-                if (System.IO.File.Exists(paths[i]))
-                    scenes.Add(new EditorBuildSettingsScene(paths[i], true));
+            var bootScenePath = "Assets/Rts/Scenes/Stage16_5_Boot.unity";
+            if (System.IO.File.Exists(bootScenePath))
+            {
+                scenes.Add(new EditorBuildSettingsScene(bootScenePath, true));
+                scenes.Add(new EditorBuildSettingsScene(ScenePath, true));
+            }
+
+            for (var i = 0; i < stagePaths.Length; i++)
+                if (System.IO.File.Exists(stagePaths[i]) && !ContainsScene(scenes, stagePaths[i]))
+                    scenes.Add(new EditorBuildSettingsScene(stagePaths[i], true));
             EditorBuildSettings.scenes = scenes.ToArray();
         }
 
@@ -207,6 +230,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             var component = target.GetComponent<T>();
             return component != null ? component : target.AddComponent<T>();
+        }
+
+        static bool ContainsScene(List<EditorBuildSettingsScene> scenes, string path)
+        {
+            for (var i = 0; i < scenes.Count; i++)
+                if (scenes[i].path == path)
+                    return true;
+            return false;
         }
     }
 }

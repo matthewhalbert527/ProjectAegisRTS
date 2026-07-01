@@ -48,6 +48,9 @@ if ($LASTEXITCODE -ne 0) {
 Write-ValidationSection 'Rts.Core UnityEngine-free scan'
 Test-RtsCoreUnityEngineFree -CorePath $corePath
 
+Write-ValidationSection 'Normalize Unity-generated whitespace'
+Repair-UnityGeneratedValidationWhitespace -RepoRoot $repoRoot
+
 Write-ValidationSection 'Whitespace check'
 Invoke-GitDiffCheck -RepoRoot $repoRoot
 

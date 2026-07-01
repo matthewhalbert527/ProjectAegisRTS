@@ -187,6 +187,15 @@ Run Stage 16 checks:
 
 Use `run-stage16-fast-checks.ps1` for current vertical-slice iteration, `run-stage16-medium-checks.ps1` before local commits, and `run-stage16-checks.ps1` as the full Stage 0-through-Stage 16 acceptance gate. The medium recursion audit now covers Stage 9 through Stage 16.
 
+Stage 16.5 adds the player-facing boot/build flow and fixes the Stage 16 Play Mode HUD initialization error seen in exported Unity logs. Use:
+
+```powershell
+.\tools\run-stage16-player-build-checks.ps1 -SkipPlayerBuild
+.\tools\build-windows-player-stage16.ps1
+```
+
+The Windows player is written to `build\windows-player-stage16\ProjectAegisRTS.exe`. The boot scene is `Assets/Rts/Scenes/Stage16_5_Boot.unity`; it is first in Build Settings, followed by `Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity`.
+
 Open the Unity project:
 
 ```powershell
@@ -210,6 +219,7 @@ Scene paths:
 - `Assets/Rts/Scenes/Stage13_MapTerrainPathing.unity`: Stage 13 map terrain pathing scene with deterministic terrain metadata, path diagnostics, map validation, and F5 debug HUD.
 - `Assets/Rts/Scenes/Stage14_FeedbackPolish.unity`: Stage 14 feedback scene with snapshot-driven placeholder audio/VFX/UI/haptic events and F4 debug HUD.
 - `Assets/Rts/Scenes/Stage15_PerformanceBuildReadiness.unity`: Stage 15 performance/build-readiness scene with pooling, runtime stats, scene complexity, quality profiles, build-readiness reporters, and F3 render stats HUD.
+- `Assets/Rts/Scenes/Stage16_5_Boot.unity`: Stage 16.5 player-facing boot/menu scene for Windows player builds.
 - `Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity`: Stage 16 integrated playable vertical slice with match/objective HUD, systems status HUD, PC sidebar, dual-hand controls, economy, combat, fog/minimap, AI, terrain/pathing, feedback, and performance presentation.
 
 Stage 8 art assets:
@@ -269,7 +279,10 @@ Stage 15 performance/build-readiness assets:
 Stage 16 vertical slice assets:
 
 - Scenario scripts: `unity/Assets/Rts/Scripts/Scenario/`
+- Player build flow scripts: `unity/Assets/Rts/Scripts/Boot/`
 - Match/objective UI: `unity/Assets/Rts/Scripts/UI/Common/MatchObjectiveHud.cs`
 - Integrated systems HUD: `unity/Assets/Rts/Scripts/UI/Common/IntegratedSystemsStatusHud.cs`
 - Design notes: `docs/STAGE16_VERTICAL_SLICE_DESIGN.md`
 - Stage report: `docs/STAGE16_REPORT.md`
+- Stage 16.5 build flow report: `docs/STAGE16_5_BUILD_FLOW_REPORT.md`
+- Stage 16.5 player build guide: `docs/STAGE16_5_PLAYER_BUILD_GUIDE.md`

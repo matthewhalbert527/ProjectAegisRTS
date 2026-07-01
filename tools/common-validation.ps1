@@ -243,3 +243,21 @@ function Normalize-WhitespaceInTree {
     Get-ChildItem -LiteralPath $Path -Recurse -File -Include $Include |
         ForEach-Object { Remove-TrailingWhitespace -Path $_.FullName }
 }
+
+function Repair-UnityGeneratedValidationWhitespace {
+    param([string]$RepoRoot)
+
+    $relativePaths = @(
+        'unity\Assets\Rts\Scenes\Stage15_PerformanceBuildReadiness.unity',
+        'unity\Assets\Rts\Scenes\Stage16_PlayableVerticalSlice.unity',
+        'unity\Assets\Rts\Scenes\Stage16_5_Boot.unity',
+        'unity\Assets\Rts\Scenes\Stage16_5_Boot.unity.meta',
+        'unity\Assets\Rts\Scripts\Boot.meta',
+        'unity\Assets\XR\Settings\OpenXR Package Settings.asset',
+        'unity\ProjectSettings\EditorBuildSettings.asset'
+    )
+
+    foreach ($relativePath in $relativePaths) {
+        Remove-TrailingWhitespace -Path (Join-Path $RepoRoot $relativePath)
+    }
+}

@@ -12,6 +12,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
         public VerticalSliceScenarioController scenarioController;
         public VerticalSliceDebugActions debugActions;
         public bool visible = true;
+        public bool showDebugActions;
         public Rect area = new Rect(12f, 12f, 360f, 238f);
 
         public void Initialize(RtsSimulationDriver simulationDriver, VerticalSliceScenarioController controller, VerticalSliceDebugActions actions)
@@ -53,16 +54,19 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                 scenarioController.ResetScenario();
             GUILayout.EndHorizontal();
 
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Reveal") && debugActions != null)
-                debugActions.RevealMap();
-            if (GUILayout.Button("+Credits") && debugActions != null)
-                debugActions.GrantCredits();
-            if (GUILayout.Button("Win") && debugActions != null)
-                debugActions.DestroyEnemyBase();
-            if (GUILayout.Button("Lose") && debugActions != null)
-                debugActions.DestroyPlayerBase();
-            GUILayout.EndHorizontal();
+            if (showDebugActions)
+            {
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Reveal") && debugActions != null)
+                    debugActions.RevealMap();
+                if (GUILayout.Button("+Credits") && debugActions != null)
+                    debugActions.GrantCredits();
+                if (GUILayout.Button("Win") && debugActions != null)
+                    debugActions.DestroyEnemyBase();
+                if (GUILayout.Button("Lose") && debugActions != null)
+                    debugActions.DestroyPlayerBase();
+                GUILayout.EndHorizontal();
+            }
 
             GUILayout.Label("Last: " + LastStatus());
             GUILayout.EndArea();

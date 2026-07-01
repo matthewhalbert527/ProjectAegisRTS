@@ -4,6 +4,7 @@ using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Match;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.Bootstrap;
+using ProjectAegisRTS.UnityClient.Boot;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.Feedback;
 using ProjectAegisRTS.UnityClient.Performance;
@@ -15,6 +16,7 @@ using ProjectAegisRTS.UnityClient.Rendering.Map;
 using ProjectAegisRTS.UnityClient.Rendering.Visibility;
 using ProjectAegisRTS.UnityClient.Scenario;
 using ProjectAegisRTS.UnityClient.UI.Common;
+using ProjectAegisRTS.UnityClient.UI.Desktop;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -59,6 +61,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 var objectiveHud = RequireEnabled<MatchObjectiveHud>("MatchObjectiveHud");
                 var systemsHud = RequireEnabled<IntegratedSystemsStatusHud>("IntegratedSystemsStatusHud");
                 var debugActions = RequireEnabled<VerticalSliceDebugActions>("VerticalSliceDebugActions");
+                var playerInitializer = RequireEnabled<PlayerBuildSceneInitializer>("PlayerBuildSceneInitializer");
+                var debugVisibility = RequireEnabled<DebugHudVisibilityController>("DebugHudVisibilityController");
+                var desktopHud = RequireEnabled<DesktopRtsHudRoot>("DesktopRtsHudRoot");
                 var boardRenderer = RequireEnabled<BoardRenderer>("BoardRenderer");
                 var actorRenderer = RequireEnabled<ActorRenderSystem>("ActorRenderSystem");
                 var projectileRenderer = RequireEnabled<ProjectileRenderSystem>("ProjectileRenderSystem");
@@ -72,8 +77,20 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 var stats = RequireEnabled<RuntimePerformanceStats>("RuntimePerformanceStats");
 
                 bootstrapper.InitializeScene();
+                desktopHud.Initialize();
+                playerInitializer.ApplyPlayerFacingDefaults();
+                debugVisibility.ApplyPlayerFacingDefaults();
                 controller.Initialize(driver, objectiveHud, systemsHud, debugActions);
                 StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 4, 0.05f);
+
+                if (!objectiveHud.visible)
+                    throw new InvalidOperationException("Stage 16 objective HUD is hidden by default.");
+                if (objectiveHud.showDebugActions)
+                    throw new InvalidOperationException("Stage 16 objective HUD debug actions are visible by default.");
+                if (systemsHud.visible)
+                    throw new InvalidOperationException("Stage 16 systems debug HUD is visible by default.");
+                if (driver.HasPlacementMode)
+                    throw new InvalidOperationException("Stage 16 placement mode is active by default.");
 
                 var snapshot = RequireSnapshot(driver);
                 if (snapshot.Match.Phase != MatchPhase.Running)

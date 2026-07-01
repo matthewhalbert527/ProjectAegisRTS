@@ -411,6 +411,29 @@ To validate it from PowerShell:
 
 Stage 16 preserves Stage 15 systems, restores the PC desktop HUD/sidebar in the integrated scene, and adds deterministic match/objective state, vertical-slice world setup, scenario debug actions, `MatchObjectiveHud`, and `IntegratedSystemsStatusHud`.
 
+## Stage 16.5 Player Build Flow
+
+Stage 16.5 adds a player-facing boot scene and Windows player build path:
+
+```text
+Assets/Rts/Scenes/Stage16_5_Boot.unity
+```
+
+To configure it in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 16.5 > Configure Player Build Flow
+```
+
+To validate or build from PowerShell:
+
+```powershell
+.\tools\run-stage16-player-build-checks.ps1 -SkipPlayerBuild
+.\tools\build-windows-player-stage16.ps1
+```
+
+The player build starts from Boot, then loads `Stage16_PlayableVerticalSlice`. Debug panels and placement controls are hidden by default, while the objective HUD remains visible. The exported-log root issue was a repeated `ProductionCategoryTabs.BuildIfNeeded()` `NullReferenceException` caused by adding a duplicate `GridLayoutGroup` to prebuilt UI.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -428,7 +451,7 @@ Stage 16 preserves Stage 15 systems, restores the PC desktop HUD/sidebar in the 
 - F4: toggle the Stage 14 feedback debug HUD.
 - F3: toggle the Stage 15 render stats HUD.
 - O: toggle the Stage 16 match/objective HUD.
-- Y: toggle the Stage 16 integrated systems HUD.
+- Y: toggle the Stage 16 integrated systems debug HUD.
 - F1-F6: switch Stage 2 production tabs.
 - S/M/A: stop, move mode, or attack placeholder command.
 - Backquote: toggle the Stage 1 debug overlay if it is enabled in the scene.

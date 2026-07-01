@@ -38,13 +38,18 @@ namespace ProjectAegisRTS.UnityClient.UI.XR
             RtsUiFactory.Stretch(gameObject, Vector2.zero, Vector2.zero);
             RtsUiFactory.AddPanel(gameObject, new Color(0.04f, 0.05f, 0.07f, 0.86f));
 
-            var layout = gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(12, 12, 12, 12);
-            layout.spacing = 6f;
-            layout.childControlHeight = false;
-            layout.childForceExpandHeight = false;
+            var layout = GetComponent<VerticalLayoutGroup>();
+            if (layout == null && GetComponent<LayoutGroup>() == null)
+                layout = gameObject.AddComponent<VerticalLayoutGroup>();
+            if (layout != null)
+            {
+                layout.padding = new RectOffset(12, 12, 12, 12);
+                layout.spacing = 6f;
+                layout.childControlHeight = false;
+                layout.childForceExpandHeight = false;
+            }
 
-            readout = RtsUiFactory.CreateText(transform, "Stage 3 Placement Readout", string.Empty, 13, Color.white, TextAnchor.UpperLeft);
+            readout = GetOrCreateText("Stage 3 Placement Readout", string.Empty, 13, Color.white, TextAnchor.UpperLeft);
             readout.rectTransform.sizeDelta = new Vector2(360f, 190f);
 
             AddButton("Toggle Placement Mode", () => { if (controller != null) controller.TogglePlacementMode(); });
@@ -58,9 +63,20 @@ namespace ProjectAegisRTS.UnityClient.UI.XR
 
         void AddButton(string text, UnityEngine.Events.UnityAction action)
         {
-            var button = RtsUiFactory.CreateButton(transform, text, text);
+            var child = transform.Find(text);
+            var button = child != null ? child.GetComponent<Button>() : null;
+            if (button == null)
+                button = RtsUiFactory.CreateButton(transform, text, text);
             button.GetComponent<RectTransform>().sizeDelta = new Vector2(220f, 30f);
+            button.onClick.RemoveAllListeners();
             button.onClick.AddListener(action);
+        }
+
+        Text GetOrCreateText(string objectName, string text, int fontSize, Color color, TextAnchor anchor)
+        {
+            var child = transform.Find(objectName);
+            var existing = child != null ? child.GetComponent<Text>() : null;
+            return existing != null ? existing : RtsUiFactory.CreateText(transform, objectName, text, fontSize, color, anchor);
         }
 
         void Refresh()

@@ -72,6 +72,10 @@ Complete. Quest performance and build-readiness foundation. Adds placeholder Que
 
 Complete. Integrated playable vertical slice. Adds deterministic match/scenario/victory state, vertical-slice demo world, match and scenario snapshots, player/enemy bases, resources, fog/minimap, AI, terrain/pathing, economy, combat, feedback, performance HUD, PC sidebar, simulated dual-hand controls, `Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity`, match/objective HUD, integrated systems status HUD, scenario debug actions, and fast/medium/full Stage 16 validation tiers with non-recursive medium validation guarded by the audit script.
 
+## Stage 16.5
+
+Complete. Player-facing boot/build flow and runtime hardening. Adds `Assets/Rts/Scenes/Stage16_5_Boot.unity`, boot/menu HUDs, player build settings, debug-panel visibility control, Stage 16 camera/placement/default HUD initialization, Windows player build scripts, and build-flow validation without adding Stage 17 gameplay scope.
+
 ## Later Stages
 
 Next later stages include multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

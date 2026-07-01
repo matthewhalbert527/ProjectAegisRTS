@@ -62,22 +62,35 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return;
 
             RtsUiFactory.Stretch(gameObject, Vector2.zero, Vector2.zero);
-            var layout = gameObject.AddComponent<GridLayoutGroup>();
-            layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            layout.constraintCount = 3;
-            layout.spacing = new Vector2(4f, 4f);
-            layout.cellSize = new Vector2(112f, 30f);
-            layout.padding = new RectOffset(0, 0, 0, 0);
+            var layout = GetComponent<GridLayoutGroup>();
+            if (layout == null && GetComponent<LayoutGroup>() == null)
+                layout = gameObject.AddComponent<GridLayoutGroup>();
+            if (layout != null)
+            {
+                layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                layout.constraintCount = 3;
+                layout.spacing = new Vector2(4f, 4f);
+                layout.cellSize = new Vector2(112f, 30f);
+                layout.padding = new RectOffset(0, 0, 0, 0);
+            }
 
             buttons = new Button[categories.Length];
             for (var i = 0; i < categories.Length; i++)
             {
                 var category = categories[i];
-                var button = RtsUiFactory.CreateButton(transform, category + " Tab", category.ToString());
+                var button = GetOrCreateCategoryButton(category);
                 var captured = category;
+                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => SetActiveCategory(captured));
                 buttons[i] = button;
             }
+        }
+
+        Button GetOrCreateCategoryButton(DesktopProductionCategory category)
+        {
+            var child = transform.Find(category + " Tab");
+            var button = child != null ? child.GetComponent<Button>() : null;
+            return button != null ? button : RtsUiFactory.CreateButton(transform, category + " Tab", category.ToString());
         }
 
         void RefreshVisuals()

@@ -38,10 +38,15 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             RtsUiFactory.Stretch(gameObject, Vector2.zero, Vector2.zero);
             RtsUiFactory.AddPanel(gameObject, new Color(0.05f, 0.06f, 0.08f, 0.88f));
 
-            var layout = gameObject.AddComponent<HorizontalLayoutGroup>();
-            layout.padding = new RectOffset(10, 10, 10, 10);
-            layout.spacing = 6f;
-            layout.childForceExpandWidth = false;
+            var layout = GetComponent<HorizontalLayoutGroup>();
+            if (layout == null && GetComponent<LayoutGroup>() == null)
+                layout = gameObject.AddComponent<HorizontalLayoutGroup>();
+            if (layout != null)
+            {
+                layout.padding = new RectOffset(10, 10, 10, 10);
+                layout.spacing = 6f;
+                layout.childForceExpandWidth = false;
+            }
 
             AddButton("Stop", () => router.StopSelected());
             AddButton("Move", () => router.SetMoveMode());
@@ -56,15 +61,26 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             AddButton("Step", () => router.StepTick());
             AddButton("Low Power", () => router.TriggerLowPowerDemo());
 
-            modeText = RtsUiFactory.CreateText(transform, "Mode Text", "Command Mode: Normal", 12, Color.white, TextAnchor.MiddleLeft);
+            modeText = GetOrCreateText("Mode Text", "Command Mode: Normal", 12, Color.white, TextAnchor.MiddleLeft);
             modeText.rectTransform.sizeDelta = new Vector2(190f, 32f);
         }
 
         void AddButton(string text, UnityEngine.Events.UnityAction action)
         {
-            var button = RtsUiFactory.CreateButton(transform, text, text);
+            var child = transform.Find(text);
+            var button = child != null ? child.GetComponent<Button>() : null;
+            if (button == null)
+                button = RtsUiFactory.CreateButton(transform, text, text);
             button.GetComponent<RectTransform>().sizeDelta = new Vector2(84f, 34f);
+            button.onClick.RemoveAllListeners();
             button.onClick.AddListener(action);
+        }
+
+        Text GetOrCreateText(string objectName, string text, int fontSize, Color color, TextAnchor anchor)
+        {
+            var child = transform.Find(objectName);
+            var existing = child != null ? child.GetComponent<Text>() : null;
+            return existing != null ? existing : RtsUiFactory.CreateText(transform, objectName, text, fontSize, color, anchor);
         }
     }
 }

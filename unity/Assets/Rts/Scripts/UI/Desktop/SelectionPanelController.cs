@@ -36,26 +36,50 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
             RtsUiFactory.Stretch(gameObject, Vector2.zero, Vector2.zero);
             RtsUiFactory.AddPanel(gameObject, new Color(0.10f, 0.12f, 0.14f, 0.85f));
-            label = RtsUiFactory.CreateText(transform, "Selection Text", "No selection.", 12, Color.white, TextAnchor.UpperLeft);
+            label = GetOrCreateText(transform, "Selection Text", "No selection.", 12, Color.white, TextAnchor.UpperLeft);
             label.rectTransform.offsetMin = new Vector2(8f, 40f);
             label.rectTransform.offsetMax = new Vector2(-8f, -6f);
 
-            var row = new GameObject("Selection Commands");
-            row.transform.SetParent(transform, false);
-            var rect = row.AddComponent<RectTransform>();
+            var rowTransform = transform.Find("Selection Commands");
+            var row = rowTransform != null ? rowTransform.gameObject : new GameObject("Selection Commands");
+            if (rowTransform == null)
+                row.transform.SetParent(transform, false);
+            var rect = row.GetComponent<RectTransform>();
+            if (rect == null)
+                rect = row.AddComponent<RectTransform>();
             rect.anchorMin = new Vector2(0f, 0f);
             rect.anchorMax = new Vector2(1f, 0f);
             rect.offsetMin = new Vector2(8f, 6f);
             rect.offsetMax = new Vector2(-8f, 34f);
-            var layout = row.AddComponent<HorizontalLayoutGroup>();
-            layout.spacing = 5f;
+            var layout = row.GetComponent<HorizontalLayoutGroup>();
+            if (layout == null && row.GetComponent<LayoutGroup>() == null)
+                layout = row.AddComponent<HorizontalLayoutGroup>();
+            if (layout != null)
+                layout.spacing = 5f;
 
-            stopButton = RtsUiFactory.CreateButton(row.transform, "Stop", "Stop");
-            moveButton = RtsUiFactory.CreateButton(row.transform, "Move", "Move");
-            powerButton = RtsUiFactory.CreateButton(row.transform, "Power Toggle", "Power");
+            stopButton = GetOrCreateButton(row.transform, "Stop", "Stop");
+            moveButton = GetOrCreateButton(row.transform, "Move", "Move");
+            powerButton = GetOrCreateButton(row.transform, "Power Toggle", "Power");
+            stopButton.onClick.RemoveAllListeners();
+            moveButton.onClick.RemoveAllListeners();
+            powerButton.onClick.RemoveAllListeners();
             stopButton.onClick.AddListener(() => { if (router != null) router.StopSelected(); });
             moveButton.onClick.AddListener(() => { if (router != null) router.SetMoveMode(); });
             powerButton.onClick.AddListener(() => { if (router != null) router.TogglePowerSelected(); });
+        }
+
+        Text GetOrCreateText(Transform parent, string objectName, string text, int fontSize, Color color, TextAnchor anchor)
+        {
+            var child = parent.Find(objectName);
+            var existing = child != null ? child.GetComponent<Text>() : null;
+            return existing != null ? existing : RtsUiFactory.CreateText(parent, objectName, text, fontSize, color, anchor);
+        }
+
+        Button GetOrCreateButton(Transform parent, string objectName, string text)
+        {
+            var child = parent.Find(objectName);
+            var existing = child != null ? child.GetComponent<Button>() : null;
+            return existing != null ? existing : RtsUiFactory.CreateButton(parent, objectName, text);
         }
 
         void Refresh()

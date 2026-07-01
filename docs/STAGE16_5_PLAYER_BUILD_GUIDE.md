@@ -1,0 +1,65 @@
+# Stage 16.5 Player Build Guide
+
+## Configure
+
+From Unity:
+
+```text
+ProjectAegisRTS > Stage 16.5 > Configure Player Build Flow
+```
+
+From PowerShell, run the check script:
+
+```powershell
+cd "E:\OpenRA Mod\ProjectAegisRTS"
+.\tools\run-stage16-player-build-checks.ps1 -SkipPlayerBuild
+```
+
+Close the Unity editor before running batchmode validation or player builds. If Unity is open on this project, batchmode cannot own the project lock.
+
+## Build Windows Player
+
+```powershell
+cd "E:\OpenRA Mod\ProjectAegisRTS"
+.\tools\build-windows-player-stage16.ps1
+```
+
+Output:
+
+```text
+E:\OpenRA Mod\ProjectAegisRTS\build\windows-player-stage16\ProjectAegisRTS.exe
+```
+
+Launch:
+
+```powershell
+cd "E:\OpenRA Mod\ProjectAegisRTS\build\windows-player-stage16"
+.\ProjectAegisRTS.exe
+```
+
+## Open In Unity
+
+Open first:
+
+```text
+Assets/Rts/Scenes/Stage16_5_Boot.unity
+```
+
+Use the menu button to start the vertical slice. To inspect the gameplay scene directly, open:
+
+```text
+Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity
+```
+
+## Controls
+
+- Left click: select units/buildings.
+- Right click: issue movement or contextual command.
+- Space: pause/resume.
+- Period or N: single-step.
+- Escape: cancel placement or clear selection.
+- B: enter placement for a completed building.
+- O: toggle objective HUD.
+- Y, Backquote, F3-F12: developer/debug HUD toggles.
+
+Debug panels are hidden by default in the player-facing flow. Existing hotkeys still toggle them for development.

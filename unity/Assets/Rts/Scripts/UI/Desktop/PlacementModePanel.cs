@@ -33,19 +33,34 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
             RtsUiFactory.Stretch(gameObject, Vector2.zero, Vector2.zero);
             RtsUiFactory.AddPanel(gameObject, new Color(0.10f, 0.12f, 0.14f, 0.85f));
-            label = RtsUiFactory.CreateText(transform, "Placement Text", "Placement inactive.", 12, Color.white, TextAnchor.UpperLeft);
+            label = GetOrCreateText("Placement Text", "Placement inactive.", 12, Color.white, TextAnchor.UpperLeft);
             label.rectTransform.offsetMin = new Vector2(8f, 28f);
             label.rectTransform.offsetMax = new Vector2(-8f, -6f);
-            cancelButton = RtsUiFactory.CreateButton(transform, "Cancel Placement", "Cancel Placement");
+            cancelButton = GetOrCreateButton("Cancel Placement", "Cancel Placement");
             cancelButton.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
             cancelButton.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 0f);
             cancelButton.GetComponent<RectTransform>().offsetMin = new Vector2(8f, 4f);
             cancelButton.GetComponent<RectTransform>().offsetMax = new Vector2(-8f, 28f);
+            cancelButton.onClick.RemoveAllListeners();
             cancelButton.onClick.AddListener(() =>
             {
                 if (router != null)
                     router.CancelPlacement();
             });
+        }
+
+        Text GetOrCreateText(string objectName, string text, int fontSize, Color color, TextAnchor anchor)
+        {
+            var child = transform.Find(objectName);
+            var existing = child != null ? child.GetComponent<Text>() : null;
+            return existing != null ? existing : RtsUiFactory.CreateText(transform, objectName, text, fontSize, color, anchor);
+        }
+
+        Button GetOrCreateButton(string objectName, string text)
+        {
+            var child = transform.Find(objectName);
+            var existing = child != null ? child.GetComponent<Button>() : null;
+            return existing != null ? existing : RtsUiFactory.CreateButton(transform, objectName, text);
         }
 
         void Refresh()

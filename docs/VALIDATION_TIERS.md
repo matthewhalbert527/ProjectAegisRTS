@@ -230,6 +230,22 @@ Before declaring Stage 16 accepted or using Stage 16 as the base for a later sta
 .\tools\run-stage16-checks.ps1
 ```
 
+## Stage 16.5 Player Build Flow
+
+After touching the player-facing boot scene, Stage 16 default presentation, debug-panel visibility, or Windows player build scripts, use:
+
+```powershell
+.\tools\run-stage16-player-build-checks.ps1 -SkipPlayerBuild
+```
+
+Before handing someone an executable, use:
+
+```powershell
+.\tools\build-windows-player-stage16.ps1
+```
+
+The player-build check keeps `run-stage16-checks.ps1` as the full Stage 16 acceptance gate. It layers on the Stage 16.5 boot/build-flow validator and smoke check, then optionally runs the Windows player build. The build script configures Boot first and Stage 16 second before exporting `build\windows-player-stage16\ProjectAegisRTS.exe`.
+
 ## Expected Time
 
 Fast checks should usually take minutes because they avoid earlier-stage validation. Medium checks are longer because they include core tests, Unity DLL build, immediate dependency validation, and current-stage validation, but they avoid the full replay where practical. Full checks are the slow acceptance gate and can take much longer because they validate every stage through the current stage. Stage 9 and later full checks avoid recursively nesting lower full gates, so they should scale roughly with the number of stages instead of repeating prior stages many times.
