@@ -16,13 +16,13 @@ MonoBehaviour:
   displayName: Barracks
   safeDisplayName: Barracks
   category: 0
-  productionStatus: 1
+  productionStatus: 2
   conceptReference: {fileID: 11400000, guid: c48cafa98542e4c4fb8c285ceb22d8f1, type: 2}
   icon: {fileID: 21300000, guid: 618af0b19dd98fc4e8bc6f21cf08f028, type: 3}
   generatedBlockoutPrefab: {fileID: 1575144389124743221, guid: bf89ef515fcbe974390025f0a84aa9f1, type: 3}
-  productionPrefab: {fileID: 0}
-  fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
+  productionPrefab: {fileID: 7075862574474359963, guid: c9664fb9015ddf346beef1b78d723dc8, type: 3}
+  fallbackPrefab: {fileID: 1575144389124743221, guid: bf89ef515fcbe974390025f0a84aa9f1, type: 3}
+  preferredPrefabMode: 1
   motionProfileId: building_static
   buildingProfileId: barracks_building_visual
   selectionRadius: 1.1
@@ -40,7 +40,10 @@ MonoBehaviour:
   notes: 'Original facade and entry sequence needed.
 
     Door opens during production,
-    infantry exits, lights idle/offline states.'
+    infantry exits, lights idle/offline states.
+
+    Stage 20: MVP first-pass production
+    proxy is assigned as the preferred prefab.'
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Barracks
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_42

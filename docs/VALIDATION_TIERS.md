@@ -455,3 +455,14 @@ Stage 13 implementation hash: 17527ff5848ba3a0a333cb8e0bd8332ca9f2f860.
 Stage 14 implementation hash: b54ea7d.
 
 Stage 15 implementation hash: 04c6c768bd6cdda74c6593a7d046de62ac27a39b.
+
+## Stage 20 Validation
+
+Stage 20 adds:
+
+- `.\tools\run-stage20-fast-checks.ps1` for current-stage visual iteration.
+- `.\tools\run-stage20-medium-checks.ps1` for pre-commit confidence without calling prior medium scripts.
+- `.\tools\run-stage20-player-facing-checks.ps1` for Stage16 player-facing UI and MVP proxy resolution confidence.
+- `.\tools\run-stage20-checks.ps1` for slow full final acceptance.
+
+The medium recursion audit includes Stage 20 and fails if `run-stage20-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`.

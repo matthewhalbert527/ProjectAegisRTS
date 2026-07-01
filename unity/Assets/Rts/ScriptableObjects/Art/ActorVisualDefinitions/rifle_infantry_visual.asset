@@ -16,13 +16,13 @@ MonoBehaviour:
   displayName: Gunner
   safeDisplayName: Rifle Infantry
   category: 2
-  productionStatus: 1
+  productionStatus: 2
   conceptReference: {fileID: 11400000, guid: 567deb839ffc4204a98d8af218e3238e, type: 2}
   icon: {fileID: 21300000, guid: c735880137fcdfa4192701e986370ff0, type: 3}
   generatedBlockoutPrefab: {fileID: 2588382988328978012, guid: 1e87a2c2efd1bbb44b47b9cc22106bcc, type: 3}
-  productionPrefab: {fileID: 0}
-  fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
+  productionPrefab: {fileID: 2646252413700014525, guid: 43f6e29fd8fb40c49989a354c84b5380, type: 3}
+  fallbackPrefab: {fileID: 2588382988328978012, guid: 1e87a2c2efd1bbb44b47b9cc22106bcc, type: 3}
+  preferredPrefabMode: 1
   motionProfileId: infantry_basic
   buildingProfileId:
   selectionRadius: 0.6
@@ -40,7 +40,10 @@ MonoBehaviour:
   notes: 'Rename in game-facing text to avoid inherited faction/IP associations.
 
     Locomotion
-    blend tree, aim offsets, firing recoil, death state later.'
+    blend tree, aim offsets, firing recoil, death state later.
+
+    Stage 20: MVP
+    first-pass production proxy is assigned as the preferred prefab.'
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Gunner
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_29

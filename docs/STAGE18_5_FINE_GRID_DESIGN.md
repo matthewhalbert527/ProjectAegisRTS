@@ -56,3 +56,7 @@ Mouse and hand-ray placement snap to fine cells while normal selection, move, at
 ## Player-Facing Behavior
 
 Players should see a denser placement grid and finer snapping during building placement. Buildings should not look smaller. The desktop placement panel and XR placement panel show fine footprint details only while placement is active, keeping the default HUD clean.
+
+## Stage 20 Visual Relationship
+
+Stage 20 production proxies keep the same physical footprint relationship established here. Foundations align to the authoritative fine-grid footprint, while upper visual detail can be inset, raised, tiered, or beveled for readability. The proxy art must not imply a larger gameplay footprint than the placement preview validates.

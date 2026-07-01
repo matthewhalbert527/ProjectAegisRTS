@@ -672,6 +672,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 18.5 is a placement-resolution pass; movement/pathing still use coarse command cells while building placement and building occupancy use fine cells.
 - Stage 19 is mission-flow tuning for the prototype slice; it is not a full campaign system, final tutorial, advanced AI, final balance, or final art pass.
 - Stage 19.5 is PC UI layout and pause-menu work; it is not final chrome art, final icons, or final settings UX.
+- Stage 20 is a first-pass MVP production proxy visual layer; it is not final artist-authored FBX/GLB art, final VFX, final audio, or final Quest device profiling.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.
@@ -680,3 +681,5 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 ## Later Stages
 
 Later Quest/MR stages can swap the board transform and input layer without moving authoritative simulation state out of `Rts.Core`.
+
+Stage 20 preserves the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar, while `QuestXR` keeps left-hand build/selection and right-hand tactical controls with the PC sidebar hidden.

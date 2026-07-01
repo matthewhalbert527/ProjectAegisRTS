@@ -96,6 +96,10 @@ Complete. Mission flow / tutorial beats / fine-grid playability tuning. Adds a U
 
 Complete. CnC-style PC sidebar and pause menu rework. Consolidates the Windows player UI into a right-side sidebar with minimap, credits/power/status, production tabs/cards/queue, placement, selection, and command buttons; hides XR left-hand/right-hand build UI in PC mode; reserves the left side for objective/checklist/prompts; adds a centered Esc pause menu; and adds Stage 19.5 validation tiers while preserving Stage 0-19 behavior.
 
+## Stage 20
+
+Complete after local validation. 360-degree MVP production visual replacement pass. Adds first-pass primitive proxy prefabs for the MVP actor set, a production visual standard library, validation tags, socket/LOD/view-coverage validation, a Stage20 showcase scene, explicit PCDesktop/QuestXR/DebugHybrid UI mode preservation, and Stage 20 fast/medium/player-facing/full validation tiers while preserving Stage 0-19.5 behavior.
+
 ## Later Stages
 
-Next later stages include Stage 20 production model replacement, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.
+Next later stages include artist-authored source model replacement, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

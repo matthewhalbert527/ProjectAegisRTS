@@ -6,8 +6,16 @@ using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.UI.Common
 {
+    public enum PlayerFacingUiMode
+    {
+        PCDesktop,
+        QuestXR,
+        DebugHybrid
+    }
+
     public sealed class PlayerFacingUiModeController : MonoBehaviour
     {
+        public PlayerFacingUiMode uiMode = PlayerFacingUiMode.PCDesktop;
         public bool pcPlayerFacingMode = true;
         public bool allowSimulatedXrMenusInPcMode;
         public DesktopRtsHudRoot desktopHud;
@@ -25,6 +33,9 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
 
         public void ApplyModeDefaults()
         {
+            var mode = GetEffectiveMode();
+            pcPlayerFacingMode = mode == PlayerFacingUiMode.PCDesktop;
+
             if (desktopHud == null)
                 desktopHud = FindAnyObjectByType<DesktopRtsHudRoot>();
             if (debugVisibility == null)
@@ -33,19 +44,114 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             if (desktopHud != null)
             {
                 desktopHud.showDebugOverlay = false;
-                desktopHud.gameObject.SetActive(true);
+                desktopHud.gameObject.SetActive(mode == PlayerFacingUiMode.PCDesktop || mode == PlayerFacingUiMode.DebugHybrid);
+                if (desktopHud.gameObject.activeInHierarchy)
+                    desktopHud.Initialize();
             }
 
             if (debugVisibility != null)
                 debugVisibility.ApplyPlayerFacingDefaults();
 
-            if (pcPlayerFacingMode && !allowSimulatedXrMenusInPcMode)
-                SetXrFallbackUiActive(false);
+            if (mode == PlayerFacingUiMode.PCDesktop)
+                SetXrFallbackUiActive(allowSimulatedXrMenusInPcMode);
+            else
+                SetXrFallbackUiActive(true);
+        }
+
+        public PlayerFacingUiMode GetEffectiveMode()
+        {
+            if (uiMode == PlayerFacingUiMode.PCDesktop && !pcPlayerFacingMode)
+                return PlayerFacingUiMode.QuestXR;
+            return uiMode;
+        }
+
+        public bool IsPcDesktopMode()
+        {
+            return GetEffectiveMode() == PlayerFacingUiMode.PCDesktop;
+        }
+
+        public bool IsQuestXrMode()
+        {
+            return GetEffectiveMode() == PlayerFacingUiMode.QuestXR;
+        }
+
+        public bool IsDebugHybridMode()
+        {
+            return GetEffectiveMode() == PlayerFacingUiMode.DebugHybrid;
+        }
+
+        public bool IsPcSidebarVisibleForDesktop()
+        {
+            var mode = GetEffectiveMode();
+            if (mode != PlayerFacingUiMode.PCDesktop && mode != PlayerFacingUiMode.DebugHybrid)
+                return false;
+
+            if (desktopHud == null)
+                desktopHud = FindAnyObjectByType<DesktopRtsHudRoot>();
+            if (desktopHud == null || !desktopHud.gameObject.activeInHierarchy)
+                return false;
+
+            if (desktopHud.cncSidebarLayout == null)
+                desktopHud.Initialize();
+            var layout = desktopHud.cncSidebarLayout;
+            return layout != null &&
+                layout.rightSidebarRoot != null &&
+                layout.rightSidebarRoot.gameObject.activeInHierarchy &&
+                layout.AreProductionPanelsInRightSidebar() &&
+                layout.IsMinimapAboveProductionGrid();
+        }
+
+        public bool IsPcSidebarHiddenForQuest()
+        {
+            if (GetEffectiveMode() != PlayerFacingUiMode.QuestXR)
+                return true;
+
+            if (desktopHud == null)
+                desktopHud = FindAnyObjectByType<DesktopRtsHudRoot>();
+            return desktopHud == null || !desktopHud.gameObject.activeInHierarchy;
+        }
+
+        public bool AreQuestLeftHandControlsAvailable()
+        {
+            return HasSceneComponent<LeftHandBuildMenuController>() &&
+                HasSceneComponent<LeftHandRadialMenuView>() &&
+                HasSceneComponent<LeftHandPlacementPanel>() &&
+                HasSceneComponent<LeftHandSelectionPanel>() &&
+                HasSceneComponent<LeftHandStatusHud>() &&
+                HasSceneComponent<LeftHandCommandRouter>();
+        }
+
+        public bool AreQuestRightHandControlsAvailable()
+        {
+            return HasSceneComponent<RightHandCommandRouter>() &&
+                HasSceneComponent<RightHandCommandHud>() &&
+                HasSceneComponent<RightHandStatusPanel>();
+        }
+
+        public bool AreQuestControlsActiveForQuest()
+        {
+            var mode = GetEffectiveMode();
+            if (mode != PlayerFacingUiMode.QuestXR && mode != PlayerFacingUiMode.DebugHybrid)
+                return true;
+
+            return AnySceneComponentActive<LeftHandRadialMenuView>() &&
+                AnySceneComponentActive<LeftHandPlacementPanel>() &&
+                AnySceneComponentActive<LeftHandSelectionPanel>() &&
+                AnySceneComponentActive<LeftHandStatusHud>() &&
+                AnySceneComponentActive<RightHandCommandHud>() &&
+                AnySceneComponentActive<RightHandStatusPanel>() &&
+                AnyEnabledSceneBehaviour<DesktopLeftHandInputSource>() &&
+                AnyEnabledSceneBehaviour<DesktopRightHandInputSource>();
+        }
+
+        public bool WindowsPlayerDefaultsToPcDesktop()
+        {
+            return uiMode == PlayerFacingUiMode.PCDesktop && pcPlayerFacingMode;
         }
 
         public bool AreXrBuildMenusHiddenForPc()
         {
-            if (!pcPlayerFacingMode || allowSimulatedXrMenusInPcMode)
+            if (GetEffectiveMode() != PlayerFacingUiMode.PCDesktop || allowSimulatedXrMenusInPcMode)
                 return true;
 
             return AreLeftHandMenusClosed() &&
@@ -59,11 +165,36 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                 !AnyEnabledSceneBehaviour<DesktopRightHandInputSource>();
         }
 
+        [ContextMenu("Apply PC Desktop Mode")]
+        public void ApplyPcDesktopMode()
+        {
+            uiMode = PlayerFacingUiMode.PCDesktop;
+            pcPlayerFacingMode = true;
+            ApplyModeDefaults();
+        }
+
+        [ContextMenu("Apply Quest XR Mode")]
+        public void ApplyQuestXrMode()
+        {
+            uiMode = PlayerFacingUiMode.QuestXR;
+            pcPlayerFacingMode = false;
+            ApplyModeDefaults();
+        }
+
+        [ContextMenu("Apply Debug Hybrid Mode")]
+        public void ApplyDebugHybridMode()
+        {
+            uiMode = PlayerFacingUiMode.DebugHybrid;
+            pcPlayerFacingMode = false;
+            ApplyModeDefaults();
+        }
+
         void SetXrFallbackUiActive(bool active)
         {
             SetSceneBehavioursEnabled<DesktopLeftHandInputSource>(active);
             SetSceneBehavioursEnabled<DesktopRightHandInputSource>(active);
-            CloseLeftHandBuildMenus();
+            if (!active)
+                CloseLeftHandBuildMenus();
             SetSceneComponentsActive<LeftHandRadialMenuView>(active);
             SetSceneComponentsActive<LeftHandPlacementPanel>(active);
             SetSceneComponentsActive<LeftHandSelectionPanel>(active);
@@ -111,6 +242,15 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                 if (behaviour != null)
                     behaviour.enabled = active;
             }
+        }
+
+        static bool HasSceneComponent<T>() where T : Component
+        {
+            var components = Resources.FindObjectsOfTypeAll<T>();
+            for (var i = 0; i < components.Length; i++)
+                if (IsSceneComponent(components[i]))
+                    return true;
+            return false;
         }
 
         static bool AnySceneComponentActive<T>() where T : Component

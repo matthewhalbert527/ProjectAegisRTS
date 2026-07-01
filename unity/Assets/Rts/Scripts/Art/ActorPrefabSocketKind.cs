@@ -33,6 +33,7 @@ namespace ProjectAegisRTS.UnityClient.Art
         WeaponSocket,
         AimPivot,
         AircraftRotor,
-        LandingPadAnchor
+        LandingPadAnchor,
+        DockPumpRoot
     }
 }

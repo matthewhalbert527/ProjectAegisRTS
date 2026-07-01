@@ -280,3 +280,11 @@ The fast and medium tiers do not weaken acceptance coverage; they make day-to-da
 - `Editor/Stage17SceneCreator.cs`, `Stage17SceneValidator.cs`, and `Stage17PlayModeSmokeValidator.cs`: configure and validate Stage 17 player-facing polish.
 - `Editor/Stage18_5FineGridValidator.cs` and `Stage18_5PlayModeSmokeValidator.cs`: validate fine placement grid scale, fine footprint snapshots, board renderer support, fine-offset placement, and player-facing placement behavior.
 - `Editor/Stage19_5SidebarPauseValidator.cs` and `Stage19_5PlayModeSmokeValidator.cs`: validate the PC right sidebar, hidden XR build menus, pause menu, placement/debug defaults, and player-facing smoke path.
+
+## Stage 20 MVP Production Visuals
+
+- `Scripts/Art/Production`: production visual tiers, view coverage, standards library, validation tags, and the Stage 20 showcase controller.
+- `Scripts/UI/Common/PlayerFacingUiModeController.cs`: explicit `PCDesktop`, `QuestXR`, and `DebugHybrid` mode gating while preserving Stage 19.5 compatibility fields.
+- `Scripts/UI/Common/ProductionVisualDebugHud.cs`: hidden-by-default debug HUD for the Stage 20 showcase.
+- `Editor/Stage20MvpProductionProxyGenerator.cs`: generates first-pass MVP proxy prefabs under `Art/Prefabs/Actors/ProductionProxies`.
+- `Editor/Stage20ProductionVisualValidator.cs`, `Stage20SceneValidator.cs`, and `Stage20PlayModeSmokeValidator.cs`: validate proxy references, sockets, LODs, Stage16 runtime resolution, and platform UI preservation.

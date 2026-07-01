@@ -357,3 +357,7 @@ Stage 16 vertical slice assets:
 - Stage 19 report: `docs/STAGE19_REPORT.md`
 - Stage 19.5 PC sidebar/pause menu: `docs/STAGE19_5_PC_SIDEBAR_PAUSE_MENU.md`
 - Stage 19.5 UI rework report: `docs/STAGE19_5_UI_REWORK_REPORT.md`
+- Stage 20 360-degree visual standards: `docs/STAGE20_360_VISUAL_STANDARDS.md`
+- Stage 20 MVP visual replacement guide: `docs/STAGE20_MVP_VISUAL_REPLACEMENT_GUIDE.md`
+- Stage 20 production visual validation: `docs/STAGE20_PRODUCTION_VISUAL_VALIDATION.md`
+- Stage 20 report: `docs/STAGE20_REPORT.md`

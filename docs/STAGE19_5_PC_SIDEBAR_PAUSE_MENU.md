@@ -56,3 +56,7 @@ Verify:
 ```
 
 Use fast checks during iteration, medium before commit, player-facing checks for EXE readiness, and full checks for final acceptance.
+
+## Stage 20 UI Preservation
+
+Stage 20 keeps this PC sidebar/pause layout as the Windows player default through `PlayerFacingUiMode.PCDesktop`. The new `QuestXR` mode preserves left-hand build/selection and right-hand tactical controls, and hides the PC sidebar for Quest/MR validation. `DebugHybrid` is an explicit editor-only mode for testing both UI systems together.

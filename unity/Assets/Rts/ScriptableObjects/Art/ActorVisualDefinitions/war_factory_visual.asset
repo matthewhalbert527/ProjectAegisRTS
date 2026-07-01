@@ -16,13 +16,13 @@ MonoBehaviour:
   displayName: War Factory
   safeDisplayName: War Factory
   category: 0
-  productionStatus: 1
+  productionStatus: 2
   conceptReference: {fileID: 11400000, guid: 637fc1b1e27058145a87ca97dfac114e, type: 2}
   icon: {fileID: 21300000, guid: ec446fe08ea4b3648b375c19ff19819f, type: 3}
   generatedBlockoutPrefab: {fileID: 554875933570991338, guid: 9dc2c1dd47a9ee34ab8bc1b57cd9487f, type: 3}
-  productionPrefab: {fileID: 0}
-  fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
+  productionPrefab: {fileID: 5138630973023328951, guid: d6d99c5eeb3c9f94492261e8b0c28891, type: 3}
+  fallbackPrefab: {fileID: 554875933570991338, guid: 9dc2c1dd47a9ee34ab8bc1b57cd9487f, type: 3}
+  preferredPrefabMode: 1
   motionProfileId: building_static
   buildingProfileId: war_factory_building_visual
   selectionRadius: 1.6500001
@@ -40,7 +40,10 @@ MonoBehaviour:
   notes: 'Keep as generic role; final silhouette should be unique.
 
     Large door
-    opens, assembly arms animate, vehicle rolls out.'
+    opens, assembly arms animate, vehicle rolls out.
+
+    Stage 20: MVP first-pass
+    production proxy is assigned as the preferred prefab.'
   ipReviewRequired: 0
   sourceConceptOriginalLabel: War Factory
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_42

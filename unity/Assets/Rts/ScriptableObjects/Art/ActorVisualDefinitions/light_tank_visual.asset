@@ -16,13 +16,13 @@ MonoBehaviour:
   displayName: Light Tank
   safeDisplayName: Light Tank
   category: 3
-  productionStatus: 1
+  productionStatus: 2
   conceptReference: {fileID: 11400000, guid: 8d6a518072a65a345b8d9849c0b0d906, type: 2}
   icon: {fileID: 21300000, guid: 8eb335a1ccdae8d4aac3c744d8136358, type: 3}
   generatedBlockoutPrefab: {fileID: 1334794736421903130, guid: a209321449af18c4da6883f95add92a8, type: 3}
-  productionPrefab: {fileID: 0}
-  fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
+  productionPrefab: {fileID: 1581212268081207656, guid: e5a4c0d3ea89ca8409f75338670cba09, type: 3}
+  fallbackPrefab: {fileID: 1334794736421903130, guid: a209321449af18c4da6883f95add92a8, type: 3}
+  preferredPrefabMode: 1
   motionProfileId: tracked_light
   buildingProfileId:
   selectionRadius: 0.6
@@ -41,7 +41,10 @@ MonoBehaviour:
     high-detail tracked armor.
 
     Future acceleration, braking, track roll, suspension,
-    turret lag, muzzle recoil.'
+    turret lag, muzzle recoil.
+
+    Stage 20: MVP first-pass production proxy is
+    assigned as the preferred prefab.'
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Light Tank
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_29

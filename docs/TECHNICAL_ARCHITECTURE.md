@@ -130,6 +130,14 @@ Stage 19.5 reorganizes Unity-only player UI for the Windows build. `CncStyleSide
 
 `PauseMenuController` opens a Unity UI overlay on Escape, pauses/resumes through `RtsSimulationDriver`, restarts through `VerticalSliceScenarioController`, and uses Unity scene/application APIs for menu/quit actions. It blocks local Unity input while open but does not mutate `Rts.Core` state outside the existing pause/reset command paths.
 
+## Stage 20 Production Visual Boundary
+
+Stage 20 adds Unity-only first-pass production proxy prefabs and validation markers. `ActorVisualDefinition` remains the data boundary: MVP definitions prefer `ProductionPrefab`, while generated Stage 8 blockouts remain fallback prefabs. `ActorRenderSystem` and `ActorViewBehaviour` continue resolving visuals from snapshots and do not write visual state back into `Rts.Core`.
+
+`ProductionVisualValidationTag`, `ProductionVisualStandardLibrary`, and the Stage20 showcase are presentation/validation tools only. They validate all-around detail, socket coverage, LOD presence, and footprint readability for Quest-style 360-degree viewing. Gameplay placement, occupancy, production, power, movement, combat, and victory still come from deterministic core snapshots and command results.
+
+`PlayerFacingUiModeController` now exposes explicit `PCDesktop`, `QuestXR`, and `DebugHybrid` modes. Windows player builds default to `PCDesktop` with the right-side sidebar; `QuestXR` keeps left-hand build/selection and right-hand tactical controls while hiding the PC sidebar.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

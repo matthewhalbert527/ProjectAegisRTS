@@ -158,6 +158,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             debugVisibility.ApplyPlayerFacingDefaults();
 
             uiMode.pcPlayerFacingMode = true;
+            uiMode.uiMode = PlayerFacingUiMode.PCDesktop;
             uiMode.allowSimulatedXrMenusInPcMode = false;
             uiMode.debugVisibility = debugVisibility;
 

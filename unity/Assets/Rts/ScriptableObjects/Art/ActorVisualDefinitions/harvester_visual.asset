@@ -16,13 +16,13 @@ MonoBehaviour:
   displayName: Harvester
   safeDisplayName: Harvester
   category: 3
-  productionStatus: 1
+  productionStatus: 2
   conceptReference: {fileID: 11400000, guid: 84acf09ef6f094145beaaaae32ec4ea2, type: 2}
   icon: {fileID: 21300000, guid: e4dc348d1dc71374eb0c868bde2a4004, type: 3}
   generatedBlockoutPrefab: {fileID: 1518192733010229842, guid: 972abd1fcc91ba74f9243fce47021006, type: 3}
-  productionPrefab: {fileID: 0}
-  fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
+  productionPrefab: {fileID: 3119498036985900132, guid: bc32c3ae821ee084b91c6de3b9a86a1f, type: 3}
+  fallbackPrefab: {fileID: 1518192733010229842, guid: 972abd1fcc91ba74f9243fce47021006, type: 3}
+  preferredPrefabMode: 1
   motionProfileId: wheeled_heavy
   buildingProfileId:
   selectionRadius: 0.6
@@ -40,7 +40,10 @@ MonoBehaviour:
   notes: 'Keep role, redesign harvesting apparatus distinctly.
 
     Load state, docking,
-    suspension, harvesting tool deployment.'
+    suspension, harvesting tool deployment.
+
+    Stage 20: MVP first-pass production
+    proxy is assigned as the preferred prefab.'
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Harvester
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_42

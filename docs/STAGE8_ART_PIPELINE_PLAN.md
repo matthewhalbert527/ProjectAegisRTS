@@ -68,3 +68,9 @@ Author simple non-authoritative presentation colliders only when useful for pick
 - Run `.\tools\run-stage8-medium-checks.ps1` before committing local Stage 8 fixes.
 - Run `.\tools\run-stage8-checks.ps1` for the slow full Stage 0-through-Stage 8 acceptance gate.
 - If Unity is already open and batchmode cannot take the project lock, use the reported live/file/log fallback for iteration, then close Unity and rerun when full batch Play Mode evidence is needed.
+
+## Stage 20 Extension
+
+Stage 20 builds on the Stage 8 actor visual definition and socket contract. MVP actors now receive generated first-pass production proxy prefabs in `Assets/Rts/Art/Prefabs/Actors/ProductionProxies`, while their Stage 8 generated blockouts stay assigned as fallback prefabs.
+
+Artists replacing Stage 20 proxies should keep the Stage 8 socket names, root/pivot conventions, actor IDs, visual definition assets, and fallback blockout assignments. Use `.\tools\run-stage20-fast-checks.ps1` after a replacement and `.\tools\run-stage20-medium-checks.ps1` before committing.
