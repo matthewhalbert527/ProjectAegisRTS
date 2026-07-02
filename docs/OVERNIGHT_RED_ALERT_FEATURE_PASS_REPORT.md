@@ -86,3 +86,19 @@ Stage 26 adds deterministic air and water movement foundations without beginning
 - Stage 26 fast, medium, player-facing, and full validation scripts
 
 The medium tier remains non-recursive and is guarded through Stage 26 by `tools/audit-medium-validation-recursion.ps1`.
+
+## Checkpoint 6: Stage 27 Skirmish Playability / AI Pressure
+
+Stage 27 makes the vertical slice feel more like a playable skirmish prototype:
+
+- Easy, Normal, and Hard deterministic AI profiles
+- Timed attack-wave state and snapshot fields
+- Difficulty-based infantry, vehicle, and harvester production targets
+- Reachable attack-wave staging and conservative defense/economy/base target priority
+- Hard AI building repair through the existing repair command
+- Boot Options skirmish difficulty selection saved to player preferences
+- Stage16 restart support for changing difficulty during testing
+- Player-facing enemy-pressure status in the objective HUD
+- Stage 27 fast, medium, player-facing, and full validation scripts
+
+The medium tier remains non-recursive and is guarded through Stage 27 by `tools/audit-medium-validation-recursion.ps1`.

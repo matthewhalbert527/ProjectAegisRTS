@@ -1,3 +1,4 @@
+using ProjectAegisRTS.UnityClient.CoreBridge;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,6 +11,10 @@ namespace ProjectAegisRTS.UnityClient.Boot
         public MainMenuHud mainMenu;
         public ControlsHelpHud controlsHelp;
         public OptionsMenuHud optionsMenu;
+        public string selectedSkirmishDifficultyId = "normal";
+
+        public string SelectedSkirmishDifficultyId { get { return selectedSkirmishDifficultyId; } }
+        public string SelectedSkirmishDifficultyLabel { get { return RtsSimulationDriver.GetSkirmishDifficultyLabel(selectedSkirmishDifficultyId); } }
 
         void Awake()
         {
@@ -22,6 +27,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
             if (optionsMenu == null)
                 optionsMenu = FindAnyObjectByType<OptionsMenuHud>();
 
+            selectedSkirmishDifficultyId = RtsSimulationDriver.NormalizeSkirmishDifficultyId(PlayerPrefs.GetString(RtsSimulationDriver.SkirmishDifficultyPlayerPrefsKey, selectedSkirmishDifficultyId));
             ShowMainMenu(settings == null || settings.startInBootMenu);
         }
 
@@ -42,7 +48,14 @@ namespace ProjectAegisRTS.UnityClient.Boot
 
         public void StartVerticalSlice()
         {
+            SaveSkirmishDifficulty();
             SceneManager.LoadScene(verticalSliceSceneName, LoadSceneMode.Single);
+        }
+
+        public void SetSkirmishDifficulty(string difficultyId)
+        {
+            selectedSkirmishDifficultyId = RtsSimulationDriver.NormalizeSkirmishDifficultyId(difficultyId);
+            SaveSkirmishDifficulty();
         }
 
         public void ShowControls()
@@ -78,6 +91,12 @@ namespace ProjectAegisRTS.UnityClient.Boot
         public void Quit()
         {
             Application.Quit();
+        }
+
+        void SaveSkirmishDifficulty()
+        {
+            PlayerPrefs.SetString(RtsSimulationDriver.SkirmishDifficultyPlayerPrefsKey, selectedSkirmishDifficultyId);
+            PlayerPrefs.Save();
         }
     }
 }

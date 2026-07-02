@@ -6,12 +6,21 @@ namespace ProjectAegisRTS.UnityClient.Boot
     {
         public GameBootController controller;
         public bool visible = true;
-        public Rect area = new Rect(40f, 40f, 420f, 318f);
+        public Rect area = new Rect(40f, 40f, 420f, 342f);
+
+        const float MinimumAreaWidth = 420f;
+        const float MinimumAreaHeight = 342f;
 
         void Awake()
         {
+            NormalizeArea();
             if (controller == null)
                 controller = FindAnyObjectByType<GameBootController>();
+        }
+
+        void OnValidate()
+        {
+            NormalizeArea();
         }
 
         public void SetVisible(bool value)
@@ -28,6 +37,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
             GUILayout.Label("ProjectAegisRTS");
             GUILayout.Label("Development Prototype");
             GUILayout.Label("Vertical Slice Build");
+            GUILayout.Label("Skirmish: " + (controller == null ? "Normal" : controller.SelectedSkirmishDifficultyLabel));
             GUILayout.Space(12f);
             if (GUILayout.Button("Start Vertical Slice", GUILayout.Height(36f)) && controller != null)
                 controller.StartVerticalSlice();
@@ -38,8 +48,14 @@ namespace ProjectAegisRTS.UnityClient.Boot
             if (GUILayout.Button("Quit", GUILayout.Height(32f)) && controller != null)
                 controller.Quit();
             GUILayout.Space(8f);
-            GUILayout.Label("Stage 18 tester playability pass");
+            GUILayout.Label("Stage 27 skirmish playability pass");
             GUILayout.EndArea();
+        }
+
+        void NormalizeArea()
+        {
+            area.width = Mathf.Max(area.width, MinimumAreaWidth);
+            area.height = Mathf.Max(area.height, MinimumAreaHeight);
         }
     }
 }

@@ -3,8 +3,8 @@ param(
     [switch]$SkipPlayerBuild,
     [switch]$SkipPlayerLog,
     [switch]$SkipCoreBuild,
-    [switch]$SkipStage22Validation,
-    [switch]$SkipStage23Validation
+    [switch]$SkipStage26Validation,
+    [switch]$SkipStage27Validation
 )
 
 $ErrorActionPreference = 'Stop'
@@ -42,8 +42,8 @@ $dotnet = Find-DotNet
 $corePath = Join-Path $repoRoot 'src\Rts.Core'
 $exePath = Join-Path $repoRoot 'build\windows-player-stage16\ProjectAegisRTS.exe'
 
-Write-ValidationSection 'Stage 23 player-facing checks'
-Write-Host 'Scope: core tests/build, medium recursion audit, direct Stage22 command-matrix validation, Stage23 Unity validation, optional Windows player build/launch/log inspection, UnityEngine-free scan, and git diff whitespace check.'
+Write-ValidationSection 'Stage 27 player-facing checks'
+Write-Host 'Scope: core tests/build, medium recursion audit, direct Stage26 validation, Stage27 Unity validation, optional Windows player build/launch/log inspection, UnityEngine-free scan, and git diff whitespace check.'
 
 if ($SkipCoreBuild) {
     Write-Host 'Skipping Rts.Core tests/build; caller already ran them.'
@@ -67,23 +67,23 @@ if ($LASTEXITCODE -ne 0) {
     throw "audit-medium-validation-recursion.ps1 failed with exit code $LASTEXITCODE."
 }
 
-if ($SkipStage22Validation) {
-    Write-Host 'Skipping Stage 22 Unity validation; caller already ran it.'
+if ($SkipStage26Validation) {
+    Write-Host 'Skipping Stage 26 Unity validation; caller already ran it.'
 } else {
-    Write-ValidationSection 'Direct Stage 22 Unity validation'
-    & (Join-Path $repoRoot 'tools\run-unity-stage22-validation.ps1') -SkipCoreBuild
+    Write-ValidationSection 'Direct Stage 26 Unity validation'
+    & (Join-Path $repoRoot 'tools\run-unity-stage26-validation.ps1') -SkipCoreBuild
     if ($LASTEXITCODE -ne 0) {
-        throw "run-unity-stage22-validation.ps1 failed with exit code $LASTEXITCODE."
+        throw "run-unity-stage26-validation.ps1 failed with exit code $LASTEXITCODE."
     }
 }
 
-if ($SkipStage23Validation) {
-    Write-Host 'Skipping Stage 23 Unity validation; caller already ran it.'
+if ($SkipStage27Validation) {
+    Write-Host 'Skipping Stage 27 Unity validation; caller already ran it.'
 } else {
-    Write-ValidationSection 'Stage 23 Unity validation'
-    & (Join-Path $repoRoot 'tools\run-unity-stage23-validation.ps1') -SkipCoreBuild
+    Write-ValidationSection 'Stage 27 Unity validation'
+    & (Join-Path $repoRoot 'tools\run-unity-stage27-validation.ps1') -SkipCoreBuild
     if ($LASTEXITCODE -ne 0) {
-        throw "run-unity-stage23-validation.ps1 failed with exit code $LASTEXITCODE."
+        throw "run-unity-stage27-validation.ps1 failed with exit code $LASTEXITCODE."
     }
 }
 
@@ -129,4 +129,4 @@ Repair-UnityGeneratedValidationWhitespace -RepoRoot $repoRoot
 Write-ValidationSection 'Whitespace check'
 Invoke-GitDiffCheck -RepoRoot $repoRoot
 
-Write-Host 'Stage 23 player-facing checks passed.'
+Write-Host 'Stage 27 player-facing checks passed.'

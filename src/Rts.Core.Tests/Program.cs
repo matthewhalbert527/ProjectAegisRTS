@@ -101,6 +101,10 @@ namespace ProjectAegisRTS.Tests
                 AiQueuesProductionWhenResourcesAllow,
                 AiDoesNotIssueInvalidCommandsRepeatedly,
                 AiCanIssueAttackIntentIfEnemyExists,
+                AiDifficultyProfilesScaleAttackTiming,
+                AiAttackWaveUsesTimedPressure,
+                AiHardDifficultyAttacksEarlierThanEasy,
+                AiHardDifficultyRepairsDamagedBuilding,
                 AiDeterminismSmokeTest,
                 TerrainDefinitionsExist,
                 ImpassableTerrainBlocksPath,
@@ -1016,8 +1020,56 @@ namespace ProjectAegisRTS.Tests
             var world = DemoWorldFactory.CreateAiSkirmishDemoWorld();
             world.Tick();
             var scout = world.FirstActorOfType("scout_rover", 2);
-            Assert(scout.CurrentOrder == ActorOrderKind.Attack, "Expected AI scout to receive attack order.");
-            Assert(HasAiIntent(world.CreateSnapshot(), "Attack", "BasicAttackWave"), "Expected attack-wave intent.");
+            Assert(scout.CurrentOrder == ActorOrderKind.Attack || scout.CurrentOrder == ActorOrderKind.AttackMove, "Expected AI scout to receive attack pressure order.");
+            Assert(HasSuccessfulAiIntent(world.CreateSnapshot(), "Attack", "BasicAttackWave"), "Expected successful attack-wave intent.");
+        }
+
+        static void AiDifficultyProfilesScaleAttackTiming()
+        {
+            var easy = AiDifficultyDefinition.CreateEasy();
+            var normal = AiDifficultyDefinition.CreateNormal();
+            var hard = AiDifficultyDefinition.CreateHard();
+            Assert(easy.DecisionIntervalTicks > normal.DecisionIntervalTicks, "Expected Easy AI to think less often than Normal.");
+            Assert(hard.DecisionIntervalTicks < normal.DecisionIntervalTicks, "Expected Hard AI to think more often than Normal.");
+            Assert(easy.InitialAttackDelayTicks > normal.InitialAttackDelayTicks, "Expected Easy first attack wave to arrive later than Normal.");
+            Assert(hard.InitialAttackDelayTicks < normal.InitialAttackDelayTicks, "Expected Hard first attack wave to arrive earlier than Normal.");
+            Assert(hard.DesiredVehicleCount > normal.DesiredVehicleCount, "Expected Hard AI to target more vehicles.");
+            Assert(hard.EnableBuildingRepair, "Expected Hard AI to enable deterministic building repair.");
+        }
+
+        static void AiAttackWaveUsesTimedPressure()
+        {
+            var difficulty = AiDifficultyDefinition.CreateNormal();
+            var world = DemoWorldFactory.CreateVerticalSliceWorld(difficulty);
+            world.StartMatch();
+            RunTicks(world, difficulty.InitialAttackDelayTicks + difficulty.DecisionIntervalTicks + 20);
+
+            var snapshot = world.CreateSnapshot();
+            Assert(snapshot.Ai.Players.Count == 1 && snapshot.Ai.Players[0].DifficultyId == "normal", "Expected vertical slice AI to use Normal difficulty.");
+            Assert(snapshot.Ai.Players[0].AttackWaveSequence >= 1, "Expected timed AI attack wave sequence to advance.");
+            Assert(snapshot.Ai.Players[0].NextAttackWaveTick > snapshot.Tick, "Expected next attack wave tick to move forward after pressure is issued.");
+            Assert(HasSuccessfulAiIntent(snapshot, "Attack", "BasicAttackWave"), "Expected successful timed attack-wave intent.");
+            Assert(AnyOwnedCombatActorHasOrder(world, 2, ActorOrderKind.AttackMove) || AnyOwnedCombatActorHasOrder(world, 2, ActorOrderKind.Attack), "Expected enemy combat units to receive attack pressure orders.");
+        }
+
+        static void AiHardDifficultyAttacksEarlierThanEasy()
+        {
+            var easyTick = FirstSuccessfulAttackWaveTick(AiDifficultyDefinition.CreateEasy(), 540);
+            var hardTick = FirstSuccessfulAttackWaveTick(AiDifficultyDefinition.CreateHard(), 160);
+            Assert(easyTick > 0, "Expected Easy AI to eventually issue an attack wave.");
+            Assert(hardTick > 0, "Expected Hard AI to issue an attack wave.");
+            Assert(hardTick < easyTick, "Expected Hard AI pressure to start earlier than Easy.");
+        }
+
+        static void AiHardDifficultyRepairsDamagedBuilding()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld(AiDifficultyDefinition.CreateHard());
+            world.StartMatch();
+            var enemyHub = world.FirstActorOfType("fabrication_hub", 2);
+            enemyHub.Health -= 120;
+            world.Tick();
+            Assert(enemyHub.IsRepairing, "Expected Hard AI to start repairing a damaged owned building.");
+            Assert(HasSuccessfulAiIntent(world.CreateSnapshot(), "Defense", "DefenseRepairDamagedBuilding"), "Expected successful AI repair intent.");
         }
 
         static void AiDeterminismSmokeTest()
@@ -1264,6 +1316,7 @@ namespace ProjectAegisRTS.Tests
             var world = DemoWorldFactory.CreateVerticalSliceWorld();
             world.StartMatch();
             var enemyHub = world.FirstActorOfType("fabrication_hub", 2);
+            Assert(world.CreateSnapshot().Ai.Players[0].DifficultyId == "normal", "Expected default vertical slice skirmish difficulty to be Normal.");
             var combatUnits = CollectOwnedCombatUnitIds(world, 1);
             Assert(combatUnits.Count >= 3, "Expected a Stage 19 starter combat group.");
 
@@ -1600,6 +1653,50 @@ namespace ProjectAegisRTS.Tests
                     if (intent.Kind == kind && (intentId == null || intent.IntentId == intentId))
                         return true;
                 }
+            }
+
+            return false;
+        }
+
+        static bool HasSuccessfulAiIntent(WorldSnapshot snapshot, string kind, string intentId)
+        {
+            for (var playerIndex = 0; playerIndex < snapshot.Ai.Players.Count; playerIndex++)
+            {
+                var player = snapshot.Ai.Players[playerIndex];
+                for (var intentIndex = 0; intentIndex < player.RecentIntents.Count; intentIndex++)
+                {
+                    var intent = player.RecentIntents[intentIndex];
+                    if (intent.Kind == kind && intent.IntentId == intentId && intent.WasCommandIssued && intent.CommandSucceeded)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        static int FirstSuccessfulAttackWaveTick(AiDifficultyDefinition difficulty, int maxTicks)
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld(difficulty);
+            world.StartMatch();
+            for (var i = 0; i < maxTicks; i++)
+            {
+                world.Tick();
+                var snapshot = world.CreateSnapshot();
+                if (HasSuccessfulAiIntent(snapshot, "Attack", "BasicAttackWave"))
+                    return snapshot.Tick;
+            }
+
+            return -1;
+        }
+
+        static bool AnyOwnedCombatActorHasOrder(RtsWorld world, int playerId, ActorOrderKind order)
+        {
+            foreach (var pair in world.Actors)
+            {
+                var actor = pair.Value;
+                var definition = world.Rules.GetDefinition(actor.TypeId);
+                if (actor.OwnerPlayerId == playerId && !actor.IsDestroyed && definition is UnitDefinition && definition.Weapon != null && actor.CurrentOrder == order)
+                    return true;
             }
 
             return false;

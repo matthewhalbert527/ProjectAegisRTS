@@ -27,19 +27,60 @@ namespace ProjectAegisRTS.Ai
         public int MaxQueuedProductionItems { get; private set; }
         public int AttackSquadSize { get; private set; }
         public int DeterministicSeed { get; private set; }
+        public int InitialAttackDelayTicks { get; private set; }
+        public int AttackWaveIntervalTicks { get; private set; }
+        public int DesiredInfantryCount { get; private set; }
+        public int DesiredVehicleCount { get; private set; }
+        public int DesiredHarvesterCount { get; private set; }
+        public bool EnableBuildingRepair { get; private set; }
 
         public AiDifficultyDefinition(string difficultyId, int decisionIntervalTicks, int maxQueuedProductionItems, int attackSquadSize, int deterministicSeed)
+            : this(difficultyId, decisionIntervalTicks, maxQueuedProductionItems, attackSquadSize, deterministicSeed, 0, 96, 4, 3, 1, false)
+        {
+        }
+
+        public AiDifficultyDefinition(string difficultyId, int decisionIntervalTicks, int maxQueuedProductionItems, int attackSquadSize, int deterministicSeed, int initialAttackDelayTicks, int attackWaveIntervalTicks, int desiredInfantryCount, int desiredVehicleCount, int desiredHarvesterCount, bool enableBuildingRepair)
         {
             DifficultyId = string.IsNullOrEmpty(difficultyId) ? "standard" : difficultyId;
             DecisionIntervalTicks = decisionIntervalTicks <= 0 ? 16 : decisionIntervalTicks;
             MaxQueuedProductionItems = maxQueuedProductionItems <= 0 ? 3 : maxQueuedProductionItems;
             AttackSquadSize = attackSquadSize <= 0 ? 2 : attackSquadSize;
             DeterministicSeed = deterministicSeed;
+            InitialAttackDelayTicks = initialAttackDelayTicks < 0 ? 0 : initialAttackDelayTicks;
+            AttackWaveIntervalTicks = attackWaveIntervalTicks <= 0 ? DecisionIntervalTicks : attackWaveIntervalTicks;
+            DesiredInfantryCount = desiredInfantryCount < 0 ? 0 : desiredInfantryCount;
+            DesiredVehicleCount = desiredVehicleCount < 0 ? 0 : desiredVehicleCount;
+            DesiredHarvesterCount = desiredHarvesterCount <= 0 ? 1 : desiredHarvesterCount;
+            EnableBuildingRepair = enableBuildingRepair;
         }
 
         public static AiDifficultyDefinition CreateStandard()
         {
             return new AiDifficultyDefinition("standard", 16, 3, 2, 1200);
+        }
+
+        public static AiDifficultyDefinition CreateEasy()
+        {
+            return new AiDifficultyDefinition("easy", 24, 2, 2, 27001, 420, 180, 3, 2, 1, false);
+        }
+
+        public static AiDifficultyDefinition CreateNormal()
+        {
+            return new AiDifficultyDefinition("normal", 14, 3, 3, 27002, 260, 120, 5, 4, 1, false);
+        }
+
+        public static AiDifficultyDefinition CreateHard()
+        {
+            return new AiDifficultyDefinition("hard", 10, 4, 3, 27003, 50, 80, 7, 6, 2, true);
+        }
+
+        public static AiDifficultyDefinition CreateForId(string difficultyId)
+        {
+            if (string.Equals(difficultyId, "easy", StringComparison.OrdinalIgnoreCase))
+                return CreateEasy();
+            if (string.Equals(difficultyId, "hard", StringComparison.OrdinalIgnoreCase))
+                return CreateHard();
+            return CreateNormal();
         }
     }
 
@@ -108,6 +149,8 @@ namespace ProjectAegisRTS.Ai
         public AiDifficultyDefinition Difficulty { get; private set; }
         public int DecisionSequence { get; set; }
         public int NextDecisionTick { get; set; }
+        public int NextAttackWaveTick { get; set; }
+        public int AttackWaveSequence { get; set; }
         public int ConsecutiveInvalidCommands { get; set; }
         public string CurrentPlan { get; set; }
 
@@ -118,6 +161,8 @@ namespace ProjectAegisRTS.Ai
             Difficulty = definition.Difficulty;
             DecisionSequence = 0;
             NextDecisionTick = currentTick;
+            NextAttackWaveTick = currentTick + Difficulty.InitialAttackDelayTicks;
+            AttackWaveSequence = 0;
             ConsecutiveInvalidCommands = 0;
             CurrentPlan = "initializing";
             recentIntents = new List<AiIntent>();
@@ -208,6 +253,8 @@ namespace ProjectAegisRTS.Ai
                     plan.Difficulty.DifficultyId,
                     plan.DecisionSequence,
                     plan.NextDecisionTick,
+                    plan.NextAttackWaveTick,
+                    plan.AttackWaveSequence,
                     plan.ConsecutiveInvalidCommands,
                     plan.CurrentPlan,
                     intents));
@@ -372,7 +419,7 @@ namespace ProjectAegisRTS.Ai
             if (world.Players[state.PlayerId].ProductionQueue.Count >= state.Difficulty.MaxQueuedProductionItems)
                 return Hold(world, state, "ProductionQueueFull", "AI production queue is at the configured cap.");
 
-            var typeId = ChooseProductionType(world, state.PlayerId);
+            var typeId = ChooseProductionType(world, state);
             if (string.IsNullOrEmpty(typeId))
                 return Hold(world, state, "ProductionStable", "No production need selected this interval.");
 
@@ -392,8 +439,9 @@ namespace ProjectAegisRTS.Ai
             return new AiIntent(state.DecisionSequence, world.TickNumber, state.PlayerId, AiIntentKind.Production, intentId, string.Empty, string.Empty, 0, 0, Int2.Zero, false, false, string.Empty, status);
         }
 
-        static string ChooseProductionType(RtsWorld world, int playerId)
+        static string ChooseProductionType(RtsWorld world, AiPlanState state)
         {
+            var playerId = state.PlayerId;
             var player = world.Players[playerId];
             var powerMargin = player.PowerGenerated - player.PowerConsumed;
             if (powerMargin < 10)
@@ -404,9 +452,11 @@ namespace ProjectAegisRTS.Ai
                 return "barracks";
             if (CountOwnedActors(world, playerId, "war_factory") == 0)
                 return "war_factory";
-            if (CountOwnedActors(world, playerId, "rifle_infantry") < 4)
+            if (CountOwnedActors(world, playerId, "harvester") < state.Difficulty.DesiredHarvesterCount)
+                return "harvester";
+            if (CountOwnedActors(world, playerId, "rifle_infantry") < state.Difficulty.DesiredInfantryCount)
                 return "rifle_infantry";
-            if (CountOwnedActors(world, playerId, "light_tank") < 3)
+            if (CountOwnedActors(world, playerId, "light_tank") < state.Difficulty.DesiredVehicleCount)
                 return "light_tank";
 
             return string.Empty;
@@ -500,20 +550,44 @@ namespace ProjectAegisRTS.Ai
     {
         public AiIntent Plan(RtsWorld world, AiPlanState state)
         {
+            if (world.TickNumber < state.NextAttackWaveTick)
+                return Hold(world, state, "AttackWaveWaiting", "Next attack wave at tick " + state.NextAttackWaveTick + ".");
+
             var squad = AttackSquad(world, state.PlayerId);
             if (squad.Count < state.Difficulty.AttackSquadSize)
                 return Hold(world, state, "AttackSquadBuilding", "AI squad is below the attack threshold.");
 
-            var target = FirstAttackableEnemy(world, state.PlayerId, squad);
+            var target = PreferredAttackTarget(world, state.PlayerId, squad);
             if (target == null)
-                return Hold(world, state, "AttackNoTargetInRange", "No enemy target is currently in range for the basic attack-wave placeholder.");
+                return Hold(world, state, "AttackNoTarget", "No enemy target is currently available for the attack wave.");
 
             var ids = new List<ActorId>();
             foreach (var actor in squad)
                 ids.Add(actor.Id);
 
-            var result = world.IssueCommand(new IssueAttackOrderCommand(state.PlayerId, ids, target.Id));
-            return new AiIntent(state.DecisionSequence, world.TickNumber, state.PlayerId, AiIntentKind.Attack, "BasicAttackWave", "IssueAttackOrder", target.TypeId, ids[0].Value, target.Id.Value, target.CellPosition, true, result.Success, result.Success ? "Ok" : result.ErrorCode, result.Success ? "Issued basic attack-wave order." : result.Message);
+            CommandResult result;
+            var commandType = "IssueAttackOrder";
+            if (AllInWeaponRange(world, squad, target))
+            {
+                result = world.IssueCommand(new IssueAttackOrderCommand(state.PlayerId, ids, target.Id));
+            }
+            else
+            {
+                var destination = FindAttackMoveDestination(world, squad, target);
+                if (destination == null)
+                    return Hold(world, state, "AttackPathBlocked", "No deterministic staging cell is reachable for the attack wave.");
+
+                result = world.IssueCommand(new IssueAttackMoveOrderCommand(state.PlayerId, ids, destination.Value));
+                commandType = "IssueAttackMoveOrder";
+            }
+
+            if (result.Success)
+            {
+                state.AttackWaveSequence++;
+                state.NextAttackWaveTick = world.TickNumber + state.Difficulty.AttackWaveIntervalTicks;
+            }
+
+            return new AiIntent(state.DecisionSequence, world.TickNumber, state.PlayerId, AiIntentKind.Attack, "BasicAttackWave", commandType, target.TypeId, ids[0].Value, target.Id.Value, target.CellPosition, true, result.Success, result.Success ? "Ok" : result.ErrorCode, result.Success ? "Issued timed attack wave #" + state.AttackWaveSequence + "." : result.Message);
         }
 
         static AiIntent Hold(RtsWorld world, AiPlanState state, string intentId, string status)
@@ -532,36 +606,127 @@ namespace ProjectAegisRTS.Ai
                     continue;
 
                 var definition = world.Rules.GetDefinition(actor.TypeId);
-                if (definition.Kind == ActorKind.Unit && definition.Weapon != null && actor.CurrentOrder != ActorOrderKind.Attack)
+                if (definition.Kind == ActorKind.Unit && definition.Weapon != null && actor.CurrentOrder != ActorOrderKind.Attack && actor.CurrentOrder != ActorOrderKind.AttackMove)
                     result.Add(actor);
             }
 
             return result;
         }
 
-        static ActorState FirstAttackableEnemy(RtsWorld world, int playerId, IReadOnlyList<ActorState> squad)
+        static ActorState PreferredAttackTarget(RtsWorld world, int playerId, IReadOnlyList<ActorState> squad)
+        {
+            var enemyDefense = FirstEnemyActorOfType(world, playerId, "gun_tower");
+            if (enemyDefense != null)
+                return enemyDefense;
+
+            var enemyHarvester = FirstEnemyActorOfType(world, playerId, "harvester");
+            if (enemyHarvester != null)
+                return enemyHarvester;
+
+            var enemyHub = FirstEnemyActorOfType(world, playerId, "fabrication_hub");
+            if (enemyHub != null)
+                return enemyHub;
+
+            return FirstAttackableEnemyInRange(world, playerId, squad);
+        }
+
+        static ActorState FirstEnemyActorOfType(RtsWorld world, int playerId, string typeId)
+        {
+            foreach (var actor in SortedActors(world))
+                if (actor.OwnerPlayerId != playerId && actor.TypeId == typeId && !actor.IsDestroyed)
+                    return actor;
+            return null;
+        }
+
+        static ActorState FirstAttackableEnemyInRange(RtsWorld world, int playerId, IReadOnlyList<ActorState> squad)
         {
             foreach (var enemy in SortedActors(world))
             {
                 if (enemy.OwnerPlayerId == playerId || enemy.IsDestroyed)
                     continue;
 
-                var allInRange = true;
-                for (var i = 0; i < squad.Count; i++)
-                {
-                    var weapon = world.Rules.GetDefinition(squad[i].TypeId).Weapon;
-                    if (weapon == null || squad[i].CellPosition.ManhattanDistanceTo(enemy.CellPosition) > weapon.RangeCells)
-                    {
-                        allInRange = false;
-                        break;
-                    }
-                }
-
-                if (allInRange)
+                if (AllInWeaponRange(world, squad, enemy))
                     return enemy;
             }
 
             return null;
+        }
+
+        static bool AllInWeaponRange(RtsWorld world, IReadOnlyList<ActorState> squad, ActorState target)
+        {
+            for (var i = 0; i < squad.Count; i++)
+            {
+                var weapon = world.Rules.GetDefinition(squad[i].TypeId).Weapon;
+                if (weapon == null || squad[i].CellPosition.ManhattanDistanceTo(target.CellPosition) > weapon.RangeCells)
+                    return false;
+            }
+
+            return true;
+        }
+
+        static Int2? FindAttackMoveDestination(RtsWorld world, IReadOnlyList<ActorState> squad, ActorState target)
+        {
+            var maxRange = 1;
+            for (var i = 0; i < squad.Count; i++)
+            {
+                var weapon = world.Rules.GetDefinition(squad[i].TypeId).Weapon;
+                if (weapon != null && weapon.RangeCells > maxRange)
+                    maxRange = weapon.RangeCells;
+            }
+
+            for (var radius = 1; radius <= maxRange; radius++)
+            {
+                var candidates = RingCells(target.CellPosition, radius);
+                for (var i = 0; i < candidates.Count; i++)
+                {
+                    var candidate = candidates[i];
+                    if (!world.Map.Contains(candidate) || !AllCanPathTo(world, squad, candidate))
+                        continue;
+
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
+        static bool AllCanPathTo(RtsWorld world, IReadOnlyList<ActorState> squad, Int2 cell)
+        {
+            for (var i = 0; i < squad.Count; i++)
+            {
+                var path = world.QueryPath(squad[i].Id, cell);
+                if (!path.Success && !squad[i].CellPosition.Equals(cell))
+                    return false;
+            }
+
+            return true;
+        }
+
+        static List<Int2> RingCells(Int2 center, int radius)
+        {
+            var result = new List<Int2>();
+            for (var y = -radius; y <= radius; y++)
+            {
+                for (var x = -radius; x <= radius; x++)
+                {
+                    if (Math.Abs(x) + Math.Abs(y) != radius)
+                        continue;
+
+                    result.Add(new Int2(center.X + x, center.Y + y));
+                }
+            }
+
+            result.Sort((a, b) =>
+            {
+                var distanceA = a.ManhattanDistanceTo(center);
+                var distanceB = b.ManhattanDistanceTo(center);
+                if (distanceA != distanceB)
+                    return distanceA.CompareTo(distanceB);
+
+                var y = a.Y.CompareTo(b.Y);
+                return y != 0 ? y : a.X.CompareTo(b.X);
+            });
+            return result;
         }
 
         static List<ActorState> SortedActors(RtsWorld world)
@@ -594,8 +759,33 @@ namespace ProjectAegisRTS.Ai
     {
         public AiIntent Plan(RtsWorld world, AiPlanState state)
         {
+            if (state.Difficulty.EnableBuildingRepair)
+            {
+                var damaged = FirstDamagedOwnedBuilding(world, state.PlayerId);
+                if (damaged != null && !damaged.IsRepairing)
+                {
+                    var result = world.IssueCommand(new BeginRepairBuildingCommand(state.PlayerId, damaged.Id));
+                    return new AiIntent(state.DecisionSequence, world.TickNumber, state.PlayerId, AiIntentKind.Defense, "DefenseRepairDamagedBuilding", "BeginRepairBuilding", damaged.TypeId, damaged.Id.Value, 0, damaged.CellPosition, true, result.Success, result.Success ? "Ok" : result.ErrorCode, result.Success ? "Started AI building repair." : result.Message);
+                }
+            }
+
             var hub = FirstOwnedHub(world, state.PlayerId);
             return new AiIntent(state.DecisionSequence, world.TickNumber, state.PlayerId, AiIntentKind.Defense, hub == null ? "DefenseNoHub" : "DefenseHold", string.Empty, "fabrication_hub", hub == null ? 0 : hub.Id.Value, 0, hub == null ? Int2.Zero : hub.CellPosition, false, false, string.Empty, hub == null ? "No base hub is available for defensive planning." : "Reserved hub defense anchor for later threat scoring.");
+        }
+
+        static ActorState FirstDamagedOwnedBuilding(RtsWorld world, int playerId)
+        {
+            foreach (var actor in world.Actors.Values)
+            {
+                if (actor.OwnerPlayerId != playerId || actor.IsDestroyed)
+                    continue;
+
+                var definition = world.Rules.GetDefinition(actor.TypeId);
+                if (definition.Kind == ActorKind.Building && actor.Health < definition.MaxHealth)
+                    return actor;
+            }
+
+            return null;
         }
 
         static ActorState FirstOwnedHub(RtsWorld world, int playerId)

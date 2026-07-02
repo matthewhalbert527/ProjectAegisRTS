@@ -1,3 +1,4 @@
+using System;
 using ProjectAegisRTS.Scenarios;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.CoreBridge;
@@ -48,6 +49,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
 
             GUILayout.Label("Selection: " + SelectionSummary(snapshot));
             GUILayout.Label(EnemyBaseSummary(snapshot));
+            GUILayout.Label(AiPressureSummary(snapshot));
 
             if (snapshot.Scenario != null && snapshot.Scenario.Objectives.Count > 0)
             {
@@ -128,6 +130,20 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             }
 
             return "Enemy base: hidden by fog.";
+        }
+
+        static string AiPressureSummary(WorldSnapshot snapshot)
+        {
+            if (snapshot.Ai == null || snapshot.Ai.Players.Count == 0)
+                return "Enemy pressure: inactive";
+
+            var ai = snapshot.Ai.Players[0];
+            var waitTicks = Math.Max(0, ai.NextAttackWaveTick - snapshot.Tick);
+            var difficulty = RtsSimulationDriver.GetSkirmishDifficultyLabel(ai.DifficultyId);
+            if (ai.AttackWaveSequence <= 0)
+                return "Enemy pressure: " + difficulty + ", first wave in " + waitTicks + " ticks";
+
+            return "Enemy pressure: " + difficulty + ", wave " + ai.AttackWaveSequence + " sent, next in " + waitTicks + " ticks";
         }
     }
 }

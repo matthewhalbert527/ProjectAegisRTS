@@ -128,6 +128,10 @@ Complete after local validation. Engineers / capture / repairs / transports foun
 
 Complete after local validation. Airfield / aircraft / helipad / naval foundation. Adds deterministic aircraft metadata, dual-helipad pad state, aircraft docking/rearm/fuel placeholder snapshots, aircraft altitude state, water/naval passability, player vertical-slice air assets, Unity altitude visual integration, and Stage 26 fast/medium/player-facing/full validation tiers while preserving Stage 0-25 behavior.
 
+## Stage 27
+
+Complete after local validation. Skirmish playability / AI pressure / completion polish. Adds Easy/Normal/Hard deterministic AI profiles, timed attack-wave state, production target tuning, Hard building repair, reachable attack-wave staging, saved Boot Options difficulty selection, Stage16 difficulty restart support, a player-facing enemy-pressure HUD readout, non-debug victory validation, and Stage 27 fast/medium/player-facing/full validation tiers while preserving Stage 0-26 behavior.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

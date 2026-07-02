@@ -191,17 +191,26 @@ namespace ProjectAegisRTS.Snapshots
         public string DifficultyId { get; private set; }
         public int DecisionSequence { get; private set; }
         public int NextDecisionTick { get; private set; }
+        public int NextAttackWaveTick { get; private set; }
+        public int AttackWaveSequence { get; private set; }
         public int ConsecutiveInvalidCommands { get; private set; }
         public string CurrentPlan { get; private set; }
         public IReadOnlyList<AiIntentSnapshot> RecentIntents { get; private set; }
 
         public AiPlayerSnapshot(int playerId, bool enabled, string difficultyId, int decisionSequence, int nextDecisionTick, int consecutiveInvalidCommands, string currentPlan, IReadOnlyList<AiIntentSnapshot> recentIntents)
+            : this(playerId, enabled, difficultyId, decisionSequence, nextDecisionTick, nextDecisionTick, 0, consecutiveInvalidCommands, currentPlan, recentIntents)
+        {
+        }
+
+        public AiPlayerSnapshot(int playerId, bool enabled, string difficultyId, int decisionSequence, int nextDecisionTick, int nextAttackWaveTick, int attackWaveSequence, int consecutiveInvalidCommands, string currentPlan, IReadOnlyList<AiIntentSnapshot> recentIntents)
         {
             PlayerId = playerId;
             Enabled = enabled;
             DifficultyId = difficultyId;
             DecisionSequence = decisionSequence;
             NextDecisionTick = nextDecisionTick;
+            NextAttackWaveTick = nextAttackWaveTick;
+            AttackWaveSequence = attackWaveSequence;
             ConsecutiveInvalidCommands = consecutiveInvalidCommands;
             CurrentPlan = currentPlan;
             RecentIntents = recentIntents;

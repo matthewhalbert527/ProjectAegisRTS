@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ProjectAegisRTS.Ai;
 using ProjectAegisRTS.Actors;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
@@ -15,6 +16,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 {
     public sealed class RtsSimulationDriver : MonoBehaviour
     {
+        public const string SkirmishDifficultyPlayerPrefsKey = "ProjectAegisRTS.SkirmishDifficulty";
+
         [SerializeField] int playerId = 1;
         [SerializeField] bool useCombatDemoWorld;
         [SerializeField] bool useEconomyDemoWorld;
@@ -23,6 +26,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         [SerializeField] bool useMapTerrainDemoWorld;
         [SerializeField] bool useVerticalSliceDemoWorld;
         [SerializeField] bool usePlayerPerspectiveSnapshot;
+        [SerializeField] string skirmishDifficultyId = "normal";
         public FeedbackEventBus feedbackEventBus;
 
         readonly List<int> selectedActorIds = new List<int>();
@@ -54,6 +58,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public bool UseMapTerrainDemoWorld { get { return useMapTerrainDemoWorld; } set { useMapTerrainDemoWorld = value; } }
         public bool UseVerticalSliceDemoWorld { get { return useVerticalSliceDemoWorld; } set { useVerticalSliceDemoWorld = value; } }
         public bool UsePlayerPerspectiveSnapshot { get { return usePlayerPerspectiveSnapshot; } set { usePlayerPerspectiveSnapshot = value; } }
+        public string SkirmishDifficultyId { get { return skirmishDifficultyId; } }
+        public string SkirmishDifficultyLabel { get { return GetSkirmishDifficultyLabel(skirmishDifficultyId); } }
 
         public string CommandMode
         {
@@ -111,7 +117,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public RtsCommandResult ResetDemoWorld()
         {
             if (useVerticalSliceDemoWorld)
-                world = DemoWorldFactory.CreateVerticalSliceWorld();
+                world = DemoWorldFactory.CreateVerticalSliceWorld(ResolveSkirmishDifficulty());
             else if (useMapTerrainDemoWorld)
                 world = DemoWorldFactory.CreateMapTerrainDemoWorld();
             else if (useAiSkirmishDemoWorld)
@@ -129,7 +135,19 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             RefreshSnapshot();
             if (feedbackEventBus != null)
                 feedbackEventBus.ResetSnapshotTracking();
-            return RtsCommandResult.Ok(useVerticalSliceDemoWorld ? "Vertical slice demo world reset." : (useMapTerrainDemoWorld ? "Map terrain demo world reset." : (useAiSkirmishDemoWorld ? "AI skirmish demo world reset." : (useFogRadarDemoWorld ? "Fog/radar demo world reset." : (useEconomyDemoWorld ? "Economy demo world reset." : (useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset."))))));
+            return RtsCommandResult.Ok(useVerticalSliceDemoWorld ? "Vertical slice demo world reset on " + SkirmishDifficultyLabel + "." : (useMapTerrainDemoWorld ? "Map terrain demo world reset." : (useAiSkirmishDemoWorld ? "AI skirmish demo world reset." : (useFogRadarDemoWorld ? "Fog/radar demo world reset." : (useEconomyDemoWorld ? "Economy demo world reset." : (useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset."))))));
+        }
+
+        public RtsCommandResult SetSkirmishDifficulty(string difficultyId, bool resetWorld)
+        {
+            skirmishDifficultyId = NormalizeSkirmishDifficultyId(difficultyId);
+            PlayerPrefs.SetString(SkirmishDifficultyPlayerPrefsKey, skirmishDifficultyId);
+            PlayerPrefs.Save();
+
+            if (resetWorld && (useVerticalSliceDemoWorld || useAiSkirmishDemoWorld))
+                return ResetDemoWorld();
+
+            return RtsCommandResult.Ok("Skirmish difficulty set to " + SkirmishDifficultyLabel + ".");
         }
 
         public RtsCommandResult TryCreateCombatDemoWorld()
@@ -1431,6 +1449,32 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         void RefreshSnapshot()
         {
             latestSnapshot = world == null ? null : (usePlayerPerspectiveSnapshot ? world.CreateSnapshot(playerId) : world.CreateSnapshot());
+        }
+
+        AiDifficultyDefinition ResolveSkirmishDifficulty()
+        {
+            var saved = PlayerPrefs.GetString(SkirmishDifficultyPlayerPrefsKey, skirmishDifficultyId);
+            skirmishDifficultyId = NormalizeSkirmishDifficultyId(saved);
+            return AiDifficultyDefinition.CreateForId(skirmishDifficultyId);
+        }
+
+        public static string NormalizeSkirmishDifficultyId(string difficultyId)
+        {
+            if (string.Equals(difficultyId, "easy", StringComparison.OrdinalIgnoreCase))
+                return "easy";
+            if (string.Equals(difficultyId, "hard", StringComparison.OrdinalIgnoreCase))
+                return "hard";
+            return "normal";
+        }
+
+        public static string GetSkirmishDifficultyLabel(string difficultyId)
+        {
+            var normalized = NormalizeSkirmishDifficultyId(difficultyId);
+            if (normalized == "easy")
+                return "Easy";
+            if (normalized == "hard")
+                return "Hard";
+            return "Normal";
         }
 
         void EmitCommandFeedback(FeedbackEventType eventType, RtsCommandResult result, Int2 cell, int sourceActorId, string label)

@@ -1,3 +1,4 @@
+using ProjectAegisRTS.UnityClient.CoreBridge;
 using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.Boot
@@ -6,22 +7,26 @@ namespace ProjectAegisRTS.UnityClient.Boot
     {
         const string MasterVolumeKey = "ProjectAegisRTS.MasterVolume";
         const string DebugPanelsKey = "ProjectAegisRTS.ShowDebugPanelsByDefault";
+        const float MinimumAreaWidth = 560f;
+        const float MinimumAreaHeight = 640f;
 
         public GameBootController controller;
         public BuildModeSettings settings;
         public PlayerDisplaySettings displaySettings;
         public bool visible;
         public bool displaySectionEnabled = true;
-        public Rect area = new Rect(40f, 40f, 560f, 560f);
+        public Rect area = new Rect(40f, 40f, 560f, 640f);
 
         int selectedWidth = 1600;
         int selectedHeight = 900;
         FullScreenMode selectedFullscreenMode = FullScreenMode.Windowed;
+        string selectedSkirmishDifficultyId = "normal";
         float masterVolume = 1f;
         bool showDebugPanelsByDefault;
 
         void Awake()
         {
+            NormalizeArea();
             if (controller == null)
                 controller = FindAnyObjectByType<GameBootController>();
             if (settings == null)
@@ -30,6 +35,11 @@ namespace ProjectAegisRTS.UnityClient.Boot
                 displaySettings = FindAnyObjectByType<PlayerDisplaySettings>();
             LoadPreferences();
             ApplyAudioDebugPreferences(false);
+        }
+
+        void OnValidate()
+        {
+            NormalizeArea();
         }
 
         public void SetVisible(bool value)
@@ -49,6 +59,8 @@ namespace ProjectAegisRTS.UnityClient.Boot
 
             if (displaySectionEnabled)
                 DrawDisplaySection();
+
+            DrawSkirmishSection();
 
             GUILayout.Label("Master volume: " + Mathf.RoundToInt(masterVolume * 100f) + "%");
             var newVolume = GUILayout.HorizontalSlider(masterVolume, 0f, 1f);
@@ -116,6 +128,34 @@ namespace ProjectAegisRTS.UnityClient.Boot
             }
         }
 
+        void DrawSkirmishSection()
+        {
+            GUILayout.Label("Skirmish");
+            GUILayout.BeginHorizontal();
+            DrawDifficultyButton("easy", "Easy");
+            DrawDifficultyButton("normal", "Normal");
+            DrawDifficultyButton("hard", "Hard");
+            GUILayout.EndHorizontal();
+            GUILayout.Label("Selected difficulty: " + RtsSimulationDriver.GetSkirmishDifficultyLabel(selectedSkirmishDifficultyId));
+            GUILayout.Space(8f);
+        }
+
+        void NormalizeArea()
+        {
+            area.width = Mathf.Max(area.width, MinimumAreaWidth);
+            area.height = Mathf.Max(area.height, MinimumAreaHeight);
+        }
+
+        void DrawDifficultyButton(string difficultyId, string label)
+        {
+            var selected = selectedSkirmishDifficultyId == difficultyId;
+            if (GUILayout.Button(selected ? "[" + label + "]" : label, GUILayout.Height(28f)))
+            {
+                selectedSkirmishDifficultyId = RtsSimulationDriver.NormalizeSkirmishDifficultyId(difficultyId);
+                ApplySkirmishDifficultyPreference();
+            }
+        }
+
         void LoadPreferences()
         {
             int savedWidth;
@@ -142,6 +182,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
 
             masterVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MasterVolumeKey, AudioListener.volume));
             showDebugPanelsByDefault = PlayerPrefs.GetInt(DebugPanelsKey, settings != null && settings.showDebugPanelsByDefault ? 1 : 0) != 0;
+            selectedSkirmishDifficultyId = RtsSimulationDriver.NormalizeSkirmishDifficultyId(PlayerPrefs.GetString(RtsSimulationDriver.SkirmishDifficultyPlayerPrefsKey, controller == null ? "normal" : controller.SelectedSkirmishDifficultyId));
         }
 
         void ApplyAudioDebugPreferences(bool save)
@@ -155,6 +196,19 @@ namespace ProjectAegisRTS.UnityClient.Boot
 
             PlayerPrefs.SetFloat(MasterVolumeKey, masterVolume);
             PlayerPrefs.SetInt(DebugPanelsKey, showDebugPanelsByDefault ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+
+        void ApplySkirmishDifficultyPreference()
+        {
+            selectedSkirmishDifficultyId = RtsSimulationDriver.NormalizeSkirmishDifficultyId(selectedSkirmishDifficultyId);
+            if (controller != null)
+            {
+                controller.SetSkirmishDifficulty(selectedSkirmishDifficultyId);
+                return;
+            }
+
+            PlayerPrefs.SetString(RtsSimulationDriver.SkirmishDifficultyPlayerPrefsKey, selectedSkirmishDifficultyId);
             PlayerPrefs.Save();
         }
 
@@ -172,7 +226,9 @@ namespace ProjectAegisRTS.UnityClient.Boot
         {
             masterVolume = 1f;
             showDebugPanelsByDefault = false;
+            selectedSkirmishDifficultyId = "normal";
             ApplyAudioDebugPreferences(true);
+            ApplySkirmishDifficultyPreference();
             ResetDisplaySettings();
         }
 

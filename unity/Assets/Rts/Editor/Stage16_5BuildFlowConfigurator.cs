@@ -138,6 +138,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             options.controller = controller;
             options.settings = settings;
             options.displaySettings = displaySettings;
+            mainMenu.area = new Rect(40f, 40f, 420f, 342f);
+            options.area = new Rect(40f, 40f, 560f, 640f);
             mainMenu.visible = true;
             controls.visible = false;
             options.visible = false;

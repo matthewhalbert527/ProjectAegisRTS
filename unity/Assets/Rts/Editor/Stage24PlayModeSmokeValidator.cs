@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using ProjectAegisRTS.Commands;
 using ProjectAegisRTS.Core;
+using ProjectAegisRTS.Demo;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.Bootstrap;
 using ProjectAegisRTS.UnityClient.CoreBridge;
@@ -42,6 +44,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             try
             {
                 Stage24TechSupportValidator.ValidateStage24TechSupport();
+                ValidatePrecisionStrikePrerequisiteGate();
                 ValidateStage16RuntimeSupportPowers();
 
                 if (RedErrors.Count > 0)
@@ -97,11 +100,38 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (cooldown.Success || cooldown.Code != "SupportPowerCooldown")
                 throw new InvalidOperationException("Stage 24 Reveal Scan should reject repeated activation during cooldown.");
 
-            var lockedStrike = driver.TryActivateSupportPowerAtCell("precision_strike", new Int2(20, 20));
-            if (lockedStrike.Success || lockedStrike.Code != "MissingPrerequisite")
-                throw new InvalidOperationException("Stage 24 precision strike placeholder should remain gated by tech_center.");
+            var precisionStrike = FindSupportPower(FindPlayer(driver, 1), "precision_strike");
+            if (precisionStrike == null)
+                throw new InvalidOperationException("Stage 24 precision strike support-power snapshot is missing.");
+
+            var strikeResult = driver.TryActivateSupportPowerAtCell("precision_strike", new Int2(20, 20));
+            if (precisionStrike.IsUnlocked)
+            {
+                if (!strikeResult.Success)
+                    throw new InvalidOperationException("Stage 24 precision strike placeholder should activate once tech_center is present: " + strikeResult);
+            }
+            else
+            {
+                if (precisionStrike.MissingPrerequisiteTypeId != "tech_center")
+                    throw new InvalidOperationException("Stage 24 locked precision strike should report missing tech_center, got: " + precisionStrike.MissingPrerequisiteTypeId);
+                if (strikeResult.Success || strikeResult.Code != "MissingPrerequisite")
+                    throw new InvalidOperationException("Stage 24 precision strike placeholder should remain gated by tech_center in Stage16 runtime: " + strikeResult);
+            }
 
             StepRuntime(driver, boardRenderer, actorRenderer, 2, 0.05f);
+        }
+
+        static void ValidatePrecisionStrikePrerequisiteGate()
+        {
+            var world = DemoWorldFactory.CreateMvpWorld();
+            var lockedStrike = world.IssueCommand(new ActivateSupportPowerCommand(1, "precision_strike", new Int2(20, 20)));
+            if (lockedStrike.Success || lockedStrike.ErrorCode != "MissingPrerequisite")
+                throw new InvalidOperationException("Stage 24 precision strike placeholder should remain gated by tech_center in a no-tech world.");
+
+            world.CreateActor("tech_center", 1, new Int2(14, 4));
+            var unlockedStrike = world.IssueCommand(new ActivateSupportPowerCommand(1, "precision_strike", new Int2(20, 20)));
+            if (!unlockedStrike.Success)
+                throw new InvalidOperationException("Stage 24 precision strike placeholder should unlock when tech_center exists: " + unlockedStrike);
         }
 
         static void StepRuntime(RtsSimulationDriver driver, BoardRenderer boardRenderer, ActorRenderSystem actorRenderer, int steps, float deltaSeconds)

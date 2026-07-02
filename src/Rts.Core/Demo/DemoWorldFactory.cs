@@ -81,6 +81,11 @@ namespace ProjectAegisRTS.Demo
 
         public static RtsWorld CreateAiSkirmishDemoWorld()
         {
+            return CreateAiSkirmishDemoWorld(new AiDifficultyDefinition("stage12-standard", 16, 3, 2, 12012));
+        }
+
+        public static RtsWorld CreateAiSkirmishDemoWorld(AiDifficultyDefinition difficulty)
+        {
             var rules = DemoRules.CreateDefaultRules();
             var world = new RtsWorld(rules, new GridMap(32, 32));
             world.AddPlayer(1, "Aegis Skirmish Player", 5000);
@@ -102,7 +107,7 @@ namespace ProjectAegisRTS.Demo
                 for (var x = 16; x <= 18; x++)
                     world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 150);
 
-            world.ConfigureAiPlayer(new AiPlayerDefinition(2, new AiDifficultyDefinition("stage12-standard", 16, 3, 2, 12012)));
+            world.ConfigureAiPlayer(new AiPlayerDefinition(2, difficulty ?? AiDifficultyDefinition.CreateStandard()));
             return world;
         }
 
@@ -149,6 +154,11 @@ namespace ProjectAegisRTS.Demo
         }
 
         public static RtsWorld CreateVerticalSliceWorld()
+        {
+            return CreateVerticalSliceWorld(AiDifficultyDefinition.CreateNormal());
+        }
+
+        public static RtsWorld CreateVerticalSliceWorld(AiDifficultyDefinition aiDifficulty)
         {
             var rules = DemoRules.CreateDefaultRules();
             var world = new RtsWorld(rules, new GridMap(32, 32));
@@ -212,7 +222,7 @@ namespace ProjectAegisRTS.Demo
                 for (var x = 25; x <= 28; x++)
                     world.AddResourceCell(new Int2(x, y), ResourceKind.Ore, 160);
 
-            world.ConfigureAiPlayer(new AiPlayerDefinition(2, new AiDifficultyDefinition("stage16-vertical-slice", 14, 3, 2, 16016)));
+            world.ConfigureAiPlayer(new AiPlayerDefinition(2, aiDifficulty ?? AiDifficultyDefinition.CreateNormal()));
             world.ConfigureScenario(ScenarioDefinition.CreateVerticalSlice(1, 2));
             return world;
         }

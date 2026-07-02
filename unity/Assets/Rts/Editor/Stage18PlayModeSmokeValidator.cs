@@ -177,6 +177,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 2, 0.05f);
             progress.Refresh();
             if (!progress.hasDiscoveredEnemy)
+            {
+                RequireSuccess(driver.TrySelectFirstOwnedActorOfType("scout_rover"), "select scout rover for smoke scouting");
+                RequireSuccess(driver.TryIssueMoveSelectedToCell(new Int2(18, 16)), "move scout rover toward enemy base");
+                StepUntilEnemyDiscovered(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, progress, 360);
+            }
+
+            progress.Refresh();
+            if (!progress.hasDiscoveredEnemy)
                 throw new InvalidOperationException("Stage 18 progress tracker did not detect scouted enemy actors.");
 
             RequireSuccess(debugActions.DestroyEnemyBase(), "enemy base destruction");
@@ -233,6 +241,31 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 terrainRenderer.RenderSnapshot(driver.LatestSnapshot);
                 bus.RenderSnapshot(driver.LatestSnapshot);
                 stats.RecordFrame(deltaTime);
+            }
+        }
+
+        static void StepUntilEnemyDiscovered(
+            RtsSimulationDriver driver,
+            BoardRenderer boardRenderer,
+            ActorRenderSystem actorRenderer,
+            ProjectileRenderSystem projectileRenderer,
+            CombatEventRenderSystem combatRenderer,
+            ResourceFieldRenderSystem resourceRenderer,
+            FogOverlayRenderer fogRenderer,
+            MinimapRenderSystem minimapRenderer,
+            AiIntentRenderSystem aiRenderer,
+            TerrainDebugRenderer terrainRenderer,
+            FeedbackEventBus bus,
+            RuntimePerformanceStats stats,
+            VerticalSliceProgressTracker progress,
+            int maxFrames)
+        {
+            for (var i = 0; i < maxFrames; i++)
+            {
+                StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 1, 0.05f);
+                progress.Refresh();
+                if (progress.hasDiscoveredEnemy)
+                    return;
             }
         }
 
