@@ -135,6 +135,38 @@ namespace ProjectAegisRTS.UnityClient.UI.XR.LeftHand
             return LogAndReturn(driver.TryForceLowPowerOrCreateLowPowerDemoCondition());
         }
 
+        public RtsCommandResult RepairSelectedBuilding()
+        {
+            if (!EnsureDriver(out var missing))
+                return LogAndReturn(missing);
+
+            return LogAndReturn(driver.TryBeginRepairSelectedBuilding());
+        }
+
+        public RtsCommandResult SellSelectedBuilding()
+        {
+            if (!EnsureDriver(out var missing))
+                return LogAndReturn(missing);
+
+            return LogAndReturn(driver.TrySellSelectedBuilding());
+        }
+
+        public RtsCommandResult ToggleSelectedBuildingPower()
+        {
+            if (!EnsureDriver(out var missing))
+                return LogAndReturn(missing);
+
+            return LogAndReturn(driver.TryTogglePowerSelected());
+        }
+
+        public RtsCommandResult SetSelectedBuildingRallyPoint(Int2 cell)
+        {
+            if (!EnsureDriver(out var missing))
+                return LogAndReturn(missing);
+
+            return LogAndReturn(driver.TrySetRallyPointForSelectedProducer(cell));
+        }
+
         bool EnsureDriver(out RtsCommandResult failure)
         {
             failure = null;

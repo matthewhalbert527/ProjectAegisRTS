@@ -88,6 +88,12 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             Info("Patrol mode: left-click a board cell to send selected units on a patrol foundation order.");
         }
 
+        public void SetRallyMode()
+        {
+            CurrentMode = DesktopCommandMode.Rally;
+            Info("Rally mode: select one production building, then left-click a board cell for spawned units.");
+        }
+
         public RtsCommandResult IssueMoveToCell(Int2 cell)
         {
             if (!EnsureDriver())
@@ -130,6 +136,18 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
 
             var result = driver.TryIssuePatrolSelectedToCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueRallyToCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TrySetRallyPointForSelectedProducer(cell);
             if (result.Success)
                 CurrentMode = DesktopCommandMode.Normal;
             Log(result);
@@ -192,6 +210,26 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
 
             var result = driver.TryIssueDeploySelected();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult RepairSelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryBeginRepairSelectedBuilding();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult SellSelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TrySellSelectedBuilding();
             Log(result);
             return result;
         }

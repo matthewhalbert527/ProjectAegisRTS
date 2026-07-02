@@ -28,6 +28,8 @@ namespace ProjectAegisRTS.Actors
         Patrol,
         Scatter,
         Deploy,
+        Repair,
+        Sell,
         Harvest,
         Stop,
         RallyPoint,
@@ -72,6 +74,9 @@ namespace ProjectAegisRTS.Actors
         public int DestroyedByActorId { get; set; }
         public string ActiveWeaponId { get; set; }
         public bool HasHarvestOrder { get; set; }
+        public bool IsRepairing { get; set; }
+        public int RepairProgressTicks { get; set; }
+        public int RepairSpentCredits { get; set; }
 
         public ActorState(ActorId id, int ownerPlayerId, string typeId, Int2 cellPosition, int health)
         {
@@ -110,6 +115,9 @@ namespace ProjectAegisRTS.Actors
             DestroyedByActorId = 0;
             ActiveWeaponId = string.Empty;
             HasHarvestOrder = false;
+            IsRepairing = false;
+            RepairProgressTicks = 0;
+            RepairSpentCredits = 0;
         }
 
         public void SetBuildingPlacement(Int2 topLeftPlacementCell, Int2 placementFootprintCells)

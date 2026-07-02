@@ -112,6 +112,10 @@ Complete after local validation. Windows player resolution and UI scaling fix. A
 
 Complete after local validation. Classic RTS command matrix pass. Adds deterministic attack-move, guard, patrol, scatter, and deploy-placeholder commands in `Rts.Core`; adds PCDesktop command buttons, double-click same-type selection, box selection, and client-local control groups; preserves QuestXR Stage 4/5 controls; and adds Stage 22 fast/medium/player-facing/full validation tiers while preserving Stage 0-21.5 behavior.
 
+## Stage 23
+
+Complete after local validation. Base management command pass. Adds deterministic building repair, sell/refund/removal, manual power toggle production pausing, rally point validation and spawned-unit routing; exposes repair/rally/power/sell snapshot state; adds PCDesktop command buttons and Quest left-hand compatible routing; and adds Stage 23 fast/medium/player-facing/full validation tiers while preserving Stage 0-22 behavior.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

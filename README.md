@@ -302,6 +302,18 @@ Stage 22 adds classic RTS command controls:
 
 Use `run-stage22-fast-checks.ps1` while iterating on command controls, PC input, or command-bar layout. Use `run-stage22-medium-checks.ps1` before local commits; it stays flat and calls direct Stage 21.5, Stage 4, Stage 5, and Stage 22 validation dependencies. Stage 22 adds attack-move, guard, patrol, scatter, deploy placeholder, double-click same-type selection, box selection, and client-local control groups while keeping gameplay authority in `Rts.Core`.
 
+Stage 23 adds base-management commands:
+
+```powershell
+.\tools\run-unity-stage23-validation.ps1
+.\tools\run-stage23-fast-checks.ps1
+.\tools\run-stage23-medium-checks.ps1
+.\tools\run-stage23-player-facing-checks.ps1 -SkipPlayerBuild
+.\tools\run-stage23-checks.ps1
+```
+
+Use `run-stage23-fast-checks.ps1` while iterating on repair, sell, power toggle, rally points, command routing, or base-management snapshots. Use `run-stage23-medium-checks.ps1` before local commits; it stays flat and calls direct Stage 22, Stage 4, Stage 5, and Stage 23 validation dependencies. Stage 23 adds deterministic building repair, sell/refund/removal, powered-off production pausing, rally points for production buildings, PCDesktop command routing, and Quest left-hand compatible command routes while keeping gameplay authority in `Rts.Core`.
+
 Open the Unity project:
 
 ```powershell
@@ -417,3 +429,7 @@ Stage 16 vertical slice assets:
 - Stage 21 report: `docs/STAGE21_REPORT.md`
 - Stage 21.5 display scaling report: `docs/STAGE21_5_DISPLAY_SCALING_REPORT.md`
 - Stage 21.5 player window guide: `docs/STAGE21_5_PLAYER_WINDOW_GUIDE.md`
+- Stage 22 command interaction design: `docs/STAGE22_COMMAND_INTERACTION_DESIGN.md`
+- Stage 22 report: `docs/STAGE22_REPORT.md`
+- Stage 23 base management design: `docs/STAGE23_BASE_MANAGEMENT_DESIGN.md`
+- Stage 23 report: `docs/STAGE23_REPORT.md`

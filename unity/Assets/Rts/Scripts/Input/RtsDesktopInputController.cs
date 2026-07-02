@@ -136,6 +136,8 @@ namespace ProjectAegisRTS.UnityClient.InputControls
                     commandRouter.IssueAttackMoveToCell(cell);
                 else if (commandRouter.CurrentMode == DesktopCommandMode.Patrol)
                     commandRouter.IssuePatrolToCell(cell);
+                else if (commandRouter.CurrentMode == DesktopCommandMode.Rally)
+                    commandRouter.IssueRallyToCell(cell);
                 else if (IsDoubleClick(cell))
                     commandRouter.SelectSameTypeAtCell(cell);
                 else

@@ -35,6 +35,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 router.SetAttackPlaceholderMode();
             if (Input.GetKeyDown(KeyCode.X) && router != null)
                 router.SetAttackMoveMode();
+            if (Input.GetKeyDown(KeyCode.Y) && router != null)
+                router.SetRallyMode();
             if (modeText != null && router != null)
                 modeText.text = "Command Mode: " + router.CurrentMode;
         }
@@ -64,9 +66,10 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             AddButton("Patrol", () => router.SetPatrolMode());
             AddButton("Scatter", () => router.ScatterSelected());
             AddButton("Deploy", () => router.DeploySelected());
-            AddButton("Repair", () => router.Placeholder("Repair"));
-            AddButton("Sell", () => router.Placeholder("Sell"));
+            AddButton("Repair", () => router.RepairSelected());
+            AddButton("Sell", () => router.SellSelected());
             AddButton("Power", () => router.TogglePowerSelected());
+            AddButton("Rally", () => router.SetRallyMode());
 
             RemoveLegacyButton("Pause");
             RemoveLegacyButton("Step");

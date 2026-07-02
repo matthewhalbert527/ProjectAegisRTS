@@ -1078,6 +1078,60 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return result;
         }
 
+        public RtsCommandResult TryBeginRepairSelectedBuilding()
+        {
+            int actorId;
+            var validation = TryGetSingleSelectedOwnedBuilding("repairing", out actorId);
+            if (!validation.Success)
+                return validation;
+
+            var result = RtsCommandAdapter.BeginRepairBuilding(world, playerId, actorId);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Generic, result, Int2.Zero, actorId, "Repair");
+            return result;
+        }
+
+        public RtsCommandResult TryCancelRepairSelectedBuilding()
+        {
+            int actorId;
+            var validation = TryGetSingleSelectedOwnedBuilding("cancelling repair", out actorId);
+            if (!validation.Success)
+                return validation;
+
+            var result = RtsCommandAdapter.CancelRepairBuilding(world, playerId, actorId);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Generic, result, Int2.Zero, actorId, "Cancel repair");
+            return result;
+        }
+
+        public RtsCommandResult TrySellSelectedBuilding()
+        {
+            int actorId;
+            var validation = TryGetSingleSelectedOwnedBuilding("selling", out actorId);
+            if (!validation.Success)
+                return validation;
+
+            var result = RtsCommandAdapter.SellBuilding(world, playerId, actorId);
+            if (result.Success)
+                selectedActorIds.Clear();
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Generic, result, Int2.Zero, actorId, "Sell");
+            return result;
+        }
+
+        public RtsCommandResult TrySetRallyPointForSelectedProducer(Int2 cell)
+        {
+            int actorId;
+            var validation = TryGetSingleSelectedOwnedBuilding("setting a rally point", out actorId);
+            if (!validation.Success)
+                return validation;
+
+            var result = RtsCommandAdapter.SetRallyPoint(world, playerId, actorId, cell);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.MoveCommand, result, cell, actorId, "Rally point");
+            return result;
+        }
+
         public RtsCommandResult TryForceLowPowerOrCreateLowPowerDemoCondition()
         {
             if (world == null)
@@ -1225,6 +1279,25 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         {
             if (feedbackEventBus != null)
                 feedbackEventBus.EmitCommandFeedback(eventType, result, cell, sourceActorId, label);
+        }
+
+        RtsCommandResult TryGetSingleSelectedOwnedBuilding(string actionLabel, out int actorId)
+        {
+            actorId = 0;
+            if (world == null || Rules == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+            if (selectedActorIds.Count != 1)
+                return RtsCommandResult.Fail("SelectionRequiresOne", "Select one building before " + actionLabel + ".");
+
+            ActorSnapshot actor;
+            ActorDefinition definition;
+            if (!TryGetActorSnapshot(selectedActorIds[0], out actor) || actor.OwnerId != playerId || actor.IsDestroyed || !Rules.TryGetDefinition(actor.TypeId, out definition))
+                return RtsCommandResult.Fail("SelectionInvalid", "The selected actor is no longer available.");
+            if (!(definition is BuildingDefinition))
+                return RtsCommandResult.Fail("SelectionRequiresBuilding", "Select a building before " + actionLabel + ".");
+
+            actorId = actor.ActorId;
+            return RtsCommandResult.Ok("Selected building accepted.");
         }
 
         bool TryFindActorAtCell(Int2 cell, out int actorId)

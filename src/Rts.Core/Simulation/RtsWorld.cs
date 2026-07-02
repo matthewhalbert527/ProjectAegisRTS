@@ -45,6 +45,9 @@ namespace ProjectAegisRTS.Simulation
         const int MaxRecentPathQueries = 32;
         const int HarvesterCargoCapacity = 200;
         const int RefineryUnloadRatePerTick = 25;
+        const int RepairHitPointsPerTick = 10;
+        const int RepairCreditsPerTick = 5;
+        const int SellRefundPercent = 50;
 
         public RtsRules Rules { get; private set; }
         public GridMap Map { get; private set; }
@@ -370,6 +373,12 @@ namespace ProjectAegisRTS.Simulation
                 return PlaceBuilding((PlaceBuildingCommand)command);
             if (command is SetRallyPointCommand)
                 return SetRallyPoint((SetRallyPointCommand)command);
+            if (command is BeginRepairBuildingCommand)
+                return BeginRepairBuilding((BeginRepairBuildingCommand)command);
+            if (command is CancelRepairBuildingCommand)
+                return CancelRepairBuilding((CancelRepairBuildingCommand)command);
+            if (command is SellBuildingCommand)
+                return SellBuilding((SellBuildingCommand)command);
             if (command is StopCommand)
                 return Stop((StopCommand)command);
             if (command is PowerToggleCommand)
@@ -384,6 +393,7 @@ namespace ProjectAegisRTS.Simulation
             UpdatePowerAndActorFlags();
             aiSystem.Tick(this);
             TickProduction();
+            TickRepairs();
             TickMovement();
             TickHarvesting();
             TickCombat();
@@ -478,7 +488,12 @@ namespace ProjectAegisRTS.Simulation
                     actor.HasHarvestOrder,
                     actor.PlacementTopLeftCell,
                     building == null ? Int2.Zero : building.PlacementFootprintCells,
-                    PlacementGridMetrics.PlacementGridScale));
+                    PlacementGridMetrics.PlacementGridScale,
+                    actor.RallyPoint,
+                    actor.IsRepairing,
+                    actor.RepairProgressTicks,
+                    actor.RepairSpentCredits,
+                    actor.ManuallyPoweredOff));
             }
 
             var projectileSnapshots = new List<ProjectileSnapshot>();
@@ -1305,9 +1320,65 @@ namespace ProjectAegisRTS.Simulation
             if (!Map.Contains(command.RallyCell))
                 return CommandResult.Fail("RallyOutsideMap", "The rally point is outside the map.");
 
+            var producerDefinition = Rules.GetDefinition(producer.TypeId) as BuildingDefinition;
+            if (producerDefinition == null || producerDefinition.ProducesTypeIds.Count == 0)
+                return CommandResult.Fail("RallyRequiresProducer", "Only production buildings can receive rally points.");
+
             producer.RallyPoint = command.RallyCell;
             producer.CurrentOrder = ActorOrderKind.RallyPoint;
             return CommandResult.Ok("Rally point recorded.");
+        }
+
+        CommandResult BeginRepairBuilding(BeginRepairBuildingCommand command)
+        {
+            ActorState actor;
+            if (!TryGetOwnedActor(command.PlayerId, command.ActorId, out actor))
+                return CommandResult.Fail("RepairActorInvalid", "The repair target does not exist or is not owned by the command player.");
+
+            var definition = Rules.GetDefinition(actor.TypeId) as BuildingDefinition;
+            if (definition == null)
+                return CommandResult.Fail("RepairRequiresBuilding", "Only buildings can be repaired.");
+            if (actor.Health >= definition.MaxHealth)
+                return CommandResult.Fail("RepairNotNeeded", "The selected building is already fully repaired.");
+            if (players[command.PlayerId].Credits <= 0)
+                return CommandResult.Fail("RepairInsufficientCredits", "Repair requires credits.");
+
+            actor.IsRepairing = true;
+            actor.CurrentOrder = ActorOrderKind.Repair;
+            actor.MovementPhase = "repairing";
+            return CommandResult.Ok("Building repair started.");
+        }
+
+        CommandResult CancelRepairBuilding(CancelRepairBuildingCommand command)
+        {
+            ActorState actor;
+            if (!TryGetOwnedActor(command.PlayerId, command.ActorId, out actor))
+                return CommandResult.Fail("RepairActorInvalid", "The repair target does not exist or is not owned by the command player.");
+
+            actor.IsRepairing = false;
+            if (actor.CurrentOrder == ActorOrderKind.Repair)
+                actor.CurrentOrder = ActorOrderKind.Idle;
+            actor.MovementPhase = "idle";
+            return CommandResult.Ok("Building repair cancelled.");
+        }
+
+        CommandResult SellBuilding(SellBuildingCommand command)
+        {
+            ActorState actor;
+            if (!TryGetOwnedActor(command.PlayerId, command.ActorId, out actor))
+                return CommandResult.Fail("SellActorInvalid", "The sell target does not exist or is not owned by the command player.");
+
+            var definition = Rules.GetDefinition(actor.TypeId) as BuildingDefinition;
+            if (definition == null)
+                return CommandResult.Fail("SellRequiresBuilding", "Only buildings can be sold.");
+
+            var refund = CalculateSellRefund(definition);
+            players[command.PlayerId].Credits += refund;
+            RemoveActorFromWorld(actor);
+            UpdatePowerAndActorFlags();
+            UpdateVisibility();
+            AddEconomyEvent("BuildingSold", actor.Id.Value, 0, actor.CellPosition, 0, refund);
+            return CommandResult.Ok("Building sold for " + refund + " credits.");
         }
 
         CommandResult Stop(StopCommand command)
@@ -1322,6 +1393,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.CurrentOrder = ActorOrderKind.Stop;
                 ClearAttackState(actor);
                 ClearHarvestState(actor);
+                actor.IsRepairing = false;
                 actor.DesiredSpeed = 0;
                 actor.NormalizedSpeed = 0;
                 actor.MovementPhase = "idle";
@@ -1336,8 +1408,8 @@ namespace ProjectAegisRTS.Simulation
             if (!TryGetOwnedActor(command.PlayerId, command.ActorId, out actor))
                 return CommandResult.Fail("PowerToggleActorInvalid", "The target actor does not exist or is not owned by the command player.");
 
-                if (!(Rules.GetDefinition(actor.TypeId) is BuildingDefinition))
-                return CommandResult.Fail("PowerToggleRequiresBuilding", "Only buildings can be power-toggled in Stage 0.");
+            if (!(Rules.GetDefinition(actor.TypeId) is BuildingDefinition))
+                return CommandResult.Fail("PowerToggleRequiresBuilding", "Only buildings can be power-toggled.");
 
             actor.ManuallyPoweredOff = !actor.ManuallyPoweredOff;
             actor.CurrentOrder = ActorOrderKind.PowerToggle;
@@ -1356,7 +1428,13 @@ namespace ProjectAegisRTS.Simulation
                         continue;
 
                     ActorState producerActor;
-                    if (actors.TryGetValue(item.ProducerActorId.Value, out producerActor) && producerActor.IsDestroyed)
+                    if (!actors.TryGetValue(item.ProducerActorId.Value, out producerActor) || producerActor.IsDestroyed)
+                    {
+                        item.State = ProductionItemState.Paused;
+                        continue;
+                    }
+
+                    if (producerActor.ManuallyPoweredOff)
                     {
                         item.State = ProductionItemState.Paused;
                         continue;
@@ -1385,6 +1463,109 @@ namespace ProjectAegisRTS.Simulation
                 SpawnProducedUnit(item);
                 players[item.PlayerId].MutableProductionQueue.Remove(item);
             }
+        }
+
+        void TickRepairs()
+        {
+            foreach (var actor in SortedActors())
+            {
+                if (!actor.IsRepairing)
+                    continue;
+
+                var definition = Rules.GetDefinition(actor.TypeId) as BuildingDefinition;
+                if (definition == null || actor.IsDestroyed)
+                {
+                    actor.IsRepairing = false;
+                    continue;
+                }
+
+                if (actor.Health >= definition.MaxHealth)
+                {
+                    actor.IsRepairing = false;
+                    if (actor.CurrentOrder == ActorOrderKind.Repair)
+                        actor.CurrentOrder = ActorOrderKind.Idle;
+                    actor.MovementPhase = "repaired";
+                    continue;
+                }
+
+                var player = players[actor.OwnerPlayerId];
+                if (player.Credits <= 0)
+                {
+                    actor.IsRepairing = false;
+                    actor.MovementPhase = "repair_paused";
+                    continue;
+                }
+
+                var missingHealth = definition.MaxHealth - actor.Health;
+                var hitPoints = Min(RepairHitPointsPerTick, missingHealth);
+                var cost = Min(RepairCreditsPerTick, player.Credits);
+                if (cost < RepairCreditsPerTick)
+                    hitPoints = Min(hitPoints, cost * RepairHitPointsPerTick / RepairCreditsPerTick);
+                if (hitPoints <= 0)
+                {
+                    actor.IsRepairing = false;
+                    actor.MovementPhase = "repair_paused";
+                    continue;
+                }
+
+                player.Credits -= cost;
+                actor.Health += hitPoints;
+                if (actor.Health > definition.MaxHealth)
+                    actor.Health = definition.MaxHealth;
+                actor.RepairProgressTicks++;
+                actor.RepairSpentCredits += cost;
+                actor.CurrentOrder = ActorOrderKind.Repair;
+                actor.MovementPhase = "repairing";
+                AddEconomyEvent("BuildingRepaired", actor.Id.Value, 0, actor.CellPosition, -cost, 0);
+
+                if (actor.Health >= definition.MaxHealth)
+                {
+                    actor.IsRepairing = false;
+                    actor.CurrentOrder = ActorOrderKind.Idle;
+                    actor.MovementPhase = "repaired";
+                }
+            }
+        }
+
+        int CalculateSellRefund(BuildingDefinition definition)
+        {
+            var baseCost = definition.Production.Cost > 0 ? definition.Production.Cost : 500;
+            return baseCost * SellRefundPercent / 100;
+        }
+
+        void RemoveActorFromWorld(ActorState actor)
+        {
+            var building = Rules.GetDefinition(actor.TypeId) as BuildingDefinition;
+            if (building != null)
+            {
+                var footprint = actor.PlacementFootprintCells.Equals(Int2.Zero) ? building.PlacementFootprintCells : actor.PlacementFootprintCells;
+                Map.ClearBuildingAtPlacement(actor.PlacementTopLeftCell, footprint);
+                refineries.Remove(actor.Id.Value);
+                foreach (var harvester in SortedHarvesters())
+                {
+                    if (harvester.AssignedRefineryActorId == actor.Id.Value)
+                    {
+                        harvester.AssignedRefineryActorId = 0;
+                        harvester.State = HarvesterWorkState.Idle;
+                    }
+                }
+            }
+
+            harvesters.Remove(actor.Id.Value);
+            foreach (var player in SortedPlayers())
+            {
+                for (var i = player.MutableProductionQueue.Count - 1; i >= 0; i--)
+                    if (player.MutableProductionQueue[i].ProducerActorId.Value == actor.Id.Value)
+                        player.MutableProductionQueue.RemoveAt(i);
+            }
+
+            foreach (var other in SortedActors())
+            {
+                if (other.AttackTargetActorId == actor.Id.Value)
+                    ClearAttackState(other);
+            }
+
+            actors.Remove(actor.Id.Value);
         }
 
         void SpawnProducedUnit(ProductionQueueItem item)
@@ -1614,7 +1795,7 @@ namespace ProjectAegisRTS.Simulation
                     }
                 }
 
-                if (player.PowerState == PlayerPowerState.Offline && isBuilding)
+                if (isBuilding && !powered)
                     actor.AnimationStateId = definition.Animation.OfflineStateId;
                 else if (lowPower)
                     actor.AnimationStateId = definition.Animation.LowPowerStateId;

@@ -46,6 +46,11 @@ namespace ProjectAegisRTS.Tests
                 AttackMoveOrderStartsMoveAndAutoAttackFoundation,
                 GuardPatrolScatterAndDeployOrdersAreAccepted,
                 StopClearsStage22CommandOrders,
+                SellBuildingRemovesBuildingAndRefundsCredits,
+                PowerToggleChangesConsumptionAndPausesProduction,
+                RepairConsumesCreditsAndRestoresHealth,
+                RallyPointAffectsSpawnedUnitOrder,
+                BaseManagementDeterminismSmokeTest,
                 WeaponCooldownPreventsContinuousFire,
                 ProjectileSpawnsForProjectileWeapon,
                 ProjectileImpactsAndDealsDamage,
@@ -371,6 +376,114 @@ namespace ProjectAegisRTS.Tests
             Assert(tank.Path.Count == 0, "Expected Stop to clear attack-move path.");
             Assert(tank.AttackTargetActorId == 0, "Expected Stop to clear attack target.");
             Assert(!tank.IsAttacking, "Expected Stop to clear attacking flag.");
+        }
+
+        static void SellBuildingRemovesBuildingAndRefundsCredits()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var tower = world.FirstActorOfType("gun_tower", 1);
+            var startCredits = world.Players[1].Credits;
+            var towerId = tower.Id.Value;
+
+            var result = world.IssueCommand(new SellBuildingCommand(1, tower.Id));
+            Assert(result.Success, "Expected sell success: " + result.ErrorCode);
+            Assert(!world.Actors.ContainsKey(towerId), "Expected sold building to be removed from the actor table.");
+            Assert(world.Players[1].Credits == startCredits + 125, "Expected 50 percent refund for gun tower.");
+
+            var snapshot = world.CreateSnapshot();
+            for (var i = 0; i < snapshot.Actors.Count; i++)
+                Assert(snapshot.Actors[i].ActorId != towerId, "Expected sold building to be absent from snapshots.");
+        }
+
+        static void PowerToggleChangesConsumptionAndPausesProduction()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            var barracks = world.FirstActorOfType("barracks", 1);
+            world.CreateSnapshot();
+            var consumedBefore = world.Players[1].PowerConsumed;
+
+            var production = world.IssueCommand(new BeginProductionCommand(1, barracks.Id, "rifle_infantry"));
+            Assert(production.Success, "Expected infantry production setup success: " + production.ErrorCode);
+
+            var toggle = world.IssueCommand(new PowerToggleCommand(1, barracks.Id));
+            Assert(toggle.Success, "Expected power toggle success: " + toggle.ErrorCode);
+            world.CreateSnapshot();
+            Assert(barracks.ManuallyPoweredOff, "Expected barracks manual power-off flag.");
+            Assert(world.Players[1].PowerConsumed == consumedBefore - 8, "Expected barracks power consumption to be removed.");
+
+            world.Tick();
+            var item = world.Players[1].ProductionQueue[0];
+            Assert(item.State == ProductionItemState.Paused, "Expected production to pause while producer is powered off.");
+            Assert(item.ProgressTicks == 0, "Expected powered-off production not to advance.");
+
+            var snapshot = world.CreateSnapshot();
+            var barracksSnapshot = FindActor(snapshot, "barracks", 1);
+            Assert(barracksSnapshot.IsManuallyPoweredOff, "Expected snapshot manual power-off flag.");
+            Assert(!barracksSnapshot.IsPowered, "Expected powered-off building snapshot.");
+        }
+
+        static void RepairConsumesCreditsAndRestoresHealth()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var tower = world.FirstActorOfType("gun_tower", 1);
+            tower.Health -= 50;
+            var startCredits = world.Players[1].Credits;
+
+            var result = world.IssueCommand(new BeginRepairBuildingCommand(1, tower.Id));
+            Assert(result.Success, "Expected repair success: " + result.ErrorCode);
+            world.Tick();
+
+            Assert(tower.Health == 660, "Expected one repair tick to restore 10 HP, got " + tower.Health);
+            Assert(world.Players[1].Credits == startCredits - 5, "Expected one repair tick to spend 5 credits.");
+            Assert(tower.IsRepairing, "Expected repair to continue until max health.");
+            Assert(tower.RepairProgressTicks == 1, "Expected repair progress tick accounting.");
+
+            RunTicks(world, 4);
+            Assert(tower.Health == 700, "Expected repair to stop at max health.");
+            Assert(!tower.IsRepairing, "Expected repair to clear at max health.");
+            Assert(tower.RepairSpentCredits == 25, "Expected total repair spend for 50 HP.");
+
+            var snapshot = world.CreateSnapshot();
+            var towerSnapshot = FindActor(snapshot, "gun_tower", 1);
+            Assert(!towerSnapshot.IsRepairing, "Expected repair snapshot to clear at max health.");
+            Assert(towerSnapshot.RepairSpentCredits == 25, "Expected repair spend in snapshot.");
+        }
+
+        static void RallyPointAffectsSpawnedUnitOrder()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            var factory = world.FirstActorOfType("war_factory", 1);
+            var rally = new Int2(16, 12);
+            var existing = new HashSet<int>();
+            foreach (var pair in world.Actors)
+                if (pair.Value.TypeId == "light_tank" && pair.Value.OwnerPlayerId == 1)
+                    existing.Add(pair.Key);
+
+            var rallyResult = world.IssueCommand(new SetRallyPointCommand(1, factory.Id, rally));
+            Assert(rallyResult.Success, "Expected rally point success: " + rallyResult.ErrorCode);
+            var production = world.IssueCommand(new BeginProductionCommand(1, factory.Id, "light_tank"));
+            Assert(production.Success, "Expected tank production success: " + production.ErrorCode);
+            RunTicks(world, 30);
+
+            ActorState spawned = null;
+            foreach (var pair in world.Actors)
+                if (pair.Value.TypeId == "light_tank" && pair.Value.OwnerPlayerId == 1 && !existing.Contains(pair.Key))
+                    spawned = pair.Value;
+
+            Assert(spawned != null, "Expected a newly spawned light tank.");
+            Assert(spawned.CurrentOrder == ActorOrderKind.Move, "Expected spawned unit to receive a rally move order.");
+            Assert(spawned.OrderTargetCell.Equals(rally), "Expected spawned unit order target to match rally point.");
+
+            var snapshot = world.CreateSnapshot();
+            var factorySnapshot = FindActor(snapshot, "war_factory", 1);
+            Assert(factorySnapshot.RallyPoint.Equals(rally), "Expected rally point to be exposed in snapshot.");
+        }
+
+        static void BaseManagementDeterminismSmokeTest()
+        {
+            var a = RunBaseManagementDeterministicSequence();
+            var b = RunBaseManagementDeterministicSequence();
+            Assert(a == b, "Expected base-management deterministic summaries to match.");
         }
 
         static void WeaponCooldownPreventsContinuousFire()
@@ -951,6 +1064,24 @@ namespace ProjectAegisRTS.Tests
             world.IssueCommand(new IssueAttackOrderCommand(1, new[] { tank.Id }, target.Id));
             world.IssueCommand(new IssueAttackOrderCommand(1, new[] { tower.Id }, target.Id));
             RunTicks(world, 72);
+            return world.GetDeterminismSummary();
+        }
+
+        static string RunBaseManagementDeterministicSequence()
+        {
+            var world = DemoWorldFactory.CreateVerticalSliceWorld();
+            var barracks = world.FirstActorOfType("barracks", 1);
+            var factory = world.FirstActorOfType("war_factory", 1);
+            var tower = world.FirstActorOfType("gun_tower", 1);
+
+            tower.Health -= 60;
+            world.IssueCommand(new BeginRepairBuildingCommand(1, tower.Id));
+            world.IssueCommand(new PowerToggleCommand(1, barracks.Id));
+            world.IssueCommand(new SetRallyPointCommand(1, factory.Id, new Int2(16, 12)));
+            world.IssueCommand(new BeginProductionCommand(1, factory.Id, "light_tank"));
+            RunTicks(world, 8);
+            world.IssueCommand(new SellBuildingCommand(1, tower.Id));
+            RunTicks(world, 32);
             return world.GetDeterminismSummary();
         }
 

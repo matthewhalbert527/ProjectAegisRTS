@@ -282,6 +282,11 @@ namespace ProjectAegisRTS.Snapshots
         public Int2 PlacementTopLeftCell { get; private set; }
         public Int2 PlacementFootprintCells { get; private set; }
         public int PlacementGridScale { get; private set; }
+        public Int2 RallyPoint { get; private set; }
+        public bool IsRepairing { get; private set; }
+        public int RepairProgressTicks { get; private set; }
+        public int RepairSpentCredits { get; private set; }
+        public bool IsManuallyPoweredOff { get; private set; }
 
         public ActorSnapshot(
             int actorId,
@@ -340,7 +345,12 @@ namespace ProjectAegisRTS.Snapshots
                 false,
                 null,
                 null,
-                PlacementGridMetrics.PlacementGridScale)
+                PlacementGridMetrics.PlacementGridScale,
+                cellPosition,
+                false,
+                0,
+                0,
+                false)
         {
         }
 
@@ -380,7 +390,12 @@ namespace ProjectAegisRTS.Snapshots
             bool hasHarvestOrder = false,
             Int2? placementTopLeftCell = null,
             Int2? placementFootprintCells = null,
-            int placementGridScale = PlacementGridMetrics.PlacementGridScale)
+            int placementGridScale = PlacementGridMetrics.PlacementGridScale,
+            Int2? rallyPoint = null,
+            bool isRepairing = false,
+            int repairProgressTicks = 0,
+            int repairSpentCredits = 0,
+            bool isManuallyPoweredOff = false)
         {
             ActorId = actorId;
             TypeId = typeId;
@@ -418,6 +433,11 @@ namespace ProjectAegisRTS.Snapshots
             PlacementTopLeftCell = placementTopLeftCell.HasValue ? placementTopLeftCell.Value : PlacementGridMetrics.CoarseCellToPlacementCell(cellPosition);
             PlacementFootprintCells = placementFootprintCells.HasValue ? placementFootprintCells.Value : Int2.Zero;
             PlacementGridScale = placementGridScale;
+            RallyPoint = rallyPoint.HasValue ? rallyPoint.Value : cellPosition;
+            IsRepairing = isRepairing;
+            RepairProgressTicks = repairProgressTicks;
+            RepairSpentCredits = repairSpentCredits;
+            IsManuallyPoweredOff = isManuallyPoweredOff;
         }
     }
 

@@ -19,7 +19,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         Move,
         AttackPlaceholder,
         AttackMove,
-        Patrol
+        Patrol,
+        Rally
     }
 
     public static class DesktopProductionCatalog

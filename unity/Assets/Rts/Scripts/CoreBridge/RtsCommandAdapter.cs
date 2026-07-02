@@ -161,11 +161,39 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 world.IssueCommand(new StopCommand(playerId, ToActorIds(actorIds))));
         }
 
+        public static RtsCommandResult BeginRepairBuilding(RtsWorld world, int playerId, int actorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Repair",
+                world.IssueCommand(new BeginRepairBuildingCommand(playerId, new ActorId(actorId))));
+        }
+
+        public static RtsCommandResult CancelRepairBuilding(RtsWorld world, int playerId, int actorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Cancel repair",
+                world.IssueCommand(new CancelRepairBuildingCommand(playerId, new ActorId(actorId))));
+        }
+
+        public static RtsCommandResult SellBuilding(RtsWorld world, int playerId, int actorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Sell",
+                world.IssueCommand(new SellBuildingCommand(playerId, new ActorId(actorId))));
+        }
+
         public static RtsCommandResult TogglePower(RtsWorld world, int playerId, int actorId)
         {
             return RtsCommandResult.FromCore(
                 "Toggle power",
                 world.IssueCommand(new PowerToggleCommand(playerId, new ActorId(actorId))));
+        }
+
+        public static RtsCommandResult SetRallyPoint(RtsWorld world, int playerId, int actorId, Int2 rallyCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Rally point",
+                world.IssueCommand(new SetRallyPointCommand(playerId, new ActorId(actorId), rallyCell)));
         }
 
         static IReadOnlyList<ActorId> ToActorIds(IReadOnlyList<int> actorIds)

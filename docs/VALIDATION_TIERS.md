@@ -407,7 +407,7 @@ For a focused player-facing smoke without rebuilding the EXE:
 
 Fast checks should usually take minutes because they avoid earlier-stage validation. Medium checks are longer because they include core tests, Unity DLL build, immediate dependency validation, and current-stage validation, but they avoid the full replay where practical. Full checks are the slow acceptance gate and can take much longer because they validate every stage through the current stage. Stage 9 and later full checks avoid recursively nesting lower full gates, so they should scale roughly with the number of stages instead of repeating prior stages many times.
 
-Stage 15.1 keeps medium checks to one core test run and one Unity DLL build per medium command. Direct Unity validation calls use `-SkipCoreBuild` after that build, which keeps failure output clear without introducing fragile cache state. Stage 17 keeps the same principle and treats Stage 16.5 build-flow validation as the direct immediate dependency. Stage 18 keeps the same principle with direct Stage 17 dependencies and Stage 18-specific player-facing checks. Stage 18.5 keeps Stage 18 as the direct dependency and then runs fine-grid validation without calling any prior medium script. Stage 19 keeps Stage 18.5 as the direct dependency and then runs mission-flow validation without calling any prior medium script. Stage 19.5 keeps Stage 19 as the direct dependency and then runs PC-sidebar/pause validation without calling any prior medium script. Stage 20, Stage 21, and Stage 21.5 keep the same flat shape with direct player-facing and Unity validation dependencies only.
+Stage 15.1 keeps medium checks to one core test run and one Unity DLL build per medium command. Direct Unity validation calls use `-SkipCoreBuild` after that build, which keeps failure output clear without introducing fragile cache state. Stage 17 keeps the same principle and treats Stage 16.5 build-flow validation as the direct immediate dependency. Stage 18 keeps the same principle with direct Stage 17 dependencies and Stage 18-specific player-facing checks. Stage 18.5 keeps Stage 18 as the direct dependency and then runs fine-grid validation without calling any prior medium script. Stage 19 keeps Stage 18.5 as the direct dependency and then runs mission-flow validation without calling any prior medium script. Stage 19.5 keeps Stage 19 as the direct dependency and then runs PC-sidebar/pause validation without calling any prior medium script. Stage 20, Stage 21, Stage 21.5, Stage 22, and Stage 23 keep the same flat shape with direct player-facing and Unity validation dependencies only.
 
 ## Why Full Validation Still Matters
 
@@ -521,3 +521,17 @@ Stage 22 adds:
 Fast checks are intended for attack-move, guard, patrol, scatter, deploy placeholder, PC input selection, control groups, or command-bar layout edits. Medium checks include Rts.Core tests, direct Stage 21.5 validation dependencies, Stage 4/5 UI preservation, Stage 22 validation, the UnityEngine-free scan, and `git diff --check`.
 
 The medium recursion audit includes Stage 22 and fails if `run-stage22-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`.
+
+## Stage 23 Validation
+
+Stage 23 adds:
+
+- `.\tools\run-unity-stage23-validation.ps1` for base-management command bar validation and Play Mode smoke.
+- `.\tools\run-stage23-fast-checks.ps1` for repair/sell/power/rally iteration.
+- `.\tools\run-stage23-medium-checks.ps1` for pre-commit confidence without calling prior medium scripts.
+- `.\tools\run-stage23-player-facing-checks.ps1` for player-facing command routing, Player.log, and launch smoke.
+- `.\tools\run-stage23-checks.ps1` for slow full final acceptance.
+
+Fast checks are intended for repair, sell, power toggle, rally point, command-bar routing, or snapshot field edits. Medium checks include Rts.Core tests, direct Stage 22 validation dependencies, Stage 4/5 UI preservation, Stage 23 validation, the UnityEngine-free scan, and `git diff --check`.
+
+The medium recursion audit includes Stage 23 and fails if `run-stage23-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`.

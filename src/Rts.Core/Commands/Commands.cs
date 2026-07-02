@@ -235,6 +235,42 @@ namespace ProjectAegisRTS.Commands
         }
     }
 
+    public sealed class BeginRepairBuildingCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public ActorId ActorId { get; private set; }
+
+        public BeginRepairBuildingCommand(int playerId, ActorId actorId)
+        {
+            PlayerId = playerId;
+            ActorId = actorId;
+        }
+    }
+
+    public sealed class CancelRepairBuildingCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public ActorId ActorId { get; private set; }
+
+        public CancelRepairBuildingCommand(int playerId, ActorId actorId)
+        {
+            PlayerId = playerId;
+            ActorId = actorId;
+        }
+    }
+
+    public sealed class SellBuildingCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public ActorId ActorId { get; private set; }
+
+        public SellBuildingCommand(int playerId, ActorId actorId)
+        {
+            PlayerId = playerId;
+            ActorId = actorId;
+        }
+    }
+
     public sealed class StopCommand : ISimCommand
     {
         public int PlayerId { get; private set; }
