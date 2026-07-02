@@ -75,7 +75,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
         void Update()
         {
             if (keepPlacementPanelsSynced)
-                SetPlacementPanelsVisible(IsPlacementActive() || showDebugPanelsByDefault);
+                SyncPlacementPanels();
         }
 
         public void ApplyPlayerFacingDefaults()
@@ -96,7 +96,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                 controlsOverlay.visible = false;
 
             if (keepPlacementPanelsSynced)
-                SetPlacementPanelsVisible(IsPlacementActive() || showDebugPanelsByDefault);
+                SyncPlacementPanels();
         }
 
         public void SetKnownDebugPanelsVisible(bool visible)
@@ -118,8 +118,12 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             }
         }
 
-        void SetPlacementPanelsVisible(bool visible)
+        void SyncPlacementPanels()
         {
+            var buildingPlacementActive = IsBuildingPlacementActive();
+            var boardSetupActive = IsBoardSetupActive();
+            var mode = GetEffectiveUiMode();
+
             var behaviours = Resources.FindObjectsOfTypeAll<MonoBehaviour>();
             for (var i = 0; i < behaviours.Length; i++)
             {
@@ -127,8 +131,25 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                 if (!IsSceneBehaviour(behaviour))
                     continue;
 
-                if (Contains(PlacementPanelTypeNames, behaviour.GetType().Name))
-                    behaviour.gameObject.SetActive(visible);
+                var typeName = behaviour.GetType().Name;
+                if (typeName == "BoardPlacementHud")
+                {
+                    behaviour.gameObject.SetActive(showDebugPanelsByDefault || boardSetupActive);
+                    continue;
+                }
+
+                if (typeName == "PlacementModePanel")
+                {
+                    var desktopPlacement = buildingPlacementActive && (mode == PlayerFacingUiMode.PCDesktop || mode == PlayerFacingUiMode.DebugHybrid);
+                    behaviour.gameObject.SetActive(showDebugPanelsByDefault || desktopPlacement);
+                    continue;
+                }
+
+                if (typeName == "LeftHandPlacementPanel")
+                {
+                    var xrPlacement = buildingPlacementActive && (mode == PlayerFacingUiMode.QuestXR || mode == PlayerFacingUiMode.DebugHybrid);
+                    behaviour.gameObject.SetActive(showDebugPanelsByDefault || xrPlacement);
+                }
             }
         }
 
@@ -171,7 +192,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
 
         public bool IsPlacementUiHiddenByDefault()
         {
-            if (IsPlacementActive())
+            if (IsBuildingPlacementActive() || IsBoardSetupActive())
                 return false;
 
             var behaviours = Resources.FindObjectsOfTypeAll<MonoBehaviour>();
@@ -188,6 +209,24 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             return true;
         }
 
+        public bool IsBoardPlacementHudHiddenInPcDesktop()
+        {
+            if (GetEffectiveUiMode() != PlayerFacingUiMode.PCDesktop)
+                return true;
+
+            var behaviours = Resources.FindObjectsOfTypeAll<MonoBehaviour>();
+            for (var i = 0; i < behaviours.Length; i++)
+            {
+                var behaviour = behaviours[i];
+                if (!IsSceneBehaviour(behaviour) || behaviour.GetType().Name != "BoardPlacementHud")
+                    continue;
+                if (behaviour.gameObject.activeInHierarchy)
+                    return false;
+            }
+
+            return true;
+        }
+
         public bool IsPlayerHudVisible()
         {
             return IsHudVisible<MatchObjectiveHud>() &&
@@ -198,14 +237,22 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                 IsHudVisible<MatchResultHud>();
         }
 
-        static bool IsPlacementActive()
+        static bool IsBuildingPlacementActive()
         {
             var driver = FindAnyObjectByType<RtsSimulationDriver>();
-            if (driver != null && driver.HasPlacementMode)
-                return true;
+            return driver != null && driver.HasPlacementMode;
+        }
 
+        static bool IsBoardSetupActive()
+        {
             var boardPlacement = FindAnyObjectByType<BoardPlacementController>();
             return boardPlacement != null && boardPlacement.IsPlacementModeActive;
+        }
+
+        static PlayerFacingUiMode GetEffectiveUiMode()
+        {
+            var mode = FindAnyObjectByType<PlayerFacingUiModeController>();
+            return mode != null ? mode.GetEffectiveMode() : PlayerFacingUiMode.PCDesktop;
         }
 
         static bool IsSceneBehaviour(MonoBehaviour behaviour)

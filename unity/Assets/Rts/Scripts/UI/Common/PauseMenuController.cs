@@ -1,4 +1,5 @@
 using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.Board;
 using ProjectAegisRTS.UnityClient.Scenario;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -42,7 +43,26 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
         {
             EnsureReferences();
             if (Input.GetKeyDown(KeyCode.Escape))
-                TogglePauseMenu();
+                HandleEscapePressed();
+        }
+
+        public void HandleEscapePressed()
+        {
+            EnsureReferences();
+            if (driver != null && driver.HasPlacementMode)
+            {
+                driver.TryCancelPlacement();
+                return;
+            }
+
+            var boardPlacement = FindAnyObjectByType<BoardPlacementController>();
+            if (boardPlacement != null && boardPlacement.IsPlacementModeActive)
+            {
+                boardPlacement.CancelPlacement();
+                return;
+            }
+
+            TogglePauseMenu();
         }
 
         public bool BlocksGameplayInput()

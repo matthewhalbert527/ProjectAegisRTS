@@ -132,6 +132,10 @@ Complete after local validation. Airfield / aircraft / helipad / naval foundatio
 
 Complete after local validation. Skirmish playability / AI pressure / completion polish. Adds Easy/Normal/Hard deterministic AI profiles, timed attack-wave state, production target tuning, Hard building repair, reachable attack-wave staging, saved Boot Options difficulty selection, Stage16 difficulty restart support, a player-facing enemy-pressure HUD readout, non-debug victory validation, and Stage 27 fast/medium/player-facing/full validation tiers while preserving Stage 0-26 behavior.
 
+## Stage 27.1
+
+Complete after local validation. PC building placement UX fix. Separates board setup placement from production building placement in player-facing UI visibility, keeps `BoardPlacementHud` hidden during PCDesktop right-sidebar building placement, preserves explicit QuestXR/DebugHybrid board setup placement, makes Escape cancel active placement before opening pause, and adds Stage 27.1 fast/medium/player-facing/full validation tiers while preserving Stage 0-27 behavior.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

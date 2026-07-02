@@ -607,11 +607,24 @@ Build and test the EXE:
 
 The default player window is 1600x900, invalid tiny windows are clamped to at least 1280x720, and Boot Options exposes Windowed, Fullscreen Window, 1280x720, 1600x900, 1920x1080, Apply Display, and Reset Display Settings. `Player.log` records Stage 21.5 display startup diagnostics.
 
+## Stage 27.1 PC Placement UX
+
+Stage 27.1 keeps the Windows player on Boot and Stage 16, but separates board setup placement from production building placement:
+
+```powershell
+.\tools\run-unity-stage27-1-validation.ps1
+.\tools\run-stage27-1-fast-checks.ps1
+.\tools\run-stage27-1-medium-checks.ps1
+.\tools\run-stage27-1-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+PCDesktop building placement uses the right sidebar `PlacementModePanel` plus the fine-grid footprint preview. The Stage 3 `BoardPlacementHud` remains hidden unless board setup placement is explicitly active. QuestXR board setup and Stage 4/5 hand controls remain available.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
 - Right click: move selected mobile units.
-- Escape: open the pause menu.
+- Escape: cancel active building or board setup placement; otherwise open the pause menu.
 - Space: quick pause or resume.
 - Period or N: developer single-step one tick.
 - P/B/W/R/G: queue power plant, barracks, war factory, refinery, gun tower.
@@ -738,6 +751,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 20 is a first-pass MVP production proxy visual layer; it is not final artist-authored FBX/GLB art, final VFX, final audio, or final Quest device profiling.
 - Stage 21 is an MVP visual QA and replacement-readiness pass; it is not final art direction, final source model replacement, final VFX, final audio, or Quest device profiling.
 - Stage 21.5 is Windows player resolution/UI-scaling hardening; it is not final settings UI, final platform packaging, final accessibility, or Stage 22 artist intake.
+- Stage 27.1 is a targeted PC placement UX fix; it is not a new gameplay stage or final production art/UI pass.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.
@@ -747,4 +761,4 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 
 Later Quest/MR stages can swap the board transform and input layer without moving authoritative simulation state out of `Rts.Core`.
 
-Stage 20, Stage 21, and Stage 21.5 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar, while `QuestXR` keeps left-hand build/selection and right-hand tactical controls with the PC sidebar hidden.
+Stage 20, Stage 21, Stage 21.5, and Stage 27.1 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar, while `QuestXR` keeps left-hand build/selection, explicit board setup placement, and right-hand tactical controls with the PC sidebar hidden.
