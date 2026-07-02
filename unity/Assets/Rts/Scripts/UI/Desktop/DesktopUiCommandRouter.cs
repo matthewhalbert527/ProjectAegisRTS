@@ -76,12 +76,36 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             Info("Attack mode: left-click an enemy actor to issue a deterministic attack order.");
         }
 
+        public void SetAttackMoveMode()
+        {
+            CurrentMode = DesktopCommandMode.AttackMove;
+            Info("Attack-move mode: left-click a board cell to move while engaging enemies in range.");
+        }
+
+        public void SetPatrolMode()
+        {
+            CurrentMode = DesktopCommandMode.Patrol;
+            Info("Patrol mode: left-click a board cell to send selected units on a patrol foundation order.");
+        }
+
         public RtsCommandResult IssueMoveToCell(Int2 cell)
         {
             if (!EnsureDriver())
                 return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
 
             var result = driver.TryIssueMoveSelectedToCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueAttackMoveToCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssueAttackMoveSelectedToCell(cell);
             if (result.Success)
                 CurrentMode = DesktopCommandMode.Normal;
             Log(result);
@@ -100,6 +124,18 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             return result;
         }
 
+        public RtsCommandResult IssuePatrolToCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssuePatrolSelectedToCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
         public RtsCommandResult SelectAtCell(Int2 cell)
         {
             if (!EnsureDriver())
@@ -110,12 +146,52 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             return result;
         }
 
+        public RtsCommandResult SelectSameTypeAtCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TrySelectOwnedActorsOfSameTypeAtCell(cell);
+            Log(result);
+            return result;
+        }
+
         public RtsCommandResult StopSelected()
         {
             if (!EnsureDriver())
                 return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
 
             var result = driver.TryStopSelected();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult GuardSelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssueGuardSelected();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult ScatterSelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssueScatterSelected();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult DeploySelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssueDeploySelected();
             Log(result);
             return result;
         }
@@ -191,7 +267,17 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
         public void Placeholder(string commandName)
         {
-            Warning(commandName + " is not implemented in Stage 2.");
+            Warning(commandName + " is reserved for a later stage.");
+        }
+
+        public void NoteControlGroupAssigned(int groupIndex, int actorCount)
+        {
+            Info("Control group " + groupIndex + " assigned (" + actorCount + " actors).");
+        }
+
+        public void NoteControlGroupRecalled(int groupIndex, int actorCount)
+        {
+            Info("Control group " + groupIndex + " recalled (" + actorCount + " actors).");
         }
 
         bool EnsureDriver()

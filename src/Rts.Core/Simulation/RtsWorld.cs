@@ -342,6 +342,16 @@ namespace ProjectAegisRTS.Simulation
                 return IssueMoveOrder((IssueMoveOrderCommand)command);
             if (command is IssueAttackOrderCommand)
                 return IssueAttackOrder((IssueAttackOrderCommand)command);
+            if (command is IssueAttackMoveOrderCommand)
+                return IssueAttackMoveOrder((IssueAttackMoveOrderCommand)command);
+            if (command is IssueGuardOrderCommand)
+                return IssueGuardOrder((IssueGuardOrderCommand)command);
+            if (command is IssuePatrolOrderCommand)
+                return IssuePatrolOrder((IssuePatrolOrderCommand)command);
+            if (command is IssueScatterOrderCommand)
+                return IssueScatterOrder((IssueScatterOrderCommand)command);
+            if (command is IssueDeployOrderCommand)
+                return IssueDeployOrder((IssueDeployOrderCommand)command);
             if (command is IssueForceAttackCellCommand)
                 return IssueForceAttackCell((IssueForceAttackCellCommand)command);
             if (command is IssueHarvestOrderCommand)
@@ -932,6 +942,226 @@ namespace ProjectAegisRTS.Simulation
             return CommandResult.Ok("Attack order accepted.");
         }
 
+        CommandResult IssueAttackMoveOrder(IssueAttackMoveOrderCommand command)
+        {
+            if (!Map.Contains(command.DestinationCell))
+                return CommandResult.Fail("AttackMoveOutsideMap", "The attack-move destination is outside the map.");
+
+            var planned = new Dictionary<int, List<Int2>>();
+            var details = new List<string>();
+            foreach (var actorId in command.ActorIds)
+            {
+                ActorState actor;
+                if (!TryGetOwnedActor(command.PlayerId, actorId, out actor))
+                {
+                    details.Add("actor " + actorId.Value + ": not owned or missing");
+                    continue;
+                }
+
+                if (!ValidateMobileArmedActor(actor, "attack-move", details))
+                    continue;
+
+                if (actor.CellPosition.Equals(command.DestinationCell))
+                {
+                    planned[actorId.Value] = new List<Int2>();
+                    continue;
+                }
+
+                var path = QueryPathForActor(actor, command.DestinationCell);
+                RecordPathQuery(actor.Id.Value, path);
+                if (!path.Success)
+                    details.Add("actor " + actorId.Value + ": no path (" + path.FailureCode + ")");
+                else
+                    planned[actorId.Value] = new List<Int2>(path.Path);
+            }
+
+            if (details.Count > 0)
+                return CommandResult.Fail("AttackMoveOrderRejected", "One or more actors could not accept the attack-move order.", details);
+
+            foreach (var pair in planned)
+            {
+                var actor = actors[pair.Key];
+                actor.Path.Clear();
+                actor.Path.AddRange(pair.Value);
+                actor.CurrentOrder = ActorOrderKind.AttackMove;
+                actor.OrderTargetCell = command.DestinationCell;
+                ClearAttackState(actor);
+                ClearHarvestState(actor);
+                actor.MovementPhase = actor.Path.Count == 0 ? "attack_move_hold" : "attack_moving";
+            }
+
+            return CommandResult.Ok("Attack-move order accepted.");
+        }
+
+        CommandResult IssueGuardOrder(IssueGuardOrderCommand command)
+        {
+            var prepared = new List<ActorState>();
+            var details = new List<string>();
+            foreach (var actorId in command.ActorIds)
+            {
+                ActorState actor;
+                if (!TryGetOwnedActor(command.PlayerId, actorId, out actor))
+                {
+                    details.Add("actor " + actorId.Value + ": not owned or missing");
+                    continue;
+                }
+
+                if (!ValidateArmedActor(actor, "guard", details))
+                    continue;
+
+                prepared.Add(actor);
+            }
+
+            if (details.Count > 0)
+                return CommandResult.Fail("GuardOrderRejected", "One or more actors could not accept the guard order.", details);
+
+            foreach (var actor in prepared)
+            {
+                actor.Path.Clear();
+                actor.CurrentOrder = ActorOrderKind.Guard;
+                actor.OrderTargetCell = actor.CellPosition;
+                ClearAttackState(actor);
+                ClearHarvestState(actor);
+                actor.DesiredSpeed = 0;
+                actor.NormalizedSpeed = 0;
+                actor.MovementPhase = "guarding";
+            }
+
+            return CommandResult.Ok("Guard order accepted.");
+        }
+
+        CommandResult IssuePatrolOrder(IssuePatrolOrderCommand command)
+        {
+            if (!Map.Contains(command.DestinationCell))
+                return CommandResult.Fail("PatrolOutsideMap", "The patrol destination is outside the map.");
+
+            var planned = new Dictionary<int, List<Int2>>();
+            var details = new List<string>();
+            foreach (var actorId in command.ActorIds)
+            {
+                ActorState actor;
+                if (!TryGetOwnedActor(command.PlayerId, actorId, out actor))
+                {
+                    details.Add("actor " + actorId.Value + ": not owned or missing");
+                    continue;
+                }
+
+                if (!ValidateMobileArmedActor(actor, "patrol", details))
+                    continue;
+
+                if (actor.CellPosition.Equals(command.DestinationCell))
+                {
+                    planned[actorId.Value] = new List<Int2>();
+                    continue;
+                }
+
+                var path = QueryPathForActor(actor, command.DestinationCell);
+                RecordPathQuery(actor.Id.Value, path);
+                if (!path.Success)
+                    details.Add("actor " + actorId.Value + ": no path (" + path.FailureCode + ")");
+                else
+                    planned[actorId.Value] = new List<Int2>(path.Path);
+            }
+
+            if (details.Count > 0)
+                return CommandResult.Fail("PatrolOrderRejected", "One or more actors could not accept the patrol order.", details);
+
+            foreach (var pair in planned)
+            {
+                var actor = actors[pair.Key];
+                actor.Path.Clear();
+                actor.Path.AddRange(pair.Value);
+                actor.CurrentOrder = ActorOrderKind.Patrol;
+                actor.OrderTargetCell = command.DestinationCell;
+                ClearAttackState(actor);
+                ClearHarvestState(actor);
+                actor.MovementPhase = actor.Path.Count == 0 ? "patrol_hold" : "patrolling";
+            }
+
+            return CommandResult.Ok("Patrol order accepted.");
+        }
+
+        CommandResult IssueScatterOrder(IssueScatterOrderCommand command)
+        {
+            var planned = new Dictionary<int, List<Int2>>();
+            var destinations = new Dictionary<int, Int2>();
+            var details = new List<string>();
+            foreach (var actorId in command.ActorIds)
+            {
+                ActorState actor;
+                if (!TryGetOwnedActor(command.PlayerId, actorId, out actor))
+                {
+                    details.Add("actor " + actorId.Value + ": not owned or missing");
+                    continue;
+                }
+
+                if (!ValidateMobileActor(actor, "scatter", details))
+                    continue;
+
+                Int2 destination;
+                var path = FindScatterPath(actor, out destination);
+                planned[actorId.Value] = new List<Int2>(path);
+                destinations[actorId.Value] = destination;
+            }
+
+            if (details.Count > 0)
+                return CommandResult.Fail("ScatterOrderRejected", "One or more actors could not accept the scatter order.", details);
+
+            foreach (var pair in planned)
+            {
+                var actor = actors[pair.Key];
+                actor.Path.Clear();
+                actor.Path.AddRange(pair.Value);
+                actor.CurrentOrder = ActorOrderKind.Scatter;
+                actor.OrderTargetCell = destinations[pair.Key];
+                ClearAttackState(actor);
+                ClearHarvestState(actor);
+                actor.MovementPhase = actor.Path.Count == 0 ? "scattered" : "scattering";
+            }
+
+            return CommandResult.Ok("Scatter order accepted.");
+        }
+
+        CommandResult IssueDeployOrder(IssueDeployOrderCommand command)
+        {
+            var prepared = new List<ActorState>();
+            var details = new List<string>();
+            foreach (var actorId in command.ActorIds)
+            {
+                ActorState actor;
+                if (!TryGetOwnedActor(command.PlayerId, actorId, out actor))
+                {
+                    details.Add("actor " + actorId.Value + ": not owned or missing");
+                    continue;
+                }
+
+                if (actor.IsDestroyed)
+                {
+                    details.Add("actor " + actorId.Value + ": destroyed");
+                    continue;
+                }
+
+                prepared.Add(actor);
+            }
+
+            if (details.Count > 0)
+                return CommandResult.Fail("DeployOrderRejected", "One or more actors could not accept the deploy order.", details);
+
+            foreach (var actor in prepared)
+            {
+                actor.Path.Clear();
+                actor.CurrentOrder = ActorOrderKind.Deploy;
+                actor.OrderTargetCell = actor.CellPosition;
+                ClearAttackState(actor);
+                ClearHarvestState(actor);
+                actor.DesiredSpeed = 0;
+                actor.NormalizedSpeed = 0;
+                actor.MovementPhase = "deploy_placeholder";
+            }
+
+            return CommandResult.Ok("Deploy placeholder accepted.");
+        }
+
         CommandResult IssueForceAttackCell(IssueForceAttackCellCommand command)
         {
             if (!Map.Contains(command.TargetCell))
@@ -1234,8 +1464,7 @@ namespace ProjectAegisRTS.Simulation
                 {
                     actor.DesiredSpeed = 0;
                     actor.NormalizedSpeed = 0;
-                    if (actor.CurrentOrder != ActorOrderKind.Move)
-                        actor.MovementPhase = "idle";
+                    actor.MovementPhase = MovementPhaseForWaitingOrder(actor);
                     continue;
                 }
 
@@ -1260,7 +1489,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.WorldPositionFixed = nextWorld;
                 actor.DesiredSpeed = step;
                 actor.NormalizedSpeed = 1000;
-                actor.MovementPhase = "moving";
+                actor.MovementPhase = MovementPhaseForPathOrder(actor.CurrentOrder);
 
                 if (nextWorld.Equals(targetWorld))
                 {
@@ -1268,13 +1497,52 @@ namespace ProjectAegisRTS.Simulation
                     actor.Path.RemoveAt(0);
                     if (actor.Path.Count == 0)
                     {
-                        actor.CurrentOrder = ActorOrderKind.Idle;
+                        if (IsPathFollowingOrder(actor.CurrentOrder))
+                            actor.CurrentOrder = ActorOrderKind.Idle;
                         actor.DesiredSpeed = 0;
                         actor.NormalizedSpeed = 0;
                         actor.MovementPhase = "idle";
                     }
                 }
             }
+        }
+
+        static bool IsPathFollowingOrder(ActorOrderKind order)
+        {
+            return order == ActorOrderKind.Move ||
+                order == ActorOrderKind.AttackMove ||
+                order == ActorOrderKind.Patrol ||
+                order == ActorOrderKind.Scatter;
+        }
+
+        static string MovementPhaseForPathOrder(ActorOrderKind order)
+        {
+            if (order == ActorOrderKind.AttackMove)
+                return "attack_moving";
+            if (order == ActorOrderKind.Patrol)
+                return "patrolling";
+            if (order == ActorOrderKind.Scatter)
+                return "scattering";
+            return "moving";
+        }
+
+        static string MovementPhaseForWaitingOrder(ActorState actor)
+        {
+            if (actor.CurrentOrder == ActorOrderKind.Attack)
+                return "attacking";
+            if (actor.CurrentOrder == ActorOrderKind.AttackMove)
+                return "attack_move_hold";
+            if (actor.CurrentOrder == ActorOrderKind.Guard)
+                return "guarding";
+            if (actor.CurrentOrder == ActorOrderKind.Patrol)
+                return "patrol_hold";
+            if (actor.CurrentOrder == ActorOrderKind.Scatter)
+                return "scattered";
+            if (actor.CurrentOrder == ActorOrderKind.Deploy)
+                return "deploy_placeholder";
+            if (actor.CurrentOrder == ActorOrderKind.Harvest)
+                return actor.MovementPhase;
+            return "idle";
         }
 
         void UpdatePowerAndActorFlags()
@@ -1608,6 +1876,80 @@ namespace ProjectAegisRTS.Simulation
             return actor.OwnerPlayerId == playerId && !actor.IsDestroyed;
         }
 
+        bool ValidateMobileActor(ActorState actor, string orderName, List<string> details)
+        {
+            if (actor.IsDestroyed)
+            {
+                details.Add("actor " + actor.Id.Value + ": destroyed");
+                return false;
+            }
+
+            if (!(Rules.GetDefinition(actor.TypeId) is UnitDefinition))
+            {
+                details.Add("actor " + actor.Id.Value + ": " + orderName + " requires a mobile unit");
+                return false;
+            }
+
+            return true;
+        }
+
+        bool ValidateArmedActor(ActorState actor, string orderName, List<string> details)
+        {
+            if (actor.IsDestroyed)
+            {
+                details.Add("actor " + actor.Id.Value + ": destroyed");
+                return false;
+            }
+
+            if (Rules.GetDefinition(actor.TypeId).Weapon == null)
+            {
+                details.Add("actor " + actor.Id.Value + ": " + orderName + " requires an armed actor");
+                return false;
+            }
+
+            return true;
+        }
+
+        bool ValidateMobileArmedActor(ActorState actor, string orderName, List<string> details)
+        {
+            return ValidateMobileActor(actor, orderName, details) && ValidateArmedActor(actor, orderName, details);
+        }
+
+        List<Int2> FindScatterPath(ActorState actor, out Int2 destination)
+        {
+            var offsets = new[]
+            {
+                new Int2(1, 0),
+                new Int2(-1, 0),
+                new Int2(0, 1),
+                new Int2(0, -1),
+                new Int2(1, 1),
+                new Int2(-1, 1),
+                new Int2(1, -1),
+                new Int2(-1, -1)
+            };
+
+            var start = actor.Id.Value % offsets.Length;
+            for (var i = 0; i < offsets.Length; i++)
+            {
+                var offset = offsets[(start + i) % offsets.Length];
+                var candidate = new Int2(actor.CellPosition.X + offset.X, actor.CellPosition.Y + offset.Y);
+                if (!Map.Contains(candidate))
+                    continue;
+
+                var path = QueryPathForActor(actor, candidate);
+                RecordPathQuery(actor.Id.Value, path);
+                if (path.Success)
+                {
+                    destination = candidate;
+                    return new List<Int2>(path.Path);
+                }
+            }
+
+            destination = actor.CellPosition;
+            return new List<Int2>();
+        }
+
         CommandResult ValidateAttackTarget(ActorState attacker, ActorState target)
         {
             if (attacker.IsDestroyed)
@@ -1648,29 +1990,110 @@ namespace ProjectAegisRTS.Simulation
                 if (actor.WeaponCooldownRemaining > 0)
                     actor.WeaponCooldownRemaining--;
 
-                if (actor.IsDestroyed || actor.CurrentOrder != ActorOrderKind.Attack || actor.AttackTargetActorId <= 0)
+                if (actor.IsDestroyed)
                     continue;
 
-                ActorState target;
-                if (!actors.TryGetValue(actor.AttackTargetActorId, out target))
+                if (actor.CurrentOrder == ActorOrderKind.Attack)
                 {
-                    ClearAttackState(actor);
+                    if (actor.AttackTargetActorId <= 0)
+                        continue;
+
+                    ActorState target;
+                    if (!actors.TryGetValue(actor.AttackTargetActorId, out target))
+                    {
+                        ClearAttackState(actor);
+                        continue;
+                    }
+
+                    var validation = ValidateAttackTarget(actor, target);
+                    if (!validation.Success)
+                    {
+                        ClearAttackState(actor);
+                        continue;
+                    }
+
+                    actor.AttackTargetCell = target.CellPosition;
+                    actor.OrderTargetCell = target.CellPosition;
+                    actor.MovementPhase = "attacking";
+                    if (actor.WeaponCooldownRemaining == 0)
+                        FireWeapon(actor, target, Rules.GetDefinition(actor.TypeId).Weapon);
                     continue;
                 }
 
-                var validation = ValidateAttackTarget(actor, target);
-                if (!validation.Success)
+                if (!IsAutoAttackOrder(actor.CurrentOrder))
+                    continue;
+
+                ActorState autoTarget = null;
+                if (actor.AttackTargetActorId > 0)
                 {
-                    ClearAttackState(actor);
+                    ActorState candidate;
+                    if (actors.TryGetValue(actor.AttackTargetActorId, out candidate) &&
+                        ValidateAttackTarget(actor, candidate).Success)
+                    {
+                        autoTarget = candidate;
+                    }
+                    else
+                    {
+                        ClearAttackState(actor);
+                    }
+                }
+
+                if (autoTarget == null)
+                    autoTarget = FindBestAutoAttackTarget(actor);
+
+                if (autoTarget == null)
+                {
+                    actor.IsAttacking = false;
+                    actor.ActiveWeaponId = string.Empty;
                     continue;
                 }
 
-                actor.AttackTargetCell = target.CellPosition;
-                actor.OrderTargetCell = target.CellPosition;
-                actor.MovementPhase = "attacking";
+                actor.AttackTargetActorId = autoTarget.Id.Value;
+                actor.AttackTargetCell = autoTarget.CellPosition;
+                actor.IsAttacking = true;
+                actor.ActiveWeaponId = Rules.GetDefinition(actor.TypeId).Weapon.WeaponId;
+                if (actor.CurrentOrder == ActorOrderKind.Guard)
+                    actor.MovementPhase = "guarding";
+                else if (actor.CurrentOrder == ActorOrderKind.Patrol && actor.Path.Count == 0)
+                    actor.MovementPhase = "patrol_hold";
+                else if (actor.CurrentOrder == ActorOrderKind.AttackMove && actor.Path.Count == 0)
+                    actor.MovementPhase = "attack_move_hold";
                 if (actor.WeaponCooldownRemaining == 0)
-                    FireWeapon(actor, target, Rules.GetDefinition(actor.TypeId).Weapon);
+                    FireWeapon(actor, autoTarget, Rules.GetDefinition(actor.TypeId).Weapon);
             }
+        }
+
+        static bool IsAutoAttackOrder(ActorOrderKind order)
+        {
+            return order == ActorOrderKind.AttackMove ||
+                order == ActorOrderKind.Guard ||
+                order == ActorOrderKind.Patrol;
+        }
+
+        ActorState FindBestAutoAttackTarget(ActorState attacker)
+        {
+            if (Rules.GetDefinition(attacker.TypeId).Weapon == null)
+                return null;
+
+            ActorState best = null;
+            var bestDistance = int.MaxValue;
+            foreach (var target in SortedActors())
+            {
+                if (target.Id.Value == attacker.Id.Value || target.IsDestroyed)
+                    continue;
+
+                if (!ValidateAttackTarget(attacker, target).Success)
+                    continue;
+
+                var distance = attacker.CellPosition.ManhattanDistanceTo(target.CellPosition);
+                if (best == null || distance < bestDistance || (distance == bestDistance && target.Id.Value < best.Id.Value))
+                {
+                    best = target;
+                    bestDistance = distance;
+                }
+            }
+
+            return best;
         }
 
         void FireWeapon(ActorState attacker, ActorState target, WeaponDefinition weapon)

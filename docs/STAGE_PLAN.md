@@ -108,6 +108,10 @@ Complete after local validation. MVP visual QA and artist replacement readiness 
 
 Complete after local validation. Windows player resolution and UI scaling fix. Adds runtime display defaults, minimum 1280x720 clamping, 1600x900 windowed defaults, Boot Options display controls, responsive CanvasScaler enforcement, Player.log display diagnostics, 1080p launch helper, build-script display configuration, and Stage 21.5 fast/medium/player-facing/full validation tiers while preserving Stage 0-21 behavior.
 
+## Stage 22
+
+Complete after local validation. Classic RTS command matrix pass. Adds deterministic attack-move, guard, patrol, scatter, and deploy-placeholder commands in `Rts.Core`; adds PCDesktop command buttons, double-click same-type selection, box selection, and client-local control groups; preserves QuestXR Stage 4/5 controls; and adds Stage 22 fast/medium/player-facing/full validation tiers while preserving Stage 0-21.5 behavior.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

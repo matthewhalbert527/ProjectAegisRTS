@@ -70,6 +70,41 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 world.IssueCommand(new IssueAttackOrderCommand(playerId, ToActorIds(actorIds), new ActorId(targetActorId))));
         }
 
+        public static RtsCommandResult IssueAttackMoveOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, Int2 destinationCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Attack move",
+                world.IssueCommand(new IssueAttackMoveOrderCommand(playerId, ToActorIds(actorIds), destinationCell)));
+        }
+
+        public static RtsCommandResult IssueGuardOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Guard",
+                world.IssueCommand(new IssueGuardOrderCommand(playerId, ToActorIds(actorIds))));
+        }
+
+        public static RtsCommandResult IssuePatrolOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, Int2 destinationCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Patrol",
+                world.IssueCommand(new IssuePatrolOrderCommand(playerId, ToActorIds(actorIds), destinationCell)));
+        }
+
+        public static RtsCommandResult IssueScatterOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Scatter",
+                world.IssueCommand(new IssueScatterOrderCommand(playerId, ToActorIds(actorIds))));
+        }
+
+        public static RtsCommandResult IssueDeployOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Deploy",
+                world.IssueCommand(new IssueDeployOrderCommand(playerId, ToActorIds(actorIds))));
+        }
+
         public static RtsCommandResult IssueForceAttackCell(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, Int2 targetCell)
         {
             return RtsCommandResult.FromCore(

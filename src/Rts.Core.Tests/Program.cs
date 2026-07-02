@@ -43,6 +43,9 @@ namespace ProjectAegisRTS.Tests
                 AttackOrderFailsForMissingTarget,
                 AttackOrderFailsForDestroyedAttacker,
                 AttackOrderStartsCombatForValidTarget,
+                AttackMoveOrderStartsMoveAndAutoAttackFoundation,
+                GuardPatrolScatterAndDeployOrdersAreAccepted,
+                StopClearsStage22CommandOrders,
                 WeaponCooldownPreventsContinuousFire,
                 ProjectileSpawnsForProjectileWeapon,
                 ProjectileImpactsAndDealsDamage,
@@ -310,6 +313,64 @@ namespace ProjectAegisRTS.Tests
             Assert(attacker.CurrentOrder == ActorOrderKind.Attack, "Expected attack order kind.");
             Assert(attacker.AttackTargetActorId == target.Id.Value, "Expected attack target actor id.");
             Assert(attacker.IsAttacking, "Expected attacker to be attacking.");
+        }
+
+        static void AttackMoveOrderStartsMoveAndAutoAttackFoundation()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var attacker = world.FirstActorOfType("light_tank", 1);
+            var target = world.FirstActorOfType("medium_tank", 2);
+
+            var result = world.IssueCommand(new IssueAttackMoveOrderCommand(1, new[] { attacker.Id }, attacker.CellPosition));
+            Assert(result.Success, "Expected attack-move success: " + result.ErrorCode);
+            Assert(attacker.CurrentOrder == ActorOrderKind.AttackMove, "Expected attack-move order kind.");
+            Assert(attacker.OrderTargetCell.Equals(attacker.CellPosition), "Expected attack-move destination to be retained.");
+
+            world.Tick();
+            Assert(attacker.CurrentOrder == ActorOrderKind.AttackMove, "Expected attack-move to remain distinct from attack order.");
+            Assert(attacker.AttackTargetActorId == target.Id.Value, "Expected attack-move to acquire the nearest valid in-range target.");
+            Assert(attacker.IsAttacking, "Expected attack-move actor to fire opportunistically.");
+        }
+
+        static void GuardPatrolScatterAndDeployOrdersAreAccepted()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var tank = world.FirstActorOfType("light_tank", 1);
+            var infantry = world.FirstActorOfType("rifle_infantry", 1);
+
+            var guard = world.IssueCommand(new IssueGuardOrderCommand(1, new[] { tank.Id }));
+            Assert(guard.Success, "Expected guard success: " + guard.ErrorCode);
+            Assert(tank.CurrentOrder == ActorOrderKind.Guard, "Expected guard order kind.");
+            Assert(tank.Path.Count == 0, "Expected guard to clear movement path.");
+
+            var patrol = world.IssueCommand(new IssuePatrolOrderCommand(1, new[] { tank.Id }, new Int2(9, 8)));
+            Assert(patrol.Success, "Expected patrol success: " + patrol.ErrorCode);
+            Assert(tank.CurrentOrder == ActorOrderKind.Patrol, "Expected patrol order kind.");
+            Assert(tank.Path.Count > 0, "Expected patrol to create a deterministic path.");
+
+            var scatter = world.IssueCommand(new IssueScatterOrderCommand(1, new[] { infantry.Id }));
+            Assert(scatter.Success, "Expected scatter success: " + scatter.ErrorCode);
+            Assert(infantry.CurrentOrder == ActorOrderKind.Scatter, "Expected scatter order kind.");
+
+            var deploy = world.IssueCommand(new IssueDeployOrderCommand(1, new[] { infantry.Id }));
+            Assert(deploy.Success, "Expected deploy success: " + deploy.ErrorCode);
+            Assert(infantry.CurrentOrder == ActorOrderKind.Deploy, "Expected deploy placeholder order kind.");
+            Assert(infantry.Path.Count == 0, "Expected deploy placeholder to avoid stale paths.");
+        }
+
+        static void StopClearsStage22CommandOrders()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var tank = world.FirstActorOfType("light_tank", 1);
+
+            var attackMove = world.IssueCommand(new IssueAttackMoveOrderCommand(1, new[] { tank.Id }, new Int2(9, 8)));
+            Assert(attackMove.Success, "Expected attack-move setup success: " + attackMove.ErrorCode);
+            var stop = world.IssueCommand(new StopCommand(1, new[] { tank.Id }));
+            Assert(stop.Success, "Expected stop success: " + stop.ErrorCode);
+            Assert(tank.CurrentOrder == ActorOrderKind.Stop, "Expected Stop order kind after stopping Stage22 order.");
+            Assert(tank.Path.Count == 0, "Expected Stop to clear attack-move path.");
+            Assert(tank.AttackTargetActorId == 0, "Expected Stop to clear attack target.");
+            Assert(!tank.IsAttacking, "Expected Stop to clear attacking flag.");
         }
 
         static void WeaponCooldownPreventsContinuousFire()

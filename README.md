@@ -290,6 +290,18 @@ Stage 21.5 fixes Windows player resolution and UI scaling:
 
 Use `run-stage21-5-fast-checks.ps1` while iterating on display defaults, options, CanvasScaler enforcement, Player.log diagnostics, or player build tooling. Use `run-stage21-5-medium-checks.ps1` before local commits; it stays flat and does not call prior medium scripts. Build the player with `.\tools\build-windows-player-stage16.ps1`, test the normal EXE, and use `.\tools\run-player-windowed-1080p.ps1` for a 1920x1080 windowed launch.
 
+Stage 22 adds classic RTS command controls:
+
+```powershell
+.\tools\run-unity-stage22-validation.ps1
+.\tools\run-stage22-fast-checks.ps1
+.\tools\run-stage22-medium-checks.ps1
+.\tools\run-stage22-player-facing-checks.ps1 -SkipPlayerBuild
+.\tools\run-stage22-checks.ps1
+```
+
+Use `run-stage22-fast-checks.ps1` while iterating on command controls, PC input, or command-bar layout. Use `run-stage22-medium-checks.ps1` before local commits; it stays flat and calls direct Stage 21.5, Stage 4, Stage 5, and Stage 22 validation dependencies. Stage 22 adds attack-move, guard, patrol, scatter, deploy placeholder, double-click same-type selection, box selection, and client-local control groups while keeping gameplay authority in `Rts.Core`.
+
 Open the Unity project:
 
 ```powershell

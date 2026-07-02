@@ -49,6 +49,70 @@ namespace ProjectAegisRTS.Commands
         }
     }
 
+    public sealed class IssueAttackMoveOrderCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public IReadOnlyList<ActorId> ActorIds { get; private set; }
+        public Int2 DestinationCell { get; private set; }
+
+        public IssueAttackMoveOrderCommand(int playerId, IReadOnlyList<ActorId> actorIds, Int2 destinationCell)
+        {
+            PlayerId = playerId;
+            ActorIds = actorIds;
+            DestinationCell = destinationCell;
+        }
+    }
+
+    public sealed class IssueGuardOrderCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public IReadOnlyList<ActorId> ActorIds { get; private set; }
+
+        public IssueGuardOrderCommand(int playerId, IReadOnlyList<ActorId> actorIds)
+        {
+            PlayerId = playerId;
+            ActorIds = actorIds;
+        }
+    }
+
+    public sealed class IssuePatrolOrderCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public IReadOnlyList<ActorId> ActorIds { get; private set; }
+        public Int2 DestinationCell { get; private set; }
+
+        public IssuePatrolOrderCommand(int playerId, IReadOnlyList<ActorId> actorIds, Int2 destinationCell)
+        {
+            PlayerId = playerId;
+            ActorIds = actorIds;
+            DestinationCell = destinationCell;
+        }
+    }
+
+    public sealed class IssueScatterOrderCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public IReadOnlyList<ActorId> ActorIds { get; private set; }
+
+        public IssueScatterOrderCommand(int playerId, IReadOnlyList<ActorId> actorIds)
+        {
+            PlayerId = playerId;
+            ActorIds = actorIds;
+        }
+    }
+
+    public sealed class IssueDeployOrderCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public IReadOnlyList<ActorId> ActorIds { get; private set; }
+
+        public IssueDeployOrderCommand(int playerId, IReadOnlyList<ActorId> actorIds)
+        {
+            PlayerId = playerId;
+            ActorIds = actorIds;
+        }
+    }
+
     public sealed class IssueForceAttackCellCommand : ISimCommand
     {
         public int PlayerId { get; private set; }

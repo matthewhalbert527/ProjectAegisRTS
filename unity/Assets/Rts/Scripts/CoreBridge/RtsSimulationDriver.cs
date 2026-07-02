@@ -523,6 +523,194 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return result;
         }
 
+        public RtsCommandResult TryIssueAttackMoveSelectedToCell(Int2 cell)
+        {
+            if (world == null)
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, cell, 0, "Attack move");
+                return fail;
+            }
+            if (selectedActorIds.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoSelection", "Select armed mobile units before issuing attack-move.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, cell, 0, "Attack move");
+                return fail;
+            }
+
+            var actorIds = SelectedMobileArmedActorIds();
+            if (actorIds.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoMobileArmedSelection", "The current selection has no armed mobile units.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, cell, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Attack move");
+                return fail;
+            }
+
+            var result = RtsCommandAdapter.IssueAttackMoveOrder(world, playerId, actorIds, cell);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Attack, result, cell, actorIds.Count > 0 ? actorIds[0] : 0, "Attack move");
+            return result;
+        }
+
+        public RtsCommandResult TryIssueGuardSelected()
+        {
+            if (world == null)
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, Int2.Zero, 0, "Guard");
+                return fail;
+            }
+            if (selectedActorIds.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoSelection", "Select armed actors before issuing guard.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, Int2.Zero, 0, "Guard");
+                return fail;
+            }
+
+            var actorIds = SelectedArmedActorIds();
+            if (actorIds.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoArmedSelection", "The current selection has no armed actors.");
+                EmitCommandFeedback(FeedbackEventType.Attack, fail, Int2.Zero, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Guard");
+                return fail;
+            }
+
+            var result = RtsCommandAdapter.IssueGuardOrder(world, playerId, actorIds);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Attack, result, Int2.Zero, actorIds.Count > 0 ? actorIds[0] : 0, "Guard");
+            return result;
+        }
+
+        public RtsCommandResult TryIssuePatrolSelectedToCell(Int2 cell)
+        {
+            if (world == null)
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.MoveCommand, fail, cell, 0, "Patrol");
+                return fail;
+            }
+            if (selectedActorIds.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoSelection", "Select armed mobile units before issuing patrol.");
+                EmitCommandFeedback(FeedbackEventType.MoveCommand, fail, cell, 0, "Patrol");
+                return fail;
+            }
+
+            var actorIds = SelectedMobileArmedActorIds();
+            if (actorIds.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoMobileArmedSelection", "The current selection has no armed mobile units.");
+                EmitCommandFeedback(FeedbackEventType.MoveCommand, fail, cell, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Patrol");
+                return fail;
+            }
+
+            var result = RtsCommandAdapter.IssuePatrolOrder(world, playerId, actorIds, cell);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.MoveCommand, result, cell, actorIds.Count > 0 ? actorIds[0] : 0, "Patrol");
+            return result;
+        }
+
+        public RtsCommandResult TryIssueScatterSelected()
+        {
+            if (world == null)
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.MoveCommand, fail, Int2.Zero, 0, "Scatter");
+                return fail;
+            }
+            if (selectedActorIds.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoSelection", "Select mobile units before issuing scatter.");
+                EmitCommandFeedback(FeedbackEventType.MoveCommand, fail, Int2.Zero, 0, "Scatter");
+                return fail;
+            }
+
+            var actorIds = SelectedMobileActorIds();
+            if (actorIds.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoMobileSelection", "The current selection has no mobile units.");
+                EmitCommandFeedback(FeedbackEventType.MoveCommand, fail, Int2.Zero, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Scatter");
+                return fail;
+            }
+
+            var result = RtsCommandAdapter.IssueScatterOrder(world, playerId, actorIds);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.MoveCommand, result, Int2.Zero, actorIds.Count > 0 ? actorIds[0] : 0, "Scatter");
+            return result;
+        }
+
+        public RtsCommandResult TryIssueDeploySelected()
+        {
+            if (world == null)
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.Generic, fail, Int2.Zero, 0, "Deploy");
+                return fail;
+            }
+            if (selectedActorIds.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoSelection", "Select actors before issuing deploy.");
+                EmitCommandFeedback(FeedbackEventType.Generic, fail, Int2.Zero, 0, "Deploy");
+                return fail;
+            }
+
+            var result = RtsCommandAdapter.IssueDeployOrder(world, playerId, selectedActorIds);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Generic, result, Int2.Zero, selectedActorIds.Count > 0 ? selectedActorIds[0] : 0, "Deploy");
+            return result;
+        }
+
+        List<int> SelectedMobileActorIds()
+        {
+            var actorIds = new List<int>();
+            for (var i = 0; i < selectedActorIds.Count; i++)
+            {
+                ActorSnapshot actor;
+                ActorDefinition definition;
+                if (!TryGetActorSnapshot(selectedActorIds[i], out actor) || actor.IsDestroyed || !Rules.TryGetDefinition(actor.TypeId, out definition))
+                    continue;
+
+                if (definition is UnitDefinition)
+                    actorIds.Add(actor.ActorId);
+            }
+
+            return actorIds;
+        }
+
+        List<int> SelectedArmedActorIds()
+        {
+            var actorIds = new List<int>();
+            for (var i = 0; i < selectedActorIds.Count; i++)
+            {
+                ActorSnapshot actor;
+                ActorDefinition definition;
+                if (!TryGetActorSnapshot(selectedActorIds[i], out actor) || actor.IsDestroyed || !Rules.TryGetDefinition(actor.TypeId, out definition))
+                    continue;
+
+                if (definition.Weapon != null)
+                    actorIds.Add(actor.ActorId);
+            }
+
+            return actorIds;
+        }
+
+        List<int> SelectedMobileArmedActorIds()
+        {
+            var actorIds = new List<int>();
+            for (var i = 0; i < selectedActorIds.Count; i++)
+            {
+                ActorSnapshot actor;
+                ActorDefinition definition;
+                if (!TryGetActorSnapshot(selectedActorIds[i], out actor) || actor.IsDestroyed || !Rules.TryGetDefinition(actor.TypeId, out definition))
+                    continue;
+
+                if (definition is UnitDefinition && definition.Weapon != null)
+                    actorIds.Add(actor.ActorId);
+            }
+
+            return actorIds;
+        }
+
         public RtsCommandResult TryIssueAttackSelectedToActor(int targetActorId)
         {
             if (world == null)
@@ -975,6 +1163,57 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         {
             int actorId;
             return TryFindOwnedActorOfType(typeId, out actorId);
+        }
+
+        public RtsCommandResult TrySelectOwnedActorsOfSameTypeAtCell(Int2 cell)
+        {
+            int actorId;
+            if (!TryFindActorAtCell(cell, out actorId))
+                return ClearSelection();
+
+            ActorSnapshot selected;
+            if (!TryGetActorSnapshot(actorId, out selected))
+                return ClearSelection();
+
+            var actorIds = new List<int>();
+            for (var i = 0; i < latestSnapshot.Actors.Count; i++)
+            {
+                var actor = latestSnapshot.Actors[i];
+                if (actor.OwnerId == playerId && !actor.IsDestroyed && actor.TypeId == selected.TypeId)
+                    actorIds.Add(actor.ActorId);
+            }
+
+            actorIds.Sort();
+            return SetSelectedActorIds(actorIds);
+        }
+
+        public RtsCommandResult TrySelectActorsInScreenRect(Rect screenRect, Camera camera, BoardCoordinateMapper coordinateMapper, bool additive)
+        {
+            if (latestSnapshot == null || camera == null || coordinateMapper == null || Rules == null)
+                return RtsCommandResult.Fail("SelectionUnavailable", "Selection marquee needs a world snapshot, camera, and board mapper.");
+
+            var actorIds = additive ? new List<int>(selectedActorIds) : new List<int>();
+            for (var i = 0; i < latestSnapshot.Actors.Count; i++)
+            {
+                var actor = latestSnapshot.Actors[i];
+                ActorDefinition definition;
+                if (actor.OwnerId != playerId || actor.IsDestroyed || !Rules.TryGetDefinition(actor.TypeId, out definition))
+                    continue;
+
+                var worldPosition = coordinateMapper.ActorToWorldPosition(actor, definition);
+                var screenPosition = camera.WorldToScreenPoint(worldPosition);
+                if (screenPosition.z < 0f)
+                    continue;
+
+                if (screenRect.Contains(new Vector2(screenPosition.x, screenPosition.y)) && !actorIds.Contains(actor.ActorId))
+                    actorIds.Add(actor.ActorId);
+            }
+
+            actorIds.Sort();
+            if (actorIds.Count == 0)
+                return additive ? RtsCommandResult.Ok("No actors added to selection.") : ClearSelection();
+
+            return SetSelectedActorIds(actorIds);
         }
 
         void RefreshSnapshot()

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.UI;
@@ -18,6 +19,15 @@ namespace ProjectAegisRTS.UnityClient.InputControls
         PauseMenuController pauseMenu;
         Int2 hoveredCell;
         bool hasHoveredCell;
+        readonly Dictionary<int, List<int>> controlGroups = new Dictionary<int, List<int>>();
+        Vector3 leftMouseDownPosition;
+        Int2 leftMouseDownCell;
+        bool leftMouseDownValid;
+        float lastLeftClickTime = -1f;
+        Int2 lastLeftClickCell;
+
+        const float DoubleClickSeconds = 0.32f;
+        const float MarqueePixelThreshold = 12f;
 
         public void Initialize(Camera cameraReference, BoardCoordinateMapper coordinateMapper, RtsSimulationDriver simulationDriver, RtsDebugHud hud)
         {
@@ -72,38 +82,101 @@ namespace ProjectAegisRTS.UnityClient.InputControls
 
         void HandleMouse()
         {
-            if (!hasHoveredCell || IsPointerOverUi())
-                return;
-
             if (Input.GetMouseButtonDown(0))
             {
-                if (commandRouter != null)
-                {
-                    if (driver.HasPlacementMode)
-                        commandRouter.PlaceAtHoveredCell();
-                    else if (commandRouter.CurrentMode == DesktopCommandMode.Move)
-                        commandRouter.IssueMoveToCell(CommandCell());
-                    else if (commandRouter.CurrentMode == DesktopCommandMode.AttackPlaceholder)
-                        commandRouter.IssueAttackToCell(CommandCell());
-                    else
-                        commandRouter.SelectAtCell(CommandCell());
-                }
-                else
-                {
-                    var result = driver.HasPlacementMode
-                        ? driver.TryPlacePendingBuildingAtCell(hoveredCell)
-                        : driver.TrySelectActorAtCell(CommandCell());
-                    Record(result);
-                }
+                leftMouseDownPosition = Input.mousePosition;
+                leftMouseDownCell = hasHoveredCell ? CommandCell() : Int2.Zero;
+                leftMouseDownValid = hasHoveredCell && !IsPointerOverUi();
             }
 
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonUp(0))
+            {
+                if (!leftMouseDownValid)
+                    return;
+
+                var dragDistance = Vector2.Distance(Input.mousePosition, leftMouseDownPosition);
+                if (dragDistance >= MarqueePixelThreshold && CanUseMarqueeSelection())
+                {
+                    var rect = ScreenRect(leftMouseDownPosition, Input.mousePosition);
+                    Record(driver.TrySelectActorsInScreenRect(rect, sceneCamera, mapper, IsAdditiveSelection()));
+                    leftMouseDownValid = false;
+                    return;
+                }
+
+                if (!hasHoveredCell || IsPointerOverUi())
+                {
+                    leftMouseDownValid = false;
+                    return;
+                }
+
+                HandleLeftClick(CommandCell());
+                leftMouseDownValid = false;
+            }
+
+            if (Input.GetMouseButtonDown(1) && hasHoveredCell && !IsPointerOverUi())
             {
                 if (commandRouter != null)
                     commandRouter.IssueMoveToCell(CommandCell());
                 else
                     Record(driver.TryIssueMoveSelectedToCell(CommandCell()));
             }
+        }
+
+        void HandleLeftClick(Int2 cell)
+        {
+            if (commandRouter != null)
+            {
+                if (driver.HasPlacementMode)
+                    commandRouter.PlaceAtHoveredCell();
+                else if (commandRouter.CurrentMode == DesktopCommandMode.Move)
+                    commandRouter.IssueMoveToCell(cell);
+                else if (commandRouter.CurrentMode == DesktopCommandMode.AttackPlaceholder)
+                    commandRouter.IssueAttackToCell(cell);
+                else if (commandRouter.CurrentMode == DesktopCommandMode.AttackMove)
+                    commandRouter.IssueAttackMoveToCell(cell);
+                else if (commandRouter.CurrentMode == DesktopCommandMode.Patrol)
+                    commandRouter.IssuePatrolToCell(cell);
+                else if (IsDoubleClick(cell))
+                    commandRouter.SelectSameTypeAtCell(cell);
+                else
+                    commandRouter.SelectAtCell(cell);
+            }
+            else
+            {
+                var result = driver.HasPlacementMode
+                    ? driver.TryPlacePendingBuildingAtCell(hoveredCell)
+                    : (IsDoubleClick(cell) ? driver.TrySelectOwnedActorsOfSameTypeAtCell(cell) : driver.TrySelectActorAtCell(cell));
+                Record(result);
+            }
+
+            lastLeftClickTime = Time.unscaledTime;
+            lastLeftClickCell = cell;
+        }
+
+        bool IsDoubleClick(Int2 cell)
+        {
+            return Time.unscaledTime - lastLeftClickTime <= DoubleClickSeconds && lastLeftClickCell.Equals(cell);
+        }
+
+        bool CanUseMarqueeSelection()
+        {
+            if (driver == null || driver.HasPlacementMode)
+                return false;
+            return commandRouter == null || commandRouter.CurrentMode == DesktopCommandMode.Normal;
+        }
+
+        static Rect ScreenRect(Vector3 start, Vector3 end)
+        {
+            var minX = Mathf.Min(start.x, end.x);
+            var minY = Mathf.Min(start.y, end.y);
+            var maxX = Mathf.Max(start.x, end.x);
+            var maxY = Mathf.Max(start.y, end.y);
+            return Rect.MinMaxRect(minX, minY, maxX, maxY);
+        }
+
+        static bool IsAdditiveSelection()
+        {
+            return Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
         }
 
         Int2 CommandCell()
@@ -117,6 +190,7 @@ namespace ProjectAegisRTS.UnityClient.InputControls
                 RouteOrRecord(() => driver.TogglePause(), r => r.TogglePause());
             if (Input.GetKeyDown(KeyCode.Period) || Input.GetKeyDown(KeyCode.N))
                 RouteOrRecord(() => driver.StepOneTick(), r => r.StepTick());
+            HandleControlGroups();
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 if (commandRouter != null)
@@ -142,6 +216,42 @@ namespace ProjectAegisRTS.UnityClient.InputControls
                 Queue("harvester");
             if (Input.GetKeyDown(KeyCode.L))
                 RouteOrRecord(() => driver.TryForceLowPowerOrCreateLowPowerDemoCondition(), r => r.TriggerLowPowerDemo());
+        }
+
+        void HandleControlGroups()
+        {
+            for (var i = 1; i <= 9; i++)
+            {
+                var key = (KeyCode)((int)KeyCode.Alpha0 + i);
+                if (!Input.GetKeyDown(key))
+                    continue;
+
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                    AssignControlGroup(i);
+                else
+                    RecallControlGroup(i);
+            }
+        }
+
+        void AssignControlGroup(int groupIndex)
+        {
+            var actorIds = new List<int>(driver.SelectedActorIds);
+            controlGroups[groupIndex] = actorIds;
+            if (commandRouter != null)
+                commandRouter.NoteControlGroupAssigned(groupIndex, actorIds.Count);
+            else
+                Debug.Log("Control group " + groupIndex + " assigned (" + actorIds.Count + " actors).");
+        }
+
+        void RecallControlGroup(int groupIndex)
+        {
+            List<int> actorIds;
+            if (!controlGroups.TryGetValue(groupIndex, out actorIds))
+                actorIds = new List<int>();
+
+            Record(driver.SetSelectedActorIds(actorIds));
+            if (commandRouter != null)
+                commandRouter.NoteControlGroupRecalled(groupIndex, actorIds.Count);
         }
 
         void Queue(string typeId)

@@ -33,6 +33,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 router.SetMoveMode();
             if (Input.GetKeyDown(KeyCode.A) && router != null)
                 router.SetAttackPlaceholderMode();
+            if (Input.GetKeyDown(KeyCode.X) && router != null)
+                router.SetAttackMoveMode();
             if (modeText != null && router != null)
                 modeText.text = "Command Mode: " + router.CurrentMode;
         }
@@ -57,9 +59,11 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             AddButton("Stop", () => router.StopSelected());
             AddButton("Move", () => router.SetMoveMode());
             AddButton("Attack", () => router.SetAttackPlaceholderMode());
-            AddButton("Guard", () => router.Placeholder("Guard"));
-            AddButton("Patrol", () => router.Placeholder("Patrol"));
-            AddButton("Deploy", () => router.Placeholder("Deploy"));
+            AddButton("Attack Move", () => router.SetAttackMoveMode());
+            AddButton("Guard", () => router.GuardSelected());
+            AddButton("Patrol", () => router.SetPatrolMode());
+            AddButton("Scatter", () => router.ScatterSelected());
+            AddButton("Deploy", () => router.DeploySelected());
             AddButton("Repair", () => router.Placeholder("Repair"));
             AddButton("Sell", () => router.Placeholder("Sell"));
             AddButton("Power", () => router.TogglePowerSelected());
@@ -83,7 +87,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             var button = child != null ? child.GetComponent<Button>() : null;
             if (button == null)
                 button = RtsUiFactory.CreateButton(buttonRoot, text, text);
-            button.GetComponent<RectTransform>().sizeDelta = new Vector2(112f, 30f);
+            button.GetComponent<RectTransform>().sizeDelta = new Vector2(82f, 21f);
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(action);
         }
@@ -105,9 +109,9 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
             var grid = EnsureSingleGridLayout(rootObject);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = 3;
-            grid.cellSize = new Vector2(112f, 30f);
-            grid.spacing = new Vector2(6f, 5f);
+            grid.constraintCount = 4;
+            grid.cellSize = new Vector2(82f, 21f);
+            grid.spacing = new Vector2(5f, 3f);
             return rect;
         }
 
