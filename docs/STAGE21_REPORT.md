@@ -58,3 +58,10 @@ The final manual player test remains:
 .\tools\build-windows-player-stage16.ps1
 & "build\windows-player-stage16\ProjectAegisRTS.exe"
 ```
+
+## Stage 21.5 Follow-Up
+
+Stage 21.5 fixes the Windows player resolution/UI scaling issue before Stage 22 artist intake. It adds display defaults, minimum resolution clamping, Boot Options display controls, CanvasScaler enforcement, Player.log display diagnostics, and Stage 21.5 validation tiers. See:
+
+- `docs/STAGE21_5_DISPLAY_SCALING_REPORT.md`
+- `docs/STAGE21_5_PLAYER_WINDOW_GUIDE.md`

@@ -586,6 +586,27 @@ Assets/Rts/Art/Models/Source/MVP
 
 The scanner writes `docs/STAGE21_ARTIST_MODEL_IMPORT_STATUS.md`, and MVP QA writes `docs/STAGE21_MVP_VISUAL_QA.md`. Generated proxies remain active until a candidate passes Stage 21 QA, player-facing checks, and Player.log inspection.
 
+## Stage 21.5 Windows Player Resolution
+
+Stage 21.5 keeps the Windows player on the same Boot and Stage 16 scenes, but adds robust display startup behavior:
+
+```powershell
+.\tools\run-unity-stage21-5-validation.ps1
+.\tools\run-stage21-5-fast-checks.ps1
+.\tools\run-stage21-5-medium-checks.ps1
+.\tools\run-stage21-5-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+Build and test the EXE:
+
+```powershell
+.\tools\build-windows-player-stage16.ps1
+.\build\windows-player-stage16\ProjectAegisRTS.exe
+.\tools\run-player-windowed-1080p.ps1
+```
+
+The default player window is 1600x900, invalid tiny windows are clamped to at least 1280x720, and Boot Options exposes Windowed, Fullscreen Window, 1280x720, 1600x900, 1920x1080, Apply Display, and Reset Display Settings. `Player.log` records Stage 21.5 display startup diagnostics.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -716,6 +737,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 19.5 is PC UI layout and pause-menu work; it is not final chrome art, final icons, or final settings UX.
 - Stage 20 is a first-pass MVP production proxy visual layer; it is not final artist-authored FBX/GLB art, final VFX, final audio, or final Quest device profiling.
 - Stage 21 is an MVP visual QA and replacement-readiness pass; it is not final art direction, final source model replacement, final VFX, final audio, or Quest device profiling.
+- Stage 21.5 is Windows player resolution/UI-scaling hardening; it is not final settings UI, final platform packaging, final accessibility, or Stage 22 artist intake.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.
@@ -725,4 +747,4 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 
 Later Quest/MR stages can swap the board transform and input layer without moving authoritative simulation state out of `Rts.Core`.
 
-Stage 20 and Stage 21 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar, while `QuestXR` keeps left-hand build/selection and right-hand tactical controls with the PC sidebar hidden.
+Stage 20, Stage 21, and Stage 21.5 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar, while `QuestXR` keeps left-hand build/selection and right-hand tactical controls with the PC sidebar hidden.

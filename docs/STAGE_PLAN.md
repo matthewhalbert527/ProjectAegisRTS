@@ -104,6 +104,10 @@ Complete after local validation. 360-degree MVP production visual replacement pa
 
 Complete after local validation. MVP visual QA and artist replacement readiness pass. Adds structured visual QA status, socket/pivot/scale validation, optional artist model import scanning, a Stage21 review scene, replacement metadata on MVP proxies, improved 360-degree readability details, Player.log coverage, and Stage 21 fast/medium/player-facing/full validation tiers while preserving Stage 0-20 behavior.
 
+## Stage 21.5
+
+Complete after local validation. Windows player resolution and UI scaling fix. Adds runtime display defaults, minimum 1280x720 clamping, 1600x900 windowed defaults, Boot Options display controls, responsive CanvasScaler enforcement, Player.log display diagnostics, 1080p launch helper, build-script display configuration, and Stage 21.5 fast/medium/player-facing/full validation tiers while preserving Stage 0-21 behavior.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

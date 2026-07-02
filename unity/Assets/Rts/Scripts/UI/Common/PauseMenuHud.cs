@@ -36,7 +36,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
         {
             BuildIfNeeded();
             overlayRoot.gameObject.SetActive(true);
-            bodyText.text = "Settings\nFullscreen and audio settings live on the boot Options screen for this prototype.";
+            bodyText.text = "Settings\nDisplay, fullscreen, and audio settings live on the boot Options screen for this prototype.";
             backButton.gameObject.SetActive(true);
         }
 

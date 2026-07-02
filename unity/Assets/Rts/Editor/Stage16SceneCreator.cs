@@ -378,6 +378,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
+            var enforcer = canvasObject.AddComponent<ResponsiveCanvasScalerEnforcer>();
+            enforcer.referenceResolution = new Vector2(1920f, 1080f);
+            enforcer.matchWidthOrHeight = 0.5f;
+            enforcer.enforceOnAwake = true;
+            enforcer.enforceOnStart = true;
+            enforcer.logAdjustments = true;
             return canvas;
         }
 

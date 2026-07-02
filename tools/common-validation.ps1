@@ -264,6 +264,7 @@ function Repair-UnityGeneratedValidationWhitespace {
         'unity\Assets\Rts\Art\Models\Source\MVP.meta',
         'unity\Assets\Rts\Art\Prefabs\Actors\Production\MVP.meta',
         'unity\Assets\XR\Settings\OpenXR Package Settings.asset',
+        'unity\ProjectSettings\ProjectSettings.asset',
         'unity\ProjectSettings\EditorBuildSettings.asset'
     )
 

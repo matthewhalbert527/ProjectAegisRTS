@@ -4,16 +4,19 @@ namespace ProjectAegisRTS.UnityClient.Boot
 {
     public sealed class OptionsMenuHud : MonoBehaviour
     {
-        const string FullscreenKey = "ProjectAegisRTS.Fullscreen";
         const string MasterVolumeKey = "ProjectAegisRTS.MasterVolume";
         const string DebugPanelsKey = "ProjectAegisRTS.ShowDebugPanelsByDefault";
 
         public GameBootController controller;
         public BuildModeSettings settings;
+        public PlayerDisplaySettings displaySettings;
         public bool visible;
-        public Rect area = new Rect(40f, 40f, 500f, 360f);
+        public bool displaySectionEnabled = true;
+        public Rect area = new Rect(40f, 40f, 560f, 560f);
 
-        bool fullscreenPreference;
+        int selectedWidth = 1600;
+        int selectedHeight = 900;
+        FullScreenMode selectedFullscreenMode = FullScreenMode.Windowed;
         float masterVolume = 1f;
         bool showDebugPanelsByDefault;
 
@@ -23,8 +26,10 @@ namespace ProjectAegisRTS.UnityClient.Boot
                 controller = FindAnyObjectByType<GameBootController>();
             if (settings == null)
                 settings = FindAnyObjectByType<BuildModeSettings>();
+            if (displaySettings == null)
+                displaySettings = FindAnyObjectByType<PlayerDisplaySettings>();
             LoadPreferences();
-            ApplyPreferences(false);
+            ApplyAudioDebugPreferences(false);
         }
 
         public void SetVisible(bool value)
@@ -42,26 +47,22 @@ namespace ProjectAegisRTS.UnityClient.Boot
             GUILayout.Label("Prototype settings for local testing. These are safe placeholders, not final game settings.");
             GUILayout.Space(8f);
 
-            var newFullscreen = GUILayout.Toggle(fullscreenPreference, "Fullscreen");
-            if (newFullscreen != fullscreenPreference)
-            {
-                fullscreenPreference = newFullscreen;
-                ApplyPreferences(true);
-            }
+            if (displaySectionEnabled)
+                DrawDisplaySection();
 
             GUILayout.Label("Master volume: " + Mathf.RoundToInt(masterVolume * 100f) + "%");
             var newVolume = GUILayout.HorizontalSlider(masterVolume, 0f, 1f);
             if (Mathf.Abs(newVolume - masterVolume) > 0.001f)
             {
                 masterVolume = newVolume;
-                ApplyPreferences(true);
+                ApplyAudioDebugPreferences(true);
             }
 
             var newDebugDefault = GUILayout.Toggle(showDebugPanelsByDefault, "Show debug panels by default");
             if (newDebugDefault != showDebugPanelsByDefault)
             {
                 showDebugPanelsByDefault = newDebugDefault;
-                ApplyPreferences(true);
+                ApplyAudioDebugPreferences(true);
             }
 
             var hotkeysEnabled = settings == null || settings.enableDeveloperHotkeys;
@@ -72,22 +73,79 @@ namespace ProjectAegisRTS.UnityClient.Boot
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Reset Settings", GUILayout.Height(32f)))
                 ResetPreferences();
+            if (GUILayout.Button("Reset Display Settings", GUILayout.Height(32f)))
+                ResetDisplaySettings();
             if (GUILayout.Button("Back", GUILayout.Height(32f)) && controller != null)
                 controller.HideOptions();
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
 
+        void DrawDisplaySection()
+        {
+            GUILayout.Label("Display");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Toggle(selectedFullscreenMode == FullScreenMode.Windowed, "Windowed"))
+                selectedFullscreenMode = FullScreenMode.Windowed;
+            if (GUILayout.Toggle(selectedFullscreenMode == FullScreenMode.FullScreenWindow, "Fullscreen Window"))
+                selectedFullscreenMode = FullScreenMode.FullScreenWindow;
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            DrawResolutionButton(1280, 720);
+            DrawResolutionButton(1600, 900);
+            DrawResolutionButton(1920, 1080);
+            GUILayout.EndHorizontal();
+
+            GUILayout.Label("Selected: " + selectedWidth + "x" + selectedHeight + " " + selectedFullscreenMode);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Apply Display", GUILayout.Height(30f)))
+                ApplyDisplaySettings();
+            GUILayout.EndHorizontal();
+            GUILayout.Space(8f);
+        }
+
+        void DrawResolutionButton(int width, int height)
+        {
+            var label = width + "x" + height;
+            var selected = selectedWidth == width && selectedHeight == height;
+            if (GUILayout.Button(selected ? "[" + label + "]" : label, GUILayout.Height(28f)))
+            {
+                selectedWidth = width;
+                selectedHeight = height;
+            }
+        }
+
         void LoadPreferences()
         {
-            fullscreenPreference = PlayerPrefs.GetInt(FullscreenKey, Screen.fullScreen ? 1 : 0) != 0;
+            int savedWidth;
+            int savedHeight;
+            FullScreenMode savedMode;
+            if (PlayerDisplaySettings.TryLoadSavedPreference(out savedWidth, out savedHeight, out savedMode))
+            {
+                selectedWidth = savedWidth;
+                selectedHeight = savedHeight;
+                selectedFullscreenMode = savedMode;
+            }
+            else if (displaySettings != null)
+            {
+                selectedWidth = displaySettings.defaultWindowWidth;
+                selectedHeight = displaySettings.defaultWindowHeight;
+                selectedFullscreenMode = displaySettings.preferredFullscreenMode;
+            }
+            else
+            {
+                selectedWidth = Mathf.Max(Screen.width, 1600);
+                selectedHeight = Mathf.Max(Screen.height, 900);
+                selectedFullscreenMode = Screen.fullScreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
+            }
+
             masterVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MasterVolumeKey, AudioListener.volume));
             showDebugPanelsByDefault = PlayerPrefs.GetInt(DebugPanelsKey, settings != null && settings.showDebugPanelsByDefault ? 1 : 0) != 0;
         }
 
-        void ApplyPreferences(bool save)
+        void ApplyAudioDebugPreferences(bool save)
         {
-            Screen.fullScreen = fullscreenPreference;
             AudioListener.volume = Mathf.Clamp01(masterVolume);
             if (settings != null)
                 settings.showDebugPanelsByDefault = showDebugPanelsByDefault;
@@ -95,18 +153,40 @@ namespace ProjectAegisRTS.UnityClient.Boot
             if (!save)
                 return;
 
-            PlayerPrefs.SetInt(FullscreenKey, fullscreenPreference ? 1 : 0);
             PlayerPrefs.SetFloat(MasterVolumeKey, masterVolume);
             PlayerPrefs.SetInt(DebugPanelsKey, showDebugPanelsByDefault ? 1 : 0);
             PlayerPrefs.Save();
         }
 
+        void ApplyDisplaySettings()
+        {
+            if (displaySettings == null)
+                displaySettings = FindAnyObjectByType<PlayerDisplaySettings>();
+            if (displaySettings == null)
+                displaySettings = gameObject.AddComponent<PlayerDisplaySettings>();
+
+            displaySettings.ApplyAndSaveDisplaySettings(selectedWidth, selectedHeight, selectedFullscreenMode);
+        }
+
         void ResetPreferences()
         {
-            fullscreenPreference = false;
             masterVolume = 1f;
             showDebugPanelsByDefault = false;
-            ApplyPreferences(true);
+            ApplyAudioDebugPreferences(true);
+            ResetDisplaySettings();
+        }
+
+        void ResetDisplaySettings()
+        {
+            if (displaySettings == null)
+                displaySettings = FindAnyObjectByType<PlayerDisplaySettings>();
+            if (displaySettings == null)
+                displaySettings = gameObject.AddComponent<PlayerDisplaySettings>();
+
+            displaySettings.ResetDisplayPreferencesAndApply();
+            selectedWidth = displaySettings.defaultWindowWidth;
+            selectedHeight = displaySettings.defaultWindowHeight;
+            selectedFullscreenMode = displaySettings.preferredFullscreenMode;
         }
     }
 }

@@ -54,6 +54,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
 
             if (cancelPlacementOnStart)
                 CancelPlacementModes();
+            ApplyResponsiveCanvasDefaults();
             ApplyPlayerHudDefaults();
 
             if (startScenarioOnLoad)
@@ -187,6 +188,24 @@ namespace ProjectAegisRTS.UnityClient.Boot
             {
                 statusLog.visible = false;
                 statusLog.gameObject.SetActive(false);
+            }
+        }
+
+        static void ApplyResponsiveCanvasDefaults()
+        {
+            var canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (var i = 0; i < canvases.Length; i++)
+            {
+                if (canvases[i] == null)
+                    continue;
+
+                var enforcer = canvases[i].GetComponent<ResponsiveCanvasScalerEnforcer>();
+                if (enforcer == null)
+                    enforcer = canvases[i].gameObject.AddComponent<ResponsiveCanvasScalerEnforcer>();
+
+                enforcer.referenceResolution = new Vector2(1920f, 1080f);
+                enforcer.matchWidthOrHeight = 0.5f;
+                enforcer.Enforce();
             }
         }
 

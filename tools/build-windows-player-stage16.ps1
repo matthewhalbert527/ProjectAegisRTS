@@ -1,5 +1,10 @@
 [CmdletBinding()]
-param()
+param(
+    [int]$WindowWidth = 1600,
+    [int]$WindowHeight = 900,
+    [switch]$Fullscreen,
+    [switch]$Windowed
+)
 
 $ErrorActionPreference = 'Stop'
 
@@ -66,6 +71,27 @@ function Invoke-UnityPlayerBuildBatch {
     }
 }
 
+function Invoke-Stage21_5DisplayConfigBatch {
+    param(
+        [string]$UnityEditor,
+        [string]$UnityProject,
+        [string]$LogPath,
+        [int]$Width,
+        [int]$Height,
+        [string]$FullscreenMode
+    )
+
+    if (Test-Path -LiteralPath $LogPath) {
+        Remove-Item -LiteralPath $LogPath -Force
+    }
+
+    $arguments = "-batchmode -quit -projectPath `"$UnityProject`" -executeMethod ProjectAegisRTS.UnityClient.EditorTools.Stage21_5DisplaySettingsConfigurator.ConfigureDisplaySettingsBatch -stage21_5WindowWidth $Width -stage21_5WindowHeight $Height -stage21_5FullscreenMode $FullscreenMode -logFile `"$LogPath`""
+    $process = Start-Process -FilePath $UnityEditor -ArgumentList $arguments -WindowStyle Hidden -Wait -PassThru
+    if ($process.ExitCode -ne 0 -or -not (Select-String -LiteralPath $LogPath -Pattern 'Stage 21.5 display settings configured.' -Quiet)) {
+        throw "Stage 21.5 display settings configuration failed. See $LogPath"
+    }
+}
+
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $unityEditor = Find-UnityEditor
 $unityProject = Join-Path $repoRoot 'unity'
@@ -75,6 +101,20 @@ $outputExe = Join-Path $outputDir 'ProjectAegisRTS.exe'
 
 if (-not $unityEditor) {
     throw 'Unity Editor was not found.'
+}
+
+if ($Fullscreen -and $Windowed) {
+    throw 'Use either -Fullscreen or -Windowed, not both.'
+}
+
+$WindowWidth = [Math]::Max($WindowWidth, 1280)
+$WindowHeight = [Math]::Max($WindowHeight, 720)
+$fullscreenMode = 'Windowed'
+if ($Fullscreen) {
+    $fullscreenMode = 'FullScreenWindow'
+}
+if ($Windowed) {
+    $fullscreenMode = 'Windowed'
 }
 
 New-Item -ItemType Directory -Force -Path $logRoot | Out-Null
@@ -97,6 +137,10 @@ if ($configureProcess.ExitCode -ne 0 -or -not (Select-String -LiteralPath $confi
     throw "Stage 16.5 build flow configuration failed. See $configureLog"
 }
 
+Write-ValidationSection 'Configure Stage 21.5 display settings'
+$displayConfigureLog = Join-Path $logRoot 'stage21-5-configure-for-player-build.log'
+Invoke-Stage21_5DisplayConfigBatch -UnityEditor $unityEditor -UnityProject $unityProject -LogPath $displayConfigureLog -Width $WindowWidth -Height $WindowHeight -FullscreenMode $fullscreenMode
+
 Write-ValidationSection 'Stage 16 medium validation'
 & (Join-Path $repoRoot 'tools\run-stage16-medium-checks.ps1')
 if ($LASTEXITCODE -ne 0) {
@@ -114,6 +158,10 @@ if ($reconfigureProcess.ExitCode -ne 0 -or -not (Select-String -LiteralPath $rec
     throw "Stage 16.5 build flow reconfiguration failed. See $reconfigureLog"
 }
 
+Write-ValidationSection 'Re-configure Stage 21.5 display settings'
+$displayReconfigureLog = Join-Path $logRoot 'stage21-5-reconfigure-for-player-build.log'
+Invoke-Stage21_5DisplayConfigBatch -UnityEditor $unityEditor -UnityProject $unityProject -LogPath $displayReconfigureLog -Width $WindowWidth -Height $WindowHeight -FullscreenMode $fullscreenMode
+
 Write-ValidationSection 'Windows player build'
 Invoke-UnityPlayerBuildBatch -UnityEditor $unityEditor -UnityProject $unityProject -LogPath (Join-Path $logRoot 'stage16-5-windows-player.log') -OutputPath $outputExe
 
@@ -123,6 +171,10 @@ if (-not (Test-Path -LiteralPath $outputExe)) {
 
 Write-Host "Windows player build passed."
 Write-Host "EXE: $outputExe"
+Write-Host 'Suggested test commands:'
+Write-Host "  Normal: & `"$outputExe`""
+Write-Host "  1920x1080 windowed: & `"$outputExe`" -screen-width 1920 -screen-height 1080 -screen-fullscreen 0"
+Write-Host "  Fullscreen window: & `"$outputExe`" -screen-fullscreen 1"
 
 Write-ValidationSection 'Normalize Unity-generated whitespace'
 Repair-UnityGeneratedValidationWhitespace -RepoRoot $repoRoot

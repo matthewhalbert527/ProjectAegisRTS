@@ -120,6 +120,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             settings.startInBootMenu = true;
             settings.defaultCleanHud = true;
             settings.enableDeveloperHotkeys = true;
+            var displaySettings = bootObject.AddComponent<PlayerDisplaySettings>();
+            ConfigureDisplaySettingsComponent(displaySettings);
+            var displayInitializer = bootObject.AddComponent<PlayerDisplaySettingsInitializer>();
+            displayInitializer.settings = displaySettings;
 
             var controller = bootObject.AddComponent<GameBootController>();
             var mainMenu = bootObject.AddComponent<MainMenuHud>();
@@ -133,6 +137,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             controls.controller = controller;
             options.controller = controller;
             options.settings = settings;
+            options.displaySettings = displaySettings;
             mainMenu.visible = true;
             controls.visible = false;
             options.visible = false;
@@ -165,6 +170,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             initializer.cameraPosition = new Vector3(16f, 30f, -2f);
             initializer.cameraRotationEuler = new Vector3(60f, 0f, 0f);
             initializer.cameraOrthographicSize = 18f;
+
+            var displaySettings = GetOrAdd<PlayerDisplaySettings>(game);
+            ConfigureDisplaySettingsComponent(displaySettings);
+            var displayInitializer = GetOrAdd<PlayerDisplaySettingsInitializer>(game);
+            displayInitializer.settings = displaySettings;
+            displayInitializer.applyOnAwake = true;
 
             var debugVisibility = GetOrAdd<DebugHudVisibilityController>(game);
             debugVisibility.showDebugPanelsByDefault = false;
@@ -255,7 +266,23 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 boardPlacement.SetPlacementMode(false);
 
             ConfigureCamera(Camera.main != null ? Camera.main : UnityEngine.Object.FindFirstObjectByType<Camera>());
+            EnsureResponsiveCanvasEnforcers();
             EditorSceneManager.SaveScene(scene, Stage16SceneCreator.ScenePath);
+        }
+
+        static void ConfigureDisplaySettingsComponent(PlayerDisplaySettings displaySettings)
+        {
+            if (displaySettings == null)
+                return;
+
+            displaySettings.defaultWindowWidth = 1600;
+            displaySettings.defaultWindowHeight = 900;
+            displaySettings.minimumWindowWidth = 1280;
+            displaySettings.minimumWindowHeight = 720;
+            displaySettings.preferredFullscreenMode = FullScreenMode.Windowed;
+            displaySettings.preserveValidPlayerPreferences = true;
+            displaySettings.applyInEditor = false;
+            displaySettings.logStartupDisplayMetrics = true;
         }
 
         static void ConfigureCamera(Camera camera)
@@ -314,7 +341,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 Stage12SceneCreator.ScenePath,
                 Stage13SceneCreator.ScenePath,
                 Stage14SceneCreator.ScenePath,
-                Stage15SceneCreator.ScenePath
+                Stage15SceneCreator.ScenePath,
+                "Assets/Rts/Scenes/Stage20_MvpProductionVisuals.unity",
+                "Assets/Rts/Scenes/Stage21_MvpVisualQaReview.unity"
             };
 
             var scenes = new List<EditorBuildSettingsScene>();
@@ -341,6 +370,30 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
+            var enforcer = canvasObject.AddComponent<ResponsiveCanvasScalerEnforcer>();
+            enforcer.referenceResolution = new Vector2(1920f, 1080f);
+            enforcer.matchWidthOrHeight = 0.5f;
+            enforcer.enforceOnAwake = true;
+            enforcer.enforceOnStart = true;
+            enforcer.logAdjustments = true;
+        }
+
+        static void EnsureResponsiveCanvasEnforcers()
+        {
+            var canvases = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (var i = 0; i < canvases.Length; i++)
+            {
+                if (canvases[i] == null)
+                    continue;
+
+                var enforcer = GetOrAdd<ResponsiveCanvasScalerEnforcer>(canvases[i].gameObject);
+                enforcer.referenceResolution = new Vector2(1920f, 1080f);
+                enforcer.matchWidthOrHeight = 0.5f;
+                enforcer.enforceOnAwake = true;
+                enforcer.enforceOnStart = true;
+                enforcer.logAdjustments = true;
+                ResponsiveCanvasScalerEnforcer.EnforceCanvas(canvases[i], enforcer.referenceResolution, enforcer.matchWidthOrHeight, false);
+            }
         }
 
         static T GetOrAdd<T>(GameObject target) where T : Component

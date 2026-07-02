@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [datetime]$FreshAfter,
-    [switch]$CopyToDebugLogs
+    [switch]$CopyToDebugLogs,
+    [switch]$RequireDisplayStartup
 )
 
 $ErrorActionPreference = 'Stop'
@@ -18,6 +19,16 @@ $patterns = @(
     'InvalidOperationException',
     'Scripts have compiler errors',
     'Script Compilation Error'
+)
+
+$displayPatterns = @(
+    '\[Stage21\.5 Display\]',
+    'Screen\.width=',
+    'Screen\.height=',
+    'Screen\.fullScreen=',
+    'Screen\.fullScreenMode=',
+    'requestedResolution=',
+    'clampedDisplaySetting='
 )
 
 function Find-LatestPlayerLog {
@@ -69,6 +80,19 @@ $hit = Select-String -LiteralPath $latest.FullName -Pattern $patterns -CaseSensi
 if ($hit) {
     Write-Error "Red-error signature found in Player.log at line $($hit.LineNumber): $($hit.Line.Trim())"
     exit 1
+}
+
+$displayHits = @(Select-String -LiteralPath $latest.FullName -Pattern $displayPatterns -CaseSensitive:$false)
+if ($displayHits.Count -gt 0) {
+    Write-Host 'Display startup diagnostics:'
+    $displayHits | Select-Object -Last 8 | ForEach-Object {
+        Write-Host "  line $($_.LineNumber): $($_.Line.Trim())"
+    }
+} elseif ($RequireDisplayStartup) {
+    Write-Error 'Player.log did not contain Stage 21.5 display startup diagnostics.'
+    exit 1
+} else {
+    Write-Warning 'Player.log did not contain Stage 21.5 display startup diagnostics. Rebuild and launch the Stage 21.5 player to create fresh display lines.'
 }
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
