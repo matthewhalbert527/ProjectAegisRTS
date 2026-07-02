@@ -20,6 +20,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             "FogDebugHud",
             "MapValidationDebugHud",
             "FeedbackDebugHud",
+            "FeatureRegressionHud",
             "RenderStatsHud",
             "IntegratedSystemsStatusHud",
             "ConceptArtCardView",

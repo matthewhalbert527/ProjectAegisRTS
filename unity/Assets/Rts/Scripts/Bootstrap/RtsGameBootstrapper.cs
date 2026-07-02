@@ -78,6 +78,7 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
         public PlayerFacingUiModeController playerFacingUiModeController;
         public IntegratedSystemsStatusHud integratedSystemsStatusHud;
         public VerticalSliceDebugActions verticalSliceDebugActions;
+        public FeatureRegressionHud featureRegressionHud;
         public RtsSimulationDriver simulationDriver;
         public RtsDesktopInputController inputController;
         public RtsDebugHud debugHud;
@@ -210,6 +211,13 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 playerFacingUiModeController.ApplyModeDefaults();
             if (integratedSystemsStatusHud != null)
                 integratedSystemsStatusHud.Initialize(simulationDriver);
+            if (featureRegressionHud != null)
+                featureRegressionHud.Initialize(
+                    simulationDriver,
+                    FindAnyObjectByType<ProjectAegisRTS.UnityClient.UI.Desktop.DesktopUiCommandRouter>(),
+                    playerFacingUiModeController,
+                    verticalSliceProgressTracker,
+                    verticalSliceMissionFlowController);
             if (verticalSliceScenarioController != null)
                 verticalSliceScenarioController.Initialize(simulationDriver, matchObjectiveHud, integratedSystemsStatusHud, verticalSliceDebugActions);
             inputController.Initialize(sceneCamera, coordinateMapper, simulationDriver, debugHud);
@@ -263,6 +271,8 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
                 pauseMenuHud = GetOrAdd<PauseMenuHud>(gameObject);
             if (playerFacingUiModeController == null)
                 playerFacingUiModeController = GetOrAdd<PlayerFacingUiModeController>(gameObject);
+            if (featureRegressionHud == null)
+                featureRegressionHud = GetOrAdd<FeatureRegressionHud>(gameObject);
 
             if (sceneCamera == null)
             {

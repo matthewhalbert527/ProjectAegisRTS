@@ -620,6 +620,19 @@ Stage 27.1 keeps the Windows player on Boot and Stage 16, but separates board se
 
 PCDesktop building placement uses the right sidebar `PlacementModePanel` plus the fine-grid footprint preview. The Stage 3 `BoardPlacementHud` remains hidden unless board setup placement is explicitly active. QuestXR board setup and Stage 4/5 hand controls remain available.
 
+## Stage 28 Integrated Feature Regression QA
+
+Stage 28 keeps the Windows player on Boot and Stage 16, but adds hidden QA coverage around the whole current feature surface:
+
+```powershell
+.\tools\run-unity-stage28-validation.ps1
+.\tools\run-stage28-fast-checks.ps1
+.\tools\run-stage28-medium-checks.ps1
+.\tools\run-stage28-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+The hidden `FeatureRegressionHud` is created at runtime and toggles with `F10` in development builds/editor play. It audits major command routes, PCDesktop sidebar state, QuestXR control presence, fine-grid placement status, economy, AI, visibility, air/naval, support, engineer, and transport surfaces. It is hidden by default and is not intended as normal player UI.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -636,6 +649,7 @@ PCDesktop building placement uses the right sidebar `PlacementModePanel` plus th
 - F5: toggle the Stage 13 map validation debug HUD.
 - F4: toggle the Stage 14 feedback debug HUD.
 - F3: toggle the Stage 15 render stats HUD.
+- F10: toggle the Stage 28 feature regression QA overlay.
 - O: toggle the Stage 16 match/objective HUD.
 - C: toggle the Stage 19 mission-flow checklist.
 - Tab: expand or compact the Stage 19 checklist.
@@ -752,6 +766,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 21 is an MVP visual QA and replacement-readiness pass; it is not final art direction, final source model replacement, final VFX, final audio, or Quest device profiling.
 - Stage 21.5 is Windows player resolution/UI-scaling hardening; it is not final settings UI, final platform packaging, final accessibility, or Stage 22 artist intake.
 - Stage 27.1 is a targeted PC placement UX fix; it is not a new gameplay stage or final production art/UI pass.
+- Stage 28 is an integrated QA/stabilization pass; it is not final content, final art, replay/multiplayer, campaign scripting, or release packaging.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.
@@ -761,4 +776,4 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 
 Later Quest/MR stages can swap the board transform and input layer without moving authoritative simulation state out of `Rts.Core`.
 
-Stage 20, Stage 21, Stage 21.5, and Stage 27.1 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar, while `QuestXR` keeps left-hand build/selection, explicit board setup placement, and right-hand tactical controls with the PC sidebar hidden.
+Stage 20, Stage 21, Stage 21.5, Stage 27.1, and Stage 28 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar, while `QuestXR` keeps left-hand build/selection, explicit board setup placement, and right-hand tactical controls with the PC sidebar hidden.

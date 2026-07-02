@@ -136,6 +136,10 @@ Complete after local validation. Skirmish playability / AI pressure / completion
 
 Complete after local validation. PC building placement UX fix. Separates board setup placement from production building placement in player-facing UI visibility, keeps `BoardPlacementHud` hidden during PCDesktop right-sidebar building placement, preserves explicit QuestXR/DebugHybrid board setup placement, makes Escape cancel active placement before opening pause, and adds Stage 27.1 fast/medium/player-facing/full validation tiers while preserving Stage 0-27 behavior.
 
+## Stage 28
+
+Complete after local validation. Integrated playtest stabilization and feature regression QA. Adds a hidden F10 feature-regression HUD, Stage 28 feature/play-mode validators, a documented feature matrix, known-issues notes, player-facing validation, and flat Stage 28 fast/medium/player-facing/full validation tiers while preserving Stage 0-27.1 behavior.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

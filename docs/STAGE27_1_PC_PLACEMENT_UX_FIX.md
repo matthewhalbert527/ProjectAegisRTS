@@ -65,3 +65,7 @@ Manual player check:
 ```
 
 Start the vertical slice, build a Power Plant from the right sidebar, click the ready card, verify the center board setup overlay stays hidden, place on the fine grid, and inspect `Player.log`.
+
+## Stage 28 Regression Coverage
+
+Stage 28 keeps this fix in the current acceptance path. `Stage28FeatureRegressionValidator` and `Stage28PlayModeSmokeValidator` re-check PCDesktop sidebar placement, hidden `BoardPlacementHud`, active right-sidebar `PlacementModePanel`, fine-grid preview, placement completion, QuestXR board setup availability, and clean red-console behavior as part of integrated feature regression QA.

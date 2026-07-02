@@ -102,3 +102,15 @@ Stage 27 makes the vertical slice feel more like a playable skirmish prototype:
 - Stage 27 fast, medium, player-facing, and full validation scripts
 
 The medium tier remains non-recursive and is guarded through Stage 27 by `tools/audit-medium-validation-recursion.ps1`.
+
+## Follow-Up: Stage 28 Integrated Playtest Stabilization
+
+Stage 28 is a stabilization and regression QA pass over the feature set created by this overnight branch and the later Stage 27.1 placement UX fix. It adds:
+
+- hidden F10 feature regression HUD
+- integrated feature matrix documentation
+- Stage 28 feature regression and play-mode smoke validators
+- fast, medium, player-facing, and full Stage 28 validation scripts
+- medium-recursion audit coverage through Stage 28
+
+The medium tier remains non-recursive and is guarded through Stage 28 by `tools/audit-medium-validation-recursion.ps1`.
