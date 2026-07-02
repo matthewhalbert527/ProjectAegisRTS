@@ -32,12 +32,19 @@ namespace ProjectAegisRTS.Pathfinding
 
     public sealed class GridPathfinder
     {
+        const int CardinalCostMultiplier = 10;
+        const int DiagonalCostMultiplier = 14;
+
         static readonly Int2[] Neighbors =
         {
             new Int2(0, -1),
+            new Int2(1, -1),
             new Int2(1, 0),
+            new Int2(1, 1),
             new Int2(0, 1),
-            new Int2(-1, 0)
+            new Int2(-1, 1),
+            new Int2(-1, 0),
+            new Int2(-1, -1)
         };
 
         public List<Int2> FindPath(GridMap map, Int2 start, Int2 goal)
@@ -78,13 +85,16 @@ namespace ProjectAegisRTS.Pathfinding
 
                 for (var i = 0; i < Neighbors.Length; i++)
                 {
-                    var next = current + Neighbors[i];
+                    var offset = Neighbors[i];
+                    var next = current + offset;
                     if (!map.Contains(next))
                         continue;
                     if (!map.IsPassableForUnit(next, movementClass, rules))
                         continue;
+                    if (IsDiagonal(offset) && !CanMoveDiagonally(map, rules, current, offset, movementClass))
+                        continue;
 
-                    var newCost = costSoFar[current] + map.GetMovementCost(next, movementClass, rules);
+                    var newCost = costSoFar[current] + StepCost(map, rules, next, movementClass, offset);
                     int existingCost;
                     if (costSoFar.TryGetValue(next, out existingCost) && newCost >= existingCost)
                         continue;
@@ -130,6 +140,27 @@ namespace ProjectAegisRTS.Pathfinding
             }
 
             return bestIndex;
+        }
+
+        static int StepCost(GridMap map, RtsRules rules, Int2 cell, MovementClass movementClass, Int2 offset)
+        {
+            var multiplier = IsDiagonal(offset) ? DiagonalCostMultiplier : CardinalCostMultiplier;
+            return map.GetMovementCost(cell, movementClass, rules) * multiplier;
+        }
+
+        static bool IsDiagonal(Int2 offset)
+        {
+            return offset.X != 0 && offset.Y != 0;
+        }
+
+        static bool CanMoveDiagonally(GridMap map, RtsRules rules, Int2 current, Int2 offset, MovementClass movementClass)
+        {
+            var horizontal = new Int2(current.X + offset.X, current.Y);
+            var vertical = new Int2(current.X, current.Y + offset.Y);
+            return map.Contains(horizontal) &&
+                map.Contains(vertical) &&
+                map.IsPassableForUnit(horizontal, movementClass, rules) &&
+                map.IsPassableForUnit(vertical, movementClass, rules);
         }
     }
 }

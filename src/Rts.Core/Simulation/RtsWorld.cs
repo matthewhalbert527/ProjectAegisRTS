@@ -2656,14 +2656,7 @@ namespace ProjectAegisRTS.Simulation
                 var targetWorld = FixedMath.CellCenter(targetCell);
                 var dx = targetWorld.X - actor.WorldPositionFixed.X;
                 var dy = targetWorld.Y - actor.WorldPositionFixed.Y;
-                if (dx > 0)
-                    actor.FacingDegrees = 90;
-                else if (dx < 0)
-                    actor.FacingDegrees = 270;
-                else if (dy > 0)
-                    actor.FacingDegrees = 180;
-                else if (dy < 0)
-                    actor.FacingDegrees = 0;
+                actor.FacingDegrees = FacingDegreesForDelta(dx, dy, actor.FacingDegrees);
 
                 var step = definition.Movement.SpeedPerTick;
                 var nextWorld = new Int2(
@@ -2691,6 +2684,27 @@ namespace ProjectAegisRTS.Simulation
 
                 SyncLoadedPassengerPositions(actor);
             }
+        }
+
+        static int FacingDegreesForDelta(int dx, int dy, int fallback)
+        {
+            if (dx > 0 && dy < 0)
+                return 45;
+            if (dx > 0 && dy == 0)
+                return 90;
+            if (dx > 0 && dy > 0)
+                return 135;
+            if (dx == 0 && dy > 0)
+                return 180;
+            if (dx < 0 && dy > 0)
+                return 225;
+            if (dx < 0 && dy == 0)
+                return 270;
+            if (dx < 0 && dy < 0)
+                return 315;
+            if (dx == 0 && dy < 0)
+                return 0;
+            return fallback;
         }
 
         void TickAircraftStates()

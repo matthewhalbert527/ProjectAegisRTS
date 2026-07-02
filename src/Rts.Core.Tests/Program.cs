@@ -110,6 +110,8 @@ namespace ProjectAegisRTS.Tests
                 ImpassableTerrainBlocksPath,
                 MovementClassesCanDiffer,
                 PathQueryReturnsStructuredResult,
+                DiagonalMovementUsesEightWayPathing,
+                DiagonalMovementDoesNotCutBlockedCorners,
                 MapValidationCatchesInvalidLayout,
                 MapSnapshotContainsTerrainAndPathDebug,
                 PathingDeterminismSmokeTest,
@@ -1121,6 +1123,32 @@ namespace ProjectAegisRTS.Tests
             Assert(result.TotalCost > 0, "Expected path cost.");
             Assert(result.VisitedCellCount > 0, "Expected visited-cell count.");
             Assert(result.MovementClass == MovementClass.Tracked, "Expected tracked query.");
+        }
+
+        static void DiagonalMovementUsesEightWayPathing()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var map = new GridMap(8, 8);
+            var result = new GridPathfinder().QueryPath(map, rules, new Int2(1, 1), new Int2(4, 4), MovementClass.Wheeled);
+            Assert(result.Success, "Expected open diagonal path: " + result.FailureCode);
+            Assert(result.Path.Count == 3, "Expected three diagonal steps, got " + result.Path.Count);
+            Assert(result.Path[0].Equals(new Int2(2, 2)), "Expected first diagonal step to 2,2, got " + result.Path[0]);
+            Assert(result.Path[1].Equals(new Int2(3, 3)), "Expected second diagonal step to 3,3, got " + result.Path[1]);
+            Assert(result.Path[2].Equals(new Int2(4, 4)), "Expected final diagonal step to 4,4, got " + result.Path[2]);
+            Assert(result.TotalCost == 42, "Expected three diagonal clear-terrain costs, got " + result.TotalCost);
+        }
+
+        static void DiagonalMovementDoesNotCutBlockedCorners()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var map = new GridMap(5, 5);
+            map.SetBlocked(new Int2(2, 1), true);
+            map.SetBlocked(new Int2(1, 2), true);
+
+            var result = new GridPathfinder().QueryPath(map, rules, new Int2(1, 1), new Int2(2, 2), MovementClass.Wheeled);
+            Assert(result.Success, "Expected route around blocked corner: " + result.FailureCode);
+            Assert(result.Path.Count > 1, "Expected blocked corner to prevent direct diagonal step.");
+            Assert(!result.Path[0].Equals(new Int2(2, 2)), "Expected first step not to cut through the blocked corner.");
         }
 
         static void MapValidationCatchesInvalidLayout()
