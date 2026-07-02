@@ -100,6 +100,10 @@ Complete. CnC-style PC sidebar and pause menu rework. Consolidates the Windows p
 
 Complete after local validation. 360-degree MVP production visual replacement pass. Adds first-pass primitive proxy prefabs for the MVP actor set, a production visual standard library, validation tags, socket/LOD/view-coverage validation, a Stage20 showcase scene, explicit PCDesktop/QuestXR/DebugHybrid UI mode preservation, and Stage 20 fast/medium/player-facing/full validation tiers while preserving Stage 0-19.5 behavior.
 
+## Stage 21
+
+Complete after local validation. MVP visual QA and artist replacement readiness pass. Adds structured visual QA status, socket/pivot/scale validation, optional artist model import scanning, a Stage21 review scene, replacement metadata on MVP proxies, improved 360-degree readability details, Player.log coverage, and Stage 21 fast/medium/player-facing/full validation tiers while preserving Stage 0-20 behavior.
+
 ## Later Stages
 
-Next later stages include artist-authored source model replacement, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.
+Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

@@ -115,7 +115,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             descriptor.productionStatus = ActorArtProductionStatus.ProxyPrefab;
             descriptor.generatedByStage8 = false;
             descriptor.declaredRequiredSockets = Stage20RequiredSocketsFor(spec);
-            descriptor.notes = "Generated Stage 20 first-pass production proxy. Replace geometry with final art without changing sockets or footprint scale.";
+            descriptor.notes = "Generated Stage 20 first-pass production proxy. Stage 21 QA-ready replacement scaffold: replace geometry with final art without changing sockets, pivot, or footprint scale.";
 
             var tag = root.AddComponent<ProductionVisualValidationTag>();
             tag.actorTypeId = spec.ActorTypeId;
@@ -128,7 +128,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             tag.hasRoofDetail = true;
             tag.hasBeveledOrTieredForm = true;
             tag.hasGridAccurateBase = true;
-            tag.notes = "Stage 20 proxy: grid-accurate tabletop miniature with all-around detail and validation sockets.";
+            tag.hasStage21ReadabilityPass = true;
+            tag.hasArtistReplacementMetadata = true;
+            tag.hasSocketScaffold = true;
+            tag.replacementNotes = "Stage 21: artist replacement must preserve root pivot at footprint center/base, required sockets, fine-grid base scale, LODGroup, and proxy fallback.";
+            tag.notes = "Stage 20 proxy: grid-accurate tabletop miniature with all-around detail and validation sockets. Stage 21 readability pass adds replacement metadata, socket scaffold, and stronger 360-degree miniature details.";
 
             var sockets = CreateSockets(root.transform, spec, descriptor.declaredRequiredSockets);
             CreateGeometry(root.transform, spec, sockets, materials);
@@ -186,13 +190,21 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             definition.useAircraftMotionController = spec.Category == ActorArtCategory.Aircraft;
             definition.useTurretVisualController = spec.ActorTypeId.Contains("tank") || spec.Category == ActorArtCategory.Defense || spec.ActorTypeId == "apc" || spec.ActorTypeId == "attack_aircraft";
             definition.requiredSockets = Stage8ActorCatalog.RequiredSocketsFor(spec);
-            definition.notes = AppendStage20Note(definition.notes);
+            definition.notes = AppendStage21Note(AppendStage20Note(definition.notes));
             EditorUtility.SetDirty(definition);
         }
 
         static string AppendStage20Note(string notes)
         {
             const string marker = "Stage 20: MVP first-pass production proxy is assigned as the preferred prefab.";
+            if (!string.IsNullOrEmpty(notes) && notes.Contains(marker))
+                return notes;
+            return string.IsNullOrEmpty(notes) ? marker : notes.TrimEnd() + "\n" + marker;
+        }
+
+        static string AppendStage21Note(string notes)
+        {
+            const string marker = "Stage 21: proxy is QA-ready for artist model replacement; preserve sockets, pivot, footprint scale, LODGroup, and fallback.";
             if (!string.IsNullOrEmpty(notes) && notes.Contains(marker))
                 return notes;
             return string.IsNullOrEmpty(notes) ? marker : notes.TrimEnd() + "\n" + marker;
@@ -294,8 +306,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             CreateBuildingFoundation(root, spec, materials);
             CreatePrimitive("Processing Hall", PrimitiveType.Cube, RootSocket(sockets), new Vector3(0.32f, 0.36f, -0.18f), new Vector3(1.62f, 0.62f, 1.5f), materials.BuildingBody);
-            CreatePrimitive("Storage Tank A", PrimitiveType.Cylinder, RootSocket(sockets), new Vector3(-0.86f, 0.48f, -0.42f), new Vector3(0.44f, 0.78f, 0.44f), materials.RefineryTank);
-            CreatePrimitive("Storage Tank B", PrimitiveType.Cylinder, RootSocket(sockets), new Vector3(-0.88f, 0.4f, 0.38f), new Vector3(0.34f, 0.64f, 0.34f), materials.RefineryTank);
+            CreatePrimitive("Storage Tank A", PrimitiveType.Cylinder, RootSocket(sockets), new Vector3(-0.86f, 0.78f, -0.42f), new Vector3(0.44f, 0.78f, 0.44f), materials.RefineryTank);
+            CreatePrimitive("Storage Tank B", PrimitiveType.Cylinder, RootSocket(sockets), new Vector3(-0.88f, 0.64f, 0.38f), new Vector3(0.34f, 0.64f, 0.34f), materials.RefineryTank);
             CreatePrimitive("Harvester Dock Pad", PrimitiveType.Cube, GetSocket(sockets, ActorPrefabSocketKind.HarvesterDock, root), new Vector3(0.18f, -0.12f, 0f), new Vector3(0.9f, 0.08f, 1.16f), materials.Foundation);
             CreatePrimitive("Dock Pump Arm", PrimitiveType.Cube, GetSocket(sockets, ActorPrefabSocketKind.DockPumpRoot, root), new Vector3(0.22f, 0.05f, 0f), new Vector3(0.64f, 0.08f, 0.12f), materials.Warning);
             CreatePrimitive("Pipe Spine", PrimitiveType.Cube, RootSocket(sockets), new Vector3(-0.35f, 0.78f, 0.02f), new Vector3(1.15f, 0.08f, 0.08f), materials.DarkMetal);
@@ -332,21 +344,27 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         static void CreateGunTower(Transform root, Stage8ActorSpec spec, Dictionary<ActorPrefabSocketKind, Transform> sockets, MaterialSet materials)
         {
             CreatePrimitive("Tower Foundation", PrimitiveType.Cube, RootSocket(sockets), new Vector3(0f, 0.04f, 0f), new Vector3(0.94f, 0.08f, 0.94f), materials.Foundation);
-            CreatePrimitive("Armored Pedestal", PrimitiveType.Cylinder, RootSocket(sockets), new Vector3(0f, 0.32f, 0f), new Vector3(0.62f, 0.58f, 0.62f), materials.DefenseBody);
+            CreatePrimitive("Armored Pedestal", PrimitiveType.Cylinder, RootSocket(sockets), new Vector3(0f, 0.58f, 0f), new Vector3(0.62f, 0.58f, 0.62f), materials.DefenseBody);
             CreatePrimitive("Turret Housing", PrimitiveType.Cube, GetSocket(sockets, ActorPrefabSocketKind.TurretRoot, root), Vector3.zero, new Vector3(0.52f, 0.22f, 0.48f), materials.Weapon);
             CreatePrimitive("Barrel Sleeve", PrimitiveType.Cube, GetSocket(sockets, ActorPrefabSocketKind.BarrelRoot, root), new Vector3(0f, 0f, 0.22f), new Vector3(0.14f, 0.12f, 0.54f), materials.DarkMetal);
             CreatePrimitive("Muzzle Marker", PrimitiveType.Sphere, GetSocket(sockets, ActorPrefabSocketKind.MuzzlePrimary, root), Vector3.zero, new Vector3(0.11f, 0.11f, 0.11f), materials.PowerGlow);
             CreatePrimitive("Rear Ammo Box", PrimitiveType.Cube, RootSocket(sockets), new Vector3(0f, 0.54f, -0.36f), new Vector3(0.42f, 0.22f, 0.16f), materials.DetailPanel);
+            CreatePrimitive("Left Armor Cheek", PrimitiveType.Cube, RootSocket(sockets), new Vector3(-0.39f, 0.5f, 0.02f), new Vector3(0.08f, 0.32f, 0.48f), materials.DetailPanel);
+            CreatePrimitive("Right Armor Cheek", PrimitiveType.Cube, RootSocket(sockets), new Vector3(0.39f, 0.5f, 0.02f), new Vector3(0.08f, 0.32f, 0.48f), materials.DetailPanel);
+            CreatePrimitive("Roof Sight Block", PrimitiveType.Cube, RootSocket(sockets), new Vector3(0f, 0.78f, 0.1f), new Vector3(0.24f, 0.1f, 0.18f), materials.Warning);
             CreateLightAndVfxMarkers(sockets, materials);
         }
 
         static void CreateRifleInfantry(Transform root, Stage8ActorSpec spec, Dictionary<ActorPrefabSocketKind, Transform> sockets, MaterialSet materials)
         {
             var bodyRoot = GetSocket(sockets, ActorPrefabSocketKind.BodyRoot, root);
+            CreatePrimitive("Infantry Base Disc", PrimitiveType.Cylinder, root, new Vector3(0f, 0.02f, 0f), new Vector3(0.42f, 0.04f, 0.42f), materials.Foundation);
             CreatePrimitive("Infantry Legs", PrimitiveType.Cube, bodyRoot, new Vector3(0f, 0.24f, 0f), new Vector3(0.22f, 0.36f, 0.18f), materials.InfantryBody);
             CreatePrimitive("Infantry Torso", PrimitiveType.Cube, bodyRoot, new Vector3(0f, 0.55f, 0f), new Vector3(0.34f, 0.34f, 0.22f), materials.InfantryBody);
             CreatePrimitive("Infantry Head", PrimitiveType.Sphere, GetSocket(sockets, ActorPrefabSocketKind.Head, root), Vector3.zero, new Vector3(0.22f, 0.22f, 0.22f), materials.DetailPanel);
+            CreatePrimitive("Helmet Crest", PrimitiveType.Cube, GetSocket(sockets, ActorPrefabSocketKind.Head, root), new Vector3(0f, 0.11f, 0.02f), new Vector3(0.2f, 0.05f, 0.14f), materials.Warning);
             CreatePrimitive("Rifle Proxy", PrimitiveType.Cube, GetSocket(sockets, ActorPrefabSocketKind.WeaponSocket, root), new Vector3(0.08f, 0f, 0.2f), new Vector3(0.08f, 0.06f, 0.52f), materials.Weapon);
+            CreatePrimitive("Rifle Stock", PrimitiveType.Cube, GetSocket(sockets, ActorPrefabSocketKind.WeaponSocket, root), new Vector3(-0.02f, 0f, -0.06f), new Vector3(0.11f, 0.08f, 0.14f), materials.DarkMetal);
             CreatePrimitive("Backpack", PrimitiveType.Cube, bodyRoot, new Vector3(0f, 0.54f, -0.16f), new Vector3(0.24f, 0.28f, 0.08f), materials.DarkMetal);
         }
 
@@ -360,6 +378,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             CreatePrimitive("Barrel", PrimitiveType.Cube, GetSocket(sockets, ActorPrefabSocketKind.BarrelRoot, root), new Vector3(0f, 0f, 0.26f), new Vector3(0.1f, 0.08f, 0.58f), materials.DarkMetal);
             CreatePrimitive("Muzzle", PrimitiveType.Sphere, GetSocket(sockets, ActorPrefabSocketKind.MuzzlePrimary, root), Vector3.zero, new Vector3(0.09f, 0.09f, 0.09f), materials.PowerGlow);
             CreatePrimitive("Engine Deck", PrimitiveType.Cube, visualRoot, new Vector3(0f, 0.47f, -0.22f), new Vector3(0.54f, 0.08f, 0.18f), materials.DetailPanel);
+            CreatePrimitive("Command Cupola", PrimitiveType.Cylinder, visualRoot, new Vector3(0f, 0.62f, -0.06f), new Vector3(0.22f, 0.16f, 0.22f), materials.Warning);
+            CreatePrimitive("Left Track Guard", PrimitiveType.Cube, visualRoot, new Vector3(-0.53f, 0.3f, 0f), new Vector3(0.08f, 0.22f, 0.76f), materials.DetailPanel);
+            CreatePrimitive("Right Track Guard", PrimitiveType.Cube, visualRoot, new Vector3(0.53f, 0.3f, 0f), new Vector3(0.08f, 0.22f, 0.76f), materials.DetailPanel);
             CreateVehicleVfxMarkers(sockets, materials);
         }
 
@@ -369,6 +390,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             CreatePrimitive("Harvester Chassis", PrimitiveType.Cube, visualRoot, new Vector3(0f, 0.28f, 0f), new Vector3(1.12f, 0.34f, 0.78f), materials.VehicleBody);
             CreatePrimitive("Cargo Hopper", PrimitiveType.Cube, visualRoot, new Vector3(0f, 0.58f, -0.08f), new Vector3(0.82f, 0.34f, 0.58f), materials.RefineryTank);
             CreatePrimitive("Collector Intake", PrimitiveType.Cube, visualRoot, new Vector3(0f, 0.2f, 0.52f), new Vector3(0.8f, 0.18f, 0.22f), materials.Warning);
+            CreatePrimitive("Collector Teeth", PrimitiveType.Cube, visualRoot, new Vector3(0f, 0.12f, 0.7f), new Vector3(0.92f, 0.08f, 0.08f), materials.DarkMetal);
+            CreatePrimitive("Left Cargo Rib", PrimitiveType.Cube, visualRoot, new Vector3(-0.46f, 0.58f, -0.08f), new Vector3(0.06f, 0.32f, 0.56f), materials.DetailPanel);
+            CreatePrimitive("Right Cargo Rib", PrimitiveType.Cube, visualRoot, new Vector3(0.46f, 0.58f, -0.08f), new Vector3(0.06f, 0.32f, 0.56f), materials.DetailPanel);
             CreatePrimitive("Left Track", PrimitiveType.Cube, GetSocket(sockets, ActorPrefabSocketKind.TrackLeft, root), Vector3.zero, new Vector3(0.12f, 0.22f, 0.86f), materials.Track);
             CreatePrimitive("Right Track", PrimitiveType.Cube, GetSocket(sockets, ActorPrefabSocketKind.TrackRight, root), Vector3.zero, new Vector3(0.12f, 0.22f, 0.86f), materials.Track);
             CreatePrimitive("Dock Alignment Marker", PrimitiveType.Cube, GetSocket(sockets, ActorPrefabSocketKind.HarvesterDock, root), Vector3.zero, new Vector3(0.2f, 0.16f, 0.2f), materials.PowerGlow);
@@ -379,6 +403,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             CreatePrimitive("Grid Accurate Foundation", PrimitiveType.Cube, root, new Vector3(0f, 0.04f, 0f), new Vector3(spec.FootprintWidth * 0.96f, 0.08f, spec.FootprintHeight * 0.96f), materials.Foundation);
             CreatePrimitive("Inset Footprint Line", PrimitiveType.Cube, root, new Vector3(0f, 0.1f, spec.FootprintHeight * 0.36f), new Vector3(spec.FootprintWidth * 0.72f, 0.035f, 0.04f), materials.Warning);
+            CreateCornerFootprintMarkers(root, spec, materials);
         }
 
         static void CreateSideAndRearDetails(Transform root, Stage8ActorSpec spec, MaterialSet materials)
@@ -389,6 +414,19 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             CreatePrimitive("Right Side Detail Panel", PrimitiveType.Cube, root, new Vector3(width * 0.42f, 0.46f, 0f), new Vector3(0.06f, 0.32f, depth * 0.46f), materials.DetailPanel);
             CreatePrimitive("Rear Service Panel", PrimitiveType.Cube, root, new Vector3(0f, 0.48f, -depth * 0.42f), new Vector3(width * 0.5f, 0.28f, 0.06f), materials.DetailPanel);
             CreatePrimitive("Roof Utility Strip", PrimitiveType.Cube, root, new Vector3(0f, 0.82f, 0f), new Vector3(width * 0.48f, 0.08f, depth * 0.18f), materials.RoofDetail);
+            CreatePrimitive("Front Identity Stripe", PrimitiveType.Cube, root, new Vector3(0f, 0.18f, depth * 0.46f), new Vector3(width * 0.42f, 0.08f, 0.045f), materials.Warning);
+            CreatePrimitive("Rear Service Stripe", PrimitiveType.Cube, root, new Vector3(0f, 0.2f, -depth * 0.46f), new Vector3(width * 0.36f, 0.06f, 0.045f), materials.DarkMetal);
+        }
+
+        static void CreateCornerFootprintMarkers(Transform root, Stage8ActorSpec spec, MaterialSet materials)
+        {
+            var x = Mathf.Max(0.38f, spec.FootprintWidth * 0.43f);
+            var z = Mathf.Max(0.38f, spec.FootprintHeight * 0.43f);
+            var scale = new Vector3(0.14f, 0.07f, 0.14f);
+            CreatePrimitive("Footprint Corner FL", PrimitiveType.Cube, root, new Vector3(-x, 0.12f, z), scale, materials.DetailPanel);
+            CreatePrimitive("Footprint Corner FR", PrimitiveType.Cube, root, new Vector3(x, 0.12f, z), scale, materials.DetailPanel);
+            CreatePrimitive("Footprint Corner RL", PrimitiveType.Cube, root, new Vector3(-x, 0.12f, -z), scale, materials.DetailPanel);
+            CreatePrimitive("Footprint Corner RR", PrimitiveType.Cube, root, new Vector3(x, 0.12f, -z), scale, materials.DetailPanel);
         }
 
         static void CreateLightAndVfxMarkers(Dictionary<ActorPrefabSocketKind, Transform> sockets, MaterialSet materials)

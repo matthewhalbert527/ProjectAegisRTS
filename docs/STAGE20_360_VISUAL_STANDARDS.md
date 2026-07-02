@@ -50,3 +50,13 @@ Classic fixed-camera RTS art can hide missing backs, flat sides, and billboard-l
 - `rifle_infantry`: body, head, simple weapon, aim pivot, backpack/detail.
 - `light_tank`: chassis, turret, barrel, tracks, engine deck, muzzle and smoke/explosion sockets.
 - `harvester`: larger chassis, cargo hopper, collector/intake, dock marker, tracks, smoke/explosion sockets.
+
+## Stage 21 QA Addendum
+
+Stage 21 tightens these standards with structured MVP visual QA:
+
+- Every MVP proxy must carry replacement metadata, fallback references, and socket scaffolding.
+- Bases and pivots must sit on the gameplay footprint without hidden geometry dipping below the root plane.
+- Top-down, side, rear, and Quest-style walkaround views must remain readable.
+- Optional artist-authored model candidates must be staged through the Stage 21 import scan before being assigned as active production prefabs.
+- Player-facing validation must still confirm the PCDesktop sidebar, QuestXR hand-control split, hidden debug panels, hidden placement controls outside placement mode, clean Player.log, and UnityEngine-free `Rts.Core`.

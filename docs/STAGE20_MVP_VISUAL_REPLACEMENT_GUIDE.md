@@ -11,7 +11,7 @@ Stage 20 proxies are generated placeholders with a production-facing contract. A
 5. Keep `ActorPrefabDescriptor.actorTypeId` matching the safe actor ID.
 6. Keep `ProductionVisualValidationTag.visualTier` accurate.
 7. Keep Stage 8 generated blockout assigned as fallback.
-8. Run `.\tools\run-stage20-fast-checks.ps1`.
+8. Run `.\tools\run-stage21-fast-checks.ps1` after Stage 20 checks pass.
 
 ## Required Components
 
@@ -30,6 +30,13 @@ The gameplay footprint is authoritative. The visual base must align to the cell 
 - Quick iteration: `.\tools\run-stage20-fast-checks.ps1`
 - Pre-commit: `.\tools\run-stage20-medium-checks.ps1`
 - Final acceptance: `.\tools\run-stage20-checks.ps1`
+- Stage 21 replacement readiness: `.\tools\run-stage21-fast-checks.ps1`
+
+## Stage 21 Replacement Readiness
+
+Stage 21 adds an import scanner and stricter replacement-readiness validation. Drop candidate `.fbx`, `.glb`, `.gltf`, or `.obj` files under `unity/Assets/Rts/Art/Models/Source/MVP` using the safe actor ID in the filename, then run `.\tools\run-unity-stage21-validation.ps1 -SkipCoreBuild`.
+
+The scanner writes `docs/STAGE21_ARTIST_MODEL_IMPORT_STATUS.md`. The MVP QA validator writes `docs/STAGE21_MVP_VISUAL_QA.md`. Keep generated proxies active until the Stage 21 QA report has zero failures, the player-facing checks pass, and the Windows Player.log is clean.
 
 ## Artist Notes
 

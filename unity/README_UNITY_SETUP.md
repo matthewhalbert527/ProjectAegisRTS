@@ -544,6 +544,48 @@ Assets/Rts/Scenes/Stage16_PlayableVerticalSlice.unity
 
 The PC player-facing build now defaults to a right-side CnC/OpenRA-style sidebar: minimap top-right, credits/power/status under it, production tabs/cards/queue, placement readout, selection details, and command buttons. The left side is reserved for compact objective/checklist/prompt HUDs. Quest/MR left-hand and right-hand UI remains available for XR scenes, but it is hidden and input-suppressed in the default Windows build. Escape opens a centered pause menu with Resume, Restart Mission, Settings, Controls, Quit to Menu, and Quit Game.
 
+## Stage 20 MVP Production Visuals
+
+Stage 20 adds the MVP production proxy visual showcase:
+
+```text
+Assets/Rts/Scenes/Stage20_MvpProductionVisuals.unity
+```
+
+```powershell
+.\tools\run-unity-stage20-validation.ps1
+.\tools\run-stage20-fast-checks.ps1
+.\tools\run-stage20-medium-checks.ps1
+.\tools\run-stage20-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+Stage 20 keeps the Windows player on Boot and Stage 16 while swapping MVP actor visual definitions to generated production proxies with Stage 8 blockouts as fallbacks. It also validates the `PCDesktop`, `QuestXR`, and `DebugHybrid` UI split.
+
+## Stage 21 MVP Visual QA
+
+Stage 21 adds the MVP visual QA review scene and artist replacement readiness tooling:
+
+```text
+Assets/Rts/Scenes/Stage21_MvpVisualQaReview.unity
+```
+
+```powershell
+.\tools\run-unity-stage21-validation.ps1
+.\tools\run-stage21-fast-checks.ps1
+.\tools\run-stage21-medium-checks.ps1
+.\tools\run-stage21-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+Use `.\tools\run-stage21-fast-checks.ps1` while iterating on proxy readability, sockets, pivots, replacement metadata, or optional artist import scan behavior. Use `.\tools\run-stage21-medium-checks.ps1` before commits; it stays flat and does not call older medium scripts. Use `.\tools\run-stage21-checks.ps1` for full acceptance.
+
+Optional artist-authored MVP source models can be staged under:
+
+```text
+Assets/Rts/Art/Models/Source/MVP
+```
+
+The scanner writes `docs/STAGE21_ARTIST_MODEL_IMPORT_STATUS.md`, and MVP QA writes `docs/STAGE21_MVP_VISUAL_QA.md`. Generated proxies remain active until a candidate passes Stage 21 QA, player-facing checks, and Player.log inspection.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -673,6 +715,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 19 is mission-flow tuning for the prototype slice; it is not a full campaign system, final tutorial, advanced AI, final balance, or final art pass.
 - Stage 19.5 is PC UI layout and pause-menu work; it is not final chrome art, final icons, or final settings UX.
 - Stage 20 is a first-pass MVP production proxy visual layer; it is not final artist-authored FBX/GLB art, final VFX, final audio, or final Quest device profiling.
+- Stage 21 is an MVP visual QA and replacement-readiness pass; it is not final art direction, final source model replacement, final VFX, final audio, or Quest device profiling.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.
@@ -682,4 +725,4 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 
 Later Quest/MR stages can swap the board transform and input layer without moving authoritative simulation state out of `Rts.Core`.
 
-Stage 20 preserves the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar, while `QuestXR` keeps left-hand build/selection and right-hand tactical controls with the PC sidebar hidden.
+Stage 20 and Stage 21 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar, while `QuestXR` keeps left-hand build/selection and right-hand tactical controls with the PC sidebar hidden.

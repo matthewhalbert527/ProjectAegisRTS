@@ -103,8 +103,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             rect.offsetMin = new Vector2(8f, 8f);
             rect.offsetMax = new Vector2(-8f, -30f);
 
-            RemoveLayoutGroups(rootObject);
-            var grid = rootObject.AddComponent<GridLayoutGroup>();
+            var grid = EnsureSingleGridLayout(rootObject);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = 3;
             grid.cellSize = new Vector2(112f, 30f);
@@ -133,6 +132,28 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 else
                     DestroyImmediate(groups[i]);
             }
+        }
+
+        static GridLayoutGroup EnsureSingleGridLayout(GameObject target)
+        {
+            var groups = target.GetComponents<LayoutGroup>();
+            GridLayoutGroup grid = null;
+            for (var i = 0; i < groups.Length; i++)
+            {
+                var candidate = groups[i] as GridLayoutGroup;
+                if (candidate != null && grid == null)
+                {
+                    grid = candidate;
+                    continue;
+                }
+
+                if (Application.isPlaying)
+                    Destroy(groups[i]);
+                else
+                    DestroyImmediate(groups[i]);
+            }
+
+            return grid != null ? grid : target.AddComponent<GridLayoutGroup>();
         }
 
         Text GetOrCreateText(string objectName, string text, int fontSize, Color color, TextAnchor anchor)

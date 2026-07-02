@@ -138,6 +138,14 @@ Stage 20 adds Unity-only first-pass production proxy prefabs and validation mark
 
 `PlayerFacingUiModeController` now exposes explicit `PCDesktop`, `QuestXR`, and `DebugHybrid` modes. Windows player builds default to `PCDesktop` with the right-side sidebar; `QuestXR` keeps left-hand build/selection and right-hand tactical controls while hiding the PC sidebar.
 
+## Stage 21 Visual QA Boundary
+
+Stage 21 adds Unity-only MVP visual QA and artist-replacement readiness tooling. `MvpVisualQaRunner`, `MvpVisualQaHud`, the Stage21 review scene, and editor validators inspect `ActorVisualDefinition`, `ActorPrefabDescriptor`, `ActorPrefabSocket`, `ProductionVisualValidationTag`, fallback prefab references, renderer budgets, pivots, bounds, and LODs.
+
+`ArtistModelImportManifest` and the Stage21 import scanner only stage optional artist-authored FBX/GLB/GLTF/OBJ candidates in Unity assets. They do not assign models to gameplay actors automatically, and they do not write visual, socket, material, import, or QA state back into `Rts.Core`.
+
+Gameplay placement, fine-grid occupancy, production, power, movement, combat, fog, AI, and victory continue to come from deterministic core snapshots and validated command results.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

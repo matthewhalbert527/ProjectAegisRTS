@@ -466,3 +466,17 @@ Stage 20 adds:
 - `.\tools\run-stage20-checks.ps1` for slow full final acceptance.
 
 The medium recursion audit includes Stage 20 and fails if `run-stage20-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`.
+
+## Stage 21 Validation
+
+Stage 21 adds:
+
+- `.\tools\run-unity-stage21-validation.ps1` for Stage 21 Unity-only generation, import scanning, QA, scene, and play-mode smoke validation.
+- `.\tools\run-stage21-fast-checks.ps1` for current-stage MVP visual QA iteration.
+- `.\tools\run-stage21-medium-checks.ps1` for pre-commit confidence without calling prior medium scripts.
+- `.\tools\run-stage21-player-facing-checks.ps1` for Stage16 player-facing UI, Player.log, and MVP proxy resolution confidence.
+- `.\tools\run-stage21-checks.ps1` for slow full final acceptance.
+
+Fast checks are intended for small proxy readability, socket, pivot, replacement metadata, import scan, or Stage21 scene changes. Medium checks include Rts.Core tests, direct Stage 20 validation dependencies, Stage 21 validation, Stage 4/5 UI preservation, the UnityEngine-free scan, and `git diff --check`.
+
+The medium recursion audit includes Stage 21 and fails if `run-stage21-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`. Full validation remains the final acceptance gate because it exercises the whole Stage 0-through-current chain.

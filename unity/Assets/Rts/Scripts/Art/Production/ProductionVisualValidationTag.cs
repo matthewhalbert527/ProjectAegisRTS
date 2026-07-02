@@ -15,6 +15,10 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
         public bool hasBeveledOrTieredForm;
         public bool hasGridAccurateBase;
         public bool hasLodGroup;
+        public bool hasStage21ReadabilityPass;
+        public bool hasArtistReplacementMetadata;
+        public bool hasSocketScaffold;
+        [TextArea(2, 5)] public string replacementNotes;
         [TextArea(2, 5)] public string notes;
 
         public ProductionVisualViewCoverage ViewCoverage

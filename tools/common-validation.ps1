@@ -248,11 +248,21 @@ function Repair-UnityGeneratedValidationWhitespace {
     param([string]$RepoRoot)
 
     $relativePaths = @(
+        'unity\Assets\Rts\Scenes\Stage1_DesktopBoard.unity',
+        'unity\Assets\Rts\Scenes\Stage2_PCSidebar.unity',
+        'unity\Assets\Rts\Scenes\Stage3_XRBoardPlacement.unity',
+        'unity\Assets\Rts\Scenes\Stage4_LeftHandBuildSelection.unity',
+        'unity\Assets\Rts\Scenes\Stage5_DualHandCommand.unity',
         'unity\Assets\Rts\Scenes\Stage15_PerformanceBuildReadiness.unity',
         'unity\Assets\Rts\Scenes\Stage16_PlayableVerticalSlice.unity',
         'unity\Assets\Rts\Scenes\Stage16_5_Boot.unity',
         'unity\Assets\Rts\Scenes\Stage16_5_Boot.unity.meta',
+        'unity\Assets\Rts\Scenes\Stage20_MvpProductionVisuals.unity',
+        'unity\Assets\Rts\Scenes\Stage21_MvpVisualQaReview.unity',
         'unity\Assets\Rts\Scripts\Boot.meta',
+        'unity\Assets\Rts\Art\Models\Imported\MVP.meta',
+        'unity\Assets\Rts\Art\Models\Source\MVP.meta',
+        'unity\Assets\Rts\Art\Prefabs\Actors\Production\MVP.meta',
         'unity\Assets\XR\Settings\OpenXR Package Settings.asset',
         'unity\ProjectSettings\EditorBuildSettings.asset'
     )
@@ -260,4 +270,6 @@ function Repair-UnityGeneratedValidationWhitespace {
     foreach ($relativePath in $relativePaths) {
         Remove-TrailingWhitespace -Path (Join-Path $RepoRoot $relativePath)
     }
+
+    Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\Materials') -Include @('stage20_*.mat')
 }
