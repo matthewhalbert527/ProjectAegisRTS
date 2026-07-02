@@ -104,6 +104,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             debugVisibility.ApplyPlayerFacingDefaults();
             StepRuntime(driver, boardRenderer, actorRenderer, 6, 0.05f);
 
+            ValidateDesktopHudDocking(desktopHud, layout);
             if (!mode.IsPcSidebarVisibleForDesktop() || !layout.IsMinimapAboveProductionGrid())
                 throw new InvalidOperationException("Stage 27.1 smoke expected the PC right sidebar and top minimap.");
             if (!mode.AreXrBuildMenusHiddenForPc())
@@ -126,6 +127,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 throw new InvalidOperationException("Stage 27.1 smoke expected right-sidebar PlacementModePanel during building placement.");
             if (boardHud.gameObject.activeInHierarchy)
                 throw new InvalidOperationException("Stage 27.1 smoke showed the Stage3 BoardPlacementHud during building placement.");
+            Int2 suggestedCell;
+            if (!driver.TryFindSuggestedPlacementCell(out suggestedCell))
+                throw new InvalidOperationException("Stage 27.1 smoke expected a suggested legal placement cell for the completed Power Plant.");
 
             var validCell = FindValidPlacementCell(driver, boardRenderer, actorRenderer);
             driver.SetHoveredCell(validCell, true);
@@ -144,9 +148,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             RequireSuccess(router.QueueProduction("power_plant"), "reactivate ready Power Plant for placement");
             debugVisibility.ApplyPlayerFacingDefaults();
-            validCell = FindValidPlacementCell(driver, boardRenderer, actorRenderer);
-            driver.SetHoveredCell(validCell, true);
+            var coarseHoverCell = FindValidCoarsePlacementHoverCell(driver, boardRenderer, actorRenderer);
+            driver.SetHoveredCell(coarseHoverCell, false);
             StepRuntime(driver, boardRenderer, actorRenderer, 1, 0.02f);
+            if (!driver.TryGetPlacementPreview(out preview) || !preview.CanPlace)
+                throw new InvalidOperationException("Stage 27.1 smoke expected coarse desktop hover to produce a valid fine-grid placement preview.");
             RequireSuccess(router.PlaceAtHoveredCell(), "place Power Plant through right-sidebar command router");
             debugVisibility.ApplyPlayerFacingDefaults();
             StepRuntime(driver, boardRenderer, actorRenderer, 4, 0.05f);
@@ -194,6 +200,55 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             }
 
             throw new InvalidOperationException("No valid Stage 27.1 placement cell was found.");
+        }
+
+        static Int2 FindValidCoarsePlacementHoverCell(RtsSimulationDriver driver, BoardRenderer boardRenderer, ActorRenderSystem actorRenderer)
+        {
+            var snapshot = RequireSnapshot(driver);
+            for (var y = 0; y < snapshot.Map.Height; y++)
+            {
+                for (var x = 0; x < snapshot.Map.Width; x++)
+                {
+                    var candidate = new Int2(x, y);
+                    driver.SetHoveredCell(candidate, false);
+                    StepRuntime(driver, boardRenderer, actorRenderer, 1, 0.02f);
+                    PlacementPreviewSnapshot preview;
+                    if (driver.TryGetPlacementPreview(out preview) && preview.CanPlace)
+                        return candidate;
+                }
+            }
+
+            throw new InvalidOperationException("No valid Stage 27.1 coarse desktop hover placement cell was found.");
+        }
+
+        static void ValidateDesktopHudDocking(DesktopRtsHudRoot desktopHud, CncStyleSidebarLayout layout)
+        {
+            if (desktopHud == null || layout == null)
+                throw new InvalidOperationException("Stage 27.1 smoke desktop HUD docking check needs a HUD root and layout.");
+
+            var canvas = desktopHud.GetComponentInParent<Canvas>();
+            if (canvas == null || canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                throw new InvalidOperationException("Stage 27.1 smoke desktop HUD must run on a Screen Space Overlay canvas.");
+
+            var rootRect = desktopHud.GetComponent<RectTransform>();
+            if (rootRect == null ||
+                !Approximately(rootRect.anchorMin.x, 0f) ||
+                !Approximately(rootRect.anchorMin.y, 0f) ||
+                !Approximately(rootRect.anchorMax.x, 1f) ||
+                !Approximately(rootRect.anchorMax.y, 1f) ||
+                !Approximately(rootRect.offsetMin.x, 0f) ||
+                !Approximately(rootRect.offsetMin.y, 0f) ||
+                !Approximately(rootRect.offsetMax.x, 0f) ||
+                !Approximately(rootRect.offsetMax.y, 0f))
+                throw new InvalidOperationException("Stage 27.1 smoke desktop HUD root must stretch to the full player canvas.");
+
+            if (!layout.IsRightSidebarDockedToScreenEdge())
+                throw new InvalidOperationException("Stage 27.1 smoke PC right sidebar must be docked to the screen's right edge.");
+        }
+
+        static bool Approximately(float left, float right)
+        {
+            return Mathf.Abs(left - right) <= 0.01f;
         }
 
         static bool HasPendingPlacement(RtsSimulationDriver driver, string typeId)

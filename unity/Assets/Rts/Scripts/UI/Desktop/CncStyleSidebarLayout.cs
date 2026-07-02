@@ -131,8 +131,25 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 IsChildOfSidebar(productionGrid) &&
                 IsChildOfSidebar(productionQueue) &&
                 IsChildOfSidebar(supportPowerPanel) &&
+                IsChildOfSidebar(placementPanel) &&
                 IsChildOfSidebar(selectionPanel) &&
                 IsChildOfSidebar(commandBar);
+        }
+
+        public bool IsRightSidebarDockedToScreenEdge()
+        {
+            if (rightSidebarRoot == null)
+                return false;
+
+            return Approximately(rightSidebarRoot.anchorMin.x, 1f) &&
+                Approximately(rightSidebarRoot.anchorMin.y, 0f) &&
+                Approximately(rightSidebarRoot.anchorMax.x, 1f) &&
+                Approximately(rightSidebarRoot.anchorMax.y, 1f) &&
+                Approximately(rightSidebarRoot.pivot.x, 1f) &&
+                Approximately(rightSidebarRoot.offsetMax.x, 0f) &&
+                Approximately(rightSidebarRoot.offsetMax.y, 0f) &&
+                rightSidebarRoot.offsetMin.x <= -360f &&
+                Approximately(rightSidebarRoot.offsetMin.y, 0f);
         }
 
         void ParentToSidebar(Component component)
@@ -148,6 +165,11 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         bool IsChildOfSidebar(Component component)
         {
             return component != null && rightSidebarRoot != null && component.transform.parent == rightSidebarRoot;
+        }
+
+        static bool Approximately(float left, float right)
+        {
+            return Mathf.Abs(left - right) <= 0.01f;
         }
 
         void ApplyTopPanel(Component component, float top, float height)

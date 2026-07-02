@@ -36,6 +36,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         public RtsStatusLog statusLog;
 
         bool initialized;
+        int lastScreenWidth = -1;
+        int lastScreenHeight = -1;
 
         void Start()
         {
@@ -46,11 +48,15 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         {
             if (!initialized)
                 Initialize();
+            else
+                RefreshResponsiveLayoutIfNeeded();
         }
 
         public void Initialize()
         {
             EnsureSceneReferences();
+            EnsureScreenSpaceHudCanvas();
+            EnsureRootFillsCanvas();
             EnsureUiReferences();
 
             if (driver == null)
@@ -77,6 +83,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             if (debugHud != null)
                 debugHud.visible = showDebugOverlay;
 
+            Canvas.ForceUpdateCanvases();
+            RecordScreenSize();
             initialized = true;
         }
 
@@ -98,6 +106,33 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 eventSystem.AddComponent<EventSystem>();
                 eventSystem.AddComponent<StandaloneInputModule>();
             }
+        }
+
+        void EnsureScreenSpaceHudCanvas()
+        {
+            if (canvas == null)
+                canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
+                return;
+
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.worldCamera = null;
+            canvas.pixelPerfect = false;
+            ResponsiveCanvasScalerEnforcer.EnforceCanvas(canvas, new Vector2(1920f, 1080f), 0.5f, false);
+        }
+
+        void EnsureRootFillsCanvas()
+        {
+            var rect = GetComponent<RectTransform>();
+            if (rect == null)
+                rect = gameObject.AddComponent<RectTransform>();
+
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            rect.localScale = Vector3.one;
         }
 
         void EnsureUiReferences()
@@ -208,6 +243,24 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             ApplyPanelLayout(statusLog, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(12f, bottomCommandBarHeight + 8f), new Vector2(-sidebarWidth - 12f, bottomCommandBarHeight + 102f));
             if (cncSidebarLayout != null)
                 cncSidebarLayout.ApplyLayout();
+        }
+
+        void RefreshResponsiveLayoutIfNeeded()
+        {
+            if (Screen.width == lastScreenWidth && Screen.height == lastScreenHeight)
+                return;
+
+            EnsureScreenSpaceHudCanvas();
+            EnsureRootFillsCanvas();
+            ApplyPanelLayouts();
+            Canvas.ForceUpdateCanvases();
+            RecordScreenSize();
+        }
+
+        void RecordScreenSize()
+        {
+            lastScreenWidth = Screen.width;
+            lastScreenHeight = Screen.height;
         }
 
         static void ApplyPanelLayout(Component component, SidebarPanelRect panel)

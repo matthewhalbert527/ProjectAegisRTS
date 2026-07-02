@@ -6,10 +6,10 @@ namespace ProjectAegisRTS.UnityClient.Boot
     {
         public GameBootController controller;
         public bool visible = true;
-        public Rect area = new Rect(40f, 40f, 420f, 342f);
+        public Rect area = new Rect(48f, 48f, 520f, 410f);
 
-        const float MinimumAreaWidth = 420f;
-        const float MinimumAreaHeight = 342f;
+        const float MinimumAreaWidth = 520f;
+        const float MinimumAreaHeight = 410f;
 
         void Awake()
         {
@@ -33,7 +33,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
             if (!visible)
                 return;
 
-            GUILayout.BeginArea(area, GUI.skin.box);
+            var previousMatrix = BootHudLayout.BeginArea(area);
             GUILayout.Label("ProjectAegisRTS");
             GUILayout.Label("Development Prototype");
             GUILayout.Label("Vertical Slice Build");
@@ -49,7 +49,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
                 controller.Quit();
             GUILayout.Space(8f);
             GUILayout.Label("Stage 27 skirmish playability pass");
-            GUILayout.EndArea();
+            BootHudLayout.EndArea(previousMatrix);
         }
 
         void NormalizeArea()

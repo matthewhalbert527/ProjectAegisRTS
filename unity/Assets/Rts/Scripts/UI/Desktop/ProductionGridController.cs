@@ -153,7 +153,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 else if (!string.IsNullOrEmpty(missingPrerequisite))
                     status = "Requires " + DisplayType(missingPrerequisite);
                 if (production != null)
-                    status = pending ? "Ready to place" : production.State + " " + production.ProgressTicks + "/" + production.BuildTimeTicks;
+                    status = pending ? "CLICK TO PLACE" : production.State + " " + production.ProgressTicks + "/" + production.BuildTimeTicks;
 
                 card.Label.text =
                     definition.DisplayName + "\n" +

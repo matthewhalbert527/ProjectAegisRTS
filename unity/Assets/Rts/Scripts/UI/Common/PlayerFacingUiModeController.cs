@@ -98,6 +98,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
                 layout.rightSidebarRoot != null &&
                 layout.rightSidebarRoot.gameObject.activeInHierarchy &&
                 layout.AreProductionPanelsInRightSidebar() &&
+                layout.IsRightSidebarDockedToScreenEdge() &&
                 layout.IsMinimapAboveProductionGrid();
         }
 

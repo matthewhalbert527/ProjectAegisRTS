@@ -54,6 +54,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             RequireComponent<GameBootController>("GameBootController");
             if (!mainMenu.visible)
                 throw new InvalidOperationException("Stage 27.1 boot menu must be visible before loading the vertical slice.");
+            if (mainMenu.area.width < 520f || mainMenu.area.height < 410f)
+                throw new InvalidOperationException("Stage 27.1 boot menu must use a player-facing PC menu footprint.");
+            if (BootHudLayout.ScaleForScreen(1600, 900) < 1.2f)
+                throw new InvalidOperationException("Stage 27.1 boot menu must scale up at the default PC window size.");
+            if (BootHudLayout.ScaleForScreen(3840, 2160) < 1.5f)
+                throw new InvalidOperationException("Stage 27.1 boot menu must scale up on high-resolution PC displays.");
         }
 
         static void ValidatePcDesktopPlacementSeparation()
@@ -82,6 +88,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             debugVisibility.ApplyPlayerFacingDefaults();
             StepRuntime(driver, boardRenderer, actorRenderer, 6, 0.05f);
 
+            ValidateDesktopHudDocking(desktopHud, layout);
             if (!mode.WindowsPlayerDefaultsToPcDesktop() || !mode.IsPcSidebarVisibleForDesktop())
                 throw new InvalidOperationException("Stage 27.1 PCDesktop sidebar defaults are not active.");
             if (!layout.AreProductionPanelsInRightSidebar() || !layout.IsMinimapAboveProductionGrid())
@@ -97,6 +104,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (boardPlacement.IsPlacementModeActive)
                 throw new InvalidOperationException("Stage 27.1 board setup placement must not start active.");
 
+            var powerPlantsBefore = CountOwnedActors(driver, "power_plant", 1);
             RequireSuccess(router.QueueProduction("power_plant"), "queue Power Plant from right sidebar route");
             StepUntilPendingPlacement(driver, boardRenderer, actorRenderer, "power_plant");
             RequireSuccess(router.QueueProduction("power_plant"), "click ready Power Plant production card");
@@ -121,11 +129,33 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (preview.FootprintCells.Count == 0 || preview.PlacementGridScale <= 1)
                 throw new InvalidOperationException("Stage 27.1 placement preview must expose fine-grid footprint cells.");
 
+            var coarseHoverCell = FindValidCoarsePlacementHoverCell(driver, boardRenderer, actorRenderer);
+            driver.SetHoveredCell(coarseHoverCell, false);
+            StepRuntime(driver, boardRenderer, actorRenderer, 1, 0.02f);
+            if (!driver.TryGetPlacementPreview(out preview) || !preview.CanPlace)
+                throw new InvalidOperationException("Stage 27.1 desktop coarse hover did not resolve to a valid fine-grid placement preview.");
+            if (!driver.HoveredPlacementCell.Equals(PlacementGridMetrics.CoarseCellToPlacementCell(coarseHoverCell)))
+                throw new InvalidOperationException("Stage 27.1 desktop hover must normalize to the matching fine-grid placement cell.");
+            Int2 suggestedCell;
+            if (!driver.TryFindSuggestedPlacementCell(out suggestedCell))
+                throw new InvalidOperationException("Stage 27.1 expected a suggested legal placement cell for the completed Power Plant.");
+
             RequireSuccess(router.CancelPlacement(), "right-sidebar Cancel");
             debugVisibility.ApplyPlayerFacingDefaults();
             StepRuntime(driver, boardRenderer, actorRenderer, 1, 0.02f);
             if (driver.HasPlacementMode || placementPanel.gameObject.activeInHierarchy || boardHud.gameObject.activeInHierarchy)
                 throw new InvalidOperationException("Stage 27.1 right-sidebar Cancel did not restore the normal PC command UI.");
+
+            RequireSuccess(router.QueueProduction("power_plant"), "reactivate ready Power Plant for suggested placement");
+            debugVisibility.ApplyPlayerFacingDefaults();
+            StepRuntime(driver, boardRenderer, actorRenderer, 1, 0.02f);
+            RequireSuccess(router.PlaceAtSuggestedCell(), "right-sidebar Place Suggested");
+            debugVisibility.ApplyPlayerFacingDefaults();
+            StepRuntime(driver, boardRenderer, actorRenderer, 4, 0.05f);
+            if (driver.HasPlacementMode || placementPanel.gameObject.activeInHierarchy || boardHud.gameObject.activeInHierarchy)
+                throw new InvalidOperationException("Stage 27.1 Place Suggested did not restore normal PC UI after placement.");
+            if (CountOwnedActors(driver, "power_plant", 1) <= powerPlantsBefore)
+                throw new InvalidOperationException("Stage 27.1 Place Suggested did not create a new Power Plant.");
         }
 
         static void ValidateExplicitBoardSetupAvailability()
@@ -196,6 +226,55 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             throw new InvalidOperationException("No valid Stage 27.1 placement cell was found.");
         }
 
+        static Int2 FindValidCoarsePlacementHoverCell(RtsSimulationDriver driver, BoardRenderer boardRenderer, ActorRenderSystem actorRenderer)
+        {
+            var snapshot = RequireSnapshot(driver);
+            for (var y = 0; y < snapshot.Map.Height; y++)
+            {
+                for (var x = 0; x < snapshot.Map.Width; x++)
+                {
+                    var candidate = new Int2(x, y);
+                    driver.SetHoveredCell(candidate, false);
+                    StepRuntime(driver, boardRenderer, actorRenderer, 1, 0.02f);
+                    PlacementPreviewSnapshot preview;
+                    if (driver.TryGetPlacementPreview(out preview) && preview.CanPlace)
+                        return candidate;
+                }
+            }
+
+            throw new InvalidOperationException("No valid Stage 27.1 coarse desktop hover placement cell was found.");
+        }
+
+        static void ValidateDesktopHudDocking(DesktopRtsHudRoot desktopHud, CncStyleSidebarLayout layout)
+        {
+            if (desktopHud == null || layout == null)
+                throw new InvalidOperationException("Stage 27.1 desktop HUD docking check needs a HUD root and layout.");
+
+            var canvas = desktopHud.GetComponentInParent<Canvas>();
+            if (canvas == null || canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                throw new InvalidOperationException("Stage 27.1 desktop HUD must run on a Screen Space Overlay canvas.");
+
+            var rootRect = desktopHud.GetComponent<RectTransform>();
+            if (rootRect == null ||
+                !Approximately(rootRect.anchorMin.x, 0f) ||
+                !Approximately(rootRect.anchorMin.y, 0f) ||
+                !Approximately(rootRect.anchorMax.x, 1f) ||
+                !Approximately(rootRect.anchorMax.y, 1f) ||
+                !Approximately(rootRect.offsetMin.x, 0f) ||
+                !Approximately(rootRect.offsetMin.y, 0f) ||
+                !Approximately(rootRect.offsetMax.x, 0f) ||
+                !Approximately(rootRect.offsetMax.y, 0f))
+                throw new InvalidOperationException("Stage 27.1 desktop HUD root must stretch to the full player canvas.");
+
+            if (!layout.IsRightSidebarDockedToScreenEdge())
+                throw new InvalidOperationException("Stage 27.1 PC right sidebar must be docked to the screen's right edge.");
+        }
+
+        static bool Approximately(float left, float right)
+        {
+            return Mathf.Abs(left - right) <= 0.01f;
+        }
+
         static bool HasPendingPlacement(RtsSimulationDriver driver, string typeId)
         {
             var player = driver.GetLocalPlayerSnapshot();
@@ -206,6 +285,20 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 if (player.Production[i].TypeId == typeId && player.Production[i].State == "CompletedPendingPlacement")
                     return true;
             return false;
+        }
+
+        static int CountOwnedActors(RtsSimulationDriver driver, string typeId, int ownerId)
+        {
+            var snapshot = RequireSnapshot(driver);
+            var count = 0;
+            for (var i = 0; i < snapshot.Actors.Count; i++)
+            {
+                var actor = snapshot.Actors[i];
+                if (actor.OwnerId == ownerId && actor.TypeId == typeId && !actor.IsDestroyed)
+                    count++;
+            }
+
+            return count;
         }
 
         static void StepRuntime(RtsSimulationDriver driver, BoardRenderer boardRenderer, ActorRenderSystem actorRenderer, int frames, float deltaTime)

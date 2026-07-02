@@ -1,3 +1,4 @@
+using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.CoreBridge;
@@ -12,6 +13,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         RtsSimulationDriver driver;
         DesktopUiCommandRouter router;
         Text label;
+        Button placeSuggestedButton;
         Button cancelButton;
 
         public void Initialize(RtsSimulationDriver simulationDriver, DesktopUiCommandRouter commandRouter)
@@ -34,13 +36,26 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             RtsUiFactory.Stretch(gameObject, Vector2.zero, Vector2.zero);
             RtsUiFactory.AddPanel(gameObject, new Color(0.10f, 0.12f, 0.14f, 0.85f));
             label = GetOrCreateText("Placement Text", "Placement inactive.", 12, Color.white, TextAnchor.UpperLeft);
-            label.rectTransform.offsetMin = new Vector2(8f, 28f);
+            label.rectTransform.offsetMin = new Vector2(8f, 34f);
             label.rectTransform.offsetMax = new Vector2(-8f, -6f);
+            placeSuggestedButton = GetOrCreateButton("Place Suggested", "Place Suggested");
+            placeSuggestedButton.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
+            placeSuggestedButton.GetComponent<RectTransform>().anchorMax = new Vector2(0.58f, 0f);
+            placeSuggestedButton.GetComponent<RectTransform>().offsetMin = new Vector2(8f, 4f);
+            placeSuggestedButton.GetComponent<RectTransform>().offsetMax = new Vector2(-4f, 30f);
+            placeSuggestedButton.onClick.RemoveAllListeners();
+            placeSuggestedButton.onClick.AddListener(() =>
+            {
+                if (router != null)
+                    router.PlaceAtSuggestedCell();
+            });
+
             cancelButton = GetOrCreateButton("Cancel Placement", "Cancel Placement");
             cancelButton.GetComponent<RectTransform>().anchorMin = new Vector2(0f, 0f);
             cancelButton.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 0f);
-            cancelButton.GetComponent<RectTransform>().offsetMin = new Vector2(8f, 4f);
+            cancelButton.GetComponent<RectTransform>().offsetMin = new Vector2(4f, 4f);
             cancelButton.GetComponent<RectTransform>().offsetMax = new Vector2(-8f, 28f);
+            cancelButton.GetComponent<RectTransform>().anchorMin = new Vector2(0.58f, 0f);
             cancelButton.onClick.RemoveAllListeners();
             cancelButton.onClick.AddListener(() =>
             {
@@ -71,32 +86,28 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             if (!driver.HasPlacementMode)
             {
                 label.text = "Placement inactive.\nCompleted buildings appear here.";
+                placeSuggestedButton.interactable = false;
                 cancelButton.interactable = false;
                 return;
             }
 
             cancelButton.interactable = true;
+            Int2 suggestedCell;
+            placeSuggestedButton.interactable = driver.TryFindSuggestedPlacementCell(out suggestedCell);
             PlacementPreviewSnapshot preview;
             var previewText = "Hover a board cell.";
             if (driver.TryGetPlacementPreview(out preview))
-                previewText = preview.CanPlace ? "Valid: click to place at " + preview.TopLeftCell : "Invalid placement: " + FriendlyError(preview.ErrorCode);
+                previewText = preview.CanPlace ? "Valid: click to place at " + preview.TopLeftCell : "Invalid: " + FriendlyError(preview.ErrorCode);
 
             ActorDefinition definition;
-            var footprint = "n/a";
-            var placementFootprint = "n/a";
+            var displayName = driver.PendingPlacementTypeId.Replace("_", " ");
             if (driver.TryGetDefinition(driver.PendingPlacementTypeId, out definition) && definition is BuildingDefinition)
-            {
-                var building = (BuildingDefinition)definition;
-                footprint = building.FootprintCells.X + "x" + building.FootprintCells.Y + " coarse";
-                placementFootprint = building.PlacementFootprintCells.X + "x" + building.PlacementFootprintCells.Y + " fine";
-            }
+                displayName = definition.DisplayName;
 
             label.text =
-                "Placing: " + driver.PendingPlacementTypeId + "\n" +
-                "Footprint: " + footprint + " / " + placementFootprint + "\n" +
-                "Buildings snap to the fine placement grid.\n" +
-                "Green footprint is valid; red footprint is blocked.\n" +
-                previewText;
+                "Placing: " + displayName + "\n" +
+                previewText + "\n" +
+                "Click green cells or Place Suggested.";
         }
 
         static string FriendlyError(string errorCode)

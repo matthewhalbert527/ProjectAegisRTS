@@ -58,7 +58,26 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             if (!driver.HasHoveredCell)
                 return LogAndReturn(RtsCommandResult.Fail("NoHoveredCell", "Hover a board cell before placing."));
 
-            var result = driver.TryPlacePendingBuildingAtCell(driver.HoveredCell);
+            var result = driver.TryPlacePendingBuildingAtCell(driver.HoveredPlacementCell);
+            if (!result.Success)
+            {
+                var nearbyResult = driver.TryPlacePendingBuildingNearHoveredCell(6);
+                if (nearbyResult.Success)
+                    result = nearbyResult;
+            }
+
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult PlaceAtSuggestedCell()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryPlacePendingBuildingAtSuggestedCell();
             if (result.Success)
                 CurrentMode = DesktopCommandMode.Normal;
             Log(result);

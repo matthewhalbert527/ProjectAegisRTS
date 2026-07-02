@@ -52,7 +52,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
             if (!visible)
                 return;
 
-            GUILayout.BeginArea(area, GUI.skin.box);
+            var previousMatrix = BootHudLayout.BeginArea(area);
             GUILayout.Label("Options");
             GUILayout.Label("Prototype settings for local testing. These are safe placeholders, not final game settings.");
             GUILayout.Space(8f);
@@ -90,7 +90,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
             if (GUILayout.Button("Back", GUILayout.Height(32f)) && controller != null)
                 controller.HideOptions();
             GUILayout.EndHorizontal();
-            GUILayout.EndArea();
+            BootHudLayout.EndArea(previousMatrix);
         }
 
         void DrawDisplaySection()

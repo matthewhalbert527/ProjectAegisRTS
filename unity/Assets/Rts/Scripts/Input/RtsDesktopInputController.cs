@@ -154,7 +154,7 @@ namespace ProjectAegisRTS.UnityClient.InputControls
             else
             {
                 var result = driver.HasPlacementMode
-                    ? driver.TryPlacePendingBuildingAtCell(hoveredCell)
+                    ? driver.TryPlacePendingBuildingNearHoveredCell(6)
                     : (IsDoubleClick(cell) ? driver.TrySelectOwnedActorsOfSameTypeAtCell(cell) : driver.TrySelectActorAtCell(cell));
                 Record(result);
             }

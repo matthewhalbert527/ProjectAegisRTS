@@ -4,6 +4,7 @@ using ProjectAegisRTS.UnityClient.Board;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.Scenario;
 using ProjectAegisRTS.UnityClient.UI.Common;
+using ProjectAegisRTS.UnityClient.UI.Desktop;
 using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.Boot
@@ -199,6 +200,9 @@ namespace ProjectAegisRTS.UnityClient.Boot
                 if (canvases[i] == null)
                     continue;
 
+                if (IsPlayerScreenHudCanvas(canvases[i]))
+                    ForceScreenSpaceOverlay(canvases[i]);
+
                 var enforcer = canvases[i].GetComponent<ResponsiveCanvasScalerEnforcer>();
                 if (enforcer == null)
                     enforcer = canvases[i].gameObject.AddComponent<ResponsiveCanvasScalerEnforcer>();
@@ -207,6 +211,24 @@ namespace ProjectAegisRTS.UnityClient.Boot
                 enforcer.matchWidthOrHeight = 0.5f;
                 enforcer.Enforce();
             }
+        }
+
+        static bool IsPlayerScreenHudCanvas(Canvas canvas)
+        {
+            return canvas != null &&
+                (canvas.GetComponentInChildren<DesktopRtsHudRoot>(true) != null ||
+                 canvas.GetComponentInChildren<DesktopSidebarController>(true) != null ||
+                 canvas.GetComponentInChildren<ProductionGridController>(true) != null);
+        }
+
+        static void ForceScreenSpaceOverlay(Canvas canvas)
+        {
+            if (canvas == null)
+                return;
+
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.worldCamera = null;
+            canvas.pixelPerfect = false;
         }
 
         static void StartScenarioIfAvailable()

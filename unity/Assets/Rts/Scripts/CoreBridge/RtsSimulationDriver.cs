@@ -48,6 +48,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public Int2 HoveredCell { get { return hoveredCell; } }
         public bool HoveredCellIsPlacementCell { get { return hoveredCellIsPlacementCell; } }
         public Int2 HoveredCoarseCell { get { return hoveredCellIsPlacementCell ? PlacementGridMetrics.PlacementCellToCoarseCell(hoveredCell) : hoveredCell; } }
+        public Int2 HoveredPlacementCell { get { return hoveredCellIsPlacementCell ? hoveredCell : PlacementGridMetrics.CoarseCellToPlacementCell(hoveredCell); } }
         public bool HasPlacementMode { get { return !string.IsNullOrEmpty(pendingPlacementTypeId); } }
         public string PendingPlacementTypeId { get { return pendingPlacementTypeId; } }
         public int PlayerId { get { return playerId; } }
@@ -1055,6 +1056,98 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return result;
         }
 
+        public RtsCommandResult TryPlacePendingBuildingNearHoveredCell(int searchRadius)
+        {
+            if (!HasPlacementMode)
+                return RtsCommandResult.Fail("PlacementInactive", "No pending building placement is active.");
+            if (!hasHoveredCell)
+                return RtsCommandResult.Fail("NoHoveredCell", "Hover a board cell before placing.");
+
+            Int2 placementCell;
+            if (!TryFindNearestValidPlacementCell(HoveredPlacementCell, Mathf.Max(1, searchRadius), out placementCell))
+                return RtsCommandResult.Fail("NoNearbyPlacement", "No legal placement slot was found near the cursor. Use Place Suggested or move closer to your base.");
+
+            return TryPlacePendingBuildingAtCell(placementCell);
+        }
+
+        public RtsCommandResult TryPlacePendingBuildingAtSuggestedCell()
+        {
+            if (!HasPlacementMode)
+                return RtsCommandResult.Fail("PlacementInactive", "No pending building placement is active.");
+
+            Int2 placementCell;
+            if (!TryFindSuggestedPlacementCell(out placementCell))
+                return RtsCommandResult.Fail("NoSuggestedPlacement", "No legal placement slot is available near your base.");
+
+            return TryPlacePendingBuildingAtCell(placementCell);
+        }
+
+        public bool TryFindSuggestedPlacementCell(out Int2 placementCell)
+        {
+            placementCell = Int2.Zero;
+            if (!HasPlacementMode || world == null || latestSnapshot == null || latestSnapshot.Map == null)
+                return false;
+
+            var origin = SuggestedPlacementOrigin();
+            var bestScore = int.MaxValue;
+            var found = false;
+            for (var y = 0; y < latestSnapshot.Map.PlacementHeight; y++)
+            {
+                for (var x = 0; x < latestSnapshot.Map.PlacementWidth; x++)
+                {
+                    var candidate = new Int2(x, y);
+                    var preview = world.PreviewPlacement(playerId, pendingPlacementTypeId, candidate);
+                    if (preview == null || !preview.CanPlace)
+                        continue;
+
+                    var score = candidate.ManhattanDistanceTo(origin) * 1000 + y * latestSnapshot.Map.PlacementWidth + x;
+                    if (score >= bestScore)
+                        continue;
+
+                    bestScore = score;
+                    placementCell = candidate;
+                    found = true;
+                }
+            }
+
+            return found;
+        }
+
+        public bool TryFindNearestValidPlacementCell(Int2 origin, int searchRadius, out Int2 placementCell)
+        {
+            placementCell = Int2.Zero;
+            if (!HasPlacementMode || world == null || latestSnapshot == null || latestSnapshot.Map == null)
+                return false;
+
+            var radius = Mathf.Max(0, searchRadius);
+            var bestScore = int.MaxValue;
+            var found = false;
+            for (var y = Mathf.Max(0, origin.Y - radius); y <= Mathf.Min(latestSnapshot.Map.PlacementHeight - 1, origin.Y + radius); y++)
+            {
+                for (var x = Mathf.Max(0, origin.X - radius); x <= Mathf.Min(latestSnapshot.Map.PlacementWidth - 1, origin.X + radius); x++)
+                {
+                    var candidate = new Int2(x, y);
+                    var distance = candidate.ManhattanDistanceTo(origin);
+                    if (distance > radius)
+                        continue;
+
+                    var preview = world.PreviewPlacement(playerId, pendingPlacementTypeId, candidate);
+                    if (preview == null || !preview.CanPlace)
+                        continue;
+
+                    var score = distance * 1000 + y * latestSnapshot.Map.PlacementWidth + x;
+                    if (score >= bestScore)
+                        continue;
+
+                    bestScore = score;
+                    placementCell = candidate;
+                    found = true;
+                }
+            }
+
+            return found;
+        }
+
         public RtsCommandResult TryCancelPlacement()
         {
             if (!HasPlacementMode)
@@ -1315,13 +1408,38 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return result;
         }
 
+        Int2 SuggestedPlacementOrigin()
+        {
+            if (hasHoveredCell)
+                return HoveredPlacementCell;
+
+            if (latestSnapshot != null && latestSnapshot.Actors != null && Rules != null)
+            {
+                for (var i = 0; i < latestSnapshot.Actors.Count; i++)
+                {
+                    var actor = latestSnapshot.Actors[i];
+                    ActorDefinition definition;
+                    var building = Rules.TryGetDefinition(actor.TypeId, out definition) ? definition as BuildingDefinition : null;
+                    if (actor.OwnerId == playerId && !actor.IsDestroyed && building != null && building.ProvidesConstructionRadius)
+                    {
+                        var footprint = actor.PlacementFootprintCells.Equals(Int2.Zero) ? building.PlacementFootprintCells : actor.PlacementFootprintCells;
+                        return new Int2(actor.PlacementTopLeftCell.X + footprint.X / 2, actor.PlacementTopLeftCell.Y + footprint.Y / 2);
+                    }
+                }
+            }
+
+            return latestSnapshot != null && latestSnapshot.Map != null
+                ? new Int2(latestSnapshot.Map.PlacementWidth / 2, latestSnapshot.Map.PlacementHeight / 2)
+                : Int2.Zero;
+        }
+
         public bool TryGetPlacementPreview(out PlacementPreviewSnapshot preview)
         {
             preview = null;
             if (!HasPlacementMode || !hasHoveredCell || world == null)
                 return false;
 
-            var placementCell = hoveredCellIsPlacementCell ? hoveredCell : PlacementGridMetrics.CoarseCellToPlacementCell(hoveredCell);
+            var placementCell = HoveredPlacementCell;
             preview = world.PreviewPlacement(playerId, pendingPlacementTypeId, placementCell);
             return true;
         }

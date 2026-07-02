@@ -24,7 +24,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
             if (!visible)
                 return;
 
-            GUILayout.BeginArea(area, GUI.skin.box);
+            var previousMatrix = BootHudLayout.BeginArea(area);
             GUILayout.Label("Controls");
             GUILayout.Label("Left click selects units and buildings.");
             GUILayout.Label("Right click moves selected units or attacks an enemy under the cursor.");
@@ -45,7 +45,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
             GUILayout.Space(10f);
             if (GUILayout.Button("Back", GUILayout.Height(32f)) && controller != null)
                 controller.HideControls();
-            GUILayout.EndArea();
+            BootHudLayout.EndArea(previousMatrix);
         }
     }
 }
