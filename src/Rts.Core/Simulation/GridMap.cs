@@ -135,7 +135,10 @@ namespace ProjectAegisRTS.Simulation
 
         public bool IsPassableForUnit(Int2 cell, MovementClass movementClass, RtsRules rules)
         {
-            if (!Contains(cell) || IsBlocked(cell) || HasBuildingAt(cell))
+            if (!Contains(cell) || IsBlocked(cell))
+                return false;
+
+            if (movementClass != MovementClass.Aircraft && HasBuildingAt(cell))
                 return false;
 
             return TerrainAllows(cell, movementClass, rules);

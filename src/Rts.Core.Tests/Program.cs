@@ -8,6 +8,7 @@ using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Demo;
 using ProjectAegisRTS.Economy;
 using ProjectAegisRTS.Match;
+using ProjectAegisRTS.Pathfinding;
 using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Production;
 using ProjectAegisRTS.Scenarios;
@@ -108,6 +109,13 @@ namespace ProjectAegisRTS.Tests
                 MapValidationCatchesInvalidLayout,
                 MapSnapshotContainsTerrainAndPathDebug,
                 PathingDeterminismSmokeTest,
+                AircraftAndAirfieldDefinitionsExist,
+                HelipadCreatesAirfieldSnapshot,
+                HelipadSupportsAircraftProductionDockingPlaceholder,
+                AircraftCanPathOverWater,
+                WaterTerrainBlocksGroundUnits,
+                NavalMovementClassCanPathOverWater,
+                AirNavalDeterminismSmokeTest,
                 VerticalSliceWorldCreates,
                 VerticalSliceWorldHasPlayerBase,
                 VerticalSliceWorldHasEnemyBase,
@@ -1092,6 +1100,90 @@ namespace ProjectAegisRTS.Tests
             Assert(a == b, "Expected pathing deterministic summaries to match.");
         }
 
+        static void AircraftAndAirfieldDefinitionsExist()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var aircraft = rules.GetDefinition("attack_aircraft");
+            var lifter = rules.GetDefinition("heavy_lifter_aircraft");
+            var helipad = rules.GetDefinition("dual_helipad");
+            Assert(aircraft.Production.Kind == ProductionKind.Aircraft, "Expected attack aircraft production kind.");
+            Assert(aircraft.Aircraft != null && aircraft.Aircraft.RequiresAirfield, "Expected attack aircraft airfield metadata.");
+            Assert(lifter.Aircraft != null, "Expected lifter aircraft metadata.");
+            Assert(helipad.Airfield != null && helipad.Airfield.PadCount == 2, "Expected dual helipad to expose two pads.");
+        }
+
+        static void HelipadCreatesAirfieldSnapshot()
+        {
+            var world = new RtsWorld(DemoRules.CreateDefaultRules(), new GridMap(16, 16));
+            world.AddPlayer(1, "Air Player", 5000);
+            var helipad = world.CreateActor("dual_helipad", 1, new Int2(5, 5));
+            var snapshot = world.CreateSnapshot();
+            Assert(snapshot.Airfields.Count == 1, "Expected one airfield snapshot.");
+            Assert(snapshot.Airfields[0].ActorId == helipad.Id.Value, "Expected helipad airfield snapshot.");
+            Assert(snapshot.Airfields[0].Pads.Count == 2, "Expected dual pad snapshot.");
+        }
+
+        static void HelipadSupportsAircraftProductionDockingPlaceholder()
+        {
+            var world = new RtsWorld(DemoRules.CreateDefaultRules(), new GridMap(16, 16));
+            world.AddPlayer(1, "Air Player", 5000);
+            world.CreateActor("power_plant", 1, new Int2(9, 1));
+            world.CreateActor("tech_center", 1, new Int2(1, 1));
+            var helipad = world.CreateActor("dual_helipad", 1, new Int2(5, 5));
+            var begin = world.IssueCommand(new BeginProductionCommand(1, helipad.Id, "attack_aircraft"));
+            Assert(begin.Success, "Expected aircraft production to start: " + begin.ErrorCode);
+            RunTicks(world, 60);
+
+            var snapshot = world.CreateSnapshot();
+            var aircraft = FindActor(snapshot, "attack_aircraft", 1);
+            Assert(aircraft != null, "Expected produced aircraft actor.");
+            Assert(snapshot.Aircraft.Count == 1, "Expected aircraft snapshot.");
+            Assert(snapshot.Aircraft[0].DockedAirfieldActorId == helipad.Id.Value, "Expected aircraft docked at producing helipad.");
+            Assert(snapshot.Airfields[0].Pads[0].OccupiedAircraftActorId == aircraft.ActorId || snapshot.Airfields[0].Pads[1].OccupiedAircraftActorId == aircraft.ActorId, "Expected a helipad pad occupied by produced aircraft.");
+        }
+
+        static void AircraftCanPathOverWater()
+        {
+            var world = new RtsWorld(DemoRules.CreateDefaultRules(), new GridMap(16, 16));
+            world.AddPlayer(1, "Air Player", 5000);
+            for (var y = 0; y < 16; y++)
+                world.SetTerrainCell(new Int2(7, y), TerrainKind.Water);
+
+            var aircraft = world.CreateActor("attack_aircraft", 1, new Int2(3, 8));
+            var result = world.QueryPath(aircraft.Id, new Int2(12, 8));
+            Assert(result.Success, "Expected aircraft to path over water: " + result.FailureCode);
+            Assert(result.MovementClass == MovementClass.Aircraft, "Expected aircraft movement class path.");
+        }
+
+        static void WaterTerrainBlocksGroundUnits()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var map = new GridMap(8, 8);
+            map.SetTerrainKind(new Int2(3, 3), TerrainKind.Water);
+            Assert(!map.IsPassableForUnit(new Int2(3, 3), MovementClass.Wheeled, rules), "Expected water to block wheeled units.");
+            Assert(!map.IsPassableForUnit(new Int2(3, 3), MovementClass.Tracked, rules), "Expected water to block tracked units.");
+            Assert(map.IsPassableForUnit(new Int2(3, 3), MovementClass.Aircraft, rules), "Expected aircraft to pass water.");
+        }
+
+        static void NavalMovementClassCanPathOverWater()
+        {
+            var rules = DemoRules.CreateDefaultRules();
+            var map = new GridMap(8, 4);
+            for (var x = 0; x < 8; x++)
+                map.SetTerrainKind(new Int2(x, 1), TerrainKind.Water);
+
+            var path = new GridPathfinder().QueryPath(map, rules, new Int2(1, 1), new Int2(6, 1), MovementClass.Naval);
+            Assert(path.Success, "Expected naval path over water: " + path.FailureCode);
+            Assert(!map.IsPassableForUnit(new Int2(1, 0), MovementClass.Naval, rules), "Expected naval movement blocked on clear land.");
+        }
+
+        static void AirNavalDeterminismSmokeTest()
+        {
+            var a = RunAirNavalDeterministicSequence();
+            var b = RunAirNavalDeterministicSequence();
+            Assert(a == b, "Expected air/naval deterministic summaries to match.");
+        }
+
         static void VerticalSliceWorldCreates()
         {
             var world = DemoWorldFactory.CreateVerticalSliceWorld();
@@ -1359,6 +1451,28 @@ namespace ProjectAegisRTS.Tests
             world.QueryPath(infantry.Id, new Int2(9, 15));
             world.IssueCommand(new IssueMoveOrderCommand(1, new[] { scout.Id }, new Int2(18, 6)));
             RunTicks(world, 96);
+            return world.GetDeterminismSummary();
+        }
+
+        static string RunAirNavalDeterministicSequence()
+        {
+            var world = new RtsWorld(DemoRules.CreateDefaultRules(), new GridMap(16, 16));
+            world.AddPlayer(1, "Air Player", 5000);
+            for (var y = 0; y < 16; y++)
+                world.SetTerrainCell(new Int2(7, y), TerrainKind.Water);
+
+            world.CreateActor("power_plant", 1, new Int2(9, 1));
+            world.CreateActor("tech_center", 1, new Int2(1, 1));
+            var helipad = world.CreateActor("dual_helipad", 1, new Int2(5, 5));
+            var begin = world.IssueCommand(new BeginProductionCommand(1, helipad.Id, "attack_aircraft"));
+            Assert(begin.Success, "Expected deterministic aircraft production start.");
+            RunTicks(world, 60);
+
+            var aircraft = world.FirstActorOfType("attack_aircraft", 1);
+            Assert(aircraft != null, "Expected deterministic aircraft.");
+            var move = world.IssueCommand(new IssueMoveOrderCommand(1, new[] { aircraft.Id }, new Int2(12, 8)));
+            Assert(move.Success, "Expected deterministic aircraft move: " + move.ErrorCode);
+            RunTicks(world, 20);
             return world.GetDeterminismSummary();
         }
 

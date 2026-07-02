@@ -124,6 +124,10 @@ Complete after local validation. Tech tree / prerequisites / support powers foun
 
 Complete after local validation. Engineers / capture / repairs / transports foundation. Adds deterministic engineer building capture, engineer field repair, infantry transport load/unload, passenger snapshots, transport death passenger resolution, PCDesktop command buttons, Quest left-hand compatible routes, and Stage 25 fast/medium/player-facing/full validation tiers while preserving Stage 0-24 behavior.
 
+## Stage 26
+
+Complete after local validation. Airfield / aircraft / helipad / naval foundation. Adds deterministic aircraft metadata, dual-helipad pad state, aircraft docking/rearm/fuel placeholder snapshots, aircraft altitude state, water/naval passability, player vertical-slice air assets, Unity altitude visual integration, and Stage 26 fast/medium/player-facing/full validation tiers while preserving Stage 0-25 behavior.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

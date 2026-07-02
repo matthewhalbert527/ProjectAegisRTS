@@ -21,6 +21,7 @@ namespace ProjectAegisRTS.Terrain
         Wheeled,
         Tracked,
         Harvester,
+        Naval,
         Aircraft,
         Building
     }
@@ -35,6 +36,7 @@ namespace ProjectAegisRTS.Terrain
         Harvester = 8,
         Aircraft = 16,
         Building = 32,
+        Naval = 64,
         Ground = Infantry | Wheeled | Tracked | Harvester,
         All = Ground | Aircraft | Building
     }
@@ -80,6 +82,8 @@ namespace ProjectAegisRTS.Terrain
                     return PassabilityMask.Tracked;
                 case MovementClass.Harvester:
                     return PassabilityMask.Harvester;
+                case MovementClass.Naval:
+                    return PassabilityMask.Naval;
                 case MovementClass.Aircraft:
                     return PassabilityMask.Aircraft;
                 case MovementClass.Building:
@@ -143,7 +147,7 @@ namespace ProjectAegisRTS.Terrain
                 new TerrainDefinition(TerrainKind.Road, "Road", 1, PassabilityMask.All, "road"),
                 new TerrainDefinition(TerrainKind.Rough, "Rough", 3, PassabilityMask.Infantry | PassabilityMask.Tracked | PassabilityMask.Harvester | PassabilityMask.Aircraft, "rough"),
                 new TerrainDefinition(TerrainKind.Forest, "Forest", 2, PassabilityMask.Infantry | PassabilityMask.Harvester | PassabilityMask.Aircraft, "forest"),
-                new TerrainDefinition(TerrainKind.Water, "Water", 6, PassabilityMask.Aircraft, "water"),
+                new TerrainDefinition(TerrainKind.Water, "Water", 6, PassabilityMask.Aircraft | PassabilityMask.Naval, "water"),
                 new TerrainDefinition(TerrainKind.Cliff, "Cliff", 8, PassabilityMask.Aircraft, "cliff"),
                 new TerrainDefinition(TerrainKind.OreField, "Ore Field", 2, PassabilityMask.Ground | PassabilityMask.Aircraft, "ore")
             };

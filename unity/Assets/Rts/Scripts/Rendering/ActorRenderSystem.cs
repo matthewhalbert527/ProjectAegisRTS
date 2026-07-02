@@ -80,6 +80,10 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             for (var i = 0; i < selectedActorIds.Count; i++)
                 selectedIds.Add(selectedActorIds[i]);
 
+            var aircraftByActorId = new Dictionary<int, AircraftSnapshot>();
+            for (var i = 0; i < snapshot.Aircraft.Count; i++)
+                aircraftByActorId[snapshot.Aircraft[i].ActorId] = snapshot.Aircraft[i];
+
             var seen = new HashSet<int>();
             for (var i = 0; i < snapshot.Actors.Count; i++)
             {
@@ -99,8 +103,10 @@ namespace ProjectAegisRTS.UnityClient.Rendering
                 var buildingProfile = buildingProfileLibrary == null || buildingDefinition == null ? null : buildingProfileLibrary.GetProfile(actor.TypeId, buildingDefinition);
                 ActorVisualDefinition visualDefinition;
                 GameObject resolvedPrefab;
+                AircraftSnapshot aircraftSnapshot;
                 ResolveActorVisual(actor.TypeId, out visualDefinition, out resolvedPrefab);
-                view.ApplySnapshot(actor, definition, mapper, materials, selectedIds.Contains(actor.ActorId), smoothInterpolation, driver.TicksPerSecond, snapshot.Tick, profile, buildingProfile, visualDefinition, resolvedPrefab);
+                aircraftByActorId.TryGetValue(actor.ActorId, out aircraftSnapshot);
+                view.ApplySnapshot(actor, definition, mapper, materials, selectedIds.Contains(actor.ActorId), smoothInterpolation, driver.TicksPerSecond, snapshot.Tick, profile, buildingProfile, visualDefinition, resolvedPrefab, aircraftSnapshot);
                 view.TickVisual(deltaTime);
             }
 

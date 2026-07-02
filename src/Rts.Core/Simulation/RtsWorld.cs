@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ProjectAegisRTS.Air;
 using ProjectAegisRTS.Ai;
 using ProjectAegisRTS.Actors;
 using ProjectAegisRTS.Commands;
@@ -28,6 +29,8 @@ namespace ProjectAegisRTS.Simulation
         readonly Dictionary<Int2, ResourceCellState> resourceCells;
         readonly Dictionary<int, HarvesterState> harvesters;
         readonly Dictionary<int, RefineryState> refineries;
+        readonly Dictionary<int, AircraftState> aircraft;
+        readonly Dictionary<int, AirfieldState> airfields;
         readonly Dictionary<int, PlayerVisibilityState> visibilityStates;
         readonly List<SupportRevealState> supportReveals;
         readonly List<CombatEventSnapshot> recentCombatEvents;
@@ -66,6 +69,8 @@ namespace ProjectAegisRTS.Simulation
             resourceCells = new Dictionary<Int2, ResourceCellState>();
             harvesters = new Dictionary<int, HarvesterState>();
             refineries = new Dictionary<int, RefineryState>();
+            aircraft = new Dictionary<int, AircraftState>();
+            airfields = new Dictionary<int, AirfieldState>();
             visibilityStates = new Dictionary<int, PlayerVisibilityState>();
             supportReveals = new List<SupportRevealState>();
             recentCombatEvents = new List<CombatEventSnapshot>();
@@ -110,6 +115,16 @@ namespace ProjectAegisRTS.Simulation
         public IReadOnlyDictionary<int, RefineryState> Refineries
         {
             get { return refineries; }
+        }
+
+        public IReadOnlyDictionary<int, AircraftState> Aircraft
+        {
+            get { return aircraft; }
+        }
+
+        public IReadOnlyDictionary<int, AirfieldState> Airfields
+        {
+            get { return airfields; }
         }
 
         public IReadOnlyDictionary<int, PlayerVisibilityState> VisibilityStates
@@ -176,10 +191,19 @@ namespace ProjectAegisRTS.Simulation
                 Map.OccupyBuildingAtPlacement(topLeftPlacementCell, building.PlacementFootprintCells, actor.Id);
                 if (typeId == "refinery")
                     refineries[actor.Id.Value] = new RefineryState(actor.Id.Value, GetRefineryDockCell(actor, building), RefineryUnloadRatePerTick);
+                if (building.Airfield != null)
+                    airfields[actor.Id.Value] = new AirfieldState(actor.Id.Value, GetAirfieldPadCells(actor, building.Airfield));
             }
             else if (typeId == "harvester")
             {
                 harvesters[actor.Id.Value] = new HarvesterState(actor.Id.Value, HarvesterCargoCapacity);
+            }
+
+            var unit = definition as UnitDefinition;
+            if (unit != null && unit.Aircraft != null)
+            {
+                aircraft[actor.Id.Value] = new AircraftState(actor.Id.Value, unit.Aircraft.CruiseAltitudeSubCells, unit.Aircraft.FuelTicks);
+                TryAssignAircraftToOwnedAirfield(actor, 0);
             }
 
             UpdatePowerAndActorFlags();
@@ -441,6 +465,7 @@ namespace ProjectAegisRTS.Simulation
             TickRepairs();
             TickMovement();
             TickEngineerAndTransportActions();
+            TickAircraftStates();
             TickHarvesting();
             TickCombat();
             TickProjectiles();
@@ -600,6 +625,40 @@ namespace ProjectAegisRTS.Simulation
                     actor.IsDestroyed));
             }
 
+            var aircraftSnapshots = new List<AircraftSnapshot>();
+            foreach (var state in SortedAircraftStates())
+            {
+                ActorState actor;
+                if (!actors.TryGetValue(state.ActorId, out actor) || !ShouldIncludeActorInSnapshot(actor, perspectivePlayerId))
+                    continue;
+
+                aircraftSnapshots.Add(new AircraftSnapshot(
+                    actor.Id.Value,
+                    actor.OwnerPlayerId,
+                    actor.TypeId,
+                    state.HomeAirfieldActorId,
+                    state.DockedAirfieldActorId,
+                    state.AssignedPadIndex,
+                    state.AltitudeSubCells,
+                    state.FuelTicksRemaining,
+                    state.RearmProgressTicks,
+                    state.IsAirborne));
+            }
+
+            var airfieldSnapshots = new List<AirfieldSnapshot>();
+            foreach (var state in SortedAirfields())
+            {
+                ActorState actor;
+                if (!actors.TryGetValue(state.ActorId, out actor) || !ShouldIncludeActorInSnapshot(actor, perspectivePlayerId))
+                    continue;
+
+                var pads = new List<AirfieldPadSnapshot>();
+                for (var i = 0; i < state.Pads.Count; i++)
+                    pads.Add(new AirfieldPadSnapshot(state.Pads[i].PadIndex, state.Pads[i].Cell, state.Pads[i].OccupiedAircraftActorId));
+
+                airfieldSnapshots.Add(new AirfieldSnapshot(actor.Id.Value, actor.OwnerPlayerId, actor.TypeId, pads));
+            }
+
             var projectileSnapshots = new List<ProjectileSnapshot>();
             foreach (var projectile in SortedProjectiles())
             {
@@ -657,7 +716,7 @@ namespace ProjectAegisRTS.Simulation
             var minimap = perspectivePlayerId > 0 ? CreateMinimapSnapshot(perspectivePlayerId) : MinimapSnapshot.Empty;
             var map = CreateMapSnapshot(perspectivePlayerId);
 
-            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy, fog, radar, minimap, aiSystem.CreateSnapshot(), map, matchState.CreateSnapshot(), matchState.CreateScenarioSnapshot(), transportSnapshots);
+            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy, fog, radar, minimap, aiSystem.CreateSnapshot(), map, matchState.CreateSnapshot(), matchState.CreateScenarioSnapshot(), transportSnapshots, aircraftSnapshots, airfieldSnapshots);
         }
 
         public bool IsCellVisible(int playerId, Int2 cell)
@@ -893,6 +952,28 @@ namespace ProjectAegisRTS.Simulation
                     .Append(refinery.IsUnloading).Append(' ')
                     .Append(refinery.TotalResourcesReceived)
                     .AppendLine();
+            }
+
+            foreach (var state in SortedAircraftStates())
+            {
+                sb.Append("aircraft ")
+                    .Append(state.ActorId).Append(' ')
+                    .Append(state.HomeAirfieldActorId).Append(' ')
+                    .Append(state.DockedAirfieldActorId).Append(' ')
+                    .Append(state.AssignedPadIndex).Append(' ')
+                    .Append(state.AltitudeSubCells).Append(' ')
+                    .Append(state.FuelTicksRemaining).Append(' ')
+                    .Append(state.RearmProgressTicks).Append(' ')
+                    .Append(state.IsAirborne)
+                    .AppendLine();
+            }
+
+            foreach (var state in SortedAirfields())
+            {
+                sb.Append("airfield ").Append(state.ActorId);
+                for (var i = 0; i < state.Pads.Count; i++)
+                    sb.Append(' ').Append(state.Pads[i].PadIndex).Append(':').Append(state.Pads[i].Cell).Append('=').Append(state.Pads[i].OccupiedAircraftActorId);
+                sb.AppendLine();
             }
 
             foreach (var projectile in SortedProjectiles())
@@ -2366,6 +2447,18 @@ namespace ProjectAegisRTS.Simulation
                 var footprint = actor.PlacementFootprintCells.Equals(Int2.Zero) ? building.PlacementFootprintCells : actor.PlacementFootprintCells;
                 Map.ClearBuildingAtPlacement(actor.PlacementTopLeftCell, footprint);
                 refineries.Remove(actor.Id.Value);
+                airfields.Remove(actor.Id.Value);
+                foreach (var aircraftState in SortedAircraftStates())
+                {
+                    if (aircraftState.HomeAirfieldActorId == actor.Id.Value)
+                        aircraftState.HomeAirfieldActorId = 0;
+                    if (aircraftState.DockedAirfieldActorId == actor.Id.Value)
+                    {
+                        aircraftState.DockedAirfieldActorId = 0;
+                        aircraftState.AssignedPadIndex = -1;
+                        aircraftState.IsAirborne = true;
+                    }
+                }
                 foreach (var harvester in SortedHarvesters())
                 {
                     if (harvester.AssignedRefineryActorId == actor.Id.Value)
@@ -2377,6 +2470,12 @@ namespace ProjectAegisRTS.Simulation
             }
 
             harvesters.Remove(actor.Id.Value);
+            AircraftState removedAircraft;
+            if (aircraft.TryGetValue(actor.Id.Value, out removedAircraft))
+            {
+                ReleaseAircraftFromAirfield(removedAircraft);
+                aircraft.Remove(actor.Id.Value);
+            }
             foreach (var player in SortedPlayers())
             {
                 for (var i = player.MutableProductionQueue.Count - 1; i >= 0; i--)
@@ -2407,9 +2506,83 @@ namespace ProjectAegisRTS.Simulation
             var movementClass = producedDefinition == null ? MovementClass.Wheeled : producedDefinition.Movement.MovementClass;
             var spawnCell = FindNearestSpawnCell(producer.CellPosition + exitOffset, movementClass);
             var unit = CreateActor(item.TypeId, item.PlayerId, spawnCell);
+            if (producedDefinition != null && producedDefinition.Aircraft != null)
+                TryAssignAircraftToOwnedAirfield(unit, producer.Id.Value);
 
             if (!producer.RallyPoint.Equals(producer.CellPosition) && !producer.RallyPoint.Equals(spawnCell))
                 IssueCommand(new IssueMoveOrderCommand(item.PlayerId, new[] { unit.Id }, producer.RallyPoint));
+        }
+
+        IReadOnlyList<Int2> GetAirfieldPadCells(ActorState airfieldActor, AirfieldDefinition definition)
+        {
+            var pads = new List<Int2>();
+            var count = definition == null ? 1 : definition.PadCount;
+            for (var i = 0; i < count; i++)
+            {
+                var offset = definition != null && definition.PadOffsets.Count > i ? definition.PadOffsets[i] : Int2.Zero;
+                pads.Add(airfieldActor.CellPosition + offset);
+            }
+
+            return pads;
+        }
+
+        bool TryAssignAircraftToOwnedAirfield(ActorState aircraftActor, int preferredAirfieldActorId)
+        {
+            AircraftState aircraftState;
+            if (!aircraft.TryGetValue(aircraftActor.Id.Value, out aircraftState))
+                return false;
+
+            if (aircraftState.DockedAirfieldActorId > 0)
+                ReleaseAircraftFromAirfield(aircraftState);
+
+            var candidates = SortedAirfields();
+            candidates.Sort((a, b) =>
+            {
+                if (a.ActorId == preferredAirfieldActorId && b.ActorId != preferredAirfieldActorId)
+                    return -1;
+                if (b.ActorId == preferredAirfieldActorId && a.ActorId != preferredAirfieldActorId)
+                    return 1;
+                return a.ActorId.CompareTo(b.ActorId);
+            });
+
+            for (var i = 0; i < candidates.Count; i++)
+            {
+                ActorState airfieldActor;
+                if (!actors.TryGetValue(candidates[i].ActorId, out airfieldActor) || airfieldActor.OwnerPlayerId != aircraftActor.OwnerPlayerId || airfieldActor.IsDestroyed)
+                    continue;
+
+                AirfieldPadState pad;
+                if (!candidates[i].TryReservePad(aircraftActor.Id.Value, out pad))
+                    continue;
+
+                aircraftState.HomeAirfieldActorId = candidates[i].ActorId;
+                aircraftState.DockedAirfieldActorId = candidates[i].ActorId;
+                aircraftState.AssignedPadIndex = pad.PadIndex;
+                aircraftState.IsAirborne = false;
+                aircraftState.RearmProgressTicks = 0;
+                aircraftActor.CellPosition = pad.Cell;
+                aircraftActor.WorldPositionFixed = FixedMath.CellCenter(pad.Cell);
+                aircraftActor.OrderTargetCell = pad.Cell;
+                aircraftActor.MovementPhase = "docked";
+                return true;
+            }
+
+            aircraftState.IsAirborne = true;
+            return false;
+        }
+
+        void ReleaseAircraftFromAirfield(AircraftState aircraftState)
+        {
+            if (aircraftState == null || aircraftState.DockedAirfieldActorId <= 0)
+                return;
+
+            AirfieldState airfield;
+            if (airfields.TryGetValue(aircraftState.DockedAirfieldActorId, out airfield))
+                airfield.ReleaseAircraft(aircraftState.ActorId);
+
+            aircraftState.DockedAirfieldActorId = 0;
+            aircraftState.AssignedPadIndex = -1;
+            aircraftState.IsAirborne = true;
         }
 
         Int2 FindNearestSpawnCell(Int2 preferred)
@@ -2517,6 +2690,38 @@ namespace ProjectAegisRTS.Simulation
                 }
 
                 SyncLoadedPassengerPositions(actor);
+            }
+        }
+
+        void TickAircraftStates()
+        {
+            foreach (var state in SortedAircraftStates())
+            {
+                ActorState actor;
+                if (!actors.TryGetValue(state.ActorId, out actor) || actor.IsDestroyed)
+                    continue;
+
+                var definition = Rules.GetDefinition(actor.TypeId);
+                if (definition.Aircraft == null)
+                    continue;
+
+                if (actor.CurrentOrder != ActorOrderKind.Idle && actor.CurrentOrder != ActorOrderKind.Stop)
+                    ReleaseAircraftFromAirfield(state);
+
+                if (state.DockedAirfieldActorId > 0)
+                {
+                    state.IsAirborne = false;
+                    state.AltitudeSubCells = 0;
+                    if (state.RearmProgressTicks < definition.Aircraft.RearmTicks)
+                        state.RearmProgressTicks++;
+                    state.FuelTicksRemaining = definition.Aircraft.FuelTicks;
+                    continue;
+                }
+
+                state.IsAirborne = true;
+                state.AltitudeSubCells = definition.Aircraft.CruiseAltitudeSubCells;
+                if (definition.Aircraft.FuelTicks > 0 && state.FuelTicksRemaining > 0)
+                    state.FuelTicksRemaining--;
             }
         }
 
@@ -3697,6 +3902,20 @@ namespace ProjectAegisRTS.Simulation
         List<RefineryState> SortedRefineries()
         {
             var list = new List<RefineryState>(refineries.Values);
+            list.Sort((a, b) => a.ActorId.CompareTo(b.ActorId));
+            return list;
+        }
+
+        List<AircraftState> SortedAircraftStates()
+        {
+            var list = new List<AircraftState>(aircraft.Values);
+            list.Sort((a, b) => a.ActorId.CompareTo(b.ActorId));
+            return list;
+        }
+
+        List<AirfieldState> SortedAirfields()
+        {
+            var list = new List<AirfieldState>(airfields.Values);
             list.Sort((a, b) => a.ActorId.CompareTo(b.ActorId));
             return list;
         }

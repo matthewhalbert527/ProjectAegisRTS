@@ -179,6 +179,10 @@ namespace ProjectAegisRTS.Demo
             world.CreateActor("war_factory", 1, new Int2(7, 7));
             world.CreateActor("refinery", 1, new Int2(3, 8));
             world.CreateActor("comm_center", 1, new Int2(11, 7));
+            world.CreateActor("tech_center", 1, new Int2(14, 3));
+            world.CreateActor("advanced_power_plant", 1, new Int2(16, 3));
+            world.CreateActor("dual_helipad", 1, new Int2(14, 6));
+            world.CreateActor("attack_aircraft", 1, new Int2(14, 6));
             world.CreateActor("gun_tower", 1, new Int2(13, 10));
             world.CreateActor("harvester", 1, new Int2(8, 12));
             world.CreateActor("scout_rover", 1, new Int2(10, 11));

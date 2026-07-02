@@ -13,6 +13,8 @@ namespace ProjectAegisRTS.Snapshots
         public IReadOnlyList<PlayerSnapshot> Players { get; private set; }
         public IReadOnlyList<ActorSnapshot> Actors { get; private set; }
         public IReadOnlyList<TransportSnapshot> Transports { get; private set; }
+        public IReadOnlyList<AircraftSnapshot> Aircraft { get; private set; }
+        public IReadOnlyList<AirfieldSnapshot> Airfields { get; private set; }
         public IReadOnlyList<ProjectileSnapshot> Projectiles { get; private set; }
         public IReadOnlyList<CombatEventSnapshot> CombatEvents { get; private set; }
         public EconomySnapshot Economy { get; private set; }
@@ -60,11 +62,18 @@ namespace ProjectAegisRTS.Snapshots
         }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai, MapSnapshot map, MatchSnapshot match, ScenarioSnapshot scenario, IReadOnlyList<TransportSnapshot> transports)
+            : this(tick, players, actors, projectiles, combatEvents, economy, fog, radar, minimap, ai, map, match, scenario, transports, new AircraftSnapshot[0], new AirfieldSnapshot[0])
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai, MapSnapshot map, MatchSnapshot match, ScenarioSnapshot scenario, IReadOnlyList<TransportSnapshot> transports, IReadOnlyList<AircraftSnapshot> aircraft, IReadOnlyList<AirfieldSnapshot> airfields)
         {
             Tick = tick;
             Players = players;
             Actors = actors;
             Transports = transports ?? new TransportSnapshot[0];
+            Aircraft = aircraft ?? new AircraftSnapshot[0];
+            Airfields = airfields ?? new AirfieldSnapshot[0];
             Projectiles = projectiles;
             CombatEvents = combatEvents;
             Economy = economy ?? EconomySnapshot.Empty;
@@ -592,6 +601,64 @@ namespace ProjectAegisRTS.Snapshots
             Kind = kind;
             IsVisible = isVisible;
             IsDepleted = isDepleted;
+        }
+    }
+
+    public sealed class AircraftSnapshot
+    {
+        public int ActorId { get; private set; }
+        public int OwnerId { get; private set; }
+        public string TypeId { get; private set; }
+        public int HomeAirfieldActorId { get; private set; }
+        public int DockedAirfieldActorId { get; private set; }
+        public int AssignedPadIndex { get; private set; }
+        public int AltitudeSubCells { get; private set; }
+        public int FuelTicksRemaining { get; private set; }
+        public int RearmProgressTicks { get; private set; }
+        public bool IsAirborne { get; private set; }
+
+        public AircraftSnapshot(int actorId, int ownerId, string typeId, int homeAirfieldActorId, int dockedAirfieldActorId, int assignedPadIndex, int altitudeSubCells, int fuelTicksRemaining, int rearmProgressTicks, bool isAirborne)
+        {
+            ActorId = actorId;
+            OwnerId = ownerId;
+            TypeId = typeId;
+            HomeAirfieldActorId = homeAirfieldActorId;
+            DockedAirfieldActorId = dockedAirfieldActorId;
+            AssignedPadIndex = assignedPadIndex;
+            AltitudeSubCells = altitudeSubCells;
+            FuelTicksRemaining = fuelTicksRemaining;
+            RearmProgressTicks = rearmProgressTicks;
+            IsAirborne = isAirborne;
+        }
+    }
+
+    public sealed class AirfieldPadSnapshot
+    {
+        public int PadIndex { get; private set; }
+        public Int2 Cell { get; private set; }
+        public int OccupiedAircraftActorId { get; private set; }
+
+        public AirfieldPadSnapshot(int padIndex, Int2 cell, int occupiedAircraftActorId)
+        {
+            PadIndex = padIndex;
+            Cell = cell;
+            OccupiedAircraftActorId = occupiedAircraftActorId;
+        }
+    }
+
+    public sealed class AirfieldSnapshot
+    {
+        public int ActorId { get; private set; }
+        public int OwnerId { get; private set; }
+        public string TypeId { get; private set; }
+        public IReadOnlyList<AirfieldPadSnapshot> Pads { get; private set; }
+
+        public AirfieldSnapshot(int actorId, int ownerId, string typeId, IReadOnlyList<AirfieldPadSnapshot> pads)
+        {
+            ActorId = actorId;
+            OwnerId = ownerId;
+            TypeId = typeId;
+            Pads = pads ?? new AirfieldPadSnapshot[0];
         }
     }
 

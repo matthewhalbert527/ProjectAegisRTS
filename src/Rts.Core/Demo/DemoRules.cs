@@ -47,7 +47,7 @@ namespace ProjectAegisRTS.Demo
             actors.Add(Building("tech_center", "Tech Center", 1300, ProductionKind.Building, 1200, 60, "fabrication_hub", 0, 18, new Int2(2, 2), false, 0, new Int2(1, 2), new string[0], buildingAnimation, prerequisites: new[] { "comm_center" }));
             actors.Add(Building("cannon_turret", "Cannon Turret", 850, ProductionKind.Building, 400, 26, "fabrication_hub", 0, 8, new Int2(1, 1), false, 0, new Int2(0, 1), new string[0], buildingAnimation, Weapon("cannon_turret_shell", "Cannon Turret Shell", 110, 7, 42, 448, ProjectileKind.Shell, true, false, true, true), prerequisites: new[] { "comm_center" }));
             actors.Add(Building("advanced_gun_tower", "Advanced Gun Tower", 1000, ProductionKind.Building, 550, 34, "fabrication_hub", 0, 12, new Int2(1, 1), false, 0, new Int2(0, 1), new string[0], buildingAnimation, Weapon("advanced_tower_shell", "Advanced Tower Shell", 95, 7, 28, 576, ProjectileKind.Shell, true, true, true, true), prerequisites: new[] { "tech_center" }));
-            actors.Add(Building("dual_helipad", "Dual Helipad", 1200, ProductionKind.Building, 700, 36, "fabrication_hub", 0, 12, new Int2(3, 2), false, 0, new Int2(1, 2), new[] { "attack_aircraft", "heavy_lifter_aircraft" }, buildingAnimation, prerequisites: new[] { "tech_center" }));
+            actors.Add(Building("dual_helipad", "Dual Helipad", 1200, ProductionKind.Building, 700, 36, "fabrication_hub", 0, 12, new Int2(3, 2), false, 0, new Int2(1, 2), new[] { "attack_aircraft", "heavy_lifter_aircraft" }, buildingAnimation, prerequisites: new[] { "tech_center" }, airfield: new AirfieldDefinition(2, new[] { new Int2(0, 0), new Int2(2, 0) }, 60)));
 
             actors.Add(Unit("rifle_infantry", "Rifle Infantry", 120, ProductionKind.Infantry, 100, 10, "barracks", 256, 45, "infantry_basic", unitAnimation, Weapon("rifle_bullet", "Rifle Bullet", 24, 5, 12, 768, ProjectileKind.Bullet, true, false, true, true)));
             actors.Add(Unit("grenade_infantry", "Grenade Infantry", 115, ProductionKind.Infantry, 130, 12, "barracks", 240, 45, "infantry_heavy", unitAnimation, Weapon("grenade_placeholder", "Grenade Placeholder", 45, 4, 28, 384, ProjectileKind.Shell, true, false, true, true)));
@@ -60,13 +60,13 @@ namespace ProjectAegisRTS.Demo
             actors.Add(Unit("harvester", "Harvester", 700, ProductionKind.Vehicle, 700, 35, "war_factory", 96, 12, "wheeled_heavy", unitAnimation, null));
             actors.Add(Unit("scout_rover", "Scout Rover", 300, ProductionKind.Vehicle, 300, 20, "war_factory", 160, 24, "wheeled_scout", unitAnimation, Weapon("scout_rover_burst", "Scout Rover Burst", 28, 4, 18, 768, ProjectileKind.Bullet, true, false, false, true), 8, new[] { "comm_center" }));
             actors.Add(Unit("apc", "APC", 550, ProductionKind.Vehicle, 600, 34, "war_factory", 128, 18, "wheeled_apc", unitAnimation, Weapon("apc_burst", "APC Burst", 36, 4, 20, 768, ProjectileKind.Bullet, true, false, false, true), prerequisites: new[] { "barracks" }, transport: new TransportDefinition(5, true, 1, 2, true)));
-            actors.Add(Unit("attack_aircraft", "Attack Aircraft", 450, ProductionKind.Aircraft, 800, 45, "dual_helipad", 192, 30, "aircraft_attack", unitAnimation, Weapon("aircraft_rocket", "Aircraft Rocket", 85, 6, 36, 448, ProjectileKind.Rocket, true, true, true, true), prerequisites: new[] { "tech_center" }));
-            actors.Add(Unit("heavy_lifter_aircraft", "Heavy Lifter Aircraft", 650, ProductionKind.Aircraft, 900, 50, "dual_helipad", 160, 20, "aircraft_lifter", unitAnimation, null, prerequisites: new[] { "tech_center" }));
+            actors.Add(Unit("attack_aircraft", "Attack Aircraft", 450, ProductionKind.Aircraft, 800, 45, "dual_helipad", 192, 30, "aircraft_attack", unitAnimation, Weapon("aircraft_rocket", "Aircraft Rocket", 85, 6, 36, 448, ProjectileKind.Rocket, true, true, true, true), prerequisites: new[] { "tech_center" }, aircraft: new AircraftDefinition(1536, 1800, 60, true)));
+            actors.Add(Unit("heavy_lifter_aircraft", "Heavy Lifter Aircraft", 650, ProductionKind.Aircraft, 900, 50, "dual_helipad", 160, 20, "aircraft_lifter", unitAnimation, null, prerequisites: new[] { "tech_center" }, aircraft: new AircraftDefinition(1408, 2200, 80, true)));
 
             return new RtsRules(actors);
         }
 
-        static UnitDefinition Unit(string typeId, string displayName, int health, ProductionKind productionKind, int cost, int buildTimeTicks, string factoryTypeId, int speedPerTick, int turnRate, string visualProfile, AnimationStateDefinition animation, WeaponDefinition weapon, int sightRadius = 4, IReadOnlyList<string> prerequisites = null, CaptureDefinition capture = null, TransportDefinition transport = null)
+        static UnitDefinition Unit(string typeId, string displayName, int health, ProductionKind productionKind, int cost, int buildTimeTicks, string factoryTypeId, int speedPerTick, int turnRate, string visualProfile, AnimationStateDefinition animation, WeaponDefinition weapon, int sightRadius = 4, IReadOnlyList<string> prerequisites = null, CaptureDefinition capture = null, TransportDefinition transport = null, AircraftDefinition aircraft = null)
         {
             return new UnitDefinition(
                 typeId,
@@ -79,7 +79,8 @@ namespace ProjectAegisRTS.Demo
                 new SightDefinition(sightRadius),
                 null,
                 capture,
-                transport);
+                transport,
+                aircraft);
         }
 
         static MovementClass MovementClassFor(ProductionKind productionKind, string visualProfile, string typeId)
@@ -95,7 +96,7 @@ namespace ProjectAegisRTS.Demo
             return MovementClass.Wheeled;
         }
 
-        static BuildingDefinition Building(string typeId, string displayName, int health, ProductionKind productionKind, int cost, int buildTimeTicks, string factoryTypeId, int powerGenerated, int powerConsumed, Int2 footprint, bool providesConstructionRadius, int constructionRadius, Int2 unitExitOffset, IReadOnlyList<string> produces, AnimationStateDefinition animation, WeaponDefinition weapon = null, int sightRadius = 5, RadarDefinition radar = null, IReadOnlyList<string> prerequisites = null)
+        static BuildingDefinition Building(string typeId, string displayName, int health, ProductionKind productionKind, int cost, int buildTimeTicks, string factoryTypeId, int powerGenerated, int powerConsumed, Int2 footprint, bool providesConstructionRadius, int constructionRadius, Int2 unitExitOffset, IReadOnlyList<string> produces, AnimationStateDefinition animation, WeaponDefinition weapon = null, int sightRadius = 5, RadarDefinition radar = null, IReadOnlyList<string> prerequisites = null, AirfieldDefinition airfield = null)
         {
             return new BuildingDefinition(
                 typeId,
@@ -111,7 +112,9 @@ namespace ProjectAegisRTS.Demo
                 produces,
                 weapon,
                 new SightDefinition(sightRadius),
-                radar);
+                radar,
+                new CaptureableDefinition(true),
+                airfield);
         }
 
         static WeaponDefinition Weapon(string weaponId, string displayName, int damage, int rangeCells, int cooldownTicks, int projectileSpeedSubCellsPerTick, ProjectileKind projectileKind, bool canTargetGround, bool canTargetAir, bool canTargetBuildings, bool canTargetUnits)

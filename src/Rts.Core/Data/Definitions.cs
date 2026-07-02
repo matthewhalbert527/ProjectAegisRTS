@@ -347,6 +347,36 @@ namespace ProjectAegisRTS.Data
         }
     }
 
+    public sealed class AircraftDefinition
+    {
+        public int CruiseAltitudeSubCells { get; private set; }
+        public int FuelTicks { get; private set; }
+        public int RearmTicks { get; private set; }
+        public bool RequiresAirfield { get; private set; }
+
+        public AircraftDefinition(int cruiseAltitudeSubCells, int fuelTicks, int rearmTicks, bool requiresAirfield)
+        {
+            CruiseAltitudeSubCells = cruiseAltitudeSubCells <= 0 ? 1536 : cruiseAltitudeSubCells;
+            FuelTicks = fuelTicks < 0 ? 0 : fuelTicks;
+            RearmTicks = rearmTicks < 0 ? 0 : rearmTicks;
+            RequiresAirfield = requiresAirfield;
+        }
+    }
+
+    public sealed class AirfieldDefinition
+    {
+        public int PadCount { get; private set; }
+        public IReadOnlyList<Int2> PadOffsets { get; private set; }
+        public int RearmTicks { get; private set; }
+
+        public AirfieldDefinition(int padCount, IReadOnlyList<Int2> padOffsets, int rearmTicks)
+        {
+            PadCount = padCount <= 0 ? 1 : padCount;
+            PadOffsets = padOffsets ?? new[] { Int2.Zero };
+            RearmTicks = rearmTicks < 0 ? 0 : rearmTicks;
+        }
+    }
+
     public sealed class AnimationStateDefinition
     {
         public string IdleStateId { get; private set; }
@@ -379,8 +409,10 @@ namespace ProjectAegisRTS.Data
         public CaptureDefinition Capture { get; private set; }
         public CaptureableDefinition Captureable { get; private set; }
         public TransportDefinition Transport { get; private set; }
+        public AircraftDefinition Aircraft { get; private set; }
+        public AirfieldDefinition Airfield { get; private set; }
 
-        protected ActorDefinition(string typeId, string displayName, ActorKind kind, int maxHealth, ProductionDefinition production, PowerDefinition power, AnimationStateDefinition animation, WeaponDefinition weapon, DeathDefinition death, SightDefinition sight, RadarDefinition radar, CaptureDefinition capture, CaptureableDefinition captureable, TransportDefinition transport)
+        protected ActorDefinition(string typeId, string displayName, ActorKind kind, int maxHealth, ProductionDefinition production, PowerDefinition power, AnimationStateDefinition animation, WeaponDefinition weapon, DeathDefinition death, SightDefinition sight, RadarDefinition radar, CaptureDefinition capture, CaptureableDefinition captureable, TransportDefinition transport, AircraftDefinition aircraft, AirfieldDefinition airfield)
         {
             TypeId = typeId;
             DisplayName = displayName;
@@ -396,6 +428,8 @@ namespace ProjectAegisRTS.Data
             Capture = capture;
             Captureable = captureable ?? new CaptureableDefinition(kind == ActorKind.Building);
             Transport = transport;
+            Aircraft = aircraft;
+            Airfield = airfield;
         }
     }
 
@@ -404,12 +438,17 @@ namespace ProjectAegisRTS.Data
         public MovementDefinition Movement { get; private set; }
 
         public UnitDefinition(string typeId, string displayName, int maxHealth, ProductionDefinition production, MovementDefinition movement, WeaponDefinition weapon, AnimationStateDefinition animation, SightDefinition sight = null, RadarDefinition radar = null)
-            : this(typeId, displayName, maxHealth, production, movement, weapon, animation, sight, radar, null, null)
+            : this(typeId, displayName, maxHealth, production, movement, weapon, animation, sight, radar, null, null, null)
         {
         }
 
         public UnitDefinition(string typeId, string displayName, int maxHealth, ProductionDefinition production, MovementDefinition movement, WeaponDefinition weapon, AnimationStateDefinition animation, SightDefinition sight, RadarDefinition radar, CaptureDefinition capture, TransportDefinition transport)
-            : base(typeId, displayName, ActorKind.Unit, maxHealth, production, new PowerDefinition(0, 0, false), animation, weapon, new DeathDefinition(120, "unit_death_placeholder"), sight, radar, capture, new CaptureableDefinition(false), transport)
+            : this(typeId, displayName, maxHealth, production, movement, weapon, animation, sight, radar, capture, transport, null)
+        {
+        }
+
+        public UnitDefinition(string typeId, string displayName, int maxHealth, ProductionDefinition production, MovementDefinition movement, WeaponDefinition weapon, AnimationStateDefinition animation, SightDefinition sight, RadarDefinition radar, CaptureDefinition capture, TransportDefinition transport, AircraftDefinition aircraft)
+            : base(typeId, displayName, ActorKind.Unit, maxHealth, production, new PowerDefinition(0, 0, false), animation, weapon, new DeathDefinition(120, "unit_death_placeholder"), sight, radar, capture, new CaptureableDefinition(false), transport, aircraft, null)
         {
             Movement = movement;
         }
@@ -459,7 +498,28 @@ namespace ProjectAegisRTS.Data
             SightDefinition sight,
             RadarDefinition radar,
             CaptureableDefinition captureable)
-            : base(typeId, displayName, ActorKind.Building, maxHealth, production, power, animation, weapon, new DeathDefinition(180, "building_death_placeholder"), sight, radar, null, captureable, null)
+            : this(typeId, displayName, maxHealth, production, power, animation, footprintCells, providesConstructionRadius, constructionRadiusCells, unitExitOffset, producesTypeIds, weapon, sight, radar, captureable, null)
+        {
+        }
+
+        public BuildingDefinition(
+            string typeId,
+            string displayName,
+            int maxHealth,
+            ProductionDefinition production,
+            PowerDefinition power,
+            AnimationStateDefinition animation,
+            Int2 footprintCells,
+            bool providesConstructionRadius,
+            int constructionRadiusCells,
+            Int2 unitExitOffset,
+            IReadOnlyList<string> producesTypeIds,
+            WeaponDefinition weapon,
+            SightDefinition sight,
+            RadarDefinition radar,
+            CaptureableDefinition captureable,
+            AirfieldDefinition airfield)
+            : base(typeId, displayName, ActorKind.Building, maxHealth, production, power, animation, weapon, new DeathDefinition(180, "building_death_placeholder"), sight, radar, null, captureable, null, null, airfield)
         {
             FootprintCells = footprintCells;
             PlacementFootprintCells = PlacementGridMetrics.CoarseFootprintToPlacementFootprint(footprintCells);

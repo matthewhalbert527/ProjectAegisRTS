@@ -70,3 +70,19 @@ Stage 25 adds the first deterministic utility-unit and passenger mechanics:
 - Stage 25 fast, medium, player-facing, and full validation scripts
 
 The medium tier remains non-recursive and is guarded through Stage 25 by `tools/audit-medium-validation-recursion.ps1`.
+
+## Checkpoint 5: Stage 26 Airfield / Aircraft / Naval Foundation
+
+Stage 26 adds deterministic air and water movement foundations without beginning Stage 27:
+
+- Aircraft metadata for attack and heavy-lifter aircraft
+- Dual-helipad airfield pad state and snapshots
+- Produced aircraft docking at helipad pads
+- Placeholder fuel/rearm state and airborne altitude snapshots
+- Aircraft movement over water/buildings through the existing pathing system
+- Naval movement class and water passability for future naval units
+- Player vertical-slice tech/helipad/aircraft assets while keeping the base normally powered
+- Unity aircraft visual altitude linked to core aircraft snapshots
+- Stage 26 fast, medium, player-facing, and full validation scripts
+
+The medium tier remains non-recursive and is guarded through Stage 26 by `tools/audit-medium-validation-recursion.ps1`.

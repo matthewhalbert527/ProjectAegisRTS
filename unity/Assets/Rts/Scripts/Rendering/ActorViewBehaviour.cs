@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.Art;
@@ -89,13 +90,18 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             VisualMotionProfile motionProfile,
             BuildingVisualProfile buildingProfile,
             ActorVisualDefinition visualDefinition = null,
-            GameObject resolvedPrefab = null)
+            GameObject resolvedPrefab = null,
+            AircraftSnapshot aircraftSnapshot = null)
         {
             EnsureVisuals(definition, materials, visualDefinition, resolvedPrefab);
             EnsureMotionControllers(definition, motionProfile);
             EnsureBuildingVisualController(definition, buildingProfile);
 
-            var target = mapper.ActorToWorldPosition(snapshot, definition) + Vector3.up * BaseElevation(definition, snapshot.TypeId);
+            var logicAltitudeOffset = AircraftAltitudeOffset(aircraftSnapshot, mapper);
+            if (AircraftMotion != null && AircraftMotion.enabled && aircraftSnapshot != null)
+                AircraftMotion.ApplyLogicAltitude(logicAltitudeOffset, aircraftSnapshot.DockedAirfieldActorId > 0);
+
+            var target = mapper.ActorToWorldPosition(snapshot, definition) + Vector3.up * BaseElevation(definition, snapshot.TypeId, aircraftSnapshot);
             smoothVisuals = enableSmoothVisuals;
             ticksPerSecond = Mathf.Max(1f, simulationTicksPerSecond);
 
@@ -244,6 +250,9 @@ namespace ProjectAegisRTS.UnityClient.Rendering
 
             if (definition.TypeId == "war_factory" || definition.TypeId == "refinery" || definition.TypeId == "barracks")
                 turretMarker = CreatePrimitive("Exit Marker", PrimitiveType.Cube, new Vector3(0f, 0.12f, scale.z * 0.52f), new Vector3(0.42f, 0.12f, 0.12f), materials.Machinery);
+
+            if (definition.Airfield != null)
+                CreateAirfieldPadMarkers(definition, materials);
         }
 
         void CreateUnitVisual(string typeId, Stage1MaterialLibrary materials)
@@ -490,6 +499,35 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         static float BaseElevation(ActorDefinition definition, string typeId)
         {
             return typeId.Contains("aircraft") ? 1.4f : 0f;
+        }
+
+        static float BaseElevation(ActorDefinition definition, string typeId, AircraftSnapshot aircraftSnapshot)
+        {
+            if (aircraftSnapshot != null)
+                return 0f;
+            return BaseElevation(definition, typeId);
+        }
+
+        static float AircraftAltitudeOffset(AircraftSnapshot aircraftSnapshot, BoardCoordinateMapper mapper)
+        {
+            if (aircraftSnapshot == null || mapper == null)
+                return 0f;
+            return Mathf.Max(0f, aircraftSnapshot.AltitudeSubCells / (float)FixedMath.CellScale * mapper.CellSizeMeters);
+        }
+
+        void CreateAirfieldPadMarkers(BuildingDefinition definition, Stage1MaterialLibrary materials)
+        {
+            var airfield = definition.Airfield;
+            if (airfield == null)
+                return;
+
+            for (var i = 0; i < airfield.PadCount; i++)
+            {
+                var offset = airfield.PadOffsets.Count > i ? airfield.PadOffsets[i] : Int2.Zero;
+                var localX = offset.X - definition.FootprintCells.X * 0.5f + 0.5f;
+                var localZ = offset.Y - definition.FootprintCells.Y * 0.5f + 0.5f;
+                CreatePrimitive("Helipad Pad " + (i + 1), PrimitiveType.Cylinder, new Vector3(localX, 0.42f, localZ), new Vector3(0.42f, 0.035f, 0.42f), materials.Selection);
+            }
         }
 
         static string DetermineCategory(string typeId, ActorDefinition definition)
