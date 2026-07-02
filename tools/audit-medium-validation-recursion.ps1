@@ -4,7 +4,7 @@ param()
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$forbiddenScriptPattern = 'run-stage(?:8|9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23)-medium-checks(?:\.ps1)?'
+$forbiddenScriptPattern = 'run-stage(?:8|9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24)-medium-checks(?:\.ps1)?'
 $forbiddenTextPattern = 'medium validation as the immediate dependency'
 $failures = @()
 
@@ -343,10 +343,47 @@ if (-not (Test-Path -LiteralPath $stage23ScriptPath)) {
     }
 }
 
+$stage24ScriptName = 'run-stage24-medium-checks.ps1'
+$stage24ScriptPath = Join-Path $repoRoot "tools\$stage24ScriptName"
+if (-not (Test-Path -LiteralPath $stage24ScriptPath)) {
+    $failures += "Missing medium validation script: $stage24ScriptPath"
+} else {
+    $lines = Get-Content -LiteralPath $stage24ScriptPath
+    for ($lineNumber = 0; $lineNumber -lt $lines.Count; $lineNumber++) {
+        $line = $lines[$lineNumber]
+        $trimmed = $line.Trim()
+
+        if ($line -match $forbiddenScriptPattern) {
+            $ownNameInComment = $line -match [regex]::Escape($stage24ScriptName) -and $trimmed.StartsWith('#')
+            if (-not $ownNameInComment) {
+                $failures += "${stage24ScriptName}:$($lineNumber + 1) contains forbidden medium dependency text: $trimmed"
+            }
+        }
+
+        if ($line -match $forbiddenTextPattern) {
+            $failures += "${stage24ScriptName}:$($lineNumber + 1) contains old medium dependency wording: $trimmed"
+        }
+    }
+
+    $content = $lines -join "`n"
+    if ($content -notmatch [regex]::Escape('run-unity-stage23-validation.ps1')) {
+        $failures += "$stage24ScriptName does not call direct Stage 23 Unity validation."
+    }
+    if ($content -notmatch [regex]::Escape('run-stage23-player-facing-checks.ps1')) {
+        $failures += "$stage24ScriptName does not call direct Stage 23 player-facing validation."
+    }
+    if ($content -notmatch [regex]::Escape('run-unity-stage24-validation.ps1')) {
+        $failures += "$stage24ScriptName does not call direct Stage 24 Unity validation."
+    }
+    if ($content -notmatch [regex]::Escape('run-stage24-player-facing-checks.ps1')) {
+        $failures += "$stage24ScriptName does not call direct Stage 24 player-facing validation."
+    }
+}
+
 if ($failures.Count -gt 0) {
     Write-Error "Medium validation recursion audit failed:`n$($failures -join "`n")"
     exit 1
 }
 
-Write-Host 'Medium validation recursion audit passed: Stage 9-23 medium scripts use direct Unity validation dependencies only.'
+Write-Host 'Medium validation recursion audit passed: Stage 9-24 medium scripts use direct Unity validation dependencies only.'
 $global:LASTEXITCODE = 0

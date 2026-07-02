@@ -51,6 +51,14 @@ namespace ProjectAegisRTS.Tests
                 RepairConsumesCreditsAndRestoresHealth,
                 RallyPointAffectsSpawnedUnitOrder,
                 BaseManagementDeterminismSmokeTest,
+                MissingPrerequisiteDisablesProductionItem,
+                BarracksUnlocksInfantryProduction,
+                WarFactoryUnlocksVehicleProduction,
+                TechCenterUnlocksAdvancedProduction,
+                RevealScanChangesVisibility,
+                SupportPowerCooldownWorks,
+                SupportPowerSnapshotsExposeAvailability,
+                SupportPowerDeterminismSmokeTest,
                 WeaponCooldownPreventsContinuousFire,
                 ProjectileSpawnsForProjectileWeapon,
                 ProjectileImpactsAndDealsDamage,
@@ -484,6 +492,99 @@ namespace ProjectAegisRTS.Tests
             var a = RunBaseManagementDeterministicSequence();
             var b = RunBaseManagementDeterministicSequence();
             Assert(a == b, "Expected base-management deterministic summaries to match.");
+        }
+
+        static void MissingPrerequisiteDisablesProductionItem()
+        {
+            var world = DemoWorldFactory.CreateMvpWorld();
+            var hub = world.FirstActorOfType("fabrication_hub", 1);
+
+            Assert(world.GetMissingProductionPrerequisiteTypeId(1, "tech_center") == "comm_center", "Expected tech center to require comm center.");
+            var result = world.IssueCommand(new BeginProductionCommand(1, hub.Id, "tech_center"));
+            Assert(!result.Success && result.ErrorCode == "MissingPrerequisite", "Expected MissingPrerequisite for tech center, got " + result.ErrorCode);
+        }
+
+        static void BarracksUnlocksInfantryProduction()
+        {
+            var world = DemoWorldFactory.CreateMvpWorld();
+            var barracks = world.CreateActor("barracks", 1, new Int2(8, 4));
+
+            var result = world.IssueCommand(new BeginProductionCommand(1, barracks.Id, "rifle_infantry"));
+            Assert(result.Success, "Expected barracks to unlock rifle infantry production: " + result.ErrorCode);
+        }
+
+        static void WarFactoryUnlocksVehicleProduction()
+        {
+            var world = DemoWorldFactory.CreateMvpWorld();
+            var factory = world.CreateActor("war_factory", 1, new Int2(8, 6));
+
+            var result = world.IssueCommand(new BeginProductionCommand(1, factory.Id, "light_tank"));
+            Assert(result.Success, "Expected war factory to unlock light tank production: " + result.ErrorCode);
+        }
+
+        static void TechCenterUnlocksAdvancedProduction()
+        {
+            var world = DemoWorldFactory.CreateMvpWorld();
+            var factory = world.CreateActor("war_factory", 1, new Int2(8, 6));
+
+            var locked = world.IssueCommand(new BeginProductionCommand(1, factory.Id, "heavy_tank"));
+            Assert(!locked.Success && locked.ErrorCode == "MissingPrerequisite", "Expected heavy tank to require tech center, got " + locked.ErrorCode);
+
+            world.CreateActor("tech_center", 1, new Int2(11, 6));
+            Assert(world.GetMissingProductionPrerequisiteTypeId(1, "heavy_tank") == string.Empty, "Expected tech center to unlock heavy tank.");
+            var unlocked = world.IssueCommand(new BeginProductionCommand(1, factory.Id, "heavy_tank"));
+            Assert(unlocked.Success, "Expected heavy tank production with tech center: " + unlocked.ErrorCode);
+        }
+
+        static void RevealScanChangesVisibility()
+        {
+            var world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            var target = new Int2(25, 25);
+            world.CreateSnapshot(1);
+            Assert(!world.IsCellVisible(1, target), "Expected target cell to begin outside visible fog.");
+
+            var result = world.IssueCommand(new ActivateSupportPowerCommand(1, "reveal_scan", target));
+            Assert(result.Success, "Expected reveal scan success: " + result.ErrorCode);
+            Assert(world.IsCellVisible(1, target), "Expected reveal scan to make target visible.");
+
+            var snapshot = world.CreateSnapshot(1);
+            Assert(HasCellVisibility(snapshot.Fog, target, CellVisibility.Visible), "Expected reveal scan visibility in fog snapshot.");
+        }
+
+        static void SupportPowerCooldownWorks()
+        {
+            var world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            var first = world.IssueCommand(new ActivateSupportPowerCommand(1, "reveal_scan", new Int2(25, 25)));
+            Assert(first.Success, "Expected first reveal scan to succeed: " + first.ErrorCode);
+
+            var second = world.IssueCommand(new ActivateSupportPowerCommand(1, "reveal_scan", new Int2(20, 20)));
+            Assert(!second.Success && second.ErrorCode == "SupportPowerCooldown", "Expected support power cooldown, got " + second.ErrorCode);
+
+            world.Tick();
+            var snapshot = world.CreateSnapshot(1);
+            var scan = FindSupportPower(snapshot.Players[0], "reveal_scan");
+            Assert(scan != null && scan.CooldownRemainingTicks == 179, "Expected reveal scan cooldown to tick down to 179.");
+        }
+
+        static void SupportPowerSnapshotsExposeAvailability()
+        {
+            var world = DemoWorldFactory.CreateMvpWorld();
+            var lockedSnapshot = world.CreateSnapshot(1);
+            var locked = FindSupportPower(lockedSnapshot.Players[0], "reveal_scan");
+            Assert(locked != null, "Expected reveal scan support snapshot.");
+            Assert(!locked.IsUnlocked && locked.MissingPrerequisiteTypeId == "comm_center", "Expected reveal scan to require comm center.");
+
+            world.CreateActor("comm_center", 1, new Int2(8, 4));
+            var unlockedSnapshot = world.CreateSnapshot(1);
+            var unlocked = FindSupportPower(unlockedSnapshot.Players[0], "reveal_scan");
+            Assert(unlocked != null && unlocked.IsUnlocked && unlocked.IsReady, "Expected reveal scan to become ready after comm center.");
+        }
+
+        static void SupportPowerDeterminismSmokeTest()
+        {
+            var a = RunSupportPowerDeterministicSequence();
+            var b = RunSupportPowerDeterministicSequence();
+            Assert(a == b, "Expected support-power deterministic summaries to match.");
         }
 
         static void WeaponCooldownPreventsContinuousFire()
@@ -1085,6 +1186,19 @@ namespace ProjectAegisRTS.Tests
             return world.GetDeterminismSummary();
         }
 
+        static string RunSupportPowerDeterministicSequence()
+        {
+            var world = DemoWorldFactory.CreateFogRadarDemoWorld();
+            world.IssueCommand(new ActivateSupportPowerCommand(1, "reveal_scan", new Int2(25, 25)));
+            RunTicks(world, 12);
+            world.CreateActor("repair_bay", 1, new Int2(10, 6));
+            var hub = world.FirstActorOfType("fabrication_hub", 1);
+            hub.Health -= 100;
+            world.IssueCommand(new ActivateSupportPowerCommand(1, "emergency_repair_pulse", hub.CellPosition));
+            RunTicks(world, 24);
+            return world.GetDeterminismSummary();
+        }
+
         static string RunEconomyDeterministicSequence()
         {
             var world = EconomyWorldWithHarvestOrder();
@@ -1198,6 +1312,18 @@ namespace ProjectAegisRTS.Tests
             for (var i = 0; i < snapshot.Actors.Count; i++)
                 if (snapshot.Actors[i].TypeId == typeId && snapshot.Actors[i].OwnerId == ownerId)
                     return snapshot.Actors[i];
+            return null;
+        }
+
+        static SupportPowerSnapshot FindSupportPower(PlayerSnapshot player, string powerId)
+        {
+            if (player == null)
+                return null;
+
+            for (var i = 0; i < player.SupportPowers.Count; i++)
+                if (player.SupportPowers[i].PowerId == powerId)
+                    return player.SupportPowers[i];
+
             return null;
         }
 

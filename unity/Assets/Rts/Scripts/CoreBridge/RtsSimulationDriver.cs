@@ -7,6 +7,7 @@ using ProjectAegisRTS.Demo;
 using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Simulation;
 using ProjectAegisRTS.Snapshots;
+using ProjectAegisRTS.Support;
 using ProjectAegisRTS.UnityClient.Feedback;
 using UnityEngine;
 
@@ -981,6 +982,14 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 return fail;
             }
 
+            var missingPrerequisite = GetMissingProductionPrerequisiteTypeId(typeId);
+            if (!string.IsNullOrEmpty(missingPrerequisite))
+            {
+                var fail = RtsCommandResult.Fail("MissingPrerequisite", "Build " + missingPrerequisite + " before producing " + typeId + ".");
+                EmitCommandFeedback(FeedbackEventType.ProductionStarted, fail, Int2.Zero, producerActorId, "Production");
+                return fail;
+            }
+
             var result = RtsCommandAdapter.BeginProduction(world, playerId, producerActorId, typeId);
             RefreshSnapshot();
             EmitCommandFeedback(FeedbackEventType.ProductionStarted, result, Int2.Zero, producerActorId, "Production");
@@ -1132,6 +1141,36 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return result;
         }
 
+        public RtsCommandResult TryActivateSupportPowerAtCell(string powerId, Int2 cell)
+        {
+            if (world == null || Rules == null)
+            {
+                var fail = RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+                EmitCommandFeedback(FeedbackEventType.Generic, fail, cell, 0, "Support power");
+                return fail;
+            }
+
+            SupportPowerDefinition definition;
+            if (!Rules.TryGetSupportPowerDefinition(powerId, out definition))
+            {
+                var fail = RtsCommandResult.Fail("UnknownSupportPower", "Unknown support power: " + powerId);
+                EmitCommandFeedback(FeedbackEventType.Generic, fail, cell, 0, "Support power");
+                return fail;
+            }
+
+            if (definition.TargetKind == SupportPowerTargetKind.Cell && !world.Map.Contains(cell))
+            {
+                var fail = RtsCommandResult.Fail("SupportTargetOutsideMap", "Hover a board cell before using " + definition.DisplayName + ".");
+                EmitCommandFeedback(FeedbackEventType.Generic, fail, cell, 0, "Support power");
+                return fail;
+            }
+
+            var result = RtsCommandAdapter.ActivateSupportPower(world, playerId, powerId, cell);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Generic, result, cell, 0, definition.DisplayName);
+            return result;
+        }
+
         public RtsCommandResult TryForceLowPowerOrCreateLowPowerDemoCondition()
         {
             if (world == null)
@@ -1217,6 +1256,16 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         {
             int actorId;
             return TryFindOwnedActorOfType(typeId, out actorId);
+        }
+
+        public string GetMissingProductionPrerequisiteTypeId(string typeId)
+        {
+            return world == null ? string.Empty : world.GetMissingProductionPrerequisiteTypeId(playerId, typeId);
+        }
+
+        public string GetMissingSupportPowerPrerequisiteTypeId(string powerId)
+        {
+            return world == null ? string.Empty : world.GetMissingSupportPowerPrerequisiteTypeId(playerId, powerId);
         }
 
         public RtsCommandResult TrySelectOwnedActorsOfSameTypeAtCell(Int2 cell)

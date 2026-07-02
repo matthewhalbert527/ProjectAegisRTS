@@ -14,6 +14,7 @@ using ProjectAegisRTS.Production;
 using ProjectAegisRTS.Projectiles;
 using ProjectAegisRTS.Scenarios;
 using ProjectAegisRTS.Snapshots;
+using ProjectAegisRTS.Support;
 using ProjectAegisRTS.Terrain;
 using ProjectAegisRTS.Visibility;
 
@@ -28,6 +29,7 @@ namespace ProjectAegisRTS.Simulation
         readonly Dictionary<int, HarvesterState> harvesters;
         readonly Dictionary<int, RefineryState> refineries;
         readonly Dictionary<int, PlayerVisibilityState> visibilityStates;
+        readonly List<SupportRevealState> supportReveals;
         readonly List<CombatEventSnapshot> recentCombatEvents;
         readonly List<EconomyEventSnapshot> recentEconomyEvents;
         readonly List<PathDebugSnapshot> recentPathQueries;
@@ -48,6 +50,7 @@ namespace ProjectAegisRTS.Simulation
         const int RepairHitPointsPerTick = 10;
         const int RepairCreditsPerTick = 5;
         const int SellRefundPercent = 50;
+        const int SupportRevealDurationTicks = 90;
 
         public RtsRules Rules { get; private set; }
         public GridMap Map { get; private set; }
@@ -64,6 +67,7 @@ namespace ProjectAegisRTS.Simulation
             harvesters = new Dictionary<int, HarvesterState>();
             refineries = new Dictionary<int, RefineryState>();
             visibilityStates = new Dictionary<int, PlayerVisibilityState>();
+            supportReveals = new List<SupportRevealState>();
             recentCombatEvents = new List<CombatEventSnapshot>();
             recentEconomyEvents = new List<EconomyEventSnapshot>();
             recentPathQueries = new List<PathDebugSnapshot>();
@@ -126,6 +130,8 @@ namespace ProjectAegisRTS.Simulation
         public PlayerState AddPlayer(int playerId, string name, int credits)
         {
             var player = new PlayerState(playerId, name, credits);
+            foreach (var supportPowerDefinition in Rules.SupportPowerDefinitions)
+                player.MutableSupportPowers[supportPowerDefinition.PowerId] = new SupportPowerState(supportPowerDefinition.PowerId);
             players.Add(playerId, player);
             visibilityStates[playerId] = new PlayerVisibilityState(playerId, Map.Width, Map.Height);
             return player;
@@ -334,6 +340,34 @@ namespace ProjectAegisRTS.Simulation
             return CommandResult.Ok("Scenario map revealed.");
         }
 
+        public string GetMissingProductionPrerequisiteTypeId(int playerId, string typeId)
+        {
+            if (!players.ContainsKey(playerId))
+                return "player";
+
+            ActorDefinition definition;
+            if (!Rules.TryGetDefinition(typeId, out definition) || definition.Production == null)
+                return string.Empty;
+
+            return TechTreeSystem.FindMissingPrerequisiteTypeId(
+                definition.Production.PrerequisiteTypeIds,
+                prerequisiteTypeId => HasCompletedOwnedActorOfType(playerId, prerequisiteTypeId));
+        }
+
+        public string GetMissingSupportPowerPrerequisiteTypeId(int playerId, string powerId)
+        {
+            if (!players.ContainsKey(playerId))
+                return "player";
+
+            SupportPowerDefinition definition;
+            if (!Rules.TryGetSupportPowerDefinition(powerId, out definition))
+                return string.Empty;
+
+            return TechTreeSystem.FindMissingPrerequisiteTypeId(
+                definition.PrerequisiteTypeIds,
+                prerequisiteTypeId => HasCompletedOwnedActorOfType(playerId, prerequisiteTypeId));
+        }
+
         public CommandResult IssueCommand(ISimCommand command)
         {
             if (!players.ContainsKey(command.PlayerId))
@@ -373,6 +407,8 @@ namespace ProjectAegisRTS.Simulation
                 return PlaceBuilding((PlaceBuildingCommand)command);
             if (command is SetRallyPointCommand)
                 return SetRallyPoint((SetRallyPointCommand)command);
+            if (command is ActivateSupportPowerCommand)
+                return ActivateSupportPower((ActivateSupportPowerCommand)command);
             if (command is BeginRepairBuildingCommand)
                 return BeginRepairBuilding((BeginRepairBuildingCommand)command);
             if (command is CancelRepairBuildingCommand)
@@ -393,6 +429,7 @@ namespace ProjectAegisRTS.Simulation
             UpdatePowerAndActorFlags();
             aiSystem.Tick(this);
             TickProduction();
+            TickSupportPowers();
             TickRepairs();
             TickMovement();
             TickHarvesting();
@@ -433,12 +470,32 @@ namespace ProjectAegisRTS.Simulation
                 foreach (var item in player.ProductionQueue)
                     production.Add(new ProductionSnapshot(item.QueueItemId, item.ProducerActorId.Value, item.TypeId, item.ProgressTicks, item.BuildTimeTicks, item.State.ToString()));
 
+                var supportPowers = new List<SupportPowerSnapshot>();
+                foreach (var definition in Rules.SupportPowerDefinitions)
+                {
+                    var state = EnsureSupportPowerState(player, definition.PowerId);
+                    var missingPrerequisite = GetMissingSupportPowerPrerequisiteTypeId(player.PlayerId, definition.PowerId);
+                    var isUnlocked = string.IsNullOrEmpty(missingPrerequisite);
+                    supportPowers.Add(new SupportPowerSnapshot(
+                        definition.PowerId,
+                        definition.DisplayName,
+                        isUnlocked,
+                        missingPrerequisite,
+                        state.CooldownRemainingTicks,
+                        isUnlocked && state.CooldownRemainingTicks <= 0,
+                        state.ActivationCount,
+                        definition.EffectKind.ToString(),
+                        definition.TargetKind.ToString(),
+                        definition.RadiusCells));
+                }
+
                 playerSnapshots.Add(new PlayerSnapshot(
                     player.PlayerId,
                     player.Name,
                     player.Credits,
                     new PowerSnapshot(player.PowerGenerated, player.PowerConsumed, player.PowerState),
-                    production));
+                    production,
+                    supportPowers));
             }
 
             var actorSnapshots = new List<ActorSnapshot>();
@@ -611,6 +668,17 @@ namespace ProjectAegisRTS.Simulation
                         .Append(item.State)
                         .AppendLine();
                 }
+
+                foreach (var definition in Rules.SupportPowerDefinitions)
+                {
+                    var state = EnsureSupportPowerState(player, definition.PowerId);
+                    sb.Append("support ")
+                        .Append(definition.PowerId)
+                        .Append(" cooldown=").Append(state.CooldownRemainingTicks)
+                        .Append(" activations=").Append(state.ActivationCount)
+                        .Append(" missing=").Append(GetMissingSupportPowerPrerequisiteTypeId(player.PlayerId, definition.PowerId))
+                        .AppendLine();
+                }
             }
 
             foreach (var player in SortedPlayers())
@@ -636,6 +704,16 @@ namespace ProjectAegisRTS.Simulation
                     .Append(" explored=").Append(explored)
                     .Append(" radar=").Append(radar.IsActive)
                     .Append('/').Append(radar.ProviderActorId)
+                    .AppendLine();
+            }
+
+            foreach (var reveal in supportReveals)
+            {
+                sb.Append("support_reveal ")
+                    .Append(reveal.PlayerId).Append(' ')
+                    .Append(reveal.Center).Append(' ')
+                    .Append(reveal.RadiusCells).Append(' ')
+                    .Append(reveal.RemainingTicks)
                     .AppendLine();
             }
 
@@ -795,6 +873,10 @@ namespace ProjectAegisRTS.Simulation
 
             if (targetDefinition.Production.Kind == ProductionKind.None)
                 return CommandResult.Fail("NotBuildable", "The requested actor type is not buildable.");
+
+            var missingPrerequisite = GetMissingProductionPrerequisiteTypeId(command.PlayerId, command.TypeId);
+            if (!string.IsNullOrEmpty(missingPrerequisite))
+                return CommandResult.Fail("MissingPrerequisite", "Build " + missingPrerequisite + " before producing " + command.TypeId + ".");
 
             var player = players[command.PlayerId];
             if (player.Credits < targetDefinition.Production.Cost)
@@ -1329,6 +1411,51 @@ namespace ProjectAegisRTS.Simulation
             return CommandResult.Ok("Rally point recorded.");
         }
 
+        CommandResult ActivateSupportPower(ActivateSupportPowerCommand command)
+        {
+            SupportPowerDefinition definition;
+            if (!Rules.TryGetSupportPowerDefinition(command.PowerId, out definition))
+                return CommandResult.Fail("UnknownSupportPower", "The requested support power is not registered in the rules.");
+
+            var missingPrerequisite = GetMissingSupportPowerPrerequisiteTypeId(command.PlayerId, command.PowerId);
+            if (!string.IsNullOrEmpty(missingPrerequisite))
+                return CommandResult.Fail("MissingPrerequisite", "Build " + missingPrerequisite + " before using " + definition.DisplayName + ".");
+
+            if (definition.TargetKind == SupportPowerTargetKind.Cell && !Map.Contains(command.TargetCell))
+                return CommandResult.Fail("SupportTargetOutsideMap", "The support power target is outside the map.");
+
+            var player = players[command.PlayerId];
+            var state = EnsureSupportPowerState(player, command.PowerId);
+            if (state.CooldownRemainingTicks > 0)
+                return CommandResult.Fail("SupportPowerCooldown", definition.DisplayName + " is cooling down for " + state.CooldownRemainingTicks + " ticks.");
+
+            var message = "Support power activated.";
+            switch (definition.EffectKind)
+            {
+                case SupportPowerEffectKind.RevealScan:
+                    ApplyRevealScan(command.PlayerId, command.TargetCell, definition.RadiusCells);
+                    message = definition.DisplayName + " revealed the target area.";
+                    break;
+                case SupportPowerEffectKind.EmergencyRepairPulse:
+                    var repaired = ApplyEmergencyRepairPulse(command.PlayerId, command.TargetCell, definition.RadiusCells, definition.Amount);
+                    message = definition.DisplayName + " repaired " + repaired + " owned buildings.";
+                    break;
+                case SupportPowerEffectKind.PrecisionStrikePlaceholder:
+                    message = definition.DisplayName + " placeholder armed for later damage rules.";
+                    break;
+                case SupportPowerEffectKind.ProductionBoostPlaceholder:
+                    message = definition.DisplayName + " placeholder reserved for production modifiers.";
+                    break;
+                case SupportPowerEffectKind.PowerSurgePlaceholder:
+                    message = definition.DisplayName + " placeholder reserved for power modifiers.";
+                    break;
+            }
+
+            state.MarkActivated(TickNumber, definition.CooldownTicks);
+            UpdateVisibility();
+            return CommandResult.Ok(message);
+        }
+
         CommandResult BeginRepairBuilding(BeginRepairBuildingCommand command)
         {
             ActorState actor;
@@ -1463,6 +1590,64 @@ namespace ProjectAegisRTS.Simulation
                 SpawnProducedUnit(item);
                 players[item.PlayerId].MutableProductionQueue.Remove(item);
             }
+        }
+
+        void TickSupportPowers()
+        {
+            foreach (var player in SortedPlayers())
+            {
+                foreach (var definition in Rules.SupportPowerDefinitions)
+                {
+                    var state = EnsureSupportPowerState(player, definition.PowerId);
+                    state.TickCooldown();
+                }
+            }
+
+            for (var i = supportReveals.Count - 1; i >= 0; i--)
+            {
+                supportReveals[i].RemainingTicks--;
+                if (supportReveals[i].RemainingTicks <= 0)
+                    supportReveals.RemoveAt(i);
+            }
+        }
+
+        void ApplyRevealScan(int playerId, Int2 center, int radius)
+        {
+            PlayerVisibilityState visibility;
+            if (!visibilityStates.TryGetValue(playerId, out visibility))
+                return;
+
+            RevealCircle(visibility, center, radius);
+            supportReveals.Add(new SupportRevealState(playerId, center, radius, SupportRevealDurationTicks));
+        }
+
+        int ApplyEmergencyRepairPulse(int playerId, Int2 center, int radius, int amount)
+        {
+            var repairedActors = 0;
+            var radiusSquared = radius * radius;
+            foreach (var actor in SortedActors())
+            {
+                if (actor.OwnerPlayerId != playerId || actor.IsDestroyed)
+                    continue;
+
+                var definition = Rules.GetDefinition(actor.TypeId) as BuildingDefinition;
+                if (definition == null || actor.Health >= definition.MaxHealth)
+                    continue;
+
+                var dx = actor.CellPosition.X - center.X;
+                var dy = actor.CellPosition.Y - center.Y;
+                if (dx * dx + dy * dy > radiusSquared)
+                    continue;
+
+                actor.Health += amount;
+                if (actor.Health > definition.MaxHealth)
+                    actor.Health = definition.MaxHealth;
+                actor.IsRepairing = false;
+                actor.RepairProgressTicks++;
+                repairedActors++;
+            }
+
+            return repairedActors;
         }
 
         void TickRepairs()
@@ -1823,6 +2008,13 @@ namespace ProjectAegisRTS.Simulation
                 var definition = Rules.GetDefinition(actor.TypeId);
                 RevealCircle(visibility, actor.CellPosition, definition.Sight.RadiusCells);
             }
+
+            for (var i = 0; i < supportReveals.Count; i++)
+            {
+                PlayerVisibilityState visibility;
+                if (visibilityStates.TryGetValue(supportReveals[i].PlayerId, out visibility))
+                    RevealCircle(visibility, supportReveals[i].Center, supportReveals[i].RadiusCells);
+            }
         }
 
         void RevealCircle(PlayerVisibilityState visibility, Int2 center, int radius)
@@ -2055,6 +2247,27 @@ namespace ProjectAegisRTS.Simulation
                 return false;
 
             return actor.OwnerPlayerId == playerId && !actor.IsDestroyed;
+        }
+
+        bool HasCompletedOwnedActorOfType(int playerId, string typeId)
+        {
+            foreach (var actor in SortedActors())
+                if (actor.OwnerPlayerId == playerId && actor.TypeId == typeId && !actor.IsDestroyed)
+                    return true;
+
+            return false;
+        }
+
+        SupportPowerState EnsureSupportPowerState(PlayerState player, string powerId)
+        {
+            SupportPowerState state;
+            if (!player.MutableSupportPowers.TryGetValue(powerId, out state))
+            {
+                state = new SupportPowerState(powerId);
+                player.MutableSupportPowers[powerId] = state;
+            }
+
+            return state;
         }
 
         bool ValidateMobileActor(ActorState actor, string orderName, List<string> details)
@@ -2751,6 +2964,22 @@ namespace ProjectAegisRTS.Simulation
             var list = new List<RefineryState>(refineries.Values);
             list.Sort((a, b) => a.ActorId.CompareTo(b.ActorId));
             return list;
+        }
+
+        sealed class SupportRevealState
+        {
+            public int PlayerId;
+            public Int2 Center;
+            public int RadiusCells;
+            public int RemainingTicks;
+
+            public SupportRevealState(int playerId, Int2 center, int radiusCells, int remainingTicks)
+            {
+                PlayerId = playerId;
+                Center = center;
+                RadiusCells = radiusCells;
+                RemainingTicks = remainingTicks;
+            }
         }
     }
 }

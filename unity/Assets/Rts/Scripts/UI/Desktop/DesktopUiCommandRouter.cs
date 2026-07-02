@@ -1,4 +1,5 @@
 using ProjectAegisRTS.Core;
+using ProjectAegisRTS.Support;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.UI.Common;
 using UnityEngine;
@@ -280,6 +281,22 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
 
             var result = driver.TryTogglePowerSelected();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult ActivateSupportPowerAtHoveredCell(string powerId)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var targetCell = driver.HasHoveredCell ? driver.HoveredCoarseCell : Int2.Zero;
+            SupportPowerDefinition definition;
+            var needsCell = driver.Rules == null || !driver.Rules.TryGetSupportPowerDefinition(powerId, out definition) || definition.TargetKind == SupportPowerTargetKind.Cell;
+            if (needsCell && !driver.HasHoveredCell)
+                return LogAndReturn(RtsCommandResult.Fail("NoHoveredCell", "Hover a board cell before using a targeted support power."));
+
+            var result = driver.TryActivateSupportPowerAtCell(powerId, targetCell);
             Log(result);
             return result;
         }

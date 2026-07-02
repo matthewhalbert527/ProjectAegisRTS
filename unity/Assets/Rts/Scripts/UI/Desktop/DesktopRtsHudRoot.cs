@@ -27,6 +27,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         public ProductionCategoryTabs categoryTabs;
         public ProductionGridController productionGrid;
         public ProductionQueuePanel productionQueue;
+        public SupportPowerPanelController supportPowerPanel;
         public PlacementModePanel placementPanel;
         public SelectionPanelController selectionPanel;
         public CommandBarController commandBar;
@@ -60,6 +61,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             categoryTabs.Initialize(productionGrid, statusLog);
             productionGrid.Initialize(driver, commandRouter, categoryTabs, productionGridColumns, progressTracker, missionFlowController);
             productionQueue.Initialize(driver, commandRouter);
+            supportPowerPanel.Initialize(driver, commandRouter);
             placementPanel.Initialize(driver, commandRouter);
             selectionPanel.Initialize(driver, commandRouter);
             commandBar.Initialize(driver, commandRouter);
@@ -115,6 +117,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 productionGrid = GetComponentInChildren<ProductionGridController>(true);
             if (productionQueue == null)
                 productionQueue = GetComponentInChildren<ProductionQueuePanel>(true);
+            if (supportPowerPanel == null)
+                supportPowerPanel = GetComponentInChildren<SupportPowerPanelController>(true);
             if (placementPanel == null)
                 placementPanel = GetComponentInChildren<PlacementModePanel>(true);
             if (selectionPanel == null)
@@ -136,6 +140,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 productionGrid = CreatePanel("Production Grid", typeof(ProductionGridController), SidebarPanel(260f, 255f)).GetComponent<ProductionGridController>();
             if (productionQueue == null)
                 productionQueue = CreatePanel("Production Queue", typeof(ProductionQueuePanel), SidebarPanel(520f, 120f)).GetComponent<ProductionQueuePanel>();
+            if (supportPowerPanel == null)
+                supportPowerPanel = CreatePanel("Support Powers", typeof(SupportPowerPanelController), SidebarPanel(642f, 40f)).GetComponent<SupportPowerPanelController>();
             if (placementPanel == null)
                 placementPanel = CreatePanel("Placement Panel", typeof(PlacementModePanel), SidebarPanel(642f, 122f)).GetComponent<PlacementModePanel>();
             if (selectionPanel == null)
@@ -148,7 +154,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 statusLog = CreatePanel("Status Log", typeof(RtsStatusLog), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(12f, bottomCommandBarHeight + 8f), new Vector2(-sidebarWidth - 12f, bottomCommandBarHeight + 102f)).GetComponent<RtsStatusLog>();
 
             ApplyPanelLayouts();
-            cncSidebarLayout.Initialize(this, sidebarController, categoryTabs, productionGrid, productionQueue, placementPanel, selectionPanel, commandBar, minimap);
+            cncSidebarLayout.Initialize(this, sidebarController, categoryTabs, productionGrid, productionQueue, supportPowerPanel, placementPanel, selectionPanel, commandBar, minimap);
             SetStatusLogVisible(showDebugOverlay);
         }
 
@@ -194,6 +200,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             ApplyPanelLayout(categoryTabs, SidebarPanel(220f, 34f));
             ApplyPanelLayout(productionGrid, SidebarPanel(260f, 255f));
             ApplyPanelLayout(productionQueue, SidebarPanel(520f, 120f));
+            ApplyPanelLayout(supportPowerPanel, SidebarPanel(642f, 40f));
             ApplyPanelLayout(placementPanel, SidebarPanel(642f, 122f));
             ApplyPanelLayout(selectionPanel, SidebarPanel(772f, 120f));
             ApplyPanelLayout(minimap, SidebarPanel(56f, minimapSize));

@@ -15,6 +15,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
         public ProductionCategoryTabs categoryTabs;
         public ProductionGridController productionGrid;
         public ProductionQueuePanel productionQueue;
+        public SupportPowerPanelController supportPowerPanel;
         public PlacementModePanel placementPanel;
         public SelectionPanelController selectionPanel;
         public CommandBarController commandBar;
@@ -33,6 +34,21 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             CommandBarController commands,
             MinimapPlaceholderController map)
         {
+            Initialize(hudRoot, sidebar, tabs, grid, queue, null, placement, selection, commands, map);
+        }
+
+        public void Initialize(
+            DesktopRtsHudRoot hudRoot,
+            DesktopSidebarController sidebar,
+            ProductionCategoryTabs tabs,
+            ProductionGridController grid,
+            ProductionQueuePanel queue,
+            SupportPowerPanelController support,
+            PlacementModePanel placement,
+            SelectionPanelController selection,
+            CommandBarController commands,
+            MinimapPlaceholderController map)
+        {
             if (hudRoot != null)
             {
                 width = Mathf.Clamp(hudRoot.sidebarWidth, 360f, 420f);
@@ -43,6 +59,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             categoryTabs = tabs;
             productionGrid = grid;
             productionQueue = queue;
+            supportPowerPanel = support;
             placementPanel = placement;
             selectionPanel = selection;
             commandBar = commands;
@@ -72,6 +89,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             ParentToSidebar(categoryTabs);
             ParentToSidebar(productionGrid);
             ParentToSidebar(productionQueue);
+            ParentToSidebar(supportPowerPanel);
             ParentToSidebar(placementPanel);
             ParentToSidebar(selectionPanel);
             ParentToSidebar(commandBar);
@@ -80,11 +98,12 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 resourcePowerPanel.ApplyCncReadoutLayout(266f, 74f);
 
             ApplyTopPanel(minimap, 42f, minimapSize);
-            ApplyTopPanel(categoryTabs, 346f, 64f);
-            ApplyTopPanel(productionGrid, 418f, 244f);
-            ApplyTopPanel(productionQueue, 670f, 92f);
-            ApplyTopPanel(placementPanel, 770f, 88f);
-            ApplyTopPanel(selectionPanel, 866f, 92f);
+            ApplyTopPanel(supportPowerPanel, 342f, 40f);
+            ApplyTopPanel(categoryTabs, 388f, 62f);
+            ApplyTopPanel(productionGrid, 458f, 236f);
+            ApplyTopPanel(productionQueue, 702f, 88f);
+            ApplyTopPanel(placementPanel, 798f, 80f);
+            ApplyTopPanel(selectionPanel, 886f, 72f);
             ApplyTopPanel(commandBar, 966f, 104f);
 
             ConfigureGrid(productionGrid);
@@ -111,6 +130,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 IsChildOfSidebar(categoryTabs) &&
                 IsChildOfSidebar(productionGrid) &&
                 IsChildOfSidebar(productionQueue) &&
+                IsChildOfSidebar(supportPowerPanel) &&
                 IsChildOfSidebar(selectionPanel) &&
                 IsChildOfSidebar(commandBar);
         }

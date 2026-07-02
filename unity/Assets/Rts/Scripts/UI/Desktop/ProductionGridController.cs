@@ -144,11 +144,14 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 var pending = production != null && production.State == "CompletedPendingPlacement";
                 var future = DesktopProductionCatalog.IsFuturePlaceholder(card.TypeId) && !DesktopProductionCatalog.IsActiveMvp(card.TypeId);
                 var missingFactory = MissingFactory(definition);
-                card.Button.interactable = (!future && string.IsNullOrEmpty(missingFactory)) || pending;
+                var missingPrerequisite = MissingPrerequisite(card.TypeId);
+                card.Button.interactable = (string.IsNullOrEmpty(missingFactory) && string.IsNullOrEmpty(missingPrerequisite)) || pending;
 
-                var status = future ? "Future placeholder" : "Ready";
+                var status = future ? "Advanced" : "Ready";
                 if (!string.IsNullOrEmpty(missingFactory))
                     status = "Requires " + DisplayType(missingFactory);
+                else if (!string.IsNullOrEmpty(missingPrerequisite))
+                    status = "Requires " + DisplayType(missingPrerequisite);
                 if (production != null)
                     status = pending ? "Ready to place" : production.State + " " + production.ProgressTicks + "/" + production.BuildTimeTicks;
 
@@ -159,7 +162,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                     status;
 
                 if (card.Background != null)
-                    card.Background.color = CardColor(card.TypeId, future, missingFactory, pending);
+                    card.Background.color = CardColor(card.TypeId, future, missingFactory, missingPrerequisite, pending);
 
                 if (production != null && production.BuildTimeTicks > 0)
                 {
@@ -193,6 +196,11 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             return driver != null && driver.HasOwnedActorOfType(definition.Production.FactoryTypeId) ? string.Empty : definition.Production.FactoryTypeId;
         }
 
+        string MissingPrerequisite(string typeId)
+        {
+            return driver == null ? string.Empty : driver.GetMissingProductionPrerequisiteTypeId(typeId);
+        }
+
         string RecommendationLabel(string typeId)
         {
             if (progressTracker == null)
@@ -203,15 +211,17 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             return "NEXT ";
         }
 
-        Color CardColor(string typeId, bool future, string missingFactory, bool pending)
+        Color CardColor(string typeId, bool future, string missingFactory, string missingPrerequisite, bool pending)
         {
             if (pending)
                 return new Color(0.20f, 0.42f, 0.28f, 0.98f);
             var recommended = missionFlowController != null ? missionFlowController.RecommendedTypeId : (progressTracker == null ? string.Empty : progressTracker.recommendedTypeId);
             if (recommended == typeId)
                 return new Color(0.28f, 0.43f, 0.20f, 1f);
-            if (future || !string.IsNullOrEmpty(missingFactory))
+            if (!string.IsNullOrEmpty(missingFactory) || !string.IsNullOrEmpty(missingPrerequisite))
                 return new Color(0.12f, 0.13f, 0.15f, 0.78f);
+            if (future)
+                return new Color(0.20f, 0.23f, 0.30f, 0.95f);
             return new Color(0.18f, 0.22f, 0.27f, 0.95f);
         }
 

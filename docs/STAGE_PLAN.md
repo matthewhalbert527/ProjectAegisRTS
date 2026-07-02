@@ -116,6 +116,10 @@ Complete after local validation. Classic RTS command matrix pass. Adds determini
 
 Complete after local validation. Base management command pass. Adds deterministic building repair, sell/refund/removal, manual power toggle production pausing, rally point validation and spawned-unit routing; exposes repair/rally/power/sell snapshot state; adds PCDesktop command buttons and Quest left-hand compatible routing; and adds Stage 23 fast/medium/player-facing/full validation tiers while preserving Stage 0-22 behavior.
 
+## Stage 24
+
+Complete after local validation. Tech tree / prerequisites / support powers foundation. Adds deterministic production prerequisites, advanced unlocks, support-power definitions/state/commands/snapshots, real Reveal Scan and Emergency Repair Pulse powers, placeholder gated support powers, PCDesktop sidebar support buttons, production-card availability reasons, Quest left-hand support routing, and Stage 24 fast/medium/player-facing/full validation tiers while preserving Stage 0-23 behavior.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

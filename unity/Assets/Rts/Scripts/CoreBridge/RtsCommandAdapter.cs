@@ -196,6 +196,13 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 world.IssueCommand(new SetRallyPointCommand(playerId, new ActorId(actorId), rallyCell)));
         }
 
+        public static RtsCommandResult ActivateSupportPower(RtsWorld world, int playerId, string powerId, Int2 targetCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Support power",
+                world.IssueCommand(new ActivateSupportPowerCommand(playerId, powerId, targetCell)));
+        }
+
         static IReadOnlyList<ActorId> ToActorIds(IReadOnlyList<int> actorIds)
         {
             var converted = new List<ActorId>(actorIds.Count);

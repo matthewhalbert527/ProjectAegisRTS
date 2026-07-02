@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Terrain;
@@ -192,6 +193,34 @@ namespace ProjectAegisRTS.Data
         public int RangeCellsPlaceholder { get { return RangeCells; } }
     }
 
+    public sealed class PrerequisiteDefinition
+    {
+        public string RequiredTypeId { get; private set; }
+
+        public PrerequisiteDefinition(string requiredTypeId)
+        {
+            RequiredTypeId = string.IsNullOrEmpty(requiredTypeId) ? string.Empty : requiredTypeId;
+        }
+    }
+
+    public sealed class TechTreeSystem
+    {
+        public static string FindMissingPrerequisiteTypeId(IReadOnlyList<string> prerequisiteTypeIds, Func<string, bool> hasPrerequisite)
+        {
+            if (prerequisiteTypeIds == null || hasPrerequisite == null)
+                return string.Empty;
+
+            for (var i = 0; i < prerequisiteTypeIds.Count; i++)
+            {
+                var prerequisite = prerequisiteTypeIds[i];
+                if (!string.IsNullOrEmpty(prerequisite) && !hasPrerequisite(prerequisite))
+                    return prerequisite;
+            }
+
+            return string.Empty;
+        }
+    }
+
     public sealed class ProductionDefinition
     {
         public ProductionKind Kind { get; private set; }
@@ -199,14 +228,39 @@ namespace ProjectAegisRTS.Data
         public int BuildTimeTicks { get; private set; }
         public string FactoryTypeId { get; private set; }
         public bool ExemptFromLowPowerPause { get; private set; }
+        public IReadOnlyList<string> PrerequisiteTypeIds { get; private set; }
+        public IReadOnlyList<PrerequisiteDefinition> Prerequisites { get; private set; }
 
         public ProductionDefinition(ProductionKind kind, int cost, int buildTimeTicks, string factoryTypeId, bool exemptFromLowPowerPause)
+            : this(kind, cost, buildTimeTicks, factoryTypeId, exemptFromLowPowerPause, null)
+        {
+        }
+
+        public ProductionDefinition(ProductionKind kind, int cost, int buildTimeTicks, string factoryTypeId, bool exemptFromLowPowerPause, IReadOnlyList<string> prerequisiteTypeIds)
         {
             Kind = kind;
             Cost = cost;
             BuildTimeTicks = buildTimeTicks;
             FactoryTypeId = factoryTypeId;
             ExemptFromLowPowerPause = exemptFromLowPowerPause;
+
+            var prerequisites = new List<string>();
+            var prerequisiteDefinitions = new List<PrerequisiteDefinition>();
+            if (prerequisiteTypeIds != null)
+            {
+                for (var i = 0; i < prerequisiteTypeIds.Count; i++)
+                {
+                    var prerequisite = prerequisiteTypeIds[i];
+                    if (string.IsNullOrEmpty(prerequisite))
+                        continue;
+
+                    prerequisites.Add(prerequisite);
+                    prerequisiteDefinitions.Add(new PrerequisiteDefinition(prerequisite));
+                }
+            }
+
+            PrerequisiteTypeIds = prerequisites;
+            Prerequisites = prerequisiteDefinitions;
         }
     }
 

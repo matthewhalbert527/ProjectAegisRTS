@@ -167,6 +167,14 @@ namespace ProjectAegisRTS.UnityClient.UI.XR.LeftHand
             return LogAndReturn(driver.TrySetRallyPointForSelectedProducer(cell));
         }
 
+        public RtsCommandResult ActivateSupportPower(string powerId, Int2 cell)
+        {
+            if (!EnsureDriver(out var missing))
+                return LogAndReturn(missing);
+
+            return LogAndReturn(driver.TryActivateSupportPowerAtCell(powerId, cell));
+        }
+
         bool EnsureDriver(out RtsCommandResult failure)
         {
             failure = null;

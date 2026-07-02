@@ -39,3 +39,18 @@ Stage 23 turns the reserved base-management controls into deterministic commands
 - Stage 23 fast, medium, player-facing, and full validation scripts
 
 The medium tier remains non-recursive and is guarded through Stage 23 by `tools/audit-medium-validation-recursion.ps1`.
+
+## Checkpoint 3: Stage 24 Tech Tree / Support Powers
+
+Stage 24 gives production progression a deterministic tech-tree boundary and starts the support-power layer:
+
+- Production prerequisites and first-missing-prerequisite rejection in `Rts.Core`
+- Advanced unlock gates for comm center, tech center, repair bay, advanced defenses, heavy vehicles, and aircraft
+- Support-power definitions, per-player state, cooldowns, commands, and snapshots
+- Real Reveal Scan and Emergency Repair Pulse powers
+- Placeholder Precision Strike, Production Boost, and Power Surge powers with prerequisites/cooldowns
+- PCDesktop right-sidebar support-power strip and production-card availability reasons
+- Quest left-hand compatible support-power routing method
+- Stage 24 fast, medium, player-facing, and full validation scripts
+
+The medium tier remains non-recursive and is guarded through Stage 24 by `tools/audit-medium-validation-recursion.ps1`.

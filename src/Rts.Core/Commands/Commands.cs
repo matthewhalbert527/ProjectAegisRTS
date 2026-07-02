@@ -235,6 +235,20 @@ namespace ProjectAegisRTS.Commands
         }
     }
 
+    public sealed class ActivateSupportPowerCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public string PowerId { get; private set; }
+        public Int2 TargetCell { get; private set; }
+
+        public ActivateSupportPowerCommand(int playerId, string powerId, Int2 targetCell)
+        {
+            PlayerId = playerId;
+            PowerId = powerId;
+            TargetCell = targetCell;
+        }
+    }
+
     public sealed class BeginRepairBuildingCommand : ISimCommand
     {
         public int PlayerId { get; private set; }

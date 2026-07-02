@@ -233,14 +233,21 @@ namespace ProjectAegisRTS.Snapshots
         public int Credits { get; private set; }
         public PowerSnapshot Power { get; private set; }
         public IReadOnlyList<ProductionSnapshot> Production { get; private set; }
+        public IReadOnlyList<SupportPowerSnapshot> SupportPowers { get; private set; }
 
         public PlayerSnapshot(int playerId, string name, int credits, PowerSnapshot power, IReadOnlyList<ProductionSnapshot> production)
+            : this(playerId, name, credits, power, production, new SupportPowerSnapshot[0])
+        {
+        }
+
+        public PlayerSnapshot(int playerId, string name, int credits, PowerSnapshot power, IReadOnlyList<ProductionSnapshot> production, IReadOnlyList<SupportPowerSnapshot> supportPowers)
         {
             PlayerId = playerId;
             Name = name;
             Credits = credits;
             Power = power;
             Production = production;
+            SupportPowers = supportPowers;
         }
     }
 
@@ -745,6 +752,44 @@ namespace ProjectAegisRTS.Snapshots
             ProgressTicks = progressTicks;
             BuildTimeTicks = buildTimeTicks;
             State = state;
+        }
+    }
+
+    public sealed class SupportPowerSnapshot
+    {
+        public string PowerId { get; private set; }
+        public string DisplayName { get; private set; }
+        public bool IsUnlocked { get; private set; }
+        public string MissingPrerequisiteTypeId { get; private set; }
+        public int CooldownRemainingTicks { get; private set; }
+        public bool IsReady { get; private set; }
+        public int ActivationCount { get; private set; }
+        public string EffectKind { get; private set; }
+        public string TargetKind { get; private set; }
+        public int RadiusCells { get; private set; }
+
+        public SupportPowerSnapshot(
+            string powerId,
+            string displayName,
+            bool isUnlocked,
+            string missingPrerequisiteTypeId,
+            int cooldownRemainingTicks,
+            bool isReady,
+            int activationCount,
+            string effectKind,
+            string targetKind,
+            int radiusCells)
+        {
+            PowerId = powerId;
+            DisplayName = displayName;
+            IsUnlocked = isUnlocked;
+            MissingPrerequisiteTypeId = missingPrerequisiteTypeId;
+            CooldownRemainingTicks = cooldownRemainingTicks;
+            IsReady = isReady;
+            ActivationCount = activationCount;
+            EffectKind = effectKind;
+            TargetKind = targetKind;
+            RadiusCells = radiusCells;
         }
     }
 
