@@ -184,6 +184,8 @@ namespace ProjectAegisRTS.Demo
             world.CreateActor("scout_rover", 1, new Int2(10, 11));
             world.CreateActor("light_tank", 1, new Int2(14, 10));
             world.CreateActor("light_tank", 1, new Int2(13, 12));
+            world.CreateActor("engineer", 1, new Int2(9, 10));
+            world.CreateActor("apc", 1, new Int2(15, 10));
             world.CreateActor("rifle_infantry", 1, new Int2(12, 11));
             world.CreateActor("rocket_infantry", 1, new Int2(11, 12));
 

@@ -59,6 +59,14 @@ namespace ProjectAegisRTS.Tests
                 SupportPowerCooldownWorks,
                 SupportPowerSnapshotsExposeAvailability,
                 SupportPowerDeterminismSmokeTest,
+                EngineerCapturesEnemyBuilding,
+                EngineerCannotCaptureFriendlyBuilding,
+                EngineerRepairsOwnedBuilding,
+                TransportLoadsInfantry,
+                TransportUnloadRestoresPassengerToBoard,
+                TransportCapacityIsEnforced,
+                TransportDeathDestroysPassengers,
+                EngineerTransportDeterminismSmokeTest,
                 WeaponCooldownPreventsContinuousFire,
                 ProjectileSpawnsForProjectileWeapon,
                 ProjectileImpactsAndDealsDamage,
@@ -585,6 +593,107 @@ namespace ProjectAegisRTS.Tests
             var a = RunSupportPowerDeterministicSequence();
             var b = RunSupportPowerDeterministicSequence();
             Assert(a == b, "Expected support-power deterministic summaries to match.");
+        }
+
+        static void EngineerCapturesEnemyBuilding()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var engineer = world.CreateActor("engineer", 1, new Int2(17, 10));
+            var target = world.FirstActorOfType("power_plant", 2);
+
+            var result = world.IssueCommand(new CaptureBuildingCommand(1, engineer.Id, target.Id));
+            Assert(result.Success, "Expected engineer capture success: " + result.ErrorCode);
+            Assert(target.OwnerPlayerId == 1, "Expected captured building owner to change.");
+            Assert(!world.Actors.ContainsKey(engineer.Id.Value), "Expected engineer to be consumed on capture.");
+            Assert(HasEvent(world.CreateSnapshot(), "BuildingCaptured"), "Expected capture combat event.");
+        }
+
+        static void EngineerCannotCaptureFriendlyBuilding()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var engineer = world.CreateActor("engineer", 1, new Int2(4, 3));
+            var friendlyHub = world.FirstActorOfType("fabrication_hub", 1);
+
+            var result = world.IssueCommand(new CaptureBuildingCommand(1, engineer.Id, friendlyHub.Id));
+            Assert(!result.Success && result.ErrorCode == "CaptureTargetFriendly", "Expected friendly capture rejection, got " + result.ErrorCode);
+        }
+
+        static void EngineerRepairsOwnedBuilding()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var engineer = world.CreateActor("engineer", 1, new Int2(9, 10));
+            var tower = world.FirstActorOfType("gun_tower", 1);
+            tower.Health -= 300;
+
+            var result = world.IssueCommand(new EngineerRepairBuildingCommand(1, engineer.Id, tower.Id));
+            Assert(result.Success, "Expected engineer repair success: " + result.ErrorCode);
+            Assert(tower.Health == 700, "Expected engineer repair to restore building to max health, got " + tower.Health);
+            Assert(engineer.RepairProgressTicks == 1, "Expected engineer repair progress accounting.");
+        }
+
+        static void TransportLoadsInfantry()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var apc = world.CreateActor("apc", 1, new Int2(7, 8));
+            var infantry = world.FirstActorOfType("rifle_infantry", 1);
+
+            var result = world.IssueCommand(new LoadTransportCommand(1, apc.Id, new[] { infantry.Id }));
+            Assert(result.Success, "Expected transport load success: " + result.ErrorCode);
+            Assert(infantry.LoadedIntoTransportActorId == apc.Id.Value, "Expected infantry loaded into APC.");
+            Assert(apc.TransportPassengerActorIds.Count == 1, "Expected APC passenger count 1.");
+
+            var snapshot = world.CreateSnapshot();
+            Assert(!SnapshotContainsActor(snapshot, infantry.Id.Value), "Expected loaded infantry hidden from actor snapshot.");
+            var transport = FindTransport(snapshot, apc.Id.Value);
+            Assert(transport != null && transport.PassengerActorIds.Count == 1, "Expected transport snapshot passenger.");
+        }
+
+        static void TransportUnloadRestoresPassengerToBoard()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var apc = world.CreateActor("apc", 1, new Int2(7, 8));
+            var infantry = world.FirstActorOfType("rifle_infantry", 1);
+            world.IssueCommand(new LoadTransportCommand(1, apc.Id, new[] { infantry.Id }));
+
+            var result = world.IssueCommand(new UnloadTransportCommand(1, apc.Id, new Int2(9, 9)));
+            Assert(result.Success, "Expected transport unload success: " + result.ErrorCode);
+            Assert(infantry.LoadedIntoTransportActorId == 0, "Expected infantry unloaded.");
+            Assert(apc.TransportPassengerActorIds.Count == 0, "Expected APC passenger list cleared.");
+            Assert(SnapshotContainsActor(world.CreateSnapshot(), infantry.Id.Value), "Expected unloaded infantry in actor snapshot.");
+        }
+
+        static void TransportCapacityIsEnforced()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var apc = world.CreateActor("apc", 1, new Int2(7, 8));
+            var passengers = new List<ActorId>();
+            for (var i = 0; i < 6; i++)
+                passengers.Add(world.CreateActor("rifle_infantry", 1, new Int2(6 + i, 9)).Id);
+
+            var result = world.IssueCommand(new LoadTransportCommand(1, apc.Id, passengers));
+            Assert(!result.Success && result.ErrorCode == "TransportFull", "Expected transport capacity rejection, got " + result.ErrorCode);
+        }
+
+        static void TransportDeathDestroysPassengers()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var apc = world.CreateActor("apc", 1, new Int2(7, 8));
+            var infantry = world.FirstActorOfType("rifle_infantry", 1);
+            var load = world.IssueCommand(new LoadTransportCommand(1, apc.Id, new[] { infantry.Id }));
+            Assert(load.Success, "Expected setup load success: " + load.ErrorCode);
+
+            var damage = world.ApplyScenarioDamage(2, apc.Id, 9999, "transport_death_test");
+            Assert(damage.Success, "Expected scenario damage success: " + damage.ErrorCode);
+            Assert(apc.IsDestroyed, "Expected APC destroyed.");
+            Assert(infantry.IsDestroyed, "Expected passenger destroyed with transport.");
+            Assert(HasEvent(world.CreateSnapshot(), "PassengerDestroyedWithTransport"), "Expected passenger destruction event.");
+        }
+
+        static void EngineerTransportDeterminismSmokeTest()
+        {
+            var a = RunEngineerTransportDeterministicSequence();
+            var b = RunEngineerTransportDeterministicSequence();
+            Assert(a == b, "Expected engineer/transport deterministic summaries to match.");
         }
 
         static void WeaponCooldownPreventsContinuousFire()
@@ -1199,6 +1308,23 @@ namespace ProjectAegisRTS.Tests
             return world.GetDeterminismSummary();
         }
 
+        static string RunEngineerTransportDeterministicSequence()
+        {
+            var world = DemoWorldFactory.CreateCombatDemoWorld();
+            var engineer = world.CreateActor("engineer", 1, new Int2(17, 10));
+            var target = world.FirstActorOfType("power_plant", 2);
+            world.IssueCommand(new CaptureBuildingCommand(1, engineer.Id, target.Id));
+
+            var apc = world.CreateActor("apc", 1, new Int2(7, 8));
+            var infantry = world.FirstActorOfType("rifle_infantry", 1);
+            world.IssueCommand(new LoadTransportCommand(1, apc.Id, new[] { infantry.Id }));
+            world.IssueCommand(new IssueMoveOrderCommand(1, new[] { apc.Id }, new Int2(9, 9)));
+            RunTicks(world, 24);
+            world.IssueCommand(new UnloadTransportCommand(1, apc.Id, new Int2(10, 9)));
+            RunTicks(world, 8);
+            return world.GetDeterminismSummary();
+        }
+
         static string RunEconomyDeterministicSequence()
         {
             var world = EconomyWorldWithHarvestOrder();
@@ -1323,6 +1449,15 @@ namespace ProjectAegisRTS.Tests
             for (var i = 0; i < player.SupportPowers.Count; i++)
                 if (player.SupportPowers[i].PowerId == powerId)
                     return player.SupportPowers[i];
+
+            return null;
+        }
+
+        static TransportSnapshot FindTransport(WorldSnapshot snapshot, int actorId)
+        {
+            for (var i = 0; i < snapshot.Transports.Count; i++)
+                if (snapshot.Transports[i].ActorId == actorId)
+                    return snapshot.Transports[i];
 
             return null;
         }

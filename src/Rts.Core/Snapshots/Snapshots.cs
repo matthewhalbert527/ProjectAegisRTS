@@ -12,6 +12,7 @@ namespace ProjectAegisRTS.Snapshots
         public int Tick { get; private set; }
         public IReadOnlyList<PlayerSnapshot> Players { get; private set; }
         public IReadOnlyList<ActorSnapshot> Actors { get; private set; }
+        public IReadOnlyList<TransportSnapshot> Transports { get; private set; }
         public IReadOnlyList<ProjectileSnapshot> Projectiles { get; private set; }
         public IReadOnlyList<CombatEventSnapshot> CombatEvents { get; private set; }
         public EconomySnapshot Economy { get; private set; }
@@ -54,10 +55,16 @@ namespace ProjectAegisRTS.Snapshots
         }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai, MapSnapshot map, MatchSnapshot match, ScenarioSnapshot scenario)
+            : this(tick, players, actors, projectiles, combatEvents, economy, fog, radar, minimap, ai, map, match, scenario, new TransportSnapshot[0])
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai, MapSnapshot map, MatchSnapshot match, ScenarioSnapshot scenario, IReadOnlyList<TransportSnapshot> transports)
         {
             Tick = tick;
             Players = players;
             Actors = actors;
+            Transports = transports ?? new TransportSnapshot[0];
             Projectiles = projectiles;
             CombatEvents = combatEvents;
             Economy = economy ?? EconomySnapshot.Empty;
@@ -294,6 +301,10 @@ namespace ProjectAegisRTS.Snapshots
         public int RepairProgressTicks { get; private set; }
         public int RepairSpentCredits { get; private set; }
         public bool IsManuallyPoweredOff { get; private set; }
+        public bool IsLoaded { get; private set; }
+        public int LoadedIntoTransportActorId { get; private set; }
+        public int TransportPassengerCount { get; private set; }
+        public int TransportCapacity { get; private set; }
 
         public ActorSnapshot(
             int actorId,
@@ -402,7 +413,11 @@ namespace ProjectAegisRTS.Snapshots
             bool isRepairing = false,
             int repairProgressTicks = 0,
             int repairSpentCredits = 0,
-            bool isManuallyPoweredOff = false)
+            bool isManuallyPoweredOff = false,
+            bool isLoaded = false,
+            int loadedIntoTransportActorId = 0,
+            int transportPassengerCount = 0,
+            int transportCapacity = 0)
         {
             ActorId = actorId;
             TypeId = typeId;
@@ -445,6 +460,34 @@ namespace ProjectAegisRTS.Snapshots
             RepairProgressTicks = repairProgressTicks;
             RepairSpentCredits = repairSpentCredits;
             IsManuallyPoweredOff = isManuallyPoweredOff;
+            IsLoaded = isLoaded;
+            LoadedIntoTransportActorId = loadedIntoTransportActorId;
+            TransportPassengerCount = transportPassengerCount;
+            TransportCapacity = transportCapacity;
+        }
+    }
+
+    public sealed class TransportSnapshot
+    {
+        public int ActorId { get; private set; }
+        public int OwnerId { get; private set; }
+        public string TypeId { get; private set; }
+        public int Capacity { get; private set; }
+        public IReadOnlyList<int> PassengerActorIds { get; private set; }
+        public IReadOnlyList<string> PassengerTypeIds { get; private set; }
+        public Int2 CellPosition { get; private set; }
+        public bool IsDestroyed { get; private set; }
+
+        public TransportSnapshot(int actorId, int ownerId, string typeId, int capacity, IReadOnlyList<int> passengerActorIds, IReadOnlyList<string> passengerTypeIds, Int2 cellPosition, bool isDestroyed)
+        {
+            ActorId = actorId;
+            OwnerId = ownerId;
+            TypeId = typeId;
+            Capacity = capacity;
+            PassengerActorIds = passengerActorIds ?? new int[0];
+            PassengerTypeIds = passengerTypeIds ?? new string[0];
+            CellPosition = cellPosition;
+            IsDestroyed = isDestroyed;
         }
     }
 

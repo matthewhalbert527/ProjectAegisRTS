@@ -37,6 +37,14 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 router.SetAttackMoveMode();
             if (Input.GetKeyDown(KeyCode.Y) && router != null)
                 router.SetRallyMode();
+            if (Input.GetKeyDown(KeyCode.C) && router != null)
+                router.SetCaptureMode();
+            if (Input.GetKeyDown(KeyCode.E) && router != null)
+                router.SetEngineerRepairMode();
+            if (Input.GetKeyDown(KeyCode.O) && router != null)
+                router.SetLoadTransportMode();
+            if (Input.GetKeyDown(KeyCode.U) && router != null)
+                router.SetUnloadTransportMode();
             if (modeText != null && router != null)
                 modeText.text = "Command Mode: " + router.CurrentMode;
         }
@@ -70,6 +78,10 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             AddButton("Sell", () => router.SellSelected());
             AddButton("Power", () => router.TogglePowerSelected());
             AddButton("Rally", () => router.SetRallyMode());
+            AddButton("Capture", () => router.SetCaptureMode());
+            AddButton("Eng Repair", () => router.SetEngineerRepairMode());
+            AddButton("Load", () => router.SetLoadTransportMode());
+            AddButton("Unload", () => router.SetUnloadTransportMode());
 
             RemoveLegacyButton("Pause");
             RemoveLegacyButton("Step");
@@ -112,7 +124,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
             var grid = EnsureSingleGridLayout(rootObject);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = 4;
+            grid.constraintCount = 8;
             grid.cellSize = new Vector2(82f, 21f);
             grid.spacing = new Vector2(5f, 3f);
             return rect;

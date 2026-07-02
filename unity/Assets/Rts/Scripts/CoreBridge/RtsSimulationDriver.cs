@@ -1171,6 +1171,115 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return result;
         }
 
+        public RtsCommandResult TryCaptureSelectedAtCell(Int2 cell)
+        {
+            if (world == null || Rules == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            int engineerActorId;
+            var validation = TryGetSingleSelectedEngineer("capturing", true, out engineerActorId);
+            if (!validation.Success)
+                return validation;
+
+            int targetActorId;
+            if (!TryFindTargetActorAtCell(cell, out targetActorId))
+            {
+                var fail = RtsCommandResult.Fail("NoCaptureTarget", "No enemy building is present at " + cell + ".");
+                EmitCommandFeedback(FeedbackEventType.Generic, fail, cell, engineerActorId, "Capture");
+                return fail;
+            }
+
+            var result = RtsCommandAdapter.CaptureBuilding(world, playerId, engineerActorId, targetActorId);
+            RefreshSnapshot();
+            ActorSnapshot engineerAfterCapture;
+            if (result.Success && !TryGetActorSnapshot(engineerActorId, out engineerAfterCapture))
+                selectedActorIds.Remove(engineerActorId);
+            EmitCommandFeedback(FeedbackEventType.Generic, result, cell, engineerActorId, "Capture");
+            return result;
+        }
+
+        public RtsCommandResult TryEngineerRepairSelectedAtCell(Int2 cell)
+        {
+            if (world == null || Rules == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            int engineerActorId;
+            var validation = TryGetSingleSelectedEngineer("field-repairing", false, out engineerActorId);
+            if (!validation.Success)
+                return validation;
+
+            int targetActorId;
+            if (!TryFindActorAtCell(cell, out targetActorId))
+            {
+                var fail = RtsCommandResult.Fail("NoRepairTarget", "No owned building is present at " + cell + ".");
+                EmitCommandFeedback(FeedbackEventType.Generic, fail, cell, engineerActorId, "Engineer repair");
+                return fail;
+            }
+
+            var result = RtsCommandAdapter.EngineerRepairBuilding(world, playerId, engineerActorId, targetActorId);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Generic, result, cell, engineerActorId, "Engineer repair");
+            return result;
+        }
+
+        public RtsCommandResult TryLoadSelectedIntoTransportAtCell(Int2 cell)
+        {
+            if (world == null || Rules == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            int transportActorId;
+            if (!TryFindActorAtCell(cell, out transportActorId))
+            {
+                var fail = RtsCommandResult.Fail("NoTransportTarget", "No owned transport is present at " + cell + ".");
+                EmitCommandFeedback(FeedbackEventType.Generic, fail, cell, 0, "Load");
+                return fail;
+            }
+
+            ActorSnapshot transport;
+            ActorDefinition transportDefinition;
+            if (!TryGetActorSnapshot(transportActorId, out transport) || !Rules.TryGetDefinition(transport.TypeId, out transportDefinition) || transportDefinition.Transport == null)
+            {
+                var fail = RtsCommandResult.Fail("TargetNotTransport", "Click an owned transport to load passengers.");
+                EmitCommandFeedback(FeedbackEventType.Generic, fail, cell, transportActorId, "Load");
+                return fail;
+            }
+
+            var passengers = SelectedPassengerActorIds(transportActorId);
+            if (passengers.Count == 0)
+            {
+                var fail = RtsCommandResult.Fail("NoPassengerSelection", "Select infantry passengers before loading a transport.");
+                EmitCommandFeedback(FeedbackEventType.Generic, fail, cell, transportActorId, "Load");
+                return fail;
+            }
+
+            var result = RtsCommandAdapter.LoadTransport(world, playerId, transportActorId, passengers);
+            if (result.Success)
+            {
+                selectedActorIds.Clear();
+                selectedActorIds.Add(transportActorId);
+            }
+
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Generic, result, cell, transportActorId, "Load");
+            return result;
+        }
+
+        public RtsCommandResult TryUnloadSelectedTransportAtCell(Int2 cell)
+        {
+            if (world == null || Rules == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+
+            int transportActorId;
+            var validation = TryGetSingleSelectedTransport("unloading", out transportActorId);
+            if (!validation.Success)
+                return validation;
+
+            var result = RtsCommandAdapter.UnloadTransport(world, playerId, transportActorId, cell);
+            RefreshSnapshot();
+            EmitCommandFeedback(FeedbackEventType.Generic, result, cell, transportActorId, "Unload");
+            return result;
+        }
+
         public RtsCommandResult TryForceLowPowerOrCreateLowPowerDemoCondition()
         {
             if (world == null)
@@ -1347,6 +1456,64 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
             actorId = actor.ActorId;
             return RtsCommandResult.Ok("Selected building accepted.");
+        }
+
+        RtsCommandResult TryGetSingleSelectedEngineer(string actionLabel, bool requireCapture, out int actorId)
+        {
+            actorId = 0;
+            if (world == null || Rules == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+            if (selectedActorIds.Count != 1)
+                return RtsCommandResult.Fail("SelectionRequiresOne", "Select one engineer before " + actionLabel + ".");
+
+            ActorSnapshot actor;
+            ActorDefinition definition;
+            if (!TryGetActorSnapshot(selectedActorIds[0], out actor) || actor.OwnerId != playerId || actor.IsDestroyed || !Rules.TryGetDefinition(actor.TypeId, out definition))
+                return RtsCommandResult.Fail("SelectionInvalid", "The selected actor is no longer available.");
+            if (definition.Capture == null || (requireCapture && !definition.Capture.CanCaptureBuildings) || (!requireCapture && !definition.Capture.CanRepairBuildings))
+                return RtsCommandResult.Fail("SelectionRequiresEngineer", "Select an engineer before " + actionLabel + ".");
+
+            actorId = actor.ActorId;
+            return RtsCommandResult.Ok("Selected engineer accepted.");
+        }
+
+        RtsCommandResult TryGetSingleSelectedTransport(string actionLabel, out int actorId)
+        {
+            actorId = 0;
+            if (world == null || Rules == null)
+                return RtsCommandResult.Fail("WorldMissing", "Simulation world has not been initialized.");
+            if (selectedActorIds.Count != 1)
+                return RtsCommandResult.Fail("SelectionRequiresOne", "Select one transport before " + actionLabel + ".");
+
+            ActorSnapshot actor;
+            ActorDefinition definition;
+            if (!TryGetActorSnapshot(selectedActorIds[0], out actor) || actor.OwnerId != playerId || actor.IsDestroyed || !Rules.TryGetDefinition(actor.TypeId, out definition))
+                return RtsCommandResult.Fail("SelectionInvalid", "The selected actor is no longer available.");
+            if (definition.Transport == null)
+                return RtsCommandResult.Fail("SelectionRequiresTransport", "Select a transport before " + actionLabel + ".");
+
+            actorId = actor.ActorId;
+            return RtsCommandResult.Ok("Selected transport accepted.");
+        }
+
+        List<int> SelectedPassengerActorIds(int transportActorId)
+        {
+            var passengers = new List<int>();
+            for (var i = 0; i < selectedActorIds.Count; i++)
+            {
+                if (selectedActorIds[i] == transportActorId)
+                    continue;
+
+                ActorSnapshot actor;
+                ActorDefinition definition;
+                if (!TryGetActorSnapshot(selectedActorIds[i], out actor) || actor.IsDestroyed || !Rules.TryGetDefinition(actor.TypeId, out definition))
+                    continue;
+
+                if (definition is UnitDefinition && definition.Production.Kind == ProductionKind.Infantry)
+                    passengers.Add(actor.ActorId);
+            }
+
+            return passengers;
         }
 
         bool TryFindActorAtCell(Int2 cell, out int actorId)

@@ -175,6 +175,38 @@ namespace ProjectAegisRTS.UnityClient.UI.XR.LeftHand
             return LogAndReturn(driver.TryActivateSupportPowerAtCell(powerId, cell));
         }
 
+        public RtsCommandResult CaptureSelectedAtCell(Int2 cell)
+        {
+            if (!EnsureDriver(out var missing))
+                return LogAndReturn(missing);
+
+            return LogAndReturn(driver.TryCaptureSelectedAtCell(cell));
+        }
+
+        public RtsCommandResult EngineerRepairSelectedAtCell(Int2 cell)
+        {
+            if (!EnsureDriver(out var missing))
+                return LogAndReturn(missing);
+
+            return LogAndReturn(driver.TryEngineerRepairSelectedAtCell(cell));
+        }
+
+        public RtsCommandResult LoadSelectedIntoTransportAtCell(Int2 cell)
+        {
+            if (!EnsureDriver(out var missing))
+                return LogAndReturn(missing);
+
+            return LogAndReturn(driver.TryLoadSelectedIntoTransportAtCell(cell));
+        }
+
+        public RtsCommandResult UnloadSelectedTransportAtCell(Int2 cell)
+        {
+            if (!EnsureDriver(out var missing))
+                return LogAndReturn(missing);
+
+            return LogAndReturn(driver.TryUnloadSelectedTransportAtCell(cell));
+        }
+
         bool EnsureDriver(out RtsCommandResult failure)
         {
             failure = null;

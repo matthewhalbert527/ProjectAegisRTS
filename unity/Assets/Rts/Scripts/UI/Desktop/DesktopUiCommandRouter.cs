@@ -95,6 +95,30 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             Info("Rally mode: select one production building, then left-click a board cell for spawned units.");
         }
 
+        public void SetCaptureMode()
+        {
+            CurrentMode = DesktopCommandMode.Capture;
+            Info("Capture mode: select one engineer, then left-click an enemy building.");
+        }
+
+        public void SetEngineerRepairMode()
+        {
+            CurrentMode = DesktopCommandMode.EngineerRepair;
+            Info("Engineer repair mode: select one engineer, then left-click a damaged owned building.");
+        }
+
+        public void SetLoadTransportMode()
+        {
+            CurrentMode = DesktopCommandMode.LoadTransport;
+            Info("Load mode: select infantry passengers, then left-click an owned transport.");
+        }
+
+        public void SetUnloadTransportMode()
+        {
+            CurrentMode = DesktopCommandMode.UnloadTransport;
+            Info("Unload mode: select one transport, then left-click an unload cell.");
+        }
+
         public RtsCommandResult IssueMoveToCell(Int2 cell)
         {
             if (!EnsureDriver())
@@ -149,6 +173,54 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
 
             var result = driver.TrySetRallyPointForSelectedProducer(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueCaptureAtCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryCaptureSelectedAtCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueEngineerRepairAtCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryEngineerRepairSelectedAtCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueLoadTransportAtCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryLoadSelectedIntoTransportAtCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueUnloadTransportAtCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryUnloadSelectedTransportAtCell(cell);
             if (result.Success)
                 CurrentMode = DesktopCommandMode.Normal;
             Log(result);

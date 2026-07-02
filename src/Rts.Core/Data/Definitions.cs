@@ -299,6 +299,54 @@ namespace ProjectAegisRTS.Data
         }
     }
 
+    public sealed class CaptureDefinition
+    {
+        public bool CanCaptureBuildings { get; private set; }
+        public bool CanRepairBuildings { get; private set; }
+        public bool ConsumedOnCapture { get; private set; }
+        public int ActionRangeCells { get; private set; }
+        public int RepairAmount { get; private set; }
+        public int RepairCost { get; private set; }
+
+        public CaptureDefinition(bool canCaptureBuildings, bool canRepairBuildings, bool consumedOnCapture, int actionRangeCells, int repairAmount, int repairCost)
+        {
+            CanCaptureBuildings = canCaptureBuildings;
+            CanRepairBuildings = canRepairBuildings;
+            ConsumedOnCapture = consumedOnCapture;
+            ActionRangeCells = actionRangeCells <= 0 ? 1 : actionRangeCells;
+            RepairAmount = repairAmount < 0 ? 0 : repairAmount;
+            RepairCost = repairCost < 0 ? 0 : repairCost;
+        }
+    }
+
+    public sealed class CaptureableDefinition
+    {
+        public bool CanBeCaptured { get; private set; }
+
+        public CaptureableDefinition(bool canBeCaptured)
+        {
+            CanBeCaptured = canBeCaptured;
+        }
+    }
+
+    public sealed class TransportDefinition
+    {
+        public int Capacity { get; private set; }
+        public bool AllowsInfantry { get; private set; }
+        public int LoadRangeCells { get; private set; }
+        public int UnloadRadiusCells { get; private set; }
+        public bool PassengersDestroyedOnTransportDeath { get; private set; }
+
+        public TransportDefinition(int capacity, bool allowsInfantry, int loadRangeCells, int unloadRadiusCells, bool passengersDestroyedOnTransportDeath)
+        {
+            Capacity = capacity < 0 ? 0 : capacity;
+            AllowsInfantry = allowsInfantry;
+            LoadRangeCells = loadRangeCells <= 0 ? 1 : loadRangeCells;
+            UnloadRadiusCells = unloadRadiusCells <= 0 ? 1 : unloadRadiusCells;
+            PassengersDestroyedOnTransportDeath = passengersDestroyedOnTransportDeath;
+        }
+    }
+
     public sealed class AnimationStateDefinition
     {
         public string IdleStateId { get; private set; }
@@ -328,8 +376,11 @@ namespace ProjectAegisRTS.Data
         public DeathDefinition Death { get; private set; }
         public SightDefinition Sight { get; private set; }
         public RadarDefinition Radar { get; private set; }
+        public CaptureDefinition Capture { get; private set; }
+        public CaptureableDefinition Captureable { get; private set; }
+        public TransportDefinition Transport { get; private set; }
 
-        protected ActorDefinition(string typeId, string displayName, ActorKind kind, int maxHealth, ProductionDefinition production, PowerDefinition power, AnimationStateDefinition animation, WeaponDefinition weapon, DeathDefinition death, SightDefinition sight, RadarDefinition radar)
+        protected ActorDefinition(string typeId, string displayName, ActorKind kind, int maxHealth, ProductionDefinition production, PowerDefinition power, AnimationStateDefinition animation, WeaponDefinition weapon, DeathDefinition death, SightDefinition sight, RadarDefinition radar, CaptureDefinition capture, CaptureableDefinition captureable, TransportDefinition transport)
         {
             TypeId = typeId;
             DisplayName = displayName;
@@ -342,6 +393,9 @@ namespace ProjectAegisRTS.Data
             Death = death ?? new DeathDefinition(120, "death_placeholder");
             Sight = sight ?? new SightDefinition(kind == ActorKind.Building ? 5 : 4);
             Radar = radar ?? new RadarDefinition(false, 0);
+            Capture = capture;
+            Captureable = captureable ?? new CaptureableDefinition(kind == ActorKind.Building);
+            Transport = transport;
         }
     }
 
@@ -350,7 +404,12 @@ namespace ProjectAegisRTS.Data
         public MovementDefinition Movement { get; private set; }
 
         public UnitDefinition(string typeId, string displayName, int maxHealth, ProductionDefinition production, MovementDefinition movement, WeaponDefinition weapon, AnimationStateDefinition animation, SightDefinition sight = null, RadarDefinition radar = null)
-            : base(typeId, displayName, ActorKind.Unit, maxHealth, production, new PowerDefinition(0, 0, false), animation, weapon, new DeathDefinition(120, "unit_death_placeholder"), sight, radar)
+            : this(typeId, displayName, maxHealth, production, movement, weapon, animation, sight, radar, null, null)
+        {
+        }
+
+        public UnitDefinition(string typeId, string displayName, int maxHealth, ProductionDefinition production, MovementDefinition movement, WeaponDefinition weapon, AnimationStateDefinition animation, SightDefinition sight, RadarDefinition radar, CaptureDefinition capture, TransportDefinition transport)
+            : base(typeId, displayName, ActorKind.Unit, maxHealth, production, new PowerDefinition(0, 0, false), animation, weapon, new DeathDefinition(120, "unit_death_placeholder"), sight, radar, capture, new CaptureableDefinition(false), transport)
         {
             Movement = movement;
         }
@@ -380,7 +439,27 @@ namespace ProjectAegisRTS.Data
             WeaponDefinition weapon = null,
             SightDefinition sight = null,
             RadarDefinition radar = null)
-            : base(typeId, displayName, ActorKind.Building, maxHealth, production, power, animation, weapon, new DeathDefinition(180, "building_death_placeholder"), sight, radar)
+            : this(typeId, displayName, maxHealth, production, power, animation, footprintCells, providesConstructionRadius, constructionRadiusCells, unitExitOffset, producesTypeIds, weapon, sight, radar, new CaptureableDefinition(true))
+        {
+        }
+
+        public BuildingDefinition(
+            string typeId,
+            string displayName,
+            int maxHealth,
+            ProductionDefinition production,
+            PowerDefinition power,
+            AnimationStateDefinition animation,
+            Int2 footprintCells,
+            bool providesConstructionRadius,
+            int constructionRadiusCells,
+            Int2 unitExitOffset,
+            IReadOnlyList<string> producesTypeIds,
+            WeaponDefinition weapon,
+            SightDefinition sight,
+            RadarDefinition radar,
+            CaptureableDefinition captureable)
+            : base(typeId, displayName, ActorKind.Building, maxHealth, production, power, animation, weapon, new DeathDefinition(180, "building_death_placeholder"), sight, radar, null, captureable, null)
         {
             FootprintCells = footprintCells;
             PlacementFootprintCells = PlacementGridMetrics.CoarseFootprintToPlacementFootprint(footprintCells);

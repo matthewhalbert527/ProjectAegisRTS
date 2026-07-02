@@ -53,20 +53,20 @@ namespace ProjectAegisRTS.Demo
             actors.Add(Unit("grenade_infantry", "Grenade Infantry", 115, ProductionKind.Infantry, 130, 12, "barracks", 240, 45, "infantry_heavy", unitAnimation, Weapon("grenade_placeholder", "Grenade Placeholder", 45, 4, 28, 384, ProjectileKind.Shell, true, false, true, true)));
             actors.Add(Unit("rocket_infantry", "Rocket Infantry", 110, ProductionKind.Infantry, 180, 16, "barracks", 220, 45, "infantry_heavy", unitAnimation, Weapon("rocket_placeholder", "Rocket Placeholder", 80, 6, 42, 360, ProjectileKind.Rocket, true, true, true, true), prerequisites: new[] { "comm_center" }));
             actors.Add(Unit("flame_infantry", "Flame Infantry", 125, ProductionKind.Infantry, 170, 16, "barracks", 230, 45, "infantry_assault", unitAnimation, Weapon("flame_burst", "Flame Burst", 34, 3, 18, 0, ProjectileKind.None, true, false, true, true), prerequisites: new[] { "field_hospital" }));
-            actors.Add(Unit("engineer", "Engineer", 90, ProductionKind.Infantry, 250, 20, "barracks", 240, 45, "infantry_utility", unitAnimation, null, prerequisites: new[] { "field_hospital" }));
+            actors.Add(Unit("engineer", "Engineer", 90, ProductionKind.Infantry, 250, 20, "barracks", 240, 45, "infantry_utility", unitAnimation, null, prerequisites: new[] { "field_hospital" }, capture: new CaptureDefinition(true, true, true, 1, 400, 0)));
             actors.Add(Unit("light_tank", "Light Tank", 450, ProductionKind.Vehicle, 500, 30, "war_factory", 128, 18, "tracked_light", unitAnimation, Weapon("light_tank_shell", "Light Tank Shell", 90, 6, 32, 512, ProjectileKind.Shell, true, false, true, true)));
             actors.Add(Unit("medium_tank", "Medium Tank", 600, ProductionKind.Vehicle, 700, 38, "war_factory", 112, 15, "tracked_medium", unitAnimation, Weapon("medium_tank_shell", "Medium Tank Shell", 115, 6, 38, 480, ProjectileKind.Shell, true, false, true, true), prerequisites: new[] { "comm_center" }));
             actors.Add(Unit("heavy_tank", "Heavy Tank", 850, ProductionKind.Vehicle, 950, 48, "war_factory", 96, 12, "tracked_heavy", unitAnimation, Weapon("heavy_tank_shell", "Heavy Tank Shell", 155, 7, 48, 416, ProjectileKind.Shell, true, false, true, true), prerequisites: new[] { "tech_center" }));
             actors.Add(Unit("harvester", "Harvester", 700, ProductionKind.Vehicle, 700, 35, "war_factory", 96, 12, "wheeled_heavy", unitAnimation, null));
             actors.Add(Unit("scout_rover", "Scout Rover", 300, ProductionKind.Vehicle, 300, 20, "war_factory", 160, 24, "wheeled_scout", unitAnimation, Weapon("scout_rover_burst", "Scout Rover Burst", 28, 4, 18, 768, ProjectileKind.Bullet, true, false, false, true), 8, new[] { "comm_center" }));
-            actors.Add(Unit("apc", "APC", 550, ProductionKind.Vehicle, 600, 34, "war_factory", 128, 18, "wheeled_apc", unitAnimation, Weapon("apc_burst", "APC Burst", 36, 4, 20, 768, ProjectileKind.Bullet, true, false, false, true), prerequisites: new[] { "barracks" }));
+            actors.Add(Unit("apc", "APC", 550, ProductionKind.Vehicle, 600, 34, "war_factory", 128, 18, "wheeled_apc", unitAnimation, Weapon("apc_burst", "APC Burst", 36, 4, 20, 768, ProjectileKind.Bullet, true, false, false, true), prerequisites: new[] { "barracks" }, transport: new TransportDefinition(5, true, 1, 2, true)));
             actors.Add(Unit("attack_aircraft", "Attack Aircraft", 450, ProductionKind.Aircraft, 800, 45, "dual_helipad", 192, 30, "aircraft_attack", unitAnimation, Weapon("aircraft_rocket", "Aircraft Rocket", 85, 6, 36, 448, ProjectileKind.Rocket, true, true, true, true), prerequisites: new[] { "tech_center" }));
             actors.Add(Unit("heavy_lifter_aircraft", "Heavy Lifter Aircraft", 650, ProductionKind.Aircraft, 900, 50, "dual_helipad", 160, 20, "aircraft_lifter", unitAnimation, null, prerequisites: new[] { "tech_center" }));
 
             return new RtsRules(actors);
         }
 
-        static UnitDefinition Unit(string typeId, string displayName, int health, ProductionKind productionKind, int cost, int buildTimeTicks, string factoryTypeId, int speedPerTick, int turnRate, string visualProfile, AnimationStateDefinition animation, WeaponDefinition weapon, int sightRadius = 4, IReadOnlyList<string> prerequisites = null)
+        static UnitDefinition Unit(string typeId, string displayName, int health, ProductionKind productionKind, int cost, int buildTimeTicks, string factoryTypeId, int speedPerTick, int turnRate, string visualProfile, AnimationStateDefinition animation, WeaponDefinition weapon, int sightRadius = 4, IReadOnlyList<string> prerequisites = null, CaptureDefinition capture = null, TransportDefinition transport = null)
         {
             return new UnitDefinition(
                 typeId,
@@ -76,7 +76,10 @@ namespace ProjectAegisRTS.Demo
                 new MovementDefinition(speedPerTick, turnRate, visualProfile, MovementClassFor(productionKind, visualProfile, typeId)),
                 weapon,
                 animation,
-                new SightDefinition(sightRadius));
+                new SightDefinition(sightRadius),
+                null,
+                capture,
+                transport);
         }
 
         static MovementClass MovementClassFor(ProductionKind productionKind, string visualProfile, string typeId)

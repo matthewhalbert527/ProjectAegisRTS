@@ -54,3 +54,19 @@ Stage 24 gives production progression a deterministic tech-tree boundary and sta
 - Stage 24 fast, medium, player-facing, and full validation scripts
 
 The medium tier remains non-recursive and is guarded through Stage 24 by `tools/audit-medium-validation-recursion.ps1`.
+
+## Checkpoint 4: Stage 25 Engineers / Capture / Transports
+
+Stage 25 adds the first deterministic utility-unit and passenger mechanics:
+
+- Engineer building capture with generic captureable building metadata
+- Engineer one-shot field repair for owned damaged buildings
+- APC infantry transport capacity
+- Load/unload commands with passenger state hidden from board snapshots
+- Transport snapshots for passenger HUD/readout support
+- Deterministic passenger destruction when a transport dies
+- PCDesktop Capture, Eng Repair, Load, and Unload command modes
+- Quest left-hand compatible engineer/transport routing methods
+- Stage 25 fast, medium, player-facing, and full validation scripts
+
+The medium tier remains non-recursive and is guarded through Stage 25 by `tools/audit-medium-validation-recursion.ps1`.

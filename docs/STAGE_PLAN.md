@@ -120,6 +120,10 @@ Complete after local validation. Base management command pass. Adds deterministi
 
 Complete after local validation. Tech tree / prerequisites / support powers foundation. Adds deterministic production prerequisites, advanced unlocks, support-power definitions/state/commands/snapshots, real Reveal Scan and Emergency Repair Pulse powers, placeholder gated support powers, PCDesktop sidebar support buttons, production-card availability reasons, Quest left-hand support routing, and Stage 24 fast/medium/player-facing/full validation tiers while preserving Stage 0-23 behavior.
 
+## Stage 25
+
+Complete after local validation. Engineers / capture / repairs / transports foundation. Adds deterministic engineer building capture, engineer field repair, infantry transport load/unload, passenger snapshots, transport death passenger resolution, PCDesktop command buttons, Quest left-hand compatible routes, and Stage 25 fast/medium/player-facing/full validation tiers while preserving Stage 0-24 behavior.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

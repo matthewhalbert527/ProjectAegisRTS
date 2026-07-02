@@ -33,7 +33,19 @@ namespace ProjectAegisRTS.Actors
         Harvest,
         Stop,
         RallyPoint,
-        PowerToggle
+        PowerToggle,
+        Capture,
+        EngineerRepair,
+        LoadTransport,
+        UnloadTransport
+    }
+
+    public enum EngineerActionKind
+    {
+        None,
+        CaptureBuilding,
+        RepairBuilding,
+        LoadTransport
     }
 
     public sealed class ActorState
@@ -77,6 +89,10 @@ namespace ProjectAegisRTS.Actors
         public bool IsRepairing { get; set; }
         public int RepairProgressTicks { get; set; }
         public int RepairSpentCredits { get; set; }
+        public EngineerActionKind PendingEngineerAction { get; set; }
+        public int EngineerTargetActorId { get; set; }
+        public int LoadedIntoTransportActorId { get; set; }
+        public List<int> TransportPassengerActorIds { get; private set; }
 
         public ActorState(ActorId id, int ownerPlayerId, string typeId, Int2 cellPosition, int health)
         {
@@ -118,6 +134,10 @@ namespace ProjectAegisRTS.Actors
             IsRepairing = false;
             RepairProgressTicks = 0;
             RepairSpentCredits = 0;
+            PendingEngineerAction = EngineerActionKind.None;
+            EngineerTargetActorId = 0;
+            LoadedIntoTransportActorId = 0;
+            TransportPassengerActorIds = new List<int>();
         }
 
         public void SetBuildingPlacement(Int2 topLeftPlacementCell, Int2 placementFootprintCells)
@@ -125,6 +145,11 @@ namespace ProjectAegisRTS.Actors
             PlacementTopLeftCell = topLeftPlacementCell;
             PlacementFootprintCells = placementFootprintCells;
             WorldPositionFixed = PlacementGridMetrics.PlacementFootprintCenterFixed(topLeftPlacementCell, placementFootprintCells);
+        }
+
+        public void SetOwner(int ownerPlayerId)
+        {
+            OwnerPlayerId = ownerPlayerId;
         }
     }
 }

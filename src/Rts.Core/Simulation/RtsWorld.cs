@@ -419,6 +419,14 @@ namespace ProjectAegisRTS.Simulation
                 return Stop((StopCommand)command);
             if (command is PowerToggleCommand)
                 return PowerToggle((PowerToggleCommand)command);
+            if (command is CaptureBuildingCommand)
+                return CaptureBuilding((CaptureBuildingCommand)command);
+            if (command is EngineerRepairBuildingCommand)
+                return EngineerRepairBuilding((EngineerRepairBuildingCommand)command);
+            if (command is LoadTransportCommand)
+                return LoadTransport((LoadTransportCommand)command);
+            if (command is UnloadTransportCommand)
+                return UnloadTransport((UnloadTransportCommand)command);
 
             return CommandResult.Fail("UnknownCommand", "The command type is not supported by the simulation.");
         }
@@ -432,6 +440,7 @@ namespace ProjectAegisRTS.Simulation
             TickSupportPowers();
             TickRepairs();
             TickMovement();
+            TickEngineerAndTransportActions();
             TickHarvesting();
             TickCombat();
             TickProjectiles();
@@ -501,6 +510,9 @@ namespace ProjectAegisRTS.Simulation
             var actorSnapshots = new List<ActorSnapshot>();
             foreach (var actor in SortedActors())
             {
+                if (actor.LoadedIntoTransportActorId > 0)
+                    continue;
+
                 if (!ShouldIncludeActorInSnapshot(actor, perspectivePlayerId))
                     continue;
 
@@ -550,7 +562,42 @@ namespace ProjectAegisRTS.Simulation
                     actor.IsRepairing,
                     actor.RepairProgressTicks,
                     actor.RepairSpentCredits,
-                    actor.ManuallyPoweredOff));
+                    actor.ManuallyPoweredOff,
+                    actor.LoadedIntoTransportActorId > 0,
+                    actor.LoadedIntoTransportActorId,
+                    actor.TransportPassengerActorIds.Count,
+                    definition.Transport == null ? 0 : definition.Transport.Capacity));
+            }
+
+            var transportSnapshots = new List<TransportSnapshot>();
+            foreach (var actor in SortedActors())
+            {
+                var definition = Rules.GetDefinition(actor.TypeId);
+                if (definition.Transport == null)
+                    continue;
+
+                var passengerIds = new List<int>();
+                var passengerTypeIds = new List<string>();
+                for (var i = 0; i < actor.TransportPassengerActorIds.Count; i++)
+                {
+                    var passengerId = actor.TransportPassengerActorIds[i];
+                    ActorState passenger;
+                    if (!actors.TryGetValue(passengerId, out passenger))
+                        continue;
+
+                    passengerIds.Add(passengerId);
+                    passengerTypeIds.Add(passenger.TypeId);
+                }
+
+                transportSnapshots.Add(new TransportSnapshot(
+                    actor.Id.Value,
+                    actor.OwnerPlayerId,
+                    actor.TypeId,
+                    definition.Transport.Capacity,
+                    passengerIds,
+                    passengerTypeIds,
+                    actor.CellPosition,
+                    actor.IsDestroyed));
             }
 
             var projectileSnapshots = new List<ProjectileSnapshot>();
@@ -610,7 +657,7 @@ namespace ProjectAegisRTS.Simulation
             var minimap = perspectivePlayerId > 0 ? CreateMinimapSnapshot(perspectivePlayerId) : MinimapSnapshot.Empty;
             var map = CreateMapSnapshot(perspectivePlayerId);
 
-            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy, fog, radar, minimap, aiSystem.CreateSnapshot(), map, matchState.CreateSnapshot(), matchState.CreateScenarioSnapshot());
+            return new WorldSnapshot(TickNumber, playerSnapshots, actorSnapshots, projectileSnapshots, new List<CombatEventSnapshot>(recentCombatEvents), economy, fog, radar, minimap, aiSystem.CreateSnapshot(), map, matchState.CreateSnapshot(), matchState.CreateScenarioSnapshot(), transportSnapshots);
         }
 
         public bool IsCellVisible(int playerId, Int2 cell)
@@ -767,7 +814,18 @@ namespace ProjectAegisRTS.Simulation
                     .Append(actor.IsAttacking).Append(' ')
                     .Append(actor.IsDestroyed).Append(' ')
                     .Append(actor.DeathTick).Append(' ')
-                    .Append(actor.HasHarvestOrder)
+                    .Append(actor.HasHarvestOrder).Append(' ')
+                    .Append("loaded=").Append(actor.LoadedIntoTransportActorId).Append(' ')
+                    .Append("pending=").Append(actor.PendingEngineerAction).Append('/').Append(actor.EngineerTargetActorId).Append(' ')
+                    .Append("passengers=");
+                for (var i = 0; i < actor.TransportPassengerActorIds.Count; i++)
+                {
+                    if (i > 0)
+                        sb.Append(',');
+                    sb.Append(actor.TransportPassengerActorIds[i]);
+                }
+
+                sb
                     .AppendLine();
             }
 
@@ -982,6 +1040,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.OrderTargetCell = command.DestinationCell;
                 ClearAttackState(actor);
                 ClearHarvestState(actor);
+                ClearPendingAction(actor);
                 actor.MovementPhase = actor.Path.Count == 0 ? "idle" : "moving";
             }
 
@@ -1031,6 +1090,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.ActiveWeaponId = Rules.GetDefinition(actor.TypeId).Weapon.WeaponId;
                 actor.IsAttacking = true;
                 ClearHarvestState(actor);
+                ClearPendingAction(actor);
                 actor.DesiredSpeed = 0;
                 actor.NormalizedSpeed = 0;
                 actor.MovementPhase = "attacking";
@@ -1084,6 +1144,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.OrderTargetCell = command.DestinationCell;
                 ClearAttackState(actor);
                 ClearHarvestState(actor);
+                ClearPendingAction(actor);
                 actor.MovementPhase = actor.Path.Count == 0 ? "attack_move_hold" : "attack_moving";
             }
 
@@ -1119,6 +1180,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.OrderTargetCell = actor.CellPosition;
                 ClearAttackState(actor);
                 ClearHarvestState(actor);
+                ClearPendingAction(actor);
                 actor.DesiredSpeed = 0;
                 actor.NormalizedSpeed = 0;
                 actor.MovementPhase = "guarding";
@@ -1172,6 +1234,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.OrderTargetCell = command.DestinationCell;
                 ClearAttackState(actor);
                 ClearHarvestState(actor);
+                ClearPendingAction(actor);
                 actor.MovementPhase = actor.Path.Count == 0 ? "patrol_hold" : "patrolling";
             }
 
@@ -1213,6 +1276,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.OrderTargetCell = destinations[pair.Key];
                 ClearAttackState(actor);
                 ClearHarvestState(actor);
+                ClearPendingAction(actor);
                 actor.MovementPhase = actor.Path.Count == 0 ? "scattered" : "scattering";
             }
 
@@ -1251,6 +1315,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.OrderTargetCell = actor.CellPosition;
                 ClearAttackState(actor);
                 ClearHarvestState(actor);
+                ClearPendingAction(actor);
                 actor.DesiredSpeed = 0;
                 actor.NormalizedSpeed = 0;
                 actor.MovementPhase = "deploy_placeholder";
@@ -1520,6 +1585,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.CurrentOrder = ActorOrderKind.Stop;
                 ClearAttackState(actor);
                 ClearHarvestState(actor);
+                ClearPendingAction(actor);
                 actor.IsRepairing = false;
                 actor.DesiredSpeed = 0;
                 actor.NormalizedSpeed = 0;
@@ -1542,6 +1608,215 @@ namespace ProjectAegisRTS.Simulation
             actor.CurrentOrder = ActorOrderKind.PowerToggle;
             UpdatePowerAndActorFlags();
             return CommandResult.Ok("Power toggle applied.");
+        }
+
+        CommandResult CaptureBuilding(CaptureBuildingCommand command)
+        {
+            ActorState engineer;
+            if (!TryGetOwnedActor(command.PlayerId, command.EngineerActorId, out engineer))
+                return CommandResult.Fail("CaptureEngineerInvalid", "The engineer does not exist or is not owned by the command player.");
+            if (engineer.LoadedIntoTransportActorId > 0)
+                return CommandResult.Fail("CaptureEngineerLoaded", "Unload the engineer before capturing a building.");
+
+            ActorState target;
+            if (!actors.TryGetValue(command.TargetActorId.Value, out target) || target.IsDestroyed)
+                return CommandResult.Fail("CaptureTargetInvalid", "The capture target does not exist or has been destroyed.");
+            if (target.OwnerPlayerId == command.PlayerId)
+                return CommandResult.Fail("CaptureTargetFriendly", "Capture requires an enemy or neutral building.");
+
+            var engineerDefinition = Rules.GetDefinition(engineer.TypeId);
+            if (engineerDefinition.Capture == null || !engineerDefinition.Capture.CanCaptureBuildings)
+                return CommandResult.Fail("CaptureRequiresEngineer", "The selected actor cannot capture buildings.");
+
+            var targetDefinition = Rules.GetDefinition(target.TypeId) as BuildingDefinition;
+            if (targetDefinition == null)
+                return CommandResult.Fail("CaptureRequiresBuilding", "Only buildings can be captured.");
+            if (targetDefinition.Captureable == null || !targetDefinition.Captureable.CanBeCaptured)
+                return CommandResult.Fail("CaptureTargetImmune", "The selected building cannot be captured.");
+
+            if (IsActorInRangeOfTarget(engineer, target, engineerDefinition.Capture.ActionRangeCells))
+            {
+                ExecuteBuildingCapture(engineer, target, engineerDefinition.Capture);
+                return CommandResult.Ok("Building captured.");
+            }
+
+            Int2 actionCell;
+            if (!TryFindActionCell(engineer, target, engineerDefinition.Capture.ActionRangeCells, GetMovementClass(engineer), out actionCell))
+                return CommandResult.Fail("CaptureNoApproachCell", "No valid adjacent cell is available for capture.");
+
+            var path = QueryPathForActor(engineer, actionCell);
+            RecordPathQuery(engineer.Id.Value, path);
+            if (!path.Success)
+                return CommandResult.Fail("CaptureNoPath", "The engineer cannot path to the capture target: " + path.FailureCode);
+
+            PreparePendingAction(engineer, target, path.Path, ActorOrderKind.Capture, EngineerActionKind.CaptureBuilding, actionCell, "moving_to_capture");
+            return CommandResult.Ok("Engineer moving to capture target.");
+        }
+
+        CommandResult EngineerRepairBuilding(EngineerRepairBuildingCommand command)
+        {
+            ActorState engineer;
+            if (!TryGetOwnedActor(command.PlayerId, command.EngineerActorId, out engineer))
+                return CommandResult.Fail("EngineerRepairActorInvalid", "The engineer does not exist or is not owned by the command player.");
+            if (engineer.LoadedIntoTransportActorId > 0)
+                return CommandResult.Fail("EngineerRepairActorLoaded", "Unload the engineer before field-repairing a building.");
+
+            ActorState target;
+            if (!TryGetOwnedActor(command.PlayerId, command.TargetActorId, out target))
+                return CommandResult.Fail("EngineerRepairTargetInvalid", "The repair target does not exist or is not owned by the command player.");
+
+            var engineerDefinition = Rules.GetDefinition(engineer.TypeId);
+            if (engineerDefinition.Capture == null || !engineerDefinition.Capture.CanRepairBuildings)
+                return CommandResult.Fail("EngineerRepairRequiresEngineer", "The selected actor cannot field-repair buildings.");
+
+            var targetDefinition = Rules.GetDefinition(target.TypeId) as BuildingDefinition;
+            if (targetDefinition == null)
+                return CommandResult.Fail("EngineerRepairRequiresBuilding", "Engineers can field-repair buildings only.");
+            if (target.Health >= targetDefinition.MaxHealth)
+                return CommandResult.Fail("EngineerRepairNotNeeded", "The selected building is already fully repaired.");
+            if (players[command.PlayerId].Credits < engineerDefinition.Capture.RepairCost)
+                return CommandResult.Fail("EngineerRepairInsufficientCredits", "Engineer repair requires more credits.");
+
+            if (IsActorInRangeOfTarget(engineer, target, engineerDefinition.Capture.ActionRangeCells))
+            {
+                ExecuteEngineerRepair(engineer, target, engineerDefinition.Capture);
+                return CommandResult.Ok("Engineer repaired the building.");
+            }
+
+            Int2 actionCell;
+            if (!TryFindActionCell(engineer, target, engineerDefinition.Capture.ActionRangeCells, GetMovementClass(engineer), out actionCell))
+                return CommandResult.Fail("EngineerRepairNoApproachCell", "No valid adjacent cell is available for repair.");
+
+            var path = QueryPathForActor(engineer, actionCell);
+            RecordPathQuery(engineer.Id.Value, path);
+            if (!path.Success)
+                return CommandResult.Fail("EngineerRepairNoPath", "The engineer cannot path to the repair target: " + path.FailureCode);
+
+            PreparePendingAction(engineer, target, path.Path, ActorOrderKind.EngineerRepair, EngineerActionKind.RepairBuilding, actionCell, "moving_to_repair");
+            return CommandResult.Ok("Engineer moving to repair target.");
+        }
+
+        CommandResult LoadTransport(LoadTransportCommand command)
+        {
+            ActorState transport;
+            if (!TryGetOwnedActor(command.PlayerId, command.TransportActorId, out transport))
+                return CommandResult.Fail("TransportInvalid", "The transport does not exist or is not owned by the command player.");
+
+            var transportDefinition = Rules.GetDefinition(transport.TypeId);
+            if (transportDefinition.Transport == null || transportDefinition.Transport.Capacity <= 0)
+                return CommandResult.Fail("TransportCapacityMissing", "The selected actor cannot carry passengers.");
+
+            if (command.PassengerActorIds == null || command.PassengerActorIds.Count == 0)
+                return CommandResult.Fail("PassengerMissing", "Select at least one passenger to load.");
+
+            var uniquePassengers = new List<ActorState>();
+            var details = new List<string>();
+            for (var i = 0; i < command.PassengerActorIds.Count; i++)
+            {
+                ActorState passenger;
+                if (!TryGetOwnedActor(command.PlayerId, command.PassengerActorIds[i], out passenger))
+                {
+                    details.Add("actor " + command.PassengerActorIds[i].Value + ": not owned or missing");
+                    continue;
+                }
+
+                if (passenger.Id.Value == transport.Id.Value)
+                {
+                    details.Add("actor " + passenger.Id.Value + ": cannot load itself");
+                    continue;
+                }
+                if (passenger.TransportPassengerActorIds.Count > 0)
+                {
+                    details.Add("actor " + passenger.Id.Value + ": transports cannot be loaded as passengers");
+                    continue;
+                }
+                if (passenger.LoadedIntoTransportActorId > 0)
+                {
+                    details.Add("actor " + passenger.Id.Value + ": already loaded");
+                    continue;
+                }
+                if (!CanTransportCarryPassenger(transportDefinition.Transport, passenger))
+                {
+                    details.Add("actor " + passenger.Id.Value + ": passenger type not allowed");
+                    continue;
+                }
+                if (!ContainsActor(uniquePassengers, passenger.Id.Value))
+                    uniquePassengers.Add(passenger);
+            }
+
+            if (details.Count > 0)
+                return CommandResult.Fail("LoadTransportRejected", "One or more passengers could not load.", details);
+
+            if (transport.TransportPassengerActorIds.Count + uniquePassengers.Count > transportDefinition.Transport.Capacity)
+                return CommandResult.Fail("TransportFull", "The transport does not have enough passenger capacity.");
+
+            foreach (var passenger in uniquePassengers)
+            {
+                if (IsActorInRangeOfTarget(passenger, transport, transportDefinition.Transport.LoadRangeCells))
+                    ExecutePassengerLoad(passenger, transport);
+                else
+                {
+                    Int2 actionCell;
+                    if (!TryFindActionCell(passenger, transport, transportDefinition.Transport.LoadRangeCells, GetMovementClass(passenger), out actionCell))
+                        return CommandResult.Fail("LoadNoApproachCell", "No valid adjacent load cell is available.");
+
+                    var path = QueryPathForActor(passenger, actionCell);
+                    RecordPathQuery(passenger.Id.Value, path);
+                    if (!path.Success)
+                        return CommandResult.Fail("LoadNoPath", "A passenger cannot path to the transport: " + path.FailureCode);
+
+                    PreparePendingAction(passenger, transport, path.Path, ActorOrderKind.LoadTransport, EngineerActionKind.LoadTransport, actionCell, "moving_to_load");
+                }
+            }
+
+            UpdateVisibility();
+            return CommandResult.Ok("Transport load order accepted.");
+        }
+
+        CommandResult UnloadTransport(UnloadTransportCommand command)
+        {
+            ActorState transport;
+            if (!TryGetOwnedActor(command.PlayerId, command.TransportActorId, out transport))
+                return CommandResult.Fail("TransportInvalid", "The transport does not exist or is not owned by the command player.");
+
+            var transportDefinition = Rules.GetDefinition(transport.TypeId).Transport;
+            if (transportDefinition == null)
+                return CommandResult.Fail("TransportCapacityMissing", "The selected actor cannot unload passengers.");
+            if (transport.TransportPassengerActorIds.Count == 0)
+                return CommandResult.Fail("TransportEmpty", "The selected transport has no passengers.");
+            if (!Map.Contains(command.PreferredCell))
+                return CommandResult.Fail("UnloadCellOutsideMap", "The unload target is outside the map.");
+
+            var usedCells = new List<Int2>();
+            var passengers = new List<ActorState>();
+            for (var i = 0; i < transport.TransportPassengerActorIds.Count; i++)
+            {
+                ActorState passenger;
+                if (actors.TryGetValue(transport.TransportPassengerActorIds[i], out passenger) && !passenger.IsDestroyed)
+                    passengers.Add(passenger);
+            }
+
+            var unloadCells = new Dictionary<int, Int2>();
+            for (var i = 0; i < passengers.Count; i++)
+            {
+                var movementClass = GetMovementClass(passengers[i]);
+                Int2 cell;
+                if (!TryFindUnloadCell(command.PreferredCell, transport.CellPosition, movementClass, usedCells, out cell))
+                    return CommandResult.Fail("UnloadNoCell", "No valid unload cell is available for all passengers.");
+
+                usedCells.Add(cell);
+                unloadCells[passengers[i].Id.Value] = cell;
+            }
+
+            for (var i = 0; i < passengers.Count; i++)
+                ExecutePassengerUnload(passengers[i], transport, unloadCells[passengers[i].Id.Value]);
+
+            transport.TransportPassengerActorIds.Clear();
+            transport.CurrentOrder = ActorOrderKind.UnloadTransport;
+            transport.OrderTargetCell = command.PreferredCell;
+            transport.MovementPhase = "unloaded_passengers";
+            UpdateVisibility();
+            return CommandResult.Ok("Transport unloaded " + passengers.Count + " passengers.");
         }
 
         void TickProduction()
@@ -1650,6 +1925,360 @@ namespace ProjectAegisRTS.Simulation
             return repairedActors;
         }
 
+        void TickEngineerAndTransportActions()
+        {
+            foreach (var actor in SortedActors())
+            {
+                if (actor.IsDestroyed || actor.LoadedIntoTransportActorId > 0 || actor.PendingEngineerAction == EngineerActionKind.None)
+                    continue;
+                if (actor.Path.Count > 0 || actor.EngineerTargetActorId <= 0)
+                    continue;
+
+                ActorState target;
+                if (!actors.TryGetValue(actor.EngineerTargetActorId, out target) || target.IsDestroyed)
+                {
+                    ClearPendingAction(actor);
+                    continue;
+                }
+
+                var definition = Rules.GetDefinition(actor.TypeId);
+                if (actor.PendingEngineerAction == EngineerActionKind.CaptureBuilding)
+                {
+                    if (definition.Capture != null && IsActorInRangeOfTarget(actor, target, definition.Capture.ActionRangeCells))
+                        ExecuteBuildingCapture(actor, target, definition.Capture);
+                    else
+                        ClearPendingAction(actor);
+                }
+                else if (actor.PendingEngineerAction == EngineerActionKind.RepairBuilding)
+                {
+                    if (definition.Capture != null && IsActorInRangeOfTarget(actor, target, definition.Capture.ActionRangeCells))
+                        ExecuteEngineerRepair(actor, target, definition.Capture);
+                    else
+                        ClearPendingAction(actor);
+                }
+                else if (actor.PendingEngineerAction == EngineerActionKind.LoadTransport)
+                {
+                    var transportDefinition = Rules.GetDefinition(target.TypeId).Transport;
+                    if (transportDefinition != null && IsActorInRangeOfTarget(actor, target, transportDefinition.LoadRangeCells))
+                        ExecutePassengerLoad(actor, target);
+                    else
+                        ClearPendingAction(actor);
+                }
+            }
+        }
+
+        void PreparePendingAction(ActorState actor, ActorState target, IReadOnlyList<Int2> path, ActorOrderKind order, EngineerActionKind action, Int2 actionCell, string movementPhase)
+        {
+            actor.Path.Clear();
+            actor.Path.AddRange(path);
+            actor.CurrentOrder = order;
+            actor.PendingEngineerAction = action;
+            actor.EngineerTargetActorId = target.Id.Value;
+            actor.OrderTargetCell = actionCell;
+            ClearAttackState(actor);
+            ClearHarvestState(actor);
+            actor.MovementPhase = actor.Path.Count == 0 ? movementPhase.Replace("moving_to_", string.Empty) : movementPhase;
+        }
+
+        void ExecuteBuildingCapture(ActorState engineer, ActorState target, CaptureDefinition capture)
+        {
+            var oldOwnerId = target.OwnerPlayerId;
+            ChangeActorOwner(target, engineer.OwnerPlayerId);
+            target.CurrentOrder = ActorOrderKind.Idle;
+            target.MovementPhase = "captured";
+            target.IsRepairing = false;
+            AddCombatEvent("BuildingCaptured", engineer.Id.Value, target.Id.Value, 0, "capture", 0, target.Health, target.CellPosition, target.WorldPositionFixed);
+
+            if (capture != null && capture.ConsumedOnCapture)
+            {
+                RemoveActorFromWorld(engineer);
+            }
+            else
+            {
+                ClearPendingAction(engineer);
+                engineer.CurrentOrder = ActorOrderKind.Idle;
+                engineer.MovementPhase = "capture_complete";
+            }
+
+            ClearInvalidAttackTargetsForOwnerChange(target.Id.Value, oldOwnerId, target.OwnerPlayerId);
+            UpdatePowerAndActorFlags();
+            UpdateVisibility();
+            matchState.Update(this);
+        }
+
+        void ExecuteEngineerRepair(ActorState engineer, ActorState target, CaptureDefinition capture)
+        {
+            var targetDefinition = Rules.GetDefinition(target.TypeId) as BuildingDefinition;
+            if (targetDefinition == null || capture == null)
+            {
+                ClearPendingAction(engineer);
+                return;
+            }
+
+            var player = players[engineer.OwnerPlayerId];
+            var cost = Min(capture.RepairCost, player.Credits);
+            if (capture.RepairCost > 0 && player.Credits < capture.RepairCost)
+            {
+                ClearPendingAction(engineer);
+                engineer.MovementPhase = "engineer_repair_blocked";
+                return;
+            }
+
+            player.Credits -= cost;
+            var missingHealth = targetDefinition.MaxHealth - target.Health;
+            var repaired = Min(capture.RepairAmount, missingHealth);
+            if (repaired < 0)
+                repaired = 0;
+            target.Health += repaired;
+            target.IsRepairing = false;
+            target.RepairProgressTicks++;
+            target.RepairSpentCredits += cost;
+            engineer.RepairProgressTicks++;
+            engineer.CurrentOrder = ActorOrderKind.EngineerRepair;
+            engineer.MovementPhase = "engineer_repaired";
+            ClearPendingAction(engineer);
+            AddEconomyEvent("EngineerRepairedBuilding", engineer.Id.Value, target.Id.Value, target.CellPosition, -cost, 0);
+        }
+
+        void ExecutePassengerLoad(ActorState passenger, ActorState transport)
+        {
+            var transportDefinition = Rules.GetDefinition(transport.TypeId).Transport;
+            if (transportDefinition == null || transport.TransportPassengerActorIds.Count >= transportDefinition.Capacity)
+            {
+                ClearPendingAction(passenger);
+                passenger.MovementPhase = "load_blocked";
+                return;
+            }
+
+            if (!transport.TransportPassengerActorIds.Contains(passenger.Id.Value))
+                transport.TransportPassengerActorIds.Add(passenger.Id.Value);
+
+            passenger.LoadedIntoTransportActorId = transport.Id.Value;
+            passenger.Path.Clear();
+            ClearPendingAction(passenger);
+            ClearAttackState(passenger);
+            ClearHarvestState(passenger);
+            passenger.CurrentOrder = ActorOrderKind.LoadTransport;
+            passenger.DesiredSpeed = 0;
+            passenger.NormalizedSpeed = 0;
+            passenger.MovementPhase = "loaded";
+            passenger.CellPosition = transport.CellPosition;
+            passenger.WorldPositionFixed = transport.WorldPositionFixed;
+            transport.CurrentOrder = ActorOrderKind.LoadTransport;
+            transport.MovementPhase = "loaded_passenger";
+            UpdateVisibility();
+        }
+
+        void ExecutePassengerUnload(ActorState passenger, ActorState transport, Int2 cell)
+        {
+            passenger.LoadedIntoTransportActorId = 0;
+            passenger.CellPosition = cell;
+            passenger.WorldPositionFixed = FixedMath.CellCenter(cell);
+            passenger.Path.Clear();
+            ClearPendingAction(passenger);
+            ClearAttackState(passenger);
+            ClearHarvestState(passenger);
+            passenger.CurrentOrder = ActorOrderKind.Idle;
+            passenger.OrderTargetCell = cell;
+            passenger.DesiredSpeed = 0;
+            passenger.NormalizedSpeed = 0;
+            passenger.MovementPhase = "unloaded";
+            transport.TransportPassengerActorIds.Remove(passenger.Id.Value);
+        }
+
+        void ChangeActorOwner(ActorState actor, int newOwnerId)
+        {
+            actor.SetOwner(newOwnerId);
+            actor.ManuallyPoweredOff = false;
+            actor.IsRepairing = false;
+            actor.RallyPoint = actor.CellPosition;
+            ClearPendingAction(actor);
+
+            foreach (var player in SortedPlayers())
+            {
+                for (var i = player.MutableProductionQueue.Count - 1; i >= 0; i--)
+                    if (player.MutableProductionQueue[i].ProducerActorId.Value == actor.Id.Value)
+                        player.MutableProductionQueue.RemoveAt(i);
+            }
+        }
+
+        void ClearInvalidAttackTargetsForOwnerChange(int actorId, int oldOwnerId, int newOwnerId)
+        {
+            foreach (var other in SortedActors())
+            {
+                if (other.AttackTargetActorId != actorId)
+                    continue;
+
+                if (other.OwnerPlayerId == newOwnerId || other.OwnerPlayerId == oldOwnerId)
+                    ClearAttackState(other);
+            }
+        }
+
+        bool IsActorInRangeOfTarget(ActorState actor, ActorState target, int rangeCells)
+        {
+            return DistanceToTarget(actor.CellPosition, target) <= rangeCells;
+        }
+
+        int DistanceToTarget(Int2 cell, ActorState target)
+        {
+            var targetDefinition = Rules.GetDefinition(target.TypeId) as BuildingDefinition;
+            if (targetDefinition == null)
+                return cell.ManhattanDistanceTo(target.CellPosition);
+
+            var minDistance = int.MaxValue;
+            for (var y = 0; y < targetDefinition.FootprintCells.Y; y++)
+            {
+                for (var x = 0; x < targetDefinition.FootprintCells.X; x++)
+                {
+                    var footprintCell = new Int2(target.CellPosition.X + x, target.CellPosition.Y + y);
+                    var distance = cell.ManhattanDistanceTo(footprintCell);
+                    if (distance < minDistance)
+                        minDistance = distance;
+                }
+            }
+
+            return minDistance;
+        }
+
+        bool TryFindActionCell(ActorState actor, ActorState target, int rangeCells, MovementClass movementClass, out Int2 actionCell)
+        {
+            if (IsActorInRangeOfTarget(actor, target, rangeCells))
+            {
+                actionCell = actor.CellPosition;
+                return true;
+            }
+
+            var candidates = new List<Int2>();
+            AddTargetPerimeterCells(target, rangeCells, candidates);
+            candidates.Sort((a, b) =>
+            {
+                var distance = actor.CellPosition.ManhattanDistanceTo(a).CompareTo(actor.CellPosition.ManhattanDistanceTo(b));
+                if (distance != 0)
+                    return distance;
+                var y = a.Y.CompareTo(b.Y);
+                return y != 0 ? y : a.X.CompareTo(b.X);
+            });
+
+            for (var i = 0; i < candidates.Count; i++)
+            {
+                var candidate = candidates[i];
+                if (Map.IsPassableForUnit(candidate, movementClass, Rules))
+                {
+                    actionCell = candidate;
+                    return true;
+                }
+            }
+
+            actionCell = actor.CellPosition;
+            return false;
+        }
+
+        void AddTargetPerimeterCells(ActorState target, int rangeCells, List<Int2> candidates)
+        {
+            var targetDefinition = Rules.GetDefinition(target.TypeId) as BuildingDefinition;
+            var minX = target.CellPosition.X;
+            var minY = target.CellPosition.Y;
+            var maxX = target.CellPosition.X;
+            var maxY = target.CellPosition.Y;
+            if (targetDefinition != null)
+            {
+                maxX += targetDefinition.FootprintCells.X - 1;
+                maxY += targetDefinition.FootprintCells.Y - 1;
+            }
+
+            for (var y = minY - rangeCells; y <= maxY + rangeCells; y++)
+            {
+                for (var x = minX - rangeCells; x <= maxX + rangeCells; x++)
+                {
+                    var cell = new Int2(x, y);
+                    if (!Map.Contains(cell))
+                        continue;
+                    if (DistanceToRectangle(cell, minX, minY, maxX, maxY) > rangeCells)
+                        continue;
+                    if (!candidates.Contains(cell))
+                        candidates.Add(cell);
+                }
+            }
+        }
+
+        static int DistanceToRectangle(Int2 cell, int minX, int minY, int maxX, int maxY)
+        {
+            var dx = 0;
+            if (cell.X < minX)
+                dx = minX - cell.X;
+            else if (cell.X > maxX)
+                dx = cell.X - maxX;
+
+            var dy = 0;
+            if (cell.Y < minY)
+                dy = minY - cell.Y;
+            else if (cell.Y > maxY)
+                dy = cell.Y - maxY;
+
+            return dx + dy;
+        }
+
+        bool TryFindUnloadCell(Int2 preferredCell, Int2 fallbackCenter, MovementClass movementClass, List<Int2> usedCells, out Int2 unloadCell)
+        {
+            if (TryFindUnusedPassableCellNear(preferredCell, movementClass, usedCells, 6, out unloadCell))
+                return true;
+            return TryFindUnusedPassableCellNear(fallbackCenter, movementClass, usedCells, 8, out unloadCell);
+        }
+
+        bool TryFindUnusedPassableCellNear(Int2 center, MovementClass movementClass, List<Int2> usedCells, int maxRadius, out Int2 cell)
+        {
+            for (var radius = 0; radius <= maxRadius; radius++)
+            {
+                for (var y = -radius; y <= radius; y++)
+                {
+                    for (var x = -radius; x <= radius; x++)
+                    {
+                        if (radius > 0 && Math.Abs(x) != radius && Math.Abs(y) != radius)
+                            continue;
+
+                        var candidate = new Int2(center.X + x, center.Y + y);
+                        if (!Map.IsPassableForUnit(candidate, movementClass, Rules))
+                            continue;
+                        if (usedCells.Contains(candidate))
+                            continue;
+
+                        cell = candidate;
+                        return true;
+                    }
+                }
+            }
+
+            cell = center;
+            return false;
+        }
+
+        bool CanTransportCarryPassenger(TransportDefinition transport, ActorState passenger)
+        {
+            if (transport == null || passenger.IsDestroyed)
+                return false;
+
+            var passengerDefinition = Rules.GetDefinition(passenger.TypeId) as UnitDefinition;
+            if (passengerDefinition == null)
+                return false;
+
+            return transport.AllowsInfantry && passengerDefinition.Production.Kind == ProductionKind.Infantry;
+        }
+
+        bool ContainsActor(List<ActorState> actorsToCheck, int actorId)
+        {
+            for (var i = 0; i < actorsToCheck.Count; i++)
+                if (actorsToCheck[i].Id.Value == actorId)
+                    return true;
+
+            return false;
+        }
+
+        void ClearPendingAction(ActorState actor)
+        {
+            actor.PendingEngineerAction = EngineerActionKind.None;
+            actor.EngineerTargetActorId = 0;
+        }
+
         void TickRepairs()
         {
             foreach (var actor in SortedActors())
@@ -1720,6 +2349,17 @@ namespace ProjectAegisRTS.Simulation
 
         void RemoveActorFromWorld(ActorState actor)
         {
+            if (actor.LoadedIntoTransportActorId > 0)
+            {
+                ActorState transport;
+                if (actors.TryGetValue(actor.LoadedIntoTransportActorId, out transport))
+                    transport.TransportPassengerActorIds.Remove(actor.Id.Value);
+                actor.LoadedIntoTransportActorId = 0;
+            }
+
+            if (actor.TransportPassengerActorIds.Count > 0)
+                DestroyLoadedPassengers(actor, 0, 0, "removed_transport");
+
             var building = Rules.GetDefinition(actor.TypeId) as BuildingDefinition;
             if (building != null)
             {
@@ -1816,12 +2456,16 @@ namespace ProjectAegisRTS.Simulation
         {
             foreach (var actor in SortedActors())
             {
+                if (actor.LoadedIntoTransportActorId > 0)
+                    continue;
+
                 if (actor.IsDestroyed)
                 {
                     actor.Path.Clear();
                     actor.DesiredSpeed = 0;
                     actor.NormalizedSpeed = 0;
                     actor.MovementPhase = "destroyed";
+                    SyncLoadedPassengerPositions(actor);
                     continue;
                 }
 
@@ -1831,6 +2475,7 @@ namespace ProjectAegisRTS.Simulation
                     actor.DesiredSpeed = 0;
                     actor.NormalizedSpeed = 0;
                     actor.MovementPhase = MovementPhaseForWaitingOrder(actor);
+                    SyncLoadedPassengerPositions(actor);
                     continue;
                 }
 
@@ -1870,6 +2515,24 @@ namespace ProjectAegisRTS.Simulation
                         actor.MovementPhase = "idle";
                     }
                 }
+
+                SyncLoadedPassengerPositions(actor);
+            }
+        }
+
+        void SyncLoadedPassengerPositions(ActorState transport)
+        {
+            if (transport.TransportPassengerActorIds.Count == 0)
+                return;
+
+            for (var i = 0; i < transport.TransportPassengerActorIds.Count; i++)
+            {
+                ActorState passenger;
+                if (!actors.TryGetValue(transport.TransportPassengerActorIds[i], out passenger) || passenger.IsDestroyed)
+                    continue;
+
+                passenger.CellPosition = transport.CellPosition;
+                passenger.WorldPositionFixed = transport.WorldPositionFixed;
             }
         }
 
@@ -1889,6 +2552,12 @@ namespace ProjectAegisRTS.Simulation
                 return "patrolling";
             if (order == ActorOrderKind.Scatter)
                 return "scattering";
+            if (order == ActorOrderKind.Capture)
+                return "moving_to_capture";
+            if (order == ActorOrderKind.EngineerRepair)
+                return "moving_to_repair";
+            if (order == ActorOrderKind.LoadTransport)
+                return "moving_to_load";
             return "moving";
         }
 
@@ -1906,6 +2575,14 @@ namespace ProjectAegisRTS.Simulation
                 return "scattered";
             if (actor.CurrentOrder == ActorOrderKind.Deploy)
                 return "deploy_placeholder";
+            if (actor.CurrentOrder == ActorOrderKind.Capture)
+                return "capturing";
+            if (actor.CurrentOrder == ActorOrderKind.EngineerRepair)
+                return "engineer_repairing";
+            if (actor.CurrentOrder == ActorOrderKind.LoadTransport)
+                return "loading_transport";
+            if (actor.CurrentOrder == ActorOrderKind.UnloadTransport)
+                return "unloading_transport";
             if (actor.CurrentOrder == ActorOrderKind.Harvest)
                 return actor.MovementPhase;
             return "idle";
@@ -1944,6 +2621,9 @@ namespace ProjectAegisRTS.Simulation
 
             foreach (var actor in SortedActors())
             {
+                if (actor.LoadedIntoTransportActorId > 0)
+                    continue;
+
                 var definition = Rules.GetDefinition(actor.TypeId);
                 var player = players[actor.OwnerPlayerId];
                 var isBuilding = definition.Kind == ActorKind.Building;
@@ -1998,7 +2678,7 @@ namespace ProjectAegisRTS.Simulation
 
             foreach (var actor in SortedActors())
             {
-                if (actor.IsDestroyed)
+                if (actor.IsDestroyed || actor.LoadedIntoTransportActorId > 0)
                     continue;
 
                 PlayerVisibilityState visibility;
@@ -2038,6 +2718,9 @@ namespace ProjectAegisRTS.Simulation
 
         bool ShouldIncludeActorInSnapshot(ActorState actor, int perspectivePlayerId)
         {
+            if (actor.LoadedIntoTransportActorId > 0)
+                return false;
+
             if (perspectivePlayerId <= 0)
                 return true;
             if (actor.OwnerPlayerId == perspectivePlayerId)
@@ -2085,6 +2768,9 @@ namespace ProjectAegisRTS.Simulation
             var actorDots = new List<MinimapActorDotSnapshot>();
             foreach (var actor in SortedActors())
             {
+                if (actor.LoadedIntoTransportActorId > 0)
+                    continue;
+
                 var isEnemy = actor.OwnerPlayerId != playerId;
                 var isVisible = visibility.IsVisible(actor.CellPosition);
                 if (isEnemy && !isVisible)
@@ -2278,6 +2964,12 @@ namespace ProjectAegisRTS.Simulation
                 return false;
             }
 
+            if (actor.LoadedIntoTransportActorId > 0)
+            {
+                details.Add("actor " + actor.Id.Value + ": loaded in transport");
+                return false;
+            }
+
             if (!(Rules.GetDefinition(actor.TypeId) is UnitDefinition))
             {
                 details.Add("actor " + actor.Id.Value + ": " + orderName + " requires a mobile unit");
@@ -2292,6 +2984,12 @@ namespace ProjectAegisRTS.Simulation
             if (actor.IsDestroyed)
             {
                 details.Add("actor " + actor.Id.Value + ": destroyed");
+                return false;
+            }
+
+            if (actor.LoadedIntoTransportActorId > 0)
+            {
+                details.Add("actor " + actor.Id.Value + ": loaded in transport");
                 return false;
             }
 
@@ -2350,6 +3048,10 @@ namespace ProjectAegisRTS.Simulation
                 return CommandResult.Fail("AttackActorDestroyed", "The attacker has been destroyed.");
             if (target.IsDestroyed)
                 return CommandResult.Fail("AttackTargetDestroyed", "The attack target has been destroyed.");
+            if (attacker.LoadedIntoTransportActorId > 0)
+                return CommandResult.Fail("AttackActorLoaded", "The attacker is loaded in a transport.");
+            if (target.LoadedIntoTransportActorId > 0)
+                return CommandResult.Fail("AttackTargetLoaded", "The target is loaded in a transport.");
             if (attacker.OwnerPlayerId == target.OwnerPlayerId)
                 return CommandResult.Fail("AttackTargetFriendly", "Stage 9 attack orders require an enemy target.");
 
@@ -2590,7 +3292,39 @@ namespace ProjectAegisRTS.Simulation
             target.DesiredSpeed = 0;
             target.NormalizedSpeed = 0;
             target.MovementPhase = "destroyed";
+            DestroyLoadedPassengers(target, sourceActorId, projectileId, weaponId);
             AddCombatEvent("ActorDestroyed", sourceActorId, target.Id.Value, projectileId, weaponId, damage, target.Health, target.CellPosition, target.WorldPositionFixed);
+        }
+
+        void DestroyLoadedPassengers(ActorState transport, int sourceActorId, int projectileId, string weaponId)
+        {
+            if (transport.TransportPassengerActorIds.Count == 0)
+                return;
+
+            var passengerIds = new List<int>(transport.TransportPassengerActorIds);
+            transport.TransportPassengerActorIds.Clear();
+            for (var i = 0; i < passengerIds.Count; i++)
+            {
+                ActorState passenger;
+                if (!actors.TryGetValue(passengerIds[i], out passenger) || passenger.IsDestroyed)
+                    continue;
+
+                passenger.LoadedIntoTransportActorId = 0;
+                passenger.Health = 0;
+                passenger.IsDying = true;
+                passenger.IsDestroyed = true;
+                passenger.DeathTick = TickNumber;
+                passenger.DestroyedByActorId = sourceActorId;
+                passenger.Path.Clear();
+                ClearAttackState(passenger);
+                ClearHarvestState(passenger);
+                ClearPendingAction(passenger);
+                passenger.CurrentOrder = ActorOrderKind.Stop;
+                passenger.CellPosition = transport.CellPosition;
+                passenger.WorldPositionFixed = transport.WorldPositionFixed;
+                passenger.MovementPhase = "destroyed_in_transport";
+                AddCombatEvent("PassengerDestroyedWithTransport", sourceActorId, passenger.Id.Value, projectileId, weaponId, 0, 0, passenger.CellPosition, passenger.WorldPositionFixed);
+            }
         }
 
         void ClearAttackState(ActorState actor)
@@ -2766,6 +3500,7 @@ namespace ProjectAegisRTS.Simulation
             actor.CurrentOrder = ActorOrderKind.Harvest;
             actor.OrderTargetCell = resourceCell;
             ClearAttackState(actor);
+            ClearPendingAction(actor);
             SendHarvesterToResource(actor, harvester, resourceCell);
         }
 

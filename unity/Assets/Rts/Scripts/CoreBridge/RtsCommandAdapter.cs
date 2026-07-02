@@ -203,6 +203,34 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
                 world.IssueCommand(new ActivateSupportPowerCommand(playerId, powerId, targetCell)));
         }
 
+        public static RtsCommandResult CaptureBuilding(RtsWorld world, int playerId, int engineerActorId, int targetActorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Capture",
+                world.IssueCommand(new CaptureBuildingCommand(playerId, new ActorId(engineerActorId), new ActorId(targetActorId))));
+        }
+
+        public static RtsCommandResult EngineerRepairBuilding(RtsWorld world, int playerId, int engineerActorId, int targetActorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Engineer repair",
+                world.IssueCommand(new EngineerRepairBuildingCommand(playerId, new ActorId(engineerActorId), new ActorId(targetActorId))));
+        }
+
+        public static RtsCommandResult LoadTransport(RtsWorld world, int playerId, int transportActorId, IReadOnlyList<int> passengerActorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Load transport",
+                world.IssueCommand(new LoadTransportCommand(playerId, new ActorId(transportActorId), ToActorIds(passengerActorIds))));
+        }
+
+        public static RtsCommandResult UnloadTransport(RtsWorld world, int playerId, int transportActorId, Int2 preferredCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Unload transport",
+                world.IssueCommand(new UnloadTransportCommand(playerId, new ActorId(transportActorId), preferredCell)));
+        }
+
         static IReadOnlyList<ActorId> ToActorIds(IReadOnlyList<int> actorIds)
         {
             var converted = new List<ActorId>(actorIds.Count);

@@ -308,4 +308,60 @@ namespace ProjectAegisRTS.Commands
             ActorId = actorId;
         }
     }
+
+    public sealed class CaptureBuildingCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public ActorId EngineerActorId { get; private set; }
+        public ActorId TargetActorId { get; private set; }
+
+        public CaptureBuildingCommand(int playerId, ActorId engineerActorId, ActorId targetActorId)
+        {
+            PlayerId = playerId;
+            EngineerActorId = engineerActorId;
+            TargetActorId = targetActorId;
+        }
+    }
+
+    public sealed class EngineerRepairBuildingCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public ActorId EngineerActorId { get; private set; }
+        public ActorId TargetActorId { get; private set; }
+
+        public EngineerRepairBuildingCommand(int playerId, ActorId engineerActorId, ActorId targetActorId)
+        {
+            PlayerId = playerId;
+            EngineerActorId = engineerActorId;
+            TargetActorId = targetActorId;
+        }
+    }
+
+    public sealed class LoadTransportCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public ActorId TransportActorId { get; private set; }
+        public IReadOnlyList<ActorId> PassengerActorIds { get; private set; }
+
+        public LoadTransportCommand(int playerId, ActorId transportActorId, IReadOnlyList<ActorId> passengerActorIds)
+        {
+            PlayerId = playerId;
+            TransportActorId = transportActorId;
+            PassengerActorIds = passengerActorIds;
+        }
+    }
+
+    public sealed class UnloadTransportCommand : ISimCommand
+    {
+        public int PlayerId { get; private set; }
+        public ActorId TransportActorId { get; private set; }
+        public Int2 PreferredCell { get; private set; }
+
+        public UnloadTransportCommand(int playerId, ActorId transportActorId, Int2 preferredCell)
+        {
+            PlayerId = playerId;
+            TransportActorId = transportActorId;
+            PreferredCell = preferredCell;
+        }
+    }
 }

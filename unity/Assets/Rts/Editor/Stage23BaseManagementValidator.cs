@@ -106,8 +106,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var grid = commandBar.GetComponentInChildren<GridLayoutGroup>(true);
             if (grid == null)
                 throw new InvalidOperationException("Stage 23 command bar missing GridLayoutGroup.");
-            if (grid.constraint != GridLayoutGroup.Constraint.FixedColumnCount || grid.constraintCount != 4)
-                throw new InvalidOperationException("Stage 23 command bar must use a compact four-column matrix.");
+            if (grid.constraint != GridLayoutGroup.Constraint.FixedColumnCount || (grid.constraintCount != 4 && grid.constraintCount != 8))
+                throw new InvalidOperationException("Stage 23 command bar must use a compact fixed-column matrix.");
             if (grid.cellSize.x > 86f || grid.cellSize.y > 24f)
                 throw new InvalidOperationException("Stage 23 command buttons are too large for the sidebar matrix.");
         }

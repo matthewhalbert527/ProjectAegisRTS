@@ -119,7 +119,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                     "Health: " + actor.Health + (definition == null ? string.Empty : "/" + definition.MaxHealth) + "\n" +
                     "Cell: " + actor.CellPosition + "\n" +
                     "Powered: " + actor.IsPowered + "  Low: " + actor.IsLowPower + "\n" +
-                    "Producing: " + actor.IsProducing + "  Phase: " + actor.MovementPhase;
+                    "Producing: " + actor.IsProducing + "  Phase: " + actor.MovementPhase +
+                    TransportText(actor);
                 return;
             }
 
@@ -139,6 +140,15 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             foreach (var pair in counts)
                 text += "\n" + pair.Key + ": " + pair.Value;
             label.text = text;
+        }
+
+        static string TransportText(ActorSnapshot actor)
+        {
+            if (actor.IsLoaded)
+                return "\nLoaded in transport: " + actor.LoadedIntoTransportActorId;
+            if (actor.TransportCapacity > 0)
+                return "\nPassengers: " + actor.TransportPassengerCount + "/" + actor.TransportCapacity;
+            return string.Empty;
         }
     }
 }
