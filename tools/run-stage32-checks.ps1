@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $corePath = Join-Path $repoRoot 'src\Rts.Core'
 
-Write-Host 'Stage 32 full acceptance gate: delegates to the Stage 31 final gate, then adds Stage 32 terrain-piece generation, review/player-facing validation, player build/log coverage, UnityEngine-free scan, and whitespace.'
+Write-Host 'Stage 32 full acceptance gate: delegates to the Stage 31 final gate, then adds Stage 32 terrain-piece/set-dressing generation, terrain-kit generation, review/player-facing validation, player build/log coverage, UnityEngine-free scan, and whitespace.'
 Write-Host 'Expected runtime: slow. Use run-stage32-fast-checks.ps1 for terrain iteration and run-stage32-medium-checks.ps1 before commit.'
 
 Write-ValidationSection 'Full recursion audit'
@@ -29,8 +29,14 @@ if ($LASTEXITCODE -ne 0) {
     throw "run-unity-stage32-validation.ps1 failed with exit code $LASTEXITCODE."
 }
 
+Write-ValidationSection 'Stage 32 terrain-kit generation and validation'
+& (Join-Path $repoRoot 'tools\run-stage32-terrain-kit-generator.ps1')
+if ($LASTEXITCODE -ne 0) {
+    throw "run-stage32-terrain-kit-generator.ps1 failed with exit code $LASTEXITCODE."
+}
+
 Write-ValidationSection 'Stage 32 player-facing validation'
-& (Join-Path $repoRoot 'tools\run-stage32-player-facing-checks.ps1') -SkipCoreBuild -SkipStage32Validation -SkipSafetyDependencies
+& (Join-Path $repoRoot 'tools\run-stage32-player-facing-checks.ps1') -SkipCoreBuild -SkipStage32Validation -SkipSafetyDependencies -SkipTerrainKit
 if ($LASTEXITCODE -ne 0) {
     throw "run-stage32-player-facing-checks.ps1 failed with exit code $LASTEXITCODE."
 }

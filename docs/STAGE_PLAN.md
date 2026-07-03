@@ -158,7 +158,7 @@ Complete after local validation. Artist handoff and package cleanup pass. Adds c
 
 ## Stage 32
 
-Complete after local validation. Terrain piece library / battlefield set dressing expansion. Adds 96 Quest-safe generated terrain/base/resource/obstacle/prop prefabs, Unity-side terrain piece definitions and catalogs, Stage32 material profiles, visual-only Stage16 set dressing, a Stage32 terrain review scene, screenshot capture, fast/medium/player-facing/full validation tiers, Player.log coverage, and docs while preserving Stage 0-31 behavior, PCDesktop sidebar/safe-area layout, QuestXR hand controls, Stage27.1 placement HUD separation, hidden debug defaults, and UnityEngine-free `Rts.Core`.
+Complete after local validation. Terrain piece library / battlefield set dressing expansion. Adds 96 Quest-safe generated terrain/base/resource/obstacle/prop prefabs, Unity-side terrain piece definitions and catalogs, Stage32 material profiles, visual-only Stage16 set dressing, a Stage32 terrain review scene, screenshot capture, fast/medium/player-facing/full validation tiers, Player.log coverage, and docs while preserving Stage 0-31 behavior, PCDesktop sidebar/safe-area layout, QuestXR hand controls, Stage27.1 placement HUD separation, hidden debug defaults, and UnityEngine-free `Rts.Core`. The Stage32 overlay pass also adds a separate 47-prefab terrain asset replacement kit, 15 shared terrain materials, a `Stage32_TerrainAssetReplacementReview.unity` scene, and generator/validator tooling for future artist-authored terrain replacement.
 
 ## Later Stages
 

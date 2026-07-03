@@ -11,7 +11,7 @@ $corePath = Join-Path $repoRoot 'src\Rts.Core'
 
 Write-ValidationSection 'Stage 32 medium checks'
 Write-Host 'Purpose: pre-commit confidence for terrain set dressing while keeping medium validation non-recursive.'
-Write-Host 'Scope: Rts.Core tests/build, direct Stage31/28.1/27.1/Stage4/Stage5 preservation, Stage32 validation/player-facing checks, audits, UnityEngine-free scan, and whitespace.'
+Write-Host 'Scope: Rts.Core tests/build, direct Stage31/28.1/27.1/Stage4/Stage5 preservation, Stage32 validation/player-facing checks, terrain-kit generation/validation, audits, UnityEngine-free scan, and whitespace.'
 
 Write-ValidationSection 'Medium recursion audit'
 & (Join-Path $repoRoot 'tools\audit-medium-validation-recursion.ps1')
@@ -85,8 +85,14 @@ if ($LASTEXITCODE -ne 0) {
     throw "run-unity-stage32-validation.ps1 failed with exit code $LASTEXITCODE."
 }
 
+Write-ValidationSection 'Stage 32 terrain-kit generation and validation'
+& (Join-Path $repoRoot 'tools\run-stage32-terrain-kit-generator.ps1')
+if ($LASTEXITCODE -ne 0) {
+    throw "run-stage32-terrain-kit-generator.ps1 failed with exit code $LASTEXITCODE."
+}
+
 Write-ValidationSection 'Stage 32 player-facing validation'
-& (Join-Path $repoRoot 'tools\run-stage32-player-facing-checks.ps1') -SkipCoreBuild -SkipPlayerBuild -SkipPlayerLog -SkipStage32Validation -SkipSafetyDependencies
+& (Join-Path $repoRoot 'tools\run-stage32-player-facing-checks.ps1') -SkipCoreBuild -SkipPlayerBuild -SkipPlayerLog -SkipStage32Validation -SkipSafetyDependencies -SkipTerrainKit
 if ($LASTEXITCODE -ne 0) {
     throw "run-stage32-player-facing-checks.ps1 failed with exit code $LASTEXITCODE."
 }

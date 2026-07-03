@@ -13,6 +13,11 @@ Stage 32 adds a modular terrain-piece and battlefield set-dressing library so th
 - `Assets/Rts/Scenes/Stage32_TerrainSetDressingReview.unity` for catalog review, swatches, footprint reference, lighting, QA HUD, and screenshots.
 - Stage16 player-facing set dressing through `TerrainSetDressingRuntimeLayer`.
 - Fast, medium, player-facing, Unity, and full validation scripts.
+- Terrain asset replacement overlay generator and validator.
+- 47 generated modular terrain replacement prefabs under `unity/Assets/Rts/Art/Prefabs/Terrain/Stage32Generated`.
+- 15 shared terrain replacement materials under `unity/Assets/Rts/Art/Materials/Terrain/Stage32Generated`.
+- `Assets/Rts/Scenes/Stage32_TerrainAssetReplacementReview.unity` for replacement-kit review.
+- Generated replacement-kit reports: `docs/STAGE32_GENERATED_TERRAIN_KIT_REPORT.md`, `docs/STAGE32_TERRAIN_QA_REPORT.md`, and `docs/STAGE32_TERRAIN_LIBRARY_INDEX.md`.
 
 ## Piece Counts
 
@@ -24,11 +29,26 @@ Stage 32 adds a modular terrain-piece and battlefield set-dressing library so th
 - Props: 16
 - Total: 96
 
+## Terrain Asset Replacement Overlay Counts
+
+- Ground: 6
+- Transitions: 6
+- Base construction: 10
+- Roads: 5
+- Resources: 5
+- Obstacles: 4
+- Battlefield props: 7
+- Vegetation: 2
+- Water: 2
+- Total prefabs: 47
+- Shared materials: 15
+
 ## Preservation
 
 - `Rts.Core` remains deterministic and UnityEngine-free.
 - Terrain pieces are visual-only metadata and prefabs.
 - Prefabs include no colliders and do not mutate gameplay terrain, passability, placement, resources, AI, fog, or combat.
+- The replacement overlay uses Unity-only `Stage32TerrainPieceTag` metadata and does not change `Rts.Core`.
 - PCDesktop right sidebar, minimap, safe-area camera framing, and Stage27.1 placement HUD separation remain validation requirements.
 - QuestXR Stage4/Stage5 hand controls remain direct medium-validation dependencies.
 - Debug panels remain hidden by default.
@@ -48,6 +68,12 @@ Use fast checks for terrain-piece iteration:
 .\tools\run-stage32-fast-checks.ps1
 ```
 
+Use the targeted terrain asset replacement generator/validator after editing the overlay generator, validator, terrain tag, generated prefabs, generated materials, or review scene:
+
+```powershell
+.\tools\run-stage32-terrain-kit-generator.ps1
+```
+
 Use medium checks before a local commit:
 
 ```powershell
@@ -60,7 +86,7 @@ Use the full gate before accepting Stage32:
 .\tools\run-stage32-checks.ps1
 ```
 
-The full gate is intentionally slow because it includes the Stage31 final gate, Stage32 Unity validation, player-facing validation, Windows player build/log coverage, audits, the UnityEngine-free scan, and whitespace checks.
+The full gate is intentionally slow because it includes the Stage31 final gate, Stage32 Unity validation, terrain-kit generation/validation, player-facing validation, Windows player build/log coverage, audits, the UnityEngine-free scan, and whitespace checks.
 
 ## Manual Smoke
 
@@ -69,3 +95,5 @@ The full gate is intentionally slow because it includes the Stage31 final gate, 
 ```
 
 Verify the boot menu, Stage16 start, right sidebar/minimap, safe-area board framing, readable fine grid, clear resources, visible buildings/units, Power Plant placement, no Stage3 board-placement HUD during building placement, and a clean `Player.log`.
+
+Open `Assets/Rts/Scenes/Stage32_TerrainAssetReplacementReview.unity` to inspect the generated 47-piece replacement-kit library.

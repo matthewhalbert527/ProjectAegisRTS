@@ -809,6 +809,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 29 is a realistic battlefield visual-quality pass over terrain materials, MVP proxy detail, lighting, and review tooling; it is not final imported art, final VFX, or a gameplay/balance pass.
 - Stage 30 is a visual readability QA pass over Stage 29 contrast, camera readability, proxy distinguishability, resource readability, and screenshot tooling; it is not final imported art, final VFX, or a gameplay/balance pass.
 - Stage 31 is an artist handoff/package cleanup pass over export briefs, naming rules, trim-sheet guidance, LOD targets, Quest budgets, screenshots, and replacement checklists; it is not final imported art, final VFX, Quest device profiling, or a gameplay/balance pass.
+- Stage 32 includes a generated terrain set-dressing catalog plus a separate terrain asset replacement kit. The replacement kit lives under `Assets/Rts/Art/Prefabs/Terrain/Stage32Generated`, uses shared materials under `Assets/Rts/Art/Materials/Terrain/Stage32Generated`, and can be reviewed in `Assets/Rts/Scenes/Stage32_TerrainAssetReplacementReview.unity`.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.
@@ -818,4 +819,4 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 
 Later Quest/MR stages can swap the board transform and input layer without moving authoritative simulation state out of `Rts.Core`.
 
-Stage 20, Stage 21, Stage 21.5, Stage 27.1, Stage 28, Stage 28.1, Stage 29, Stage 30, and Stage 31 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar and safe-area board framing, while `QuestXR` keeps left-hand build/selection, explicit board setup placement, full-screen camera framing, and right-hand tactical controls with the PC sidebar hidden.
+Stage 20, Stage 21, Stage 21.5, Stage 27.1, Stage 28, Stage 28.1, Stage 29, Stage 30, Stage 31, and Stage 32 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar and safe-area board framing, while `QuestXR` keeps left-hand build/selection, explicit board setup placement, full-screen camera framing, and right-hand tactical controls with the PC sidebar hidden.

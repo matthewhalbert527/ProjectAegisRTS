@@ -4,7 +4,8 @@ param(
     [switch]$SkipPlayerBuild,
     [switch]$SkipPlayerLog,
     [switch]$SkipStage32Validation,
-    [switch]$SkipSafetyDependencies
+    [switch]$SkipSafetyDependencies,
+    [switch]$SkipTerrainKit
 )
 
 $ErrorActionPreference = 'Stop'
@@ -39,7 +40,7 @@ $corePath = Join-Path $repoRoot 'src\Rts.Core'
 $exePath = Join-Path $repoRoot 'build\windows-player-stage16\ProjectAegisRTS.exe'
 
 Write-ValidationSection 'Stage 32 player-facing checks'
-Write-Host 'Scope: core tests/build, Stage32 validation, PC safe-area/sidebar preservation, Stage27.1 placement HUD separation, Stage4/5 hand controls, optional Windows player build/launch/log, UnityEngine-free scan, and whitespace.'
+Write-Host 'Scope: core tests/build, Stage32 validation, terrain-kit generation, PC safe-area/sidebar preservation, Stage27.1 placement HUD separation, Stage4/5 hand controls, optional Windows player build/launch/log, UnityEngine-free scan, and whitespace.'
 
 if ($SkipCoreBuild) {
     Write-Host 'Skipping Rts.Core tests/build; caller already ran them.'
@@ -104,6 +105,16 @@ if ($SkipStage32Validation) {
     & (Join-Path $repoRoot 'tools\run-unity-stage32-validation.ps1') -SkipCoreBuild
     if ($LASTEXITCODE -ne 0) {
         throw "run-unity-stage32-validation.ps1 failed with exit code $LASTEXITCODE."
+    }
+}
+
+if ($SkipTerrainKit) {
+    Write-Host 'Skipping Stage 32 terrain-kit generation; caller already ran it.'
+} else {
+    Write-ValidationSection 'Stage 32 terrain-kit generation and validation'
+    & (Join-Path $repoRoot 'tools\run-stage32-terrain-kit-generator.ps1')
+    if ($LASTEXITCODE -ne 0) {
+        throw "run-stage32-terrain-kit-generator.ps1 failed with exit code $LASTEXITCODE."
     }
 }
 

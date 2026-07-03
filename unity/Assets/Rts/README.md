@@ -357,3 +357,12 @@ The fast and medium tiers do not weaken acceptance coverage; they make day-to-da
 - `docs/STAGE31_PER_ACTOR_PRODUCTION_CHECKLIST.md`: per-MVP-actor production checklist for real model intake.
 - `docs/STAGE31_QUEST_LOD_BUDGETS.md`: planning LOD/material targets for future Quest-safe replacements.
 - `tools/run-stage31-handoff-validation.ps1`: validates the handoff package without importing final models.
+
+## Stage 32 Terrain Replacement Kit
+
+- `Scripts/Rendering/Terrain/Stage32TerrainPieceTag.cs`: Unity-only metadata tag for generated replacement-kit prefabs.
+- `Editor/Stage32TerrainKitGenerator.cs`: generates 47 modular terrain proxy prefabs, 15 shared materials, a review scene, and the generation report.
+- `Editor/Stage32TerrainKitValidator.cs`: validates generated prefabs, tags, renderers, LODGroups, review scene presence, and writes `docs/STAGE32_TERRAIN_QA_REPORT.md`.
+- `Art/Prefabs/Terrain/Stage32Generated`: generated grass, dirt, road, resource, blocker, prop, vegetation, water, base pad, transition, and foundation prefabs.
+- `Art/Materials/Terrain/Stage32Generated`: shared generated terrain materials.
+- `Scenes/Stage32_TerrainAssetReplacementReview.unity`: review scene for the 47-piece replacement kit.

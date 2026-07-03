@@ -715,11 +715,12 @@ The medium recursion audit includes Stage 31 and fails if `run-stage31-medium-ch
 Stage 32 adds:
 
 - `.\tools\run-unity-stage32-validation.ps1` for terrain-piece generation, material/catalog validation, review scene creation, player-facing integration validation, play-mode smoke, and screenshot capture.
+- `.\tools\run-stage32-terrain-kit-generator.ps1` for the overlay terrain asset replacement generator, 47-prefab review kit, QA report, and review scene.
 - `.\tools\run-stage32-fast-checks.ps1` for terrain-piece and set-dressing iteration without replaying Stage1-31 validation chains.
 - `.\tools\run-stage32-medium-checks.ps1` for pre-commit confidence without calling prior medium scripts.
 - `.\tools\run-stage32-player-facing-checks.ps1` for PCDesktop sidebar/safe-area preservation, Stage27.1 placement HUD separation, Player.log, and optional Windows player launch smoke.
 - `.\tools\run-stage32-checks.ps1` for slow full final acceptance through the Stage31 final gate plus Stage32 coverage.
 
-Fast checks are intended for terrain-piece geometry, material profiles, catalog definitions, set-dressing placements, review-scene composition, screenshots, or Stage32 tooling/docs. Medium checks include Rts.Core tests, direct Stage31 handoff/player-facing preservation, direct Stage28.1 safe-area validation, direct Stage27.1 placement validation, direct Stage4/5 hand-control validation, Stage32 validation, Stage32 player-facing checks with player build/log skipped, recursion audits, the UnityEngine-free scan, and `git diff --check`.
+Fast checks are intended for terrain-piece geometry, material profiles, catalog definitions, set-dressing placements, terrain replacement-kit generation, review-scene composition, screenshots, or Stage32 tooling/docs. Medium checks include Rts.Core tests, direct Stage31 handoff/player-facing preservation, direct Stage28.1 safe-area validation, direct Stage27.1 placement validation, direct Stage4/5 hand-control validation, Stage32 validation, the terrain-kit generator/validator, Stage32 player-facing checks with player build/log skipped, recursion audits, the UnityEngine-free scan, and `git diff --check`.
 
-The medium recursion audit includes Stage32 and fails if `run-stage32-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`. The full recursion audit allows the Stage32 full gate to call the Stage31 final gate, but fails if Stage32 starts recursively replaying older full gates.
+The medium recursion audit includes Stage32 and fails if `run-stage32-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`. The full recursion audit allows the Stage32 full gate to call the Stage31 final gate, but fails if Stage32 starts recursively replaying older full gates. The overlay terrain-kit script is a direct Stage32 generator/validator dependency, not a medium-tier dependency.
