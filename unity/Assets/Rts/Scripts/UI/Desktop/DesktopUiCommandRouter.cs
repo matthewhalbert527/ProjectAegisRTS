@@ -37,6 +37,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
 
             var result = driver.TryEnterPlacementModeForFirstPending();
             Log(result);
+            SyncPlacementHudVisibility();
             return result;
         }
 
@@ -48,6 +49,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             var result = driver.TryCancelPlacement();
             CurrentMode = DesktopCommandMode.Normal;
             Log(result);
+            SyncPlacementHudVisibility();
             return result;
         }
 
@@ -69,6 +71,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             if (result.Success)
                 CurrentMode = DesktopCommandMode.Normal;
             Log(result);
+            SyncPlacementHudVisibility();
             return result;
         }
 
@@ -81,6 +84,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             if (result.Success)
                 CurrentMode = DesktopCommandMode.Normal;
             Log(result);
+            SyncPlacementHudVisibility();
             return result;
         }
 
@@ -443,6 +447,13 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 statusLog.AddResult(result);
             else
                 Debug.Log(result.ToString());
+        }
+
+        void SyncPlacementHudVisibility()
+        {
+            var visibility = FindAnyObjectByType<DebugHudVisibilityController>();
+            if (visibility != null)
+                visibility.ApplyPlayerFacingDefaults();
         }
 
         void Info(string message)

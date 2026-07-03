@@ -66,6 +66,16 @@ Full acceptance:
 
 Full validation remains intentionally slow because it includes Stage 0-through-Stage 27.1 acceptance, Stage 28 validation, Quest hand-control preservation, Windows build/log inspection, the UnityEngine-free scan, and whitespace checks.
 
+Stage 28.1 adds a faster layout/tooling follow-up for the PC safe-area fix and full-gate flattening:
+
+```powershell
+.\tools\run-stage28-1-fast-checks.ps1
+.\tools\run-stage28-1-medium-checks.ps1
+.\tools\run-stage28-1-checks.ps1
+```
+
+Use the Stage 28.1 fast tier for PCDesktop board/sidebar layout, diagonal movement, or validator edits. Use the Stage 28.1 medium tier before committing. Use the Stage 28.1 full tier before accepting the Stage 28.1 follow-up.
+
 ## QA Overlay
 
 `FeatureRegressionHud` is created by `RtsGameBootstrapper` at runtime and is hidden by default. Press `F10` during development to show the current route audit. It reports the major command groups, whether expected routes are present, and key PCDesktop/QuestXR/placement status. It is deliberately a QA/debug overlay, not a player UI surface.

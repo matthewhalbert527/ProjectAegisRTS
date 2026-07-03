@@ -281,6 +281,22 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             hudRoot.cncSidebarLayout = layout;
             hudRoot.showDebugOverlay = false;
             hudRoot.Initialize();
+
+            var safeArea = GetOrAdd<PcGameplaySafeAreaController>(hudRootObject);
+            safeArea.desktopHud = hudRoot;
+            safeArea.sidebarLayout = layout;
+            safeArea.hudCanvas = canvas;
+
+            var camera = Camera.main != null ? Camera.main : UnityEngine.Object.FindFirstObjectByType<Camera>();
+            if (camera != null)
+            {
+                var framer = GetOrAdd<PlayerFacingCameraFramer>(camera.gameObject);
+                framer.targetCamera = camera;
+                framer.safeAreaController = safeArea;
+                framer.mapper = UnityEngine.Object.FindFirstObjectByType<BoardCoordinateMapper>();
+                framer.applyOnStart = true;
+                framer.applyOnScreenChange = true;
+            }
         }
 
         static void EnsureDualHandCompatibility(GameObject game, RtsSimulationDriver driver)

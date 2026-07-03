@@ -38,6 +38,7 @@ namespace ProjectAegisRTS.Tests
                 ProductionCompletesAfterExpectedTicks,
                 UnitSpawnsFromBarracks,
                 MovementPathReachesDestination,
+                MovementTickAdvancesDiagonally,
                 LowPowerTogglesLightsAndMachineryFalse,
                 DeterminismSmokeTest,
                 WeaponDefinitionsExistForMvpActors,
@@ -278,6 +279,24 @@ namespace ProjectAegisRTS.Tests
             Assert(result.Success, "Expected move order success: " + result.ErrorCode);
             RunTicks(world, 96);
             Assert(scout.CellPosition.Equals(destination), "Expected scout rover to reach destination, got " + scout.CellPosition);
+        }
+
+        static void MovementTickAdvancesDiagonally()
+        {
+            var world = new RtsWorld(DemoRules.CreateDefaultRules(), new GridMap(8, 8));
+            world.AddPlayer(1, "Diagonal Test Player", 5000);
+            var scout = world.CreateActor("scout_rover", 1, new Int2(1, 1));
+            var start = scout.WorldPositionFixed;
+
+            var result = world.IssueCommand(new IssueMoveOrderCommand(1, new[] { scout.Id }, new Int2(2, 2)));
+            Assert(result.Success, "Expected diagonal move order success: " + result.ErrorCode);
+
+            world.Tick();
+
+            Assert(scout.WorldPositionFixed.X > start.X, "Expected diagonal movement to advance on X.");
+            Assert(scout.WorldPositionFixed.Y > start.Y, "Expected diagonal movement to advance on Y.");
+            Assert(scout.CellPosition.Equals(new Int2(1, 1)), "Expected actor to still be between cells after one diagonal tick.");
+            Assert(scout.FacingDegrees == 135, "Expected southeast diagonal facing, got " + scout.FacingDegrees);
         }
 
         static void LowPowerTogglesLightsAndMachineryFalse()

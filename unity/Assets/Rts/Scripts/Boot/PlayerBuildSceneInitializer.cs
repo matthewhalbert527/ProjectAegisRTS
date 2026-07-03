@@ -57,6 +57,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
                 CancelPlacementModes();
             ApplyResponsiveCanvasDefaults();
             ApplyPlayerHudDefaults();
+            ApplyPcGameplaySafeArea();
 
             if (startScenarioOnLoad)
                 StartScenarioIfAvailable();
@@ -190,6 +191,37 @@ namespace ProjectAegisRTS.UnityClient.Boot
                 statusLog.visible = false;
                 statusLog.gameObject.SetActive(false);
             }
+        }
+
+        static void ApplyPcGameplaySafeArea()
+        {
+            var camera = Camera.main != null ? Camera.main : FindAnyObjectByType<Camera>();
+            if (camera == null)
+                return;
+
+            var desktopHud = FindAnyObjectByType<DesktopRtsHudRoot>();
+            var safeArea = FindAnyObjectByType<PcGameplaySafeAreaController>();
+            if (safeArea == null && desktopHud != null)
+                safeArea = desktopHud.gameObject.GetComponent<PcGameplaySafeAreaController>() ?? desktopHud.gameObject.AddComponent<PcGameplaySafeAreaController>();
+            if (safeArea != null)
+            {
+                safeArea.desktopHud = desktopHud;
+                safeArea.sidebarLayout = desktopHud != null ? desktopHud.cncSidebarLayout : null;
+                safeArea.uiModeController = FindAnyObjectByType<PlayerFacingUiModeController>();
+                safeArea.hudCanvas = desktopHud != null ? desktopHud.canvas : null;
+            }
+
+            var framer = camera.GetComponent<PlayerFacingCameraFramer>();
+            if (framer == null)
+                framer = camera.gameObject.AddComponent<PlayerFacingCameraFramer>();
+            framer.targetCamera = camera;
+            framer.mapper = FindAnyObjectByType<BoardCoordinateMapper>();
+            framer.safeAreaController = safeArea;
+            framer.uiModeController = FindAnyObjectByType<PlayerFacingUiModeController>();
+            framer.applyOnStart = true;
+            framer.applyOnScreenChange = true;
+            framer.logOnApply = true;
+            framer.ApplyFraming();
         }
 
         static void ApplyResponsiveCanvasDefaults()

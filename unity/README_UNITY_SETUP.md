@@ -633,6 +633,19 @@ Stage 28 keeps the Windows player on Boot and Stage 16, but adds hidden QA cover
 
 The hidden `FeatureRegressionHud` is created at runtime and toggles with `F10` in development builds/editor play. It audits major command routes, PCDesktop sidebar state, QuestXR control presence, fine-grid placement status, economy, AI, visibility, air/naval, support, engineer, and transport surfaces. It is hidden by default and is not intended as normal player UI.
 
+## Stage 28.1 PC Safe Area And Full Gate Flattening
+
+Stage 28.1 keeps the Windows player on Boot and Stage 16, but reserves a PCDesktop gameplay camera safe area so the board does not render under the right sidebar or left objective stack:
+
+```powershell
+.\tools\run-unity-stage28-1-validation.ps1
+.\tools\run-stage28-1-fast-checks.ps1
+.\tools\run-stage28-1-medium-checks.ps1
+.\tools\run-stage28-1-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+`PcGameplaySafeAreaController` computes the usable screen rect, and `PlayerFacingCameraFramer` applies camera rect/framing. QuestXR keeps full-screen camera framing. Stage 28.1 also flattens the Stage 28 full acceptance gate and adds `tools\audit-full-validation-recursion.ps1`.
+
 ## Controls
 
 - Left click: select actor or place active building preview.
@@ -767,6 +780,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 21.5 is Windows player resolution/UI-scaling hardening; it is not final settings UI, final platform packaging, final accessibility, or Stage 22 artist intake.
 - Stage 27.1 is a targeted PC placement UX fix; it is not a new gameplay stage or final production art/UI pass.
 - Stage 28 is an integrated QA/stabilization pass; it is not final content, final art, replay/multiplayer, campaign scripting, or release packaging.
+- Stage 28.1 is a targeted validation/layout follow-up; it is not Stage 29, final UI art, final camera design, or release packaging.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.
@@ -776,4 +790,4 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 
 Later Quest/MR stages can swap the board transform and input layer without moving authoritative simulation state out of `Rts.Core`.
 
-Stage 20, Stage 21, Stage 21.5, Stage 27.1, and Stage 28 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar, while `QuestXR` keeps left-hand build/selection, explicit board setup placement, and right-hand tactical controls with the PC sidebar hidden.
+Stage 20, Stage 21, Stage 21.5, Stage 27.1, Stage 28, and Stage 28.1 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar and safe-area board framing, while `QuestXR` keeps left-hand build/selection, explicit board setup placement, full-screen camera framing, and right-hand tactical controls with the PC sidebar hidden.

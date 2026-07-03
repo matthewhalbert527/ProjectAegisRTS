@@ -140,6 +140,10 @@ Complete after local validation. PC building placement UX fix. Separates board s
 
 Complete after local validation. Integrated playtest stabilization and feature regression QA. Adds a hidden F10 feature-regression HUD, Stage 28 feature/play-mode validators, a documented feature matrix, known-issues notes, player-facing validation, and flat Stage 28 fast/medium/player-facing/full validation tiers while preserving Stage 0-27.1 behavior.
 
+## Stage 28.1
+
+Complete after local validation. Full acceptance gate flattening and PC safe-area layout fix. Removes recursive lower full-gate replay from Stage 28 final validation, adds a full-recursion audit, adds Stage 28.1 validation tiers, reserves the PCDesktop camera safe area around the right CnC/OpenRA sidebar and left objective stack, preserves QuestXR full-screen hand-control behavior, and makes deterministic fixed-step unit movement advance along diagonal path steps while preserving Stage 0-28 behavior.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

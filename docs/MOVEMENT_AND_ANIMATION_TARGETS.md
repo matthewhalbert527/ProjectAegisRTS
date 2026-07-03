@@ -4,6 +4,8 @@
 
 Stage 0 implements simple deterministic grid pathfinding and fixed-point per-tick movement. It exposes visual extension fields such as desired speed, normalized speed, facing, turn rate, movement phase, and visual motion profile ID. This is gameplay-safe scaffolding, not final visual motion.
 
+Stage 28.1 preserves that deterministic core model while making movement ticks advance along existing eight-way path steps. Diagonal path cells now move both fixed axes with integer vector stepping, so units can visibly move diagonally without gaining extra diagonal speed.
+
 ## Future Vehicle Movement
 
 - Acceleration and braking curves.

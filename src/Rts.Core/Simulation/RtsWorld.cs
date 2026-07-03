@@ -2659,9 +2659,7 @@ namespace ProjectAegisRTS.Simulation
                 actor.FacingDegrees = FacingDegreesForDelta(dx, dy, actor.FacingDegrees);
 
                 var step = definition.Movement.SpeedPerTick;
-                var nextWorld = new Int2(
-                    actor.WorldPositionFixed.X + FixedMath.ClampStep(dx, step),
-                    actor.WorldPositionFixed.Y + FixedMath.ClampStep(dy, step));
+                var nextWorld = AdvanceFixedPositionToward(actor.WorldPositionFixed, targetWorld, step);
 
                 actor.WorldPositionFixed = nextWorld;
                 actor.DesiredSpeed = step;
@@ -2705,6 +2703,60 @@ namespace ProjectAegisRTS.Simulation
             if (dx == 0 && dy < 0)
                 return 0;
             return fallback;
+        }
+
+        static Int2 AdvanceFixedPositionToward(Int2 current, Int2 target, int maxStep)
+        {
+            if (maxStep <= 0 || current.Equals(target))
+                return current;
+
+            var dx = target.X - current.X;
+            var dy = target.Y - current.Y;
+            var distanceSquared = (long)dx * dx + (long)dy * dy;
+            var maxStepSquared = (long)maxStep * maxStep;
+            if (distanceSquared <= maxStepSquared)
+                return target;
+
+            var distance = IntegerSquareRootCeiling(distanceSquared);
+            if (distance <= 0)
+                return target;
+
+            var stepX = (int)((long)dx * maxStep / distance);
+            var stepY = (int)((long)dy * maxStep / distance);
+            if (stepX == 0 && stepY == 0)
+            {
+                if (Math.Abs(dx) >= Math.Abs(dy))
+                    stepX = dx > 0 ? 1 : -1;
+                else
+                    stepY = dy > 0 ? 1 : -1;
+            }
+
+            return new Int2(current.X + stepX, current.Y + stepY);
+        }
+
+        static long IntegerSquareRootCeiling(long value)
+        {
+            if (value <= 0)
+                return 0;
+
+            var low = 1L;
+            var high = 1L;
+            while (high < 3037000499L && high < value / high)
+                high *= 2L;
+
+            while (low < high)
+            {
+                var mid = low + (high - low) / 2L;
+                var quotient = value / mid;
+                var remainder = value % mid;
+                var ceilingQuotient = quotient + (remainder == 0 ? 0 : 1);
+                if (mid >= ceilingQuotient)
+                    high = mid;
+                else
+                    low = mid + 1L;
+            }
+
+            return low;
         }
 
         void TickAircraftStates()

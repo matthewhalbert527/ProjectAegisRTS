@@ -62,3 +62,12 @@ Stage 28 keeps the Stage 27.1 PC placement split under test:
 ```
 
 Open Boot first, choose `Start Vertical Slice`, and use the right sidebar for the PCDesktop validation path.
+
+## Stage 28.1 Follow-Up
+
+Stage 28.1 keeps Stage 28 accepted behavior but fixes two issues found during player-facing testing:
+
+- The Stage 28 full gate was still too slow because it recursively replayed lower full gates. Stage 28.1 flattens the Stage 28 full script and adds `tools\audit-full-validation-recursion.ps1`.
+- The PCDesktop board camera could render under the right sidebar. Stage 28.1 adds a PC safe-area controller and camera framer so the board stays between the left objective stack and the right CnC/OpenRA sidebar.
+
+Stage 28.1 also updates deterministic fixed-step movement so units advance diagonally along existing eight-way paths without gaining diagonal speed.
