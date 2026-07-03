@@ -338,3 +338,11 @@ The fast and medium tiers do not weaken acceptance coverage; they make day-to-da
 - `Editor/Stage29BattlefieldVisualAssetCreator.cs`: creates terrain/environment materials, terrain profiles, lighting profile, and idempotently enriches MVP proxy prefabs.
 - `Editor/Stage29SceneCreator.cs`: creates `Stage29_BattlefieldVisualReview.unity`.
 - `Editor/Stage29VisualQaValidator.cs`, `Stage29VisualPlayModeSmokeValidator.cs`, and `Stage29ScreenshotCaptureTool.cs`: validate visual QA coverage and capture the review screenshot.
+
+## Stage 30 Visual Readability QA
+
+- `Scripts/Rendering/Visuals/Stage30ReadabilityProfile.cs` and `Stage30VisualReadabilityHud.cs`: define readability thresholds and show the review-scene QA HUD.
+- `Scripts/Art/Production/Stage30VisualReadabilityTag.cs`: marks MVP proxies with the additive Stage 30 readability overlay.
+- `Editor/Stage30VisualReadabilityAssetCreator.cs`: creates Stage 30 readability materials/profile and idempotently adds ground cuts, top stripes, forward cues, and role/resource accents to MVP proxies.
+- `Editor/Stage30SceneCreator.cs`: creates `Stage30_VisualReadabilityQa.unity`.
+- `Editor/Stage30VisualReadabilityValidator.cs`, `Stage30VisualPlayModeSmokeValidator.cs`, and `Stage30ScreenshotCaptureTool.cs`: validate readability coverage and capture the review screenshot.

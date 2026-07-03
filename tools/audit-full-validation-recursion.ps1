@@ -6,10 +6,11 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $failures = @()
 $reports = @()
-$fullDependencyPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1|29)-checks(?:\.ps1)?'
+$fullDependencyPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1|29|30)-checks(?:\.ps1)?'
 $stage28DisallowedPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1)-checks(?:\.ps1)?'
 $stage28_1DisallowedPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1)-checks(?:\.ps1)?'
 $stage29DisallowedPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28)-checks(?:\.ps1)?'
+$stage30DisallowedPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1)-checks(?:\.ps1)?'
 
 $scripts = Get-ChildItem -LiteralPath (Join-Path $repoRoot 'tools') -Filter 'run-stage*-checks.ps1' -File |
     Where-Object {
@@ -53,6 +54,10 @@ foreach ($script in $scripts) {
             }
 
             if ($script.Name -eq 'run-stage29-checks.ps1' -and $dependency -match $stage29DisallowedPattern) {
+                $failures += "$($script.Name):$($lineNumber + 1) must not recursively call legacy full gate $dependency"
+            }
+
+            if ($script.Name -eq 'run-stage30-checks.ps1' -and $dependency -match $stage30DisallowedPattern) {
                 $failures += "$($script.Name):$($lineNumber + 1) must not recursively call legacy full gate $dependency"
             }
         }
@@ -101,6 +106,23 @@ if (-not (Test-Path -LiteralPath $stage29Path)) {
     foreach ($required in $requiredStage29Coverage) {
         if ($stage29Content -notmatch [regex]::Escape($required)) {
             $failures += "run-stage29-checks.ps1 does not include flattened Stage 29 coverage: $required"
+        }
+    }
+}
+
+$stage30Path = Join-Path $repoRoot 'tools\run-stage30-checks.ps1'
+if (-not (Test-Path -LiteralPath $stage30Path)) {
+    $failures += "Missing full validation script: $stage30Path"
+} else {
+    $stage30Content = Get-Content -LiteralPath $stage30Path -Raw
+    $requiredStage30Coverage = @(
+        'run-stage29-checks.ps1',
+        'run-unity-stage30-validation.ps1',
+        'run-stage30-player-facing-checks.ps1'
+    )
+    foreach ($required in $requiredStage30Coverage) {
+        if ($stage30Content -notmatch [regex]::Escape($required)) {
+            $failures += "run-stage30-checks.ps1 does not include flattened Stage 30 coverage: $required"
         }
     }
 }

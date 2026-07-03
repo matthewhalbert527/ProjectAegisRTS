@@ -148,6 +148,10 @@ Complete after local validation. Full acceptance gate flattening and PC safe-are
 
 Complete after local validation. Realistic battlefield visual-quality pass. Adds terrain/environment material profiles, lighting/atmosphere, a Stage 29 battlefield visual review scene, screenshot capture, visual QA, and an additive detail/material pass for the nine MVP production proxies while preserving Stage 0-28.1 gameplay, PCDesktop sidebar/safe-area behavior, QuestXR hand controls, hidden debug defaults, and UnityEngine-free `Rts.Core`.
 
+## Stage 30
+
+Complete after local validation. Visual readability QA pass. Adds readability profile thresholds, additive proxy ground/identity/role overlays, a Stage 30 visual readability review scene, screenshot capture, and fast/medium/player-facing/full validation tiers while preserving Stage 0-29 gameplay, PCDesktop sidebar/safe-area behavior, QuestXR hand controls, hidden debug defaults, and UnityEngine-free `Rts.Core`.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

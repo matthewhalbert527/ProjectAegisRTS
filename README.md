@@ -533,3 +533,5 @@ Stage 16 vertical slice assets:
 - Stage 29 realistic battlefield visual pass: `docs/STAGE29_REPORT.md`
 - Stage 29 terrain/material guide: `docs/STAGE29_TERRAIN_MATERIALS.md`
 - Stage 29 visual QA report: `docs/STAGE29_VISUAL_QA_REPORT.md`
+- Stage 30 visual readability QA: `docs/STAGE30_REPORT.md`
+- Stage 30 generated readability report: `docs/STAGE30_VISUAL_READABILITY_QA.md`

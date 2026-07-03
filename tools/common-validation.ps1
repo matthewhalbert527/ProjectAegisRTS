@@ -261,6 +261,8 @@ function Repair-UnityGeneratedValidationWhitespace {
         'unity\Assets\Rts\Scenes\Stage21_MvpVisualQaReview.unity',
         'unity\Assets\Rts\Scenes\Stage29_BattlefieldVisualReview.unity',
         'unity\Assets\Rts\Scenes\Stage29_BattlefieldVisualReview.unity.meta',
+        'unity\Assets\Rts\Scenes\Stage30_VisualReadabilityQa.unity',
+        'unity\Assets\Rts\Scenes\Stage30_VisualReadabilityQa.unity.meta',
         'unity\Assets\Rts\Scripts\Boot.meta',
         'unity\Assets\Rts\Art\Models\Imported\MVP.meta',
         'unity\Assets\Rts\Art\Models\Source\MVP.meta',
