@@ -7,6 +7,7 @@ using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.InputControls.Desktop;
 using ProjectAegisRTS.UnityClient.InputControls.XR;
 using ProjectAegisRTS.UnityClient.Rendering;
+using ProjectAegisRTS.UnityClient.Rendering.TerrainPieces;
 using ProjectAegisRTS.UnityClient.Scenario;
 using ProjectAegisRTS.UnityClient.Selection;
 using ProjectAegisRTS.UnityClient.UI.Common;
@@ -88,6 +89,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var bootstrapper = GetOrAdd<RtsGameBootstrapper>(game);
             EnsureDesktopHud(bootstrapper, driver, progressTracker, missionFlow);
             EnsureDualHandCompatibility(game, driver);
+            Stage32TerrainPieceGenerator.ConfigureStage16SetDressing(game);
 
             controller.driver = driver;
             controller.objectiveHud = objectiveHud;

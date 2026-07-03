@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66a000060d9aeb4469833873d60a3ad0, type: 3}
+  m_Name: obstacle_ridge_piece_03
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceDefinition
+  pieceId: obstacle_ridge_piece_03
+  displayName: Ridge piece 03
+  category: 3
+  sizeClass: 5
+  footprintFineWidth: 5
+  footprintFineHeight: 1
+  prefab: {fileID: 7434442941850686111, guid: cd29fd5c110e3e141807a0b9d6ed8fc9, type: 3}
+  materialProfileId: rock
+  passabilityVisualHint: Blocked ridge hint only.
+  buildableVisualHint: No-build visual edge.
+  supportsRotation: 1
+  supportsTint: 1
+  isGameplayBlockingVisualOnly: 1
+  notes: Low ridge silhouette. Visual metadata only; Rts.Core terrain remains authoritative.
+  questBudgetTag: QuestSafeLow

@@ -1,0 +1,288 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866001e042f839c4d8d2c5628d5ecc18, type: 3}
+  m_Name: stage32_player_facing_set_dressing
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainSetDressingProfile
+  profileId: stage32_player_facing
+  displayName: Stage 32 Player-Facing Battlefield Set Dressing
+  deterministicSeed: 3201
+  maxRenderedPieces: 44
+  preserveFineGridReadability: 1
+  visualOnlyNeverGameplayAuthority: 1
+  notes: Light player-facing terrain dressing around base pads, exits, resource fields,
+    and map edges. Pieces are visual-only and stay below or outside critical gameplay
+    footprints.
+  placements:
+  - pieceId: base_foundation_pad_01
+    localPosition: {x: 4.2, y: 0.018, z: 6.8}
+    rotationY: 0
+    uniformScale: 1.18
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: starting base pad
+  - pieceId: base_foundation_pad_02
+    localPosition: {x: 7.4, y: 0.018, z: 6.7}
+    rotationY: 0
+    uniformScale: 1.05
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: starting base pad
+  - pieceId: base_foundation_pad_03
+    localPosition: {x: 10.7, y: 0.018, z: 6.9}
+    rotationY: 0
+    uniformScale: 1.1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: starting base pad
+  - pieceId: base_production_apron_01
+    localPosition: {x: 12.6, y: 0.018, z: 8.2}
+    rotationY: 90
+    uniformScale: 1.05
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: production exit apron
+  - pieceId: base_production_apron_02
+    localPosition: {x: 14.8, y: 0.018, z: 8.2}
+    rotationY: 90
+    uniformScale: 0.95
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: production exit apron
+  - pieceId: base_road_strip_01
+    localPosition: {x: 15.4, y: 0.018, z: 10.4}
+    rotationY: 0
+    uniformScale: 1.1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: scouting route guide
+  - pieceId: base_road_strip_02
+    localPosition: {x: 18, y: 0.018, z: 11.8}
+    rotationY: 0
+    uniformScale: 1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: scouting route guide
+  - pieceId: base_rally_exit_marking_01
+    localPosition: {x: 13.5, y: 0.018, z: 9.6}
+    rotationY: 90
+    uniformScale: 0.9
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: rally lane
+  - pieceId: base_rally_exit_marking_02
+    localPosition: {x: 16.4, y: 0.018, z: 9.6}
+    rotationY: 90
+    uniformScale: 0.9
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: rally lane
+  - pieceId: ground_compact_soil_patch_01
+    localPosition: {x: 5.3, y: 0.018, z: 10}
+    rotationY: 15
+    uniformScale: 1.1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: base worn ground
+  - pieceId: ground_compact_soil_patch_02
+    localPosition: {x: 8.8, y: 0.018, z: 10.6}
+    rotationY: -10
+    uniformScale: 1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: base worn ground
+  - pieceId: ground_scorched_patch_01
+    localPosition: {x: 3.1, y: 0.018, z: 13.6}
+    rotationY: 28
+    uniformScale: 0.9
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: battle scar edge
+  - pieceId: ground_mud_patch_01
+    localPosition: {x: 19.4, y: 0.018, z: 14.4}
+    rotationY: -18
+    uniformScale: 0.9
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: route texture
+  - pieceId: transition_concrete_ground_edge_01
+    localPosition: {x: 6, y: 0.018, z: 8.8}
+    rotationY: 0
+    uniformScale: 1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: base edge blend
+  - pieceId: transition_buildable_edge_01
+    localPosition: {x: 11.5, y: 0.018, z: 5.2}
+    rotationY: 0
+    uniformScale: 0.95
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: build zone edge
+  - pieceId: transition_dirt_road_blend_01
+    localPosition: {x: 17.1, y: 0.018, z: 10.9}
+    rotationY: 0
+    uniformScale: 1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: road blend
+  - pieceId: resource_cluster_01
+    localPosition: {x: 24.5, y: 0.018, z: 16.5}
+    rotationY: 20
+    uniformScale: 1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: resource decoration
+  - pieceId: resource_cluster_02
+    localPosition: {x: 25.8, y: 0.018, z: 17.7}
+    rotationY: -12
+    uniformScale: 0.92
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: resource decoration
+  - pieceId: resource_rich_cluster_01
+    localPosition: {x: 27.1, y: 0.018, z: 16.4}
+    rotationY: 45
+    uniformScale: 0.88
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: resource decoration
+  - pieceId: resource_decal_01
+    localPosition: {x: 24.8, y: 0.018, z: 18.6}
+    rotationY: 0
+    uniformScale: 1.2
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: resource ground tint
+  - pieceId: resource_harvest_marker_01
+    localPosition: {x: 22.8, y: 0.018, z: 15.9}
+    rotationY: 90
+    uniformScale: 0.8
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: harvest route marker
+  - pieceId: transition_resource_edge_01
+    localPosition: {x: 23.4, y: 0.018, z: 15.2}
+    rotationY: 25
+    uniformScale: 1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: resource edge
+  - pieceId: obstacle_rock_cluster_01
+    localPosition: {x: 1.4, y: 0.018, z: 2.5}
+    rotationY: 14
+    uniformScale: 1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: map edge obstacle
+  - pieceId: obstacle_rock_cluster_02
+    localPosition: {x: 29.2, y: 0.018, z: 3.6}
+    rotationY: -30
+    uniformScale: 1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: map edge obstacle
+  - pieceId: obstacle_ridge_piece_01
+    localPosition: {x: 29.5, y: 0.018, z: 10.8}
+    rotationY: 90
+    uniformScale: 1.1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: map edge ridge
+  - pieceId: obstacle_cliff_blocker_chunk_01
+    localPosition: {x: 2, y: 0.018, z: 19.2}
+    rotationY: 32
+    uniformScale: 0.95
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: map edge blocker
+  - pieceId: obstacle_tree_bush_cluster_01
+    localPosition: {x: 4.4, y: 0.018, z: 20.6}
+    rotationY: -20
+    uniformScale: 0.9
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: map edge foliage
+  - pieceId: obstacle_wreckage_01
+    localPosition: {x: 21.2, y: 0.018, z: 4.2}
+    rotationY: -36
+    uniformScale: 0.82
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: edge battlefield wreck
+  - pieceId: obstacle_debris_01
+    localPosition: {x: 22.7, y: 0.018, z: 5.1}
+    rotationY: 15
+    uniformScale: 0.8
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: edge battlefield debris
+  - pieceId: prop_sandbag_01
+    localPosition: {x: 12, y: 0.018, z: 14.1}
+    rotationY: 0
+    uniformScale: 0.75
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: base perimeter prop
+  - pieceId: prop_sandbag_02
+    localPosition: {x: 13.2, y: 0.018, z: 14.2}
+    rotationY: 0
+    uniformScale: 0.75
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: base perimeter prop
+  - pieceId: prop_barrier_01
+    localPosition: {x: 18.7, y: 0.018, z: 7.1}
+    rotationY: 90
+    uniformScale: 0.86
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: route edge prop
+  - pieceId: prop_tank_trap_01
+    localPosition: {x: 30.1, y: 0.018, z: 14.6}
+    rotationY: 20
+    uniformScale: 0.88
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: edge prop
+  - pieceId: prop_tire_tracks_01
+    localPosition: {x: 17.4, y: 0.018, z: 12.7}
+    rotationY: 15
+    uniformScale: 1.15
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: vehicle path texture
+  - pieceId: prop_tire_tracks_02
+    localPosition: {x: 19.6, y: 0.018, z: 13.5}
+    rotationY: 15
+    uniformScale: 1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: vehicle path texture
+  - pieceId: prop_shell_mark_01
+    localPosition: {x: 21.4, y: 0.018, z: 13.7}
+    rotationY: 12
+    uniformScale: 0.8
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: battle scar
+  - pieceId: prop_crates_01
+    localPosition: {x: 9.6, y: 0.018, z: 4.3}
+    rotationY: 0
+    uniformScale: 0.75
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: base logistics prop
+  - pieceId: prop_antenna_beacon_01
+    localPosition: {x: 6.5, y: 0.018, z: 4}
+    rotationY: 0
+    uniformScale: 0.82
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: base beacon prop
+  - pieceId: prop_destroyed_vehicle_proxy_01
+    localPosition: {x: 27.4, y: 0.018, z: 7.2}
+    rotationY: -45
+    uniformScale: 0.84
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: edge wreck prop
+  - pieceId: transition_rock_edge_01
+    localPosition: {x: 28.4, y: 0.018, z: 5.3}
+    rotationY: 35
+    uniformScale: 1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: rock edge blend
+  - pieceId: ground_road_path_01
+    localPosition: {x: 20.7, y: 0.018, z: 12.9}
+    rotationY: 8
+    uniformScale: 1.05
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: route texture
+  - pieceId: ground_grass_dirt_patch_01
+    localPosition: {x: 2.4, y: 0.018, z: 9.4}
+    rotationY: -18
+    uniformScale: 1.1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: field variation
+  - pieceId: ground_grass_dirt_patch_02
+    localPosition: {x: 27.6, y: 0.018, z: 20.5}
+    rotationY: 20
+    uniformScale: 1
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: field variation
+  - pieceId: ground_rocky_blocked_01
+    localPosition: {x: 30, y: 0.018, z: 19.2}
+    rotationY: -15
+    uniformScale: 0.95
+    tint: {r: 1, g: 1, b: 1, a: 1}
+    placementRole: edge blocked visual

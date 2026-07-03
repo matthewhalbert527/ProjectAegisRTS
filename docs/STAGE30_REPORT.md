@@ -23,3 +23,7 @@ Stage 30 validation captures:
 ```text
 build/screenshots/stage30_visual_readability_qa.png
 ```
+
+## Stage 32 Follow-Up
+
+Stage 32 adds terrain-piece catalogs and player-facing set dressing on top of the Stage 29/30 visual baseline. Stage 30 readability rules still apply: actor silhouettes, resources, fine-grid placement previews, and the PCDesktop sidebar safe area must remain readable after terrain decoration is added.

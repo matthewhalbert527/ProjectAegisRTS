@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66a000060d9aeb4469833873d60a3ad0, type: 3}
+  m_Name: base_foundation_pad_01
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceDefinition
+  pieceId: base_foundation_pad_01
+  displayName: Foundation pad 01
+  category: 2
+  sizeClass: 2
+  footprintFineWidth: 4
+  footprintFineHeight: 4
+  prefab: {fileID: 4008400630999632500, guid: 32277fc6cf98e8c4d857f41f7fe1a2da, type: 3}
+  materialProfileId: foundation
+  passabilityVisualHint: Passable base pad.
+  buildableVisualHint: Buildable footprint guide.
+  supportsRotation: 1
+  supportsTint: 1
+  isGameplayBlockingVisualOnly: 0
+  notes: Starting base hardstand. Visual metadata only; Rts.Core terrain remains
+    authoritative.
+  questBudgetTag: QuestSafeLow

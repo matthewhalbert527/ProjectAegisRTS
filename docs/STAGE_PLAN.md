@@ -156,6 +156,10 @@ Complete after local validation. Visual readability QA pass. Adds readability pr
 
 Complete after local validation. Artist handoff and package cleanup pass. Adds concise export/modeling briefs, material naming rules, trim-sheet guidance, LOD targets, Quest budgets, screenshot/reference package notes, updated MVP art replacement docs, per-actor production checklists, and Stage 31 validation tiers while preserving Stage 0-30 behavior and without importing final artist models.
 
+## Stage 32
+
+Complete after local validation. Terrain piece library / battlefield set dressing expansion. Adds 96 Quest-safe generated terrain/base/resource/obstacle/prop prefabs, Unity-side terrain piece definitions and catalogs, Stage32 material profiles, visual-only Stage16 set dressing, a Stage32 terrain review scene, screenshot capture, fast/medium/player-facing/full validation tiers, Player.log coverage, and docs while preserving Stage 0-31 behavior, PCDesktop sidebar/safe-area layout, QuestXR hand controls, Stage27.1 placement HUD separation, hidden debug defaults, and UnityEngine-free `Rts.Core`.
+
 ## Later Stages
 
-Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.
+Next later stages include applying artist-authored source model replacements, replacing generated terrain pieces with authored environment modules, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

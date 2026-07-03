@@ -4,7 +4,7 @@ param()
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$forbiddenScriptPattern = 'run-stage(?:8|9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1|29|30|31)-medium-checks(?:\.ps1)?'
+$forbiddenScriptPattern = 'run-stage(?:8|9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1|29|30|31|32)-medium-checks(?:\.ps1)?'
 $forbiddenTextPattern = 'medium validation as the immediate dependency'
 $failures = @()
 
@@ -737,10 +737,51 @@ if (-not (Test-Path -LiteralPath $stage31ScriptPath)) {
     }
 }
 
+$stage32ScriptName = 'run-stage32-medium-checks.ps1'
+$stage32ScriptPath = Join-Path $repoRoot "tools\$stage32ScriptName"
+if (-not (Test-Path -LiteralPath $stage32ScriptPath)) {
+    $failures += "Missing medium validation script: $stage32ScriptPath"
+} else {
+    $lines = Get-Content -LiteralPath $stage32ScriptPath
+    for ($lineNumber = 0; $lineNumber -lt $lines.Count; $lineNumber++) {
+        $line = $lines[$lineNumber]
+        $trimmed = $line.Trim()
+
+        if ($line -match $forbiddenScriptPattern) {
+            $ownNameInComment = $line -match [regex]::Escape($stage32ScriptName) -and $trimmed.StartsWith('#')
+            if (-not $ownNameInComment) {
+                $failures += "${stage32ScriptName}:$($lineNumber + 1) contains forbidden medium dependency text: $trimmed"
+            }
+        }
+
+        if ($line -match $forbiddenTextPattern) {
+            $failures += "${stage32ScriptName}:$($lineNumber + 1) contains old medium dependency wording: $trimmed"
+        }
+    }
+
+    $content = $lines -join "`n"
+    $requiredStage32Coverage = @(
+        'run-stage31-handoff-validation.ps1',
+        'run-stage31-player-facing-checks.ps1',
+        'run-unity-stage28-1-validation.ps1',
+        'run-unity-stage27-1-validation.ps1',
+        'run-unity-stage4-validation.ps1',
+        'run-unity-stage5-validation.ps1',
+        'run-unity-stage32-validation.ps1',
+        'run-stage32-player-facing-checks.ps1'
+    )
+
+    foreach ($required in $requiredStage32Coverage) {
+        if ($content -notmatch [regex]::Escape($required)) {
+            $failures += "$stage32ScriptName does not call direct Stage 32 medium coverage: $required"
+        }
+    }
+}
+
 if ($failures.Count -gt 0) {
     Write-Error "Medium validation recursion audit failed:`n$($failures -join "`n")"
     exit 1
 }
 
-Write-Host 'Medium validation recursion audit passed: Stage 9-31 medium scripts use direct Unity validation dependencies only.'
+Write-Host 'Medium validation recursion audit passed: Stage 9-32 medium scripts use direct Unity validation dependencies only.'
 $global:LASTEXITCODE = 0

@@ -631,6 +631,31 @@ Stage 28 keeps the Windows player on Boot and Stage 16, but adds hidden QA cover
 .\tools\run-stage28-player-facing-checks.ps1 -SkipPlayerBuild
 ```
 
+## Create or Validate the Stage 32 Terrain Set Dressing Scene
+
+Stage 32 adds the generated terrain-piece catalog and review scene:
+
+```text
+Assets/Rts/Scenes/Stage32_TerrainSetDressingReview.unity
+```
+
+To generate or refresh the terrain-piece prefabs, catalogs, player-facing set dressing profile, and review scene manually in Unity, run:
+
+```text
+ProjectAegisRTS > Stage 32 > Generate Terrain Pieces Batch
+ProjectAegisRTS > Stage 32 > Create Terrain Set Dressing Review Scene
+```
+
+To validate it from PowerShell:
+
+```powershell
+.\tools\run-stage32-fast-checks.ps1
+.\tools\run-stage32-medium-checks.ps1
+.\tools\run-stage32-checks.ps1
+```
+
+Stage 32 terrain pieces are visual-only. They must not be used as gameplay terrain, passability, placement, or resource authority; `Rts.Core` remains the deterministic source of truth.
+
 The hidden `FeatureRegressionHud` is created at runtime and toggles with `F10` in development builds/editor play. It audits major command routes, PCDesktop sidebar state, QuestXR control presence, fine-grid placement status, economy, AI, visibility, air/naval, support, engineer, and transport surfaces. It is hidden by default and is not intended as normal player UI.
 
 ## Stage 28.1 PC Safe Area And Full Gate Flattening

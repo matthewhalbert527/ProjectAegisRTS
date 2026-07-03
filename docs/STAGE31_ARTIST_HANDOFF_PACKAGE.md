@@ -38,11 +38,17 @@ Reference the current visual checkpoints before replacing any proxy:
 
 - Stage 29 battlefield visual review: `build/screenshots/stage29_battlefield_visual_review.png`
 - Stage 30 readability QA review: `build/screenshots/stage30_visual_readability_qa.png`
+- Stage 32 terrain set-dressing review: `build/screenshots/stage32_terrain_set_dressing_review.png`
+- Stage 32 player-facing terrain view: `build/screenshots/stage32_player_facing_terrain_view.png`
 - Stage 29 direction: `docs/STAGE29_REALISTIC_BATTLEFIELD_VISUAL_DIRECTION.md`
 - Stage 30 readability report: `docs/STAGE30_VISUAL_READABILITY_QA.md`
+- Stage 32 terrain piece library: `docs/STAGE32_TERRAIN_PIECE_LIBRARY.md`
+- Stage 32 set dressing guide: `docs/STAGE32_SET_DRESSING_GUIDE.md`
 - MVP visual QA baseline: `docs/STAGE21_MVP_VISUAL_QA.md`
 
 The screenshot files are generated validation artifacts and may not be tracked by Git. Regenerate them with `.\tools\run-unity-stage29-validation.ps1 -SkipCoreBuild` and `.\tools\run-unity-stage30-validation.ps1 -SkipCoreBuild`.
+
+Stage 32 screenshots are generated with `.\tools\run-unity-stage32-validation.ps1 -SkipCoreBuild`.
 
 ## Handoff Acceptance
 

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66a000060d9aeb4469833873d60a3ad0, type: 3}
+  m_Name: ground_grass_dirt_patch_04
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceDefinition
+  pieceId: ground_grass_dirt_patch_04
+  displayName: Grass dirt patch 04
+  category: 0
+  sizeClass: 6
+  footprintFineWidth: 3
+  footprintFineHeight: 4
+  prefab: {fileID: 9175520948677356798, guid: d53c28ffd83daf04b8d97b2d0dd53355, type: 3}
+  materialProfileId: grass_dirt
+  passabilityVisualHint: Passable visual ground.
+  buildableVisualHint: Buildable hint; stays below fine grid.
+  supportsRotation: 1
+  supportsTint: 1
+  isGameplayBlockingVisualOnly: 0
+  notes: Grass/dirt variation. Visual metadata only; Rts.Core terrain remains authoritative.
+  questBudgetTag: QuestSafeLow

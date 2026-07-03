@@ -22,3 +22,7 @@ Stage 31 is an artist handoff and package-cleanup checkpoint for the Stage 29-30
 - No final artist-authored FBX/GLB models were imported.
 - No proxy was replaced with a real production model.
 - No gameplay, pathing, production, AI, combat, UI mode, or `Rts.Core` behavior changed.
+
+## Stage 32 Follow-Up
+
+Stage 32 adds generated terrain-piece prefabs, catalogs, and visual-only set dressing. Future artist handoff work should treat those pieces like environment modules: preserve the catalog IDs, material roles, Quest budgets, footprint hints, and visual-only boundary while replacing generated primitives with authored terrain art.
