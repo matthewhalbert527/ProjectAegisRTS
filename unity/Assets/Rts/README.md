@@ -346,3 +346,11 @@ The fast and medium tiers do not weaken acceptance coverage; they make day-to-da
 - `Editor/Stage30VisualReadabilityAssetCreator.cs`: creates Stage 30 readability materials/profile and idempotently adds ground cuts, top stripes, forward cues, and role/resource accents to MVP proxies.
 - `Editor/Stage30SceneCreator.cs`: creates `Stage30_VisualReadabilityQa.unity`.
 - `Editor/Stage30VisualReadabilityValidator.cs`, `Stage30VisualPlayModeSmokeValidator.cs`, and `Stage30ScreenshotCaptureTool.cs`: validate readability coverage and capture the review screenshot.
+
+## Stage 31 Artist Handoff Package
+
+- `docs/STAGE31_ARTIST_HANDOFF_PACKAGE.md`: export/modeling briefs, material naming rules, trim-sheet guidance, and screenshot/reference paths for future artist work.
+- `docs/STAGE31_MVP_ART_REPLACEMENT_GUIDE.md`: replacement workflow that preserves Stage 20/21 proxy metadata and Stage 29/30 visual intent.
+- `docs/STAGE31_PER_ACTOR_PRODUCTION_CHECKLIST.md`: per-MVP-actor production checklist for real model intake.
+- `docs/STAGE31_QUEST_LOD_BUDGETS.md`: planning LOD/material targets for future Quest-safe replacements.
+- `tools/run-stage31-handoff-validation.ps1`: validates the handoff package without importing final models.

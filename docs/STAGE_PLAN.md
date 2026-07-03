@@ -152,6 +152,10 @@ Complete after local validation. Realistic battlefield visual-quality pass. Adds
 
 Complete after local validation. Visual readability QA pass. Adds readability profile thresholds, additive proxy ground/identity/role overlays, a Stage 30 visual readability review scene, screenshot capture, and fast/medium/player-facing/full validation tiers while preserving Stage 0-29 gameplay, PCDesktop sidebar/safe-area behavior, QuestXR hand controls, hidden debug defaults, and UnityEngine-free `Rts.Core`.
 
+## Stage 31
+
+Complete after local validation. Artist handoff and package cleanup pass. Adds concise export/modeling briefs, material naming rules, trim-sheet guidance, LOD targets, Quest budgets, screenshot/reference package notes, updated MVP art replacement docs, per-actor production checklists, and Stage 31 validation tiers while preserving Stage 0-30 behavior and without importing final artist models.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

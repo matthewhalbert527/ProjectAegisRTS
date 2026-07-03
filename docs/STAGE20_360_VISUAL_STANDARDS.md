@@ -70,3 +70,13 @@ Stage 29 keeps the Stage 20/21 socket, pivot, LOD, and fallback contract, but ad
 - Top silhouettes should gain practical service detail: vents, pipes, gantries, turret shields, hoppers, stowage, optics, or weapon cues.
 - Front/side/rear cues must remain readable from PCDesktop and QuestXR inspection angles.
 - The detail pass must be additive and idempotent: rerunning validation should update Stage 29 detail without deleting Stage 20 sockets or Stage 21 replacement metadata.
+
+## Stage 31 Artist Handoff Addendum
+
+Stage 31 turns these standards into artist-facing replacement guidance:
+
+- Real models must preserve the same footprint, pivot, sockets, fallback, LOD, and validation metadata as the proxy they replace.
+- Material names should follow the Stage 31 shared naming rules and prefer trim-sheet reuse over one-off materials.
+- LOD and Quest planning budgets live in `docs/STAGE31_QUEST_LOD_BUDGETS.md`.
+- Per-actor briefs and acceptance checks live in `docs/STAGE31_PER_ACTOR_PRODUCTION_CHECKLIST.md`.
+- No artist-authored model becomes active until Stage 21, Stage 29, Stage 30, and Stage 31 validation remain clean.

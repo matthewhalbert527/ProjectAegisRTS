@@ -67,3 +67,14 @@ unity/Assets/Rts/Art/Prefabs/Actors/Production/MVP
 ```
 
 Do not assign a candidate as an active `productionPrefab` until the Stage 21 QA, socket/pivot/scale validation, Stage 21 player-facing checks, and Windows Player.log inspection are clean.
+
+## Stage 31 Handoff Update
+
+Before assigning a real model candidate as active, also run the Stage 31 handoff checks and compare against the Stage 29/30 visual references:
+
+```powershell
+.\tools\run-stage31-medium-checks.ps1
+.\tools\run-stage31-player-facing-checks.ps1 -SkipPlayerBuild
+```
+
+Use `docs/STAGE31_ARTIST_HANDOFF_PACKAGE.md` for export/material/trim-sheet rules, `docs/STAGE31_QUEST_LOD_BUDGETS.md` for planning targets, and `docs/STAGE31_PER_ACTOR_PRODUCTION_CHECKLIST.md` for actor-specific acceptance.

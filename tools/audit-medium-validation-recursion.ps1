@@ -4,7 +4,7 @@ param()
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$forbiddenScriptPattern = 'run-stage(?:8|9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1|29|30)-medium-checks(?:\.ps1)?'
+$forbiddenScriptPattern = 'run-stage(?:8|9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1|29|30|31)-medium-checks(?:\.ps1)?'
 $forbiddenTextPattern = 'medium validation as the immediate dependency'
 $failures = @()
 
@@ -703,10 +703,44 @@ if (-not (Test-Path -LiteralPath $stage30ScriptPath)) {
     }
 }
 
+$stage31ScriptName = 'run-stage31-medium-checks.ps1'
+$stage31ScriptPath = Join-Path $repoRoot "tools\$stage31ScriptName"
+if (-not (Test-Path -LiteralPath $stage31ScriptPath)) {
+    $failures += "Missing medium validation script: $stage31ScriptPath"
+} else {
+    $lines = Get-Content -LiteralPath $stage31ScriptPath
+    for ($lineNumber = 0; $lineNumber -lt $lines.Count; $lineNumber++) {
+        $line = $lines[$lineNumber]
+        $trimmed = $line.Trim()
+
+        if ($line -match $forbiddenScriptPattern) {
+            $ownNameInComment = $line -match [regex]::Escape($stage31ScriptName) -and $trimmed.StartsWith('#')
+            if (-not $ownNameInComment) {
+                $failures += "${stage31ScriptName}:$($lineNumber + 1) contains forbidden medium dependency text: $trimmed"
+            }
+        }
+
+        if ($line -match $forbiddenTextPattern) {
+            $failures += "${stage31ScriptName}:$($lineNumber + 1) contains old medium dependency wording: $trimmed"
+        }
+    }
+
+    $content = $lines -join "`n"
+    if ($content -notmatch [regex]::Escape('run-unity-stage30-validation.ps1')) {
+        $failures += "$stage31ScriptName does not call direct Stage 30 Unity validation."
+    }
+    if ($content -notmatch [regex]::Escape('run-stage30-player-facing-checks.ps1')) {
+        $failures += "$stage31ScriptName does not call direct Stage 30 player-facing validation."
+    }
+    if ($content -notmatch [regex]::Escape('run-stage31-handoff-validation.ps1')) {
+        $failures += "$stage31ScriptName does not call Stage 31 handoff package validation."
+    }
+}
+
 if ($failures.Count -gt 0) {
     Write-Error "Medium validation recursion audit failed:`n$($failures -join "`n")"
     exit 1
 }
 
-Write-Host 'Medium validation recursion audit passed: Stage 9-30 medium scripts use direct Unity validation dependencies only.'
+Write-Host 'Medium validation recursion audit passed: Stage 9-31 medium scripts use direct Unity validation dependencies only.'
 $global:LASTEXITCODE = 0

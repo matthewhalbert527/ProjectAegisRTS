@@ -41,3 +41,7 @@ The scanner writes `docs/STAGE21_ARTIST_MODEL_IMPORT_STATUS.md`. The MVP QA vali
 ## Artist Notes
 
 Do not copy protected C&C/Red Alert art, names, UI art, audio, or trade dress. Use the safe internal IDs from the asset registry and keep release-facing names under IP review until final naming is approved.
+
+## Stage 31 Handoff Update
+
+Use `docs/STAGE31_MVP_ART_REPLACEMENT_GUIDE.md` and `docs/STAGE31_PER_ACTOR_PRODUCTION_CHECKLIST.md` before starting real model replacement. Stage 31 adds export/modeling briefs, material naming rules, trim-sheet guidance, LOD targets, Quest budgets, and screenshot/reference package instructions, but it still keeps generated proxies active until replacement validation passes.
