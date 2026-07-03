@@ -24,10 +24,10 @@ function Invoke-PlayerLaunchSmoke {
 
     Write-Host "Launching $Label once: $ExePath $($Arguments -join ' ')"
     $process = Start-Process -FilePath $ExePath -ArgumentList $Arguments -WindowStyle Hidden -PassThru
-    Start-Sleep -Seconds 12
+    Start-Sleep -Seconds 45
     if (-not $process.HasExited) {
         Stop-Process -Id $process.Id -Force
-        Start-Sleep -Seconds 2
+        Start-Sleep -Seconds 3
     }
 
     Write-Host "$Label launch smoke completed."

@@ -5,9 +5,32 @@ $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot 'common-validation.ps1')
 
+function Invoke-PlayerLaunchSmoke {
+    param(
+        [string]$ExePath,
+        [string[]]$Arguments = @(),
+        [string]$Label = 'Windows player'
+    )
+
+    if (-not (Test-Path -LiteralPath $ExePath)) {
+        throw "Windows player EXE was not found: $ExePath"
+    }
+
+    Write-Host "Launching $Label once: $ExePath $($Arguments -join ' ')"
+    $process = Start-Process -FilePath $ExePath -ArgumentList $Arguments -WindowStyle Hidden -PassThru
+    Start-Sleep -Seconds 45
+    if (-not $process.HasExited) {
+        Stop-Process -Id $process.Id -Force
+        Start-Sleep -Seconds 3
+    }
+
+    Write-Host "$Label launch smoke completed."
+}
+
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $dotnet = Find-DotNet
 $corePath = Join-Path $repoRoot 'src\Rts.Core'
+$exePath = Join-Path $repoRoot 'build\windows-player-stage16\ProjectAegisRTS.exe'
 
 Write-Host 'Stage 28 flattened full acceptance gate.'
 Write-Host 'Coverage: one Rts.Core test run, one Unity DLL build, medium/full recursion audits, direct Stage4/5 hand controls, Stage16/16.5 boot flow, Stage19.5 sidebar/pause, Stage21.5 display scaling, Stage27.1 placement HUD split, Stage28 feature regression, Stage28.1 safe-area layout, player-facing Windows build/log, UnityEngine-free scan, and whitespace.'
@@ -96,6 +119,9 @@ Write-ValidationSection 'Windows player build'
 if ($LASTEXITCODE -ne 0) {
     throw "build-windows-player-stage16.ps1 failed with exit code $LASTEXITCODE."
 }
+
+Write-ValidationSection 'Windows player launch smoke at 1600x900'
+Invoke-PlayerLaunchSmoke -ExePath $exePath -Arguments @('-screen-width', '1600', '-screen-height', '900', '-screen-fullscreen', '0') -Label 'Stage 28 Windows player'
 
 Write-ValidationSection 'Player.log inspection'
 & (Join-Path $repoRoot 'tools\inspect-latest-player-log.ps1') -CopyToDebugLogs -RequireDisplayStartup
