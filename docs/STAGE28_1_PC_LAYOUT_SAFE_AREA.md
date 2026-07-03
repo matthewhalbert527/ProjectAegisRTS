@@ -45,3 +45,7 @@ In the EXE:
 ```
 
 The Unity validator checks safe-area behavior at 1280x720, 1600x900, 1920x1080, and 2560x1440.
+
+## Stage 29 Preservation
+
+Stage 29 visual work must not move the PCDesktop gameplay camera back under the sidebar or left objective stack. `run-stage29-medium-checks.ps1` directly reruns Stage 28 and Stage 28.1 Unity validation before Stage 29 visual validation, and `run-stage29-player-facing-checks.ps1` keeps the Stage 28.1 player-facing placement/safe-area path in the acceptance loop.

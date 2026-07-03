@@ -36,9 +36,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             }
         }
 
-        public static Stage21MvpVisualQaSummary ValidateMvpVisualQa()
+        public static Stage21MvpVisualQaSummary ValidateMvpVisualQa(bool regenerateProxies = true)
         {
-            Stage20MvpProductionProxyGenerator.GenerateMvpProductionProxies();
+            if (regenerateProxies)
+                Stage20MvpProductionProxyGenerator.GenerateMvpProductionProxies();
             Stage21ArtistModelImportScanner.ScanMvpArtistModels();
 
             var manifest = AssetDatabase.LoadAssetAtPath<ArtistModelImportManifest>(Stage21ArtistModelImportScanner.ManifestAssetPath);
@@ -158,6 +159,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             builder.AppendLine("- Fallback safety and active production proxy assignment.");
             builder.AppendLine("- Player-facing rendered volume.");
             builder.AppendLine("- Artist replacement metadata and import scan status.");
+            builder.AppendLine();
+            builder.AppendLine("## Stage 29 Realistic Battlefield Addendum");
+            builder.AppendLine();
+            builder.AppendLine("Stage 29 keeps the Stage 20/21 socket, pivot, LOD, fallback, and artist replacement metadata contract intact while adding an additive material/detail pass for realistic battlefield readability.");
+            builder.AppendLine();
+            builder.AppendLine("- MVP proxies keep their existing descriptors, sockets, production visual validation tags, LOD tags, and Stage 6/7/9 gameplay-facing hooks.");
+            builder.AppendLine("- Added detail must improve grounding, roof identity, top silhouettes, and front/side/rear cues without changing gameplay scale or deterministic `Rts.Core` data.");
+            builder.AppendLine("- The Stage 29 review scene and screenshot capture validate these visual upgrades beside terrain, resource, foundation, lighting, and fine-grid material samples.");
             return builder.ToString();
         }
 

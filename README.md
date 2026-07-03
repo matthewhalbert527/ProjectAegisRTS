@@ -530,3 +530,6 @@ Stage 16 vertical slice assets:
 - Stage 28 feature regression matrix: `docs/STAGE28_FEATURE_REGRESSION_MATRIX.md`
 - Stage 28.1 full gate and layout report: `docs/STAGE28_1_FULL_GATE_AND_LAYOUT_REPORT.md`
 - Stage 28.1 PC safe-area guide: `docs/STAGE28_1_PC_LAYOUT_SAFE_AREA.md`
+- Stage 29 realistic battlefield visual pass: `docs/STAGE29_REPORT.md`
+- Stage 29 terrain/material guide: `docs/STAGE29_TERRAIN_MATERIALS.md`
+- Stage 29 visual QA report: `docs/STAGE29_VISUAL_QA_REPORT.md`

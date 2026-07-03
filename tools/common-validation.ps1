@@ -259,6 +259,8 @@ function Repair-UnityGeneratedValidationWhitespace {
         'unity\Assets\Rts\Scenes\Stage16_5_Boot.unity.meta',
         'unity\Assets\Rts\Scenes\Stage20_MvpProductionVisuals.unity',
         'unity\Assets\Rts\Scenes\Stage21_MvpVisualQaReview.unity',
+        'unity\Assets\Rts\Scenes\Stage29_BattlefieldVisualReview.unity',
+        'unity\Assets\Rts\Scenes\Stage29_BattlefieldVisualReview.unity.meta',
         'unity\Assets\Rts\Scripts\Boot.meta',
         'unity\Assets\Rts\Art\Models\Imported\MVP.meta',
         'unity\Assets\Rts\Art\Models\Source\MVP.meta',
@@ -272,5 +274,7 @@ function Repair-UnityGeneratedValidationWhitespace {
         Remove-TrailingWhitespace -Path (Join-Path $RepoRoot $relativePath)
     }
 
-    Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\Materials') -Include @('stage20_*.mat')
+    Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\Materials') -Include @('*.mat', '*.meta')
+    Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\Prefabs\Actors\ProductionProxies') -Include @('*.prefab', '*.meta')
+    Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\ScriptableObjects\Art') -Include @('*.asset', '*.meta')
 }

@@ -60,3 +60,13 @@ Stage 21 tightens these standards with structured MVP visual QA:
 - Top-down, side, rear, and Quest-style walkaround views must remain readable.
 - Optional artist-authored model candidates must be staged through the Stage 21 import scan before being assigned as active production prefabs.
 - Player-facing validation must still confirm the PCDesktop sidebar, QuestXR hand-control split, hidden debug panels, hidden placement controls outside placement mode, clean Player.log, and UnityEngine-free `Rts.Core`.
+
+## Stage 29 Visual Quality Addendum
+
+Stage 29 keeps the Stage 20/21 socket, pivot, LOD, and fallback contract, but adds a more realistic battlefield material/detail pass:
+
+- Terrain and foundation materials must keep the fine placement grid readable.
+- MVP proxies should receive grounding/contact-shadow detail so they no longer float visually above the board.
+- Top silhouettes should gain practical service detail: vents, pipes, gantries, turret shields, hoppers, stowage, optics, or weapon cues.
+- Front/side/rear cues must remain readable from PCDesktop and QuestXR inspection angles.
+- The detail pass must be additive and idempotent: rerunning validation should update Stage 29 detail without deleting Stage 20 sockets or Stage 21 replacement metadata.

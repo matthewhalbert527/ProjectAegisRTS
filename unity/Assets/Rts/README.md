@@ -330,3 +330,11 @@ The fast and medium tiers do not weaken acceptance coverage; they make day-to-da
 - `Scripts/UI/Common/ResponsiveCanvasScalerEnforcer.cs`: enforces Scale With Screen Size, 1920x1080 reference resolution, and 0.5 width/height matching on player-facing canvases.
 - `Editor/Stage21_5DisplaySettingsConfigurator.cs`: configures player settings, Boot/Stage16 display components, responsive canvases, and Build Settings.
 - `Editor/Stage21_5DisplaySettingsValidator.cs` and `Stage21_5PlayModeSmokeValidator.cs`: validate display defaults, Boot options, Stage16 board/sidebar visibility, hidden debug/placement UI, and Stage4/Stage5 hand-control preservation.
+
+## Stage 29 Realistic Battlefield Visuals
+
+- `Scripts/Rendering/Visuals`: Stage 29 battlefield material library, terrain material profiles, lighting profile application, atmosphere controller, visual review controller, and review HUD.
+- `Scripts/Art/Production/Stage29VisualDetailTag.cs`: marks MVP proxies that have received the additive Stage 29 material/detail pass.
+- `Editor/Stage29BattlefieldVisualAssetCreator.cs`: creates terrain/environment materials, terrain profiles, lighting profile, and idempotently enriches MVP proxy prefabs.
+- `Editor/Stage29SceneCreator.cs`: creates `Stage29_BattlefieldVisualReview.unity`.
+- `Editor/Stage29VisualQaValidator.cs`, `Stage29VisualPlayModeSmokeValidator.cs`, and `Stage29ScreenshotCaptureTool.cs`: validate visual QA coverage and capture the review screenshot.

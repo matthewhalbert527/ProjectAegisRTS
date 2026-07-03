@@ -144,6 +144,10 @@ Complete after local validation. Integrated playtest stabilization and feature r
 
 Complete after local validation. Full acceptance gate flattening and PC safe-area layout fix. Removes recursive lower full-gate replay from Stage 28 final validation, adds a full-recursion audit, adds Stage 28.1 validation tiers, reserves the PCDesktop camera safe area around the right CnC/OpenRA sidebar and left objective stack, preserves QuestXR full-screen hand-control behavior, and makes deterministic fixed-step unit movement advance along diagonal path steps while preserving Stage 0-28 behavior.
 
+## Stage 29
+
+Complete after local validation. Realistic battlefield visual-quality pass. Adds terrain/environment material profiles, lighting/atmosphere, a Stage 29 battlefield visual review scene, screenshot capture, visual QA, and an additive detail/material pass for the nine MVP production proxies while preserving Stage 0-28.1 gameplay, PCDesktop sidebar/safe-area behavior, QuestXR hand controls, hidden debug defaults, and UnityEngine-free `Rts.Core`.
+
 ## Later Stages
 
 Next later stages include applying artist-authored source model replacements, multiplayer, replays, deterministic checksums, desync reporting, command stream validation, deeper Quest profiling, accessibility, and release packaging.

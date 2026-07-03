@@ -781,6 +781,7 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 - Stage 27.1 is a targeted PC placement UX fix; it is not a new gameplay stage or final production art/UI pass.
 - Stage 28 is an integrated QA/stabilization pass; it is not final content, final art, replay/multiplayer, campaign scripting, or release packaging.
 - Stage 28.1 is a targeted validation/layout follow-up; it is not Stage 29, final UI art, final camera design, or release packaging.
+- Stage 29 is a realistic battlefield visual-quality pass over terrain materials, MVP proxy detail, lighting, and review tooling; it is not final imported art, final VFX, or a gameplay/balance pass.
 - Force-attack, guard, patrol, deploy, repair, and sell buttons are logged placeholders until later gameplay systems exist.
 - Placeholder primitives stand in for final art, animation, and vehicle motion.
 - Unity 6000.5.1f1 batchmode script compilation and scene generation pass locally.
@@ -790,4 +791,4 @@ Placement settings save through `PlayerPrefs` under the Stage 3 board placement 
 
 Later Quest/MR stages can swap the board transform and input layer without moving authoritative simulation state out of `Rts.Core`.
 
-Stage 20, Stage 21, Stage 21.5, Stage 27.1, Stage 28, and Stage 28.1 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar and safe-area board framing, while `QuestXR` keeps left-hand build/selection, explicit board setup placement, full-screen camera framing, and right-hand tactical controls with the PC sidebar hidden.
+Stage 20, Stage 21, Stage 21.5, Stage 27.1, Stage 28, Stage 28.1, and Stage 29 preserve the platform UI split: Windows player builds default to `PCDesktop` with the right-side sidebar and safe-area board framing, while `QuestXR` keeps left-hand build/selection, explicit board setup placement, full-screen camera framing, and right-hand tactical controls with the PC sidebar hidden.
