@@ -18,14 +18,15 @@ MonoBehaviour:
   sizeClass: 2
   footprintFineWidth: 4
   footprintFineHeight: 4
-  prefab: {fileID: 289736236133065444, guid: ae365e1356bef404991d770517e969f9, type: 3}
-  materialProfileId: foundation
-  passabilityVisualHint: Passable base pad.
-  buildableVisualHint: Buildable footprint guide.
+  prefab: {fileID: 7135939981604955392, guid: a3886be5168df2042837165b8a1d98bf, type: 3}
+  materialProfileId: batch01_baseconstruction
+  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for passability.
+  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for buildability.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Stage32.6 runtime terrain assembly mapped from concrete_pad_small. Reference
-    sheets are art direction only; this prefab is visual-only and never gameplay
-    authority.
+  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/concrete_pad_small.png.
+    Primitive proxy remains fallback/debug only.
   questBudgetTag: QuestSafeLow

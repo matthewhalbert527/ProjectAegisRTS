@@ -1,0 +1,166 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6679154900885271017
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2480626321568208767}
+  - component: {fileID: 5265893100251810093}
+  - component: {fileID: 3763413247989258495}
+  - component: {fileID: 3869845805564721723}
+  - component: {fileID: 2794465153231075975}
+  - component: {fileID: 6740720734775122403}
+  m_Layer: 0
+  m_Name: fence_barrier_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2480626321568208767
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6679154900885271017}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &5265893100251810093
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6679154900885271017}
+  m_Mesh: {fileID: 4300000, guid: 59d37580f8552fd4e97fe33b3f5ecbc0, type: 2}
+--- !u!23 &3763413247989258495
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6679154900885271017}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 3fe5596106edd6147ab052294e82e359, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3869845805564721723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6679154900885271017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 660ee68d9c4feb440989d298aaba7d2b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
+  pieceId: fence_barrier_01
+  displayName: Fence_barrier_01
+  category: 3
+  sizeClass: 4
+  footprintFineWidth: 4
+  footprintFineHeight: 1
+  materialProfileId: batch01_cover
+  passabilityVisualHint: Batch01 source-art passable=False; Rts.Core remains authoritative.
+  buildableVisualHint: Batch01 source-art buildable=False; Rts.Core remains authoritative.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 1
+  questBudgetTag: QuestSafeBatch01Texture
+  rendererCount: 1
+  primitiveCount: 1
+  notes: Stage32.5 image-backed terrain mesh plane using individual/fence_barrier_01.png.
+--- !u!114 &2794465153231075975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6679154900885271017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16a0499399853ea4881a81fb4ec90671, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainArtSourceTag
+  batchId: Batch01
+  artId: fence_barrier_01
+  replacesPieceId: fence_barrier_01
+  sourceKind: 0
+  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/fence_barrier_01.png
+  sourceImported: 1
+  coreBatch: 1
+  playerFacingReplacement: 0
+  uvRect: {x: 0, y: 0, z: 1, w: 1}
+--- !u!114 &6740720734775122403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6679154900885271017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cb81f470411ccb4f8ac3cb772dd8401, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.Stage32_5TerrainAssetTag
+  assetId: fence_barrier_01
+  category: cover
+  fineGridWidth: 4
+  fineGridHeight: 1
+  passable: 0
+  buildable: 0
+  transparentPngPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/fence_barrier_01.png
+  fallbackCardPngPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/fence_barrier_01_card.png
+  canonicalSourceAsset: 1
+  mappedStage32Replacement: 0

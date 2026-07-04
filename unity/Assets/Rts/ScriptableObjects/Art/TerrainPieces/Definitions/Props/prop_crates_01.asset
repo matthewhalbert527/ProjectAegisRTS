@@ -18,14 +18,15 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 1275969383096081318, guid: 9e0a65e9efd1354439ee7d57ce9d9358, type: 3}
-  materialProfileId: metal
-  passabilityVisualHint: Supply prop visual.
-  buildableVisualHint: Keep outside build lanes.
+  prefab: {fileID: 6631693557544940331, guid: b43a49fdbca51314d8e71fb9e956daff, type: 3}
+  materialProfileId: batch01_prop
+  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for passability.
+  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for buildability.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Stage32.6 runtime terrain assembly mapped from crate_stack_01. Reference
-    sheets are art direction only; this prefab is visual-only and never gameplay
-    authority.
+  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/crate_stack_01.png.
+    Primitive proxy remains fallback/debug only.
   questBudgetTag: QuestSafeLow

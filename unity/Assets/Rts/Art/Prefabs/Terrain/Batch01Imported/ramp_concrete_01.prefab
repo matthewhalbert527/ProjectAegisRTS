@@ -1,0 +1,166 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3076918701060961003
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7860078199609481174}
+  - component: {fileID: 6001965308744846030}
+  - component: {fileID: 5544720872779255150}
+  - component: {fileID: 4173920605422825828}
+  - component: {fileID: 4914399429786032427}
+  - component: {fileID: 3747728577277722301}
+  m_Layer: 0
+  m_Name: ramp_concrete_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7860078199609481174
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3076918701060961003}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &6001965308744846030
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3076918701060961003}
+  m_Mesh: {fileID: 4300000, guid: 4b09c50202ff30f4b934145b90afaa6c, type: 2}
+--- !u!23 &5544720872779255150
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3076918701060961003}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 81bdf598b32496549b03920e2310b187, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &4173920605422825828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3076918701060961003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 660ee68d9c4feb440989d298aaba7d2b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
+  pieceId: ramp_concrete_01
+  displayName: Ramp_concrete_01
+  category: 2
+  sizeClass: 4
+  footprintFineWidth: 4
+  footprintFineHeight: 2
+  materialProfileId: batch01_foundation
+  passabilityVisualHint: Batch01 source-art passable=True; Rts.Core remains authoritative.
+  buildableVisualHint: Batch01 source-art buildable=True; Rts.Core remains authoritative.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 0
+  questBudgetTag: QuestSafeBatch01Texture
+  rendererCount: 1
+  primitiveCount: 1
+  notes: Stage32.5 image-backed terrain mesh plane using individual/ramp_concrete_01.png.
+--- !u!114 &4914399429786032427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3076918701060961003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16a0499399853ea4881a81fb4ec90671, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainArtSourceTag
+  batchId: Batch01
+  artId: ramp_concrete_01
+  replacesPieceId: ramp_concrete_01
+  sourceKind: 0
+  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/ramp_concrete_01.png
+  sourceImported: 1
+  coreBatch: 1
+  playerFacingReplacement: 0
+  uvRect: {x: 0, y: 0, z: 1, w: 1}
+--- !u!114 &3747728577277722301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3076918701060961003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cb81f470411ccb4f8ac3cb772dd8401, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.Stage32_5TerrainAssetTag
+  assetId: ramp_concrete_01
+  category: foundation
+  fineGridWidth: 4
+  fineGridHeight: 2
+  passable: 1
+  buildable: 1
+  transparentPngPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/ramp_concrete_01.png
+  fallbackCardPngPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/ramp_concrete_01_card.png
+  canonicalSourceAsset: 1
+  mappedStage32Replacement: 0

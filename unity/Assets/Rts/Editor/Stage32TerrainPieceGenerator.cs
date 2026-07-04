@@ -63,6 +63,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var pieceLibrary = CreateTerrainPieceLibrary(definitions);
             var profile = CreateSetDressingProfile(false);
             CreateSetDressingLibrary(profile);
+            Stage32_5TerrainArtBatch01Importer.ApplyImportedBatch01ToTerrainDefinitionsAndProfile();
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

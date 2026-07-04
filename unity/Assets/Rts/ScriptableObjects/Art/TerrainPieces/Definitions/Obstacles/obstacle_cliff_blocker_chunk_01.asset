@@ -18,14 +18,15 @@ MonoBehaviour:
   sizeClass: 2
   footprintFineWidth: 3
   footprintFineHeight: 2
-  prefab: {fileID: 3438379074589265208, guid: d13ebe05a2d7242498f5007e1077471c, type: 3}
-  materialProfileId: rock
-  passabilityVisualHint: Blocked cliff hint only.
-  buildableVisualHint: No-build visual chunk.
+  prefab: {fileID: 7999849174809193291, guid: f4a970afa4058c348b855b57dff8a9f2, type: 3}
+  materialProfileId: batch01_obstacle
+  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for passability.
+  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for buildability.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 1
-  notes: Stage32.6 runtime terrain assembly mapped from broken_cliff_corner_01. Reference
-    sheets are art direction only; this prefab is visual-only and never gameplay
-    authority.
+  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/broken_cliff_corner_01.png.
+    Primitive proxy remains fallback/debug only.
   questBudgetTag: QuestSafeLow

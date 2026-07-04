@@ -18,14 +18,15 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 3
   footprintFineHeight: 1
-  prefab: {fileID: 5227421965473581956, guid: b2901a364ff801e45ba9ba0ca5d637ad, type: 3}
-  materialProfileId: caution
-  passabilityVisualHint: Passable rally marking.
-  buildableVisualHint: Exit lane indicator.
+  prefab: {fileID: 3669683028020339404, guid: 5a184dcb3bac6da41874a3b5ef5b52cf, type: 3}
+  materialProfileId: batch01_transition
+  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for passability.
+  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for buildability.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Stage32.6 runtime terrain assembly mapped from road_t_junction_01. Reference
-    sheets are art direction only; this prefab is visual-only and never gameplay
-    authority.
+  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/road_t_junction_01.png.
+    Primitive proxy remains fallback/debug only.
   questBudgetTag: QuestSafeLow

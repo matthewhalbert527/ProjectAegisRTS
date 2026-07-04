@@ -18,8 +18,9 @@ MonoBehaviour:
   maxRenderedPieces: 44
   preserveFineGridReadability: 1
   visualOnlyNeverGameplayAuthority: 1
-  notes: Player-facing terrain dressing uses real Unity prefab assemblies. Reference
-    sheets are art direction only and must not be used as runtime terrain cards.
+  notes: Stage32.5 player-facing terrain uses imported Batch01 source-art textured
+    mesh planes/cards where source assets exist. Primitive Stage32 pieces are fallback/debug
+    only.
   placements:
   - pieceId: base_foundation_pad_01
     localPosition: {x: 4.2, y: 0.018, z: 6.8}

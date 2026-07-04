@@ -267,6 +267,8 @@ function Repair-UnityGeneratedValidationWhitespace {
         'unity\Assets\Rts\Scenes\Stage32_TerrainSetDressingReview.unity.meta',
         'unity\Assets\Rts\Scenes\Stage32_TerrainAssetReplacementReview.unity',
         'unity\Assets\Rts\Scenes\Stage32_TerrainAssetReplacementReview.unity.meta',
+        'unity\Assets\Rts\Scenes\Stage32_5_TerrainArtBatch01Review.unity',
+        'unity\Assets\Rts\Scenes\Stage32_5_TerrainArtBatch01Review.unity.meta',
         'unity\Assets\Rts\Scenes\Stage32_6_TerrainArtIntegrationReview.unity',
         'unity\Assets\Rts\Scenes\Stage32_6_TerrainArtIntegrationReview.unity.meta',
         'unity\Assets\Rts\Scripts\Boot.meta',

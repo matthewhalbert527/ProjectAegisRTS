@@ -18,14 +18,15 @@ MonoBehaviour:
   sizeClass: 4
   footprintFineWidth: 5
   footprintFineHeight: 1
-  prefab: {fileID: 4535557351555529981, guid: 5839872897da5524fb3df30d00860079, type: 3}
-  materialProfileId: tire
-  passabilityVisualHint: Track mark visual.
-  buildableVisualHint: Passable visual-only track.
+  prefab: {fileID: 575852695686047981, guid: 84428efb74f3029469cb06a230ffee7b, type: 3}
+  materialProfileId: batch01_prop
+  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for passability.
+  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for buildability.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Stage32.6 runtime terrain assembly mapped from tire_tracks_01. Reference
-    sheets are art direction only; this prefab is visual-only and never gameplay
-    authority.
+  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/tire_tracks_01.png.
+    Primitive proxy remains fallback/debug only.
   questBudgetTag: QuestSafeLow

@@ -18,14 +18,15 @@ MonoBehaviour:
   sizeClass: 5
   footprintFineWidth: 4
   footprintFineHeight: 1
-  prefab: {fileID: 4137612141712042834, guid: 4258f7cac55105a4382b41e8b2e93a0d, type: 3}
-  materialProfileId: rock
-  passabilityVisualHint: Blocked ridge hint only.
-  buildableVisualHint: No-build visual edge.
+  prefab: {fileID: 7531790311350686357, guid: 773e99a7a097f3241bf13fa83e12f284, type: 3}
+  materialProfileId: batch01_obstacle
+  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for passability.
+  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for buildability.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 1
-  notes: Stage32.6 runtime terrain assembly mapped from ridge_piece_long_01. Reference
-    sheets are art direction only; this prefab is visual-only and never gameplay
-    authority.
+  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/ridge_piece_long_01.png.
+    Primitive proxy remains fallback/debug only.
   questBudgetTag: QuestSafeLow

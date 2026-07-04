@@ -18,14 +18,15 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 253246177559722896, guid: a834fde439dbb884193c45d24e59b9d9, type: 3}
-  materialProfileId: rock
-  passabilityVisualHint: Blocked visual hint only.
-  buildableVisualHint: No-build visual hint.
+  prefab: {fileID: 1893845557730311696, guid: f84b939fb5a975a47ba4ef827999019f, type: 3}
+  materialProfileId: batch01_obstacle
+  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for passability.
+  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
+    for buildability.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 1
-  notes: Stage32.6 runtime terrain assembly mapped from rock_blocker_02. Reference
-    sheets are art direction only; this prefab is visual-only and never gameplay
-    authority.
+  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/rock_blocker_02.png.
+    Primitive proxy remains fallback/debug only.
   questBudgetTag: QuestSafeLow

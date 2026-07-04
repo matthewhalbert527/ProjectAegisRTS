@@ -92,43 +92,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         public static Stage32TerrainArtIngestionSummary EnsureBatch01TerrainArt()
         {
-            EnsureFolders();
-            Stage32_6TerrainArtIntegrationCorrection.MoveBatch01SourceImagesToReferenceFolder();
-            Stage32_6TerrainArtIntegrationCorrection.DeleteLegacyFlatTerrainCards();
-            AssetDatabase.Refresh();
-
-            var sourcePaths = FindReferenceOnlyImagePaths();
-            var summary = new Stage32TerrainArtIngestionSummary { SourceAssetCount = sourcePaths.Count };
-            var manifest = LoadOrCreateManifest();
-            manifest.batchId = BatchId;
-            manifest.sourceFolder = Stage32_6TerrainArtIntegrationCorrection.ReferenceFolder;
-            manifest.entries = new List<TerrainArtManifestEntry>();
-
-            for (var i = 0; i < sourcePaths.Count; i++)
-            {
-                var sourceAsset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(sourcePaths[i]);
-                manifest.entries.Add(new TerrainArtManifestEntry
-                {
-                    artId = Path.GetFileNameWithoutExtension(sourcePaths[i]),
-                    displayName = ObjectNames.NicifyVariableName(Path.GetFileNameWithoutExtension(sourcePaths[i])),
-                    replacesPieceId = string.Empty,
-                    category = TerrainPieceCategory.Ground,
-                    sourceKind = TerrainArtSourceKind.Texture,
-                    sourceAsset = sourceAsset,
-                    sourceAssetPath = sourcePaths[i],
-                    generatedMaterial = null,
-                    generatedPrefab = null,
-                    uvRect = new Vector4(0f, 0f, 1f, 1f),
-                    coreBatch = true,
-                    playerFacingReplacement = false,
-                    notes = "Reference-only terrain art direction. Stage32.6 forbids direct runtime use as flat cards or cropped sheet textures."
-                });
-            }
-
-            EditorUtility.SetDirty(manifest);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-            return summary;
+            return Stage32_5TerrainArtBatch01Importer.EnsureBatch01TerrainArt();
         }
 
         public static TerrainArtManifest LoadManifest()

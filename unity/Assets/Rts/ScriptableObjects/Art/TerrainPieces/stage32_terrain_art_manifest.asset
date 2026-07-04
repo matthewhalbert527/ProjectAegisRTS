@@ -13,61 +13,1167 @@ MonoBehaviour:
   m_Name: stage32_terrain_art_manifest
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainArtManifest
   batchId: Batch01
-  sourceFolder: Assets/Rts/Art/References/Terrain/Stage32_6ArtDirection
+  sourceFolder: Assets/Rts/Art/Source/Terrain/Batch01
   entries:
-  - artId: batch01_sheet_a_ground_foundations
-    displayName: Batch 01_sheet_a_ground_foundations
-    replacesPieceId:
+  - artId: grass_ground_01
+    displayName: Grass_ground_01
+    replacesPieceId: grass_ground_01
     category: 0
     sourceKind: 0
-    sourceAsset: {fileID: 102900000, guid: 8f82014bfc7a44d42978d6e84ac5e4c7, type: 3}
-    sourceAssetPath: Assets/Rts/Art/References/Terrain/Stage32_6ArtDirection/batch01_sheet_a_ground_foundations.jpg
-    generatedMaterial: {fileID: 0}
-    generatedPrefab: {fileID: 0}
+    sourceAsset: {fileID: 2800000, guid: 11b3cec00e179ab4383410d8675a8e5e, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/grass_ground_01.png
+    generatedMaterial: {fileID: 2100000, guid: 38eee35e70ec9ef4cb72c33dfbf37ba2, type: 2}
+    generatedPrefab: {fileID: 2861441180525078313, guid: 50b0bc83273b8614c8f3d4b29e19f8e4, type: 3}
     uvRect: {x: 0, y: 0, z: 1, w: 1}
     coreBatch: 1
     playerFacingReplacement: 0
-    notes: Reference-only art direction. Stage32.6 forbids direct runtime use as
-      texture cards or cropped sheet planes.
-  - artId: batch01_sheet_b_roads_edges
-    displayName: Batch 01_sheet_b_roads_edges
-    replacesPieceId:
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: grass_ground_02
+    displayName: Grass_ground_02
+    replacesPieceId: grass_ground_02
     category: 0
     sourceKind: 0
-    sourceAsset: {fileID: 102900000, guid: 7837bc14d74e4394790f2d2170da2ba9, type: 3}
-    sourceAssetPath: Assets/Rts/Art/References/Terrain/Stage32_6ArtDirection/batch01_sheet_b_roads_edges.jpg
-    generatedMaterial: {fileID: 0}
-    generatedPrefab: {fileID: 0}
+    sourceAsset: {fileID: 2800000, guid: 1aa5e2814d204cf4489eab4a172424b0, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/grass_ground_02.png
+    generatedMaterial: {fileID: 2100000, guid: d7dda52a8ecee684eb18ee57a16ad95f, type: 2}
+    generatedPrefab: {fileID: 1107105530424406106, guid: ef32f2dd778bb1140a75f4fe9865a92e, type: 3}
     uvRect: {x: 0, y: 0, z: 1, w: 1}
     coreBatch: 1
     playerFacingReplacement: 0
-    notes: Reference-only art direction. Stage32.6 forbids direct runtime use as
-      texture cards or cropped sheet planes.
-  - artId: batch01_sheet_c_resources_obstacles
-    displayName: Batch 01_sheet_c_resources_obstacles
-    replacesPieceId:
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: dirt_ground_01
+    displayName: Dirt_ground_01
+    replacesPieceId: dirt_ground_01
     category: 0
     sourceKind: 0
-    sourceAsset: {fileID: 102900000, guid: a7e1057c2dcd6314a8efbeeae439cf15, type: 3}
-    sourceAssetPath: Assets/Rts/Art/References/Terrain/Stage32_6ArtDirection/batch01_sheet_c_resources_obstacles.jpg
-    generatedMaterial: {fileID: 0}
-    generatedPrefab: {fileID: 0}
+    sourceAsset: {fileID: 2800000, guid: 1677ef1949ffb4641bb22ae509c09504, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/dirt_ground_01.png
+    generatedMaterial: {fileID: 2100000, guid: 872a2df8ceb5e3341862b53db1866a8a, type: 2}
+    generatedPrefab: {fileID: 7277485647242788364, guid: 32829c28cd9f48a4196d3dd92e5449c9, type: 3}
     uvRect: {x: 0, y: 0, z: 1, w: 1}
     coreBatch: 1
     playerFacingReplacement: 0
-    notes: Reference-only art direction. Stage32.6 forbids direct runtime use as
-      texture cards or cropped sheet planes.
-  - artId: batch01_sheet_d_props_vegetation
-    displayName: Batch 01_sheet_d_props_vegetation
-    replacesPieceId:
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: mud_ground_01
+    displayName: Mud_ground_01
+    replacesPieceId: mud_ground_01
     category: 0
     sourceKind: 0
-    sourceAsset: {fileID: 102900000, guid: 27d31f2713a21ff4d89a434aac89e8ff, type: 3}
-    sourceAssetPath: Assets/Rts/Art/References/Terrain/Stage32_6ArtDirection/batch01_sheet_d_props_vegetation.jpg
-    generatedMaterial: {fileID: 0}
-    generatedPrefab: {fileID: 0}
+    sourceAsset: {fileID: 2800000, guid: c7ed4785418f29c4f915755531171cd9, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/mud_ground_01.png
+    generatedMaterial: {fileID: 2100000, guid: 91db7e3a0c3c5fc42880b23ae3641213, type: 2}
+    generatedPrefab: {fileID: 11561344727203048, guid: 0c0c698604178514691ce4031e5e92a6, type: 3}
     uvRect: {x: 0, y: 0, z: 1, w: 1}
     coreBatch: 1
     playerFacingReplacement: 0
-    notes: Reference-only art direction. Stage32.6 forbids direct runtime use as
-      texture cards or cropped sheet planes.
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: scorched_ground_01
+    displayName: Scorched_ground_01
+    replacesPieceId: scorched_ground_01
+    category: 0
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 389f55636562c8040832319748e5be8a, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/scorched_ground_01.png
+    generatedMaterial: {fileID: 2100000, guid: aa722b40fc8f53f46b445e079073c620, type: 2}
+    generatedPrefab: {fileID: 285123129242770002, guid: d74517f67637cc9439d3cd1e8cc02bba, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: cracked_concrete_01
+    displayName: Cracked_concrete_01
+    replacesPieceId: cracked_concrete_01
+    category: 2
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: fd8f1a2f97934b44fa4d2e22fab5ecd0, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/cracked_concrete_01.png
+    generatedMaterial: {fileID: 2100000, guid: d5264c8431caef3469016c16acbf8d17, type: 2}
+    generatedPrefab: {fileID: 3464941505280469182, guid: b817ae4d2a476e741b2e240aba0a1099, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: concrete_pad_small
+    displayName: Concrete_pad_small
+    replacesPieceId: concrete_pad_small
+    category: 2
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 2c44022ce950e5f4090832ea7e3d62a3, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/concrete_pad_small.png
+    generatedMaterial: {fileID: 2100000, guid: b250ff6f6349b754f8466566bc913a01, type: 2}
+    generatedPrefab: {fileID: 2717023704649453173, guid: 94a8577a160cd4d4499cb4b987bab57d, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: concrete_pad_medium
+    displayName: Concrete_pad_medium
+    replacesPieceId: concrete_pad_medium
+    category: 2
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 7d3c013e000fc5a4f9d9fd1a4b6e74fa, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/concrete_pad_medium.png
+    generatedMaterial: {fileID: 2100000, guid: dd3c2b69ccf9454449029d729914981f, type: 2}
+    generatedPrefab: {fileID: 5074494608112881202, guid: c34150ca060e50a40ac27add1ab397da, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: foundation_pad_large
+    displayName: Foundation_pad_large
+    replacesPieceId: foundation_pad_large
+    category: 2
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 3ec8659d6ca2d874dbd5f7c642c32b9e, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/foundation_pad_large.png
+    generatedMaterial: {fileID: 2100000, guid: f7e2912a0e3f1934aa0e7ded6133c0c8, type: 2}
+    generatedPrefab: {fileID: 4460791626317706240, guid: 541b6258d0037ce40bec67333091b5dd, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: base_curb_corner
+    displayName: Base_curb_corner
+    replacesPieceId: base_curb_corner
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: b5f1c5b931284e748a6cc57e740ed3ba, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/base_curb_corner.png
+    generatedMaterial: {fileID: 2100000, guid: 9a138fd164186a1489d464ddb9e962d3, type: 2}
+    generatedPrefab: {fileID: 844588366087614752, guid: 508efb64469e85f45ae1cffac776ff89, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: road_straight_01
+    displayName: Road_straight_01
+    replacesPieceId: road_straight_01
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: df89a6e57422f3f4092efc944aab4896, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/road_straight_01.png
+    generatedMaterial: {fileID: 2100000, guid: 1c36db0de5ce859428be5d3fb57a8c63, type: 2}
+    generatedPrefab: {fileID: 1616986277486768658, guid: fb82ad16fad910f46b9848a9f3d591a5, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: road_corner_01
+    displayName: Road_corner_01
+    replacesPieceId: road_corner_01
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 0d57f145955b3cb4a944c57b42d7fd2f, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/road_corner_01.png
+    generatedMaterial: {fileID: 2100000, guid: 5b6a55e2662632b43ad490b66ba1a3ce, type: 2}
+    generatedPrefab: {fileID: 1026101214675572171, guid: f0ddfe21474bc7842ad6ba0e7fab5a14, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: road_t_junction_01
+    displayName: Road_t_junction_01
+    replacesPieceId: road_t_junction_01
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 3a42b4e77083ef947a88674da2e7a38d, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/road_t_junction_01.png
+    generatedMaterial: {fileID: 2100000, guid: 75e709cd2a695a444a63b8150e69dac6, type: 2}
+    generatedPrefab: {fileID: 6386168628969901088, guid: 3daa03cf29cbd3a4494e19698c98ebde, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: road_crossing_01
+    displayName: Road_crossing_01
+    replacesPieceId: road_crossing_01
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: a8299cd9a57225d43aee095d56349b6d, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/road_crossing_01.png
+    generatedMaterial: {fileID: 2100000, guid: e899661c3623468468dc8f3c0465fc32, type: 2}
+    generatedPrefab: {fileID: 3582176777954747383, guid: 5d6a8ae0ea947464280dbf9e26ffb78e, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: damaged_road_01
+    displayName: Damaged_road_01
+    replacesPieceId: damaged_road_01
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: b5d45ad527588ee43bc09bd9cca35fbc, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/damaged_road_01.png
+    generatedMaterial: {fileID: 2100000, guid: 73003370ffe7467409ec5b41f3007d95, type: 2}
+    generatedPrefab: {fileID: 4107736237659870301, guid: eee17ca28d63f2c43a9fec11bc42be9c, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: road_to_dirt_edge_01
+    displayName: Road_to_dirt_edge_01
+    replacesPieceId: road_to_dirt_edge_01
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 38df3cec3257ce54c8742f0374bea73b, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/road_to_dirt_edge_01.png
+    generatedMaterial: {fileID: 2100000, guid: 6d3a1095e558ca440aee884bea50ca1e, type: 2}
+    generatedPrefab: {fileID: 6279456780858399505, guid: f29ac27b522560a419423ef4fdf263f1, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: ramp_concrete_01
+    displayName: Ramp_concrete_01
+    replacesPieceId: ramp_concrete_01
+    category: 2
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: ab5819c7e47f9784cbf56a1d8d31e389, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/ramp_concrete_01.png
+    generatedMaterial: {fileID: 2100000, guid: 81bdf598b32496549b03920e2310b187, type: 2}
+    generatedPrefab: {fileID: 3076918701060961003, guid: a789ff13e1068844d8bd952108f0c083, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: sandbags_straight_01
+    displayName: Sandbags_straight_01
+    replacesPieceId: sandbags_straight_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: a6d828af63c69ae49a8ef7ed182f646c, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/sandbags_straight_01.png
+    generatedMaterial: {fileID: 2100000, guid: 9e22b924b9e4b9c4090f54d8dfbd8a62, type: 2}
+    generatedPrefab: {fileID: 4358064288731430084, guid: 2735801d708568a45b4506058dd8a29c, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: barrier_concrete_01
+    displayName: Barrier_concrete_01
+    replacesPieceId: barrier_concrete_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 9e3231215a5b71f439988823b545f783, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/barrier_concrete_01.png
+    generatedMaterial: {fileID: 2100000, guid: aef73384d9c4d934ba56355586a3f49d, type: 2}
+    generatedPrefab: {fileID: 9064572541343065297, guid: 2f02fa02a74d97a43945e6694724fe9b, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: base_curb_straight
+    displayName: Base_curb_straight
+    replacesPieceId: base_curb_straight
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: a76c27e8e7437ff468ecaa62a9d30918, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/base_curb_straight.png
+    generatedMaterial: {fileID: 2100000, guid: c94e819f4f4ed244a9e2d9b906c26d1c, type: 2}
+    generatedPrefab: {fileID: 6662199875330266313, guid: 16ed2376afe107c4ea97d1e56b190c8c, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: resource_cluster_blue_01
+    displayName: Resource_cluster_blue_01
+    replacesPieceId: resource_cluster_blue_01
+    category: 4
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 8b0f1f7fe8e3edb44b1d4d6c3532788d, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/resource_cluster_blue_01.png
+    generatedMaterial: {fileID: 2100000, guid: 08ebd44e9b5268246bbd25a0bdb9d154, type: 2}
+    generatedPrefab: {fileID: 5776251754280963432, guid: f8479fb08b725074ca367ff8def69105, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: resource_cluster_green_01
+    displayName: Resource_cluster_green_01
+    replacesPieceId: resource_cluster_green_01
+    category: 4
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 4c6da3b35164be846a32fe808af16095, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/resource_cluster_green_01.png
+    generatedMaterial: {fileID: 2100000, guid: caa0cd0a89d0d584a938fb5f54d9979a, type: 2}
+    generatedPrefab: {fileID: 7676888222467540494, guid: 362da1105890450478ec39b894eea908, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: resource_depleted_01
+    displayName: Resource_depleted_01
+    replacesPieceId: resource_depleted_01
+    category: 4
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: d2c3d5f8099b29842a3f6663a2e644f7, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/resource_depleted_01.png
+    generatedMaterial: {fileID: 2100000, guid: f79a6a9f4168edc488f8db6ea3e962c1, type: 2}
+    generatedPrefab: {fileID: 2217877326806520414, guid: ed33a1fcb0d4f5c4c8ebdeeda1e3e09a, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: rock_blocker_01
+    displayName: Rock_blocker_01
+    replacesPieceId: rock_blocker_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 1a0d9c2cffe07a54d8617ce1d92a4c08, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/rock_blocker_01.png
+    generatedMaterial: {fileID: 2100000, guid: 5788c7bcd77232d4080fcd2fa2ce2641, type: 2}
+    generatedPrefab: {fileID: 7318197552172311249, guid: 30910ce74c1d7b546a33a25adbded891, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: rock_blocker_02
+    displayName: Rock_blocker_02
+    replacesPieceId: rock_blocker_02
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 4bd8f5d32d4fbca4e825ace0531b0f10, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/rock_blocker_02.png
+    generatedMaterial: {fileID: 2100000, guid: dacbdf0d4627b2c4894ea6aa7ddf774c, type: 2}
+    generatedPrefab: {fileID: 3786012447571330464, guid: 74825530c3b6ba549a8b84e48b4ea5af, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: ridge_piece_long_01
+    displayName: Ridge_piece_long_01
+    replacesPieceId: ridge_piece_long_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 4c3e68dfffefeea4db91f5c0b53d5819, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/ridge_piece_long_01.png
+    generatedMaterial: {fileID: 2100000, guid: cb3422abc65d7624a88fd223efc77ce7, type: 2}
+    generatedPrefab: {fileID: 5758552071093306058, guid: ccce60d32ec2f1747bd8145bc11ad023, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: broken_cliff_corner_01
+    displayName: Broken_cliff_corner_01
+    replacesPieceId: broken_cliff_corner_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 984a5b11a0ee51c4e8b807797d2b6cee, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/broken_cliff_corner_01.png
+    generatedMaterial: {fileID: 2100000, guid: 912a0116ce3e7d3469265c68234f15aa, type: 2}
+    generatedPrefab: {fileID: 6684190631929774447, guid: 52b884ee41a4d8247908b667e695c71f, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: crater_01
+    displayName: Crater_01
+    replacesPieceId: crater_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 9ba9106ad27ccbd44a83e33389383b8c, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/crater_01.png
+    generatedMaterial: {fileID: 2100000, guid: 973d059425867c04687cef759aabae4d, type: 2}
+    generatedPrefab: {fileID: 2145559893692327234, guid: 5cee9abef7e579c459d8b8ea1349425a, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: crater_02
+    displayName: Crater_02
+    replacesPieceId: crater_02
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 3ccc477d9e749bd498dcac7a869a3a05, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/crater_02.png
+    generatedMaterial: {fileID: 2100000, guid: b54f07e70d5d8c54188b50ae6cf5469d, type: 2}
+    generatedPrefab: {fileID: 2968944913397968962, guid: 38b0aa2c2d7aaa043978d7eebf8e55a3, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: debris_burn_patch_01
+    displayName: Debris_burn_patch_01
+    replacesPieceId: debris_burn_patch_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 66d9eb19dec7f6a4498701e4549192a9, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/debris_burn_patch_01.png
+    generatedMaterial: {fileID: 2100000, guid: 7fc9617fdf2085849aa9e0091822f188, type: 2}
+    generatedPrefab: {fileID: 6842562816247973443, guid: eb915781ab51ca84e865bd76611ce4cf, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: wreckage_small_01
+    displayName: Wreckage_small_01
+    replacesPieceId: wreckage_small_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: f5c3806c8c502c44ca4f3c0629b14ce7, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/wreckage_small_01.png
+    generatedMaterial: {fileID: 2100000, guid: bafbb4cc18bbe3a4bad8354bbcd00fee, type: 2}
+    generatedPrefab: {fileID: 5681918254052404913, guid: 1530d47443d9d8342b43c2c63a924055, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: wreckage_pile_01
+    displayName: Wreckage_pile_01
+    replacesPieceId: wreckage_pile_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 7f62b4c0e9c47324186030f24c7c9364, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/wreckage_pile_01.png
+    generatedMaterial: {fileID: 2100000, guid: 1a076ef2eb08cd043a803b6e45098c43, type: 2}
+    generatedPrefab: {fileID: 2409449162666945533, guid: 6e5c6d2c2b7a3bc4d9f101a83de60c48, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: anti_tank_obstacle_01
+    displayName: Anti_tank_obstacle_01
+    replacesPieceId: anti_tank_obstacle_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 7edda09517ffaa24fba7bc7744be748e, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/anti_tank_obstacle_01.png
+    generatedMaterial: {fileID: 2100000, guid: b401528d930776648888545dd65cfa81, type: 2}
+    generatedPrefab: {fileID: 7257190632636967657, guid: 553c290f3b8c0c2428838244ab8a16a1, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: fence_barrier_01
+    displayName: Fence_barrier_01
+    replacesPieceId: fence_barrier_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: fb810e1135de34b428a0f9e093d8a176, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/fence_barrier_01.png
+    generatedMaterial: {fileID: 2100000, guid: 3fe5596106edd6147ab052294e82e359, type: 2}
+    generatedPrefab: {fileID: 6679154900885271017, guid: 99d724ab32bfe0d48a6fe443ac9c5a73, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: tire_tracks_01
+    displayName: Tire_tracks_01
+    replacesPieceId: tire_tracks_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 365caa16cc5564c45a47e832d2b57a56, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/tire_tracks_01.png
+    generatedMaterial: {fileID: 2100000, guid: c469ec9a76f34574fbe69f193892699e, type: 2}
+    generatedPrefab: {fileID: 5135722609581491565, guid: 3cc18139654c0534ab45cc3362cf7938, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: debris_small_01
+    displayName: Debris_small_01
+    replacesPieceId: debris_small_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 14351173936c9b64dbb6d496035b9b2b, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/debris_small_01.png
+    generatedMaterial: {fileID: 2100000, guid: 8d9f5a1e38cd1f34abde3b735b924e0e, type: 2}
+    generatedPrefab: {fileID: 2432235509906567283, guid: 3c2c82ab701b00f42894f0ffd695a0b3, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: shrub_cluster_01
+    displayName: Shrub_cluster_01
+    replacesPieceId: shrub_cluster_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 7d23a6be54a22a94f85b5388d07f014c, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/shrub_cluster_01.png
+    generatedMaterial: {fileID: 2100000, guid: d62fc0455005c4f4cb44d353ac942386, type: 2}
+    generatedPrefab: {fileID: 6087814099191104251, guid: a3f3902cb6fe8e74cadc9d62c97907f9, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: shrub_cluster_02
+    displayName: Shrub_cluster_02
+    replacesPieceId: shrub_cluster_02
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 5f70110e45d2e8b46a88e1c790e5a8b6, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/shrub_cluster_02.png
+    generatedMaterial: {fileID: 2100000, guid: 29377e31d88d4644488eca7d3ebd7437, type: 2}
+    generatedPrefab: {fileID: 1744068524536046309, guid: 368056f03c8080440a3a5f78d91812ab, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: tree_cluster_01
+    displayName: Tree_cluster_01
+    replacesPieceId: tree_cluster_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 1015a048c71fa8346a563257e6aab5ee, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/tree_cluster_01.png
+    generatedMaterial: {fileID: 2100000, guid: 98c55b0136da6074ebd7b867de2b86b0, type: 2}
+    generatedPrefab: {fileID: 9162413513831993219, guid: de5714dd0af8c20449f68b2ef290c9c9, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: tree_cluster_02
+    displayName: Tree_cluster_02
+    replacesPieceId: tree_cluster_02
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: c3cb7ebe3f9cd46479cee7f82dc1fe35, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/tree_cluster_02.png
+    generatedMaterial: {fileID: 2100000, guid: 88509a137f640ae4f935c04c0fa74305, type: 2}
+    generatedPrefab: {fileID: 959339187489092951, guid: 826cd84c100499546b8cfa2bd39dc4ac, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: crate_stack_01
+    displayName: Crate_stack_01
+    replacesPieceId: crate_stack_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: f432126bb0c438f4ebc09779fd230982, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/crate_stack_01.png
+    generatedMaterial: {fileID: 2100000, guid: 708f58b378f8888419e1a02177185b85, type: 2}
+    generatedPrefab: {fileID: 8189235725708167492, guid: 0577a1c6075bd5e49831d2ec5676c3d1, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: barrel_group_01
+    displayName: Barrel_group_01
+    replacesPieceId: barrel_group_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 3cbed51e7ef16d74d93613daaf80d95b, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/barrel_group_01.png
+    generatedMaterial: {fileID: 2100000, guid: af33d2178bd36c74d9f153217b0bafc4, type: 2}
+    generatedPrefab: {fileID: 4552570649533188348, guid: 27d85bfec56a5584cb5b40dfaefe5cce, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 0
+    notes: Canonical Stage32.5 Batch01 source terrain asset.
+  - artId: concrete_pad_small
+    displayName: Concrete_pad_small
+    replacesPieceId: base_foundation_pad_01
+    category: 2
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 2c44022ce950e5f4090832ea7e3d62a3, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/concrete_pad_small.png
+    generatedMaterial: {fileID: 2100000, guid: b250ff6f6349b754f8466566bc913a01, type: 2}
+    generatedPrefab: {fileID: 7135939981604955392, guid: a3886be5168df2042837165b8a1d98bf, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: concrete_pad_medium
+    displayName: Concrete_pad_medium
+    replacesPieceId: base_foundation_pad_02
+    category: 2
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 7d3c013e000fc5a4f9d9fd1a4b6e74fa, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/concrete_pad_medium.png
+    generatedMaterial: {fileID: 2100000, guid: dd3c2b69ccf9454449029d729914981f, type: 2}
+    generatedPrefab: {fileID: 1702398775095980210, guid: 03ca7d501f9bb474695a47fd44997f6e, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: foundation_pad_large
+    displayName: Foundation_pad_large
+    replacesPieceId: base_foundation_pad_03
+    category: 2
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 3ec8659d6ca2d874dbd5f7c642c32b9e, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/foundation_pad_large.png
+    generatedMaterial: {fileID: 2100000, guid: f7e2912a0e3f1934aa0e7ded6133c0c8, type: 2}
+    generatedPrefab: {fileID: 5058486458026164876, guid: 5dd864e092de5dd4eb69cc0bcd1b5c13, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: concrete_pad_medium
+    displayName: Concrete_pad_medium
+    replacesPieceId: base_production_apron_01
+    category: 2
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 7d3c013e000fc5a4f9d9fd1a4b6e74fa, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/concrete_pad_medium.png
+    generatedMaterial: {fileID: 2100000, guid: dd3c2b69ccf9454449029d729914981f, type: 2}
+    generatedPrefab: {fileID: 2802931998327816367, guid: 08e661499c9ab624a86fb9ff37c7ae9e, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: foundation_pad_large
+    displayName: Foundation_pad_large
+    replacesPieceId: base_production_apron_02
+    category: 2
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 3ec8659d6ca2d874dbd5f7c642c32b9e, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/foundation_pad_large.png
+    generatedMaterial: {fileID: 2100000, guid: f7e2912a0e3f1934aa0e7ded6133c0c8, type: 2}
+    generatedPrefab: {fileID: 3368994029047021755, guid: 1f3c02eabccce0a449354622411fcab4, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: road_straight_01
+    displayName: Road_straight_01
+    replacesPieceId: base_road_strip_01
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: df89a6e57422f3f4092efc944aab4896, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/road_straight_01.png
+    generatedMaterial: {fileID: 2100000, guid: 1c36db0de5ce859428be5d3fb57a8c63, type: 2}
+    generatedPrefab: {fileID: 5651827421388472745, guid: fafedad1ab8ed014ab88efef748b9877, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: damaged_road_01
+    displayName: Damaged_road_01
+    replacesPieceId: base_road_strip_02
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: b5d45ad527588ee43bc09bd9cca35fbc, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/damaged_road_01.png
+    generatedMaterial: {fileID: 2100000, guid: 73003370ffe7467409ec5b41f3007d95, type: 2}
+    generatedPrefab: {fileID: 6351707618977562693, guid: b02070bb65eab1f4a98dbd82f1d07644, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: road_crossing_01
+    displayName: Road_crossing_01
+    replacesPieceId: base_rally_exit_marking_01
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: a8299cd9a57225d43aee095d56349b6d, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/road_crossing_01.png
+    generatedMaterial: {fileID: 2100000, guid: e899661c3623468468dc8f3c0465fc32, type: 2}
+    generatedPrefab: {fileID: 4883210012032217908, guid: 2250a8c8739e0d6459b63f477833c5d9, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: road_t_junction_01
+    displayName: Road_t_junction_01
+    replacesPieceId: base_rally_exit_marking_02
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 3a42b4e77083ef947a88674da2e7a38d, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/road_t_junction_01.png
+    generatedMaterial: {fileID: 2100000, guid: 75e709cd2a695a444a63b8150e69dac6, type: 2}
+    generatedPrefab: {fileID: 3669683028020339404, guid: 5a184dcb3bac6da41874a3b5ef5b52cf, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: dirt_ground_01
+    displayName: Dirt_ground_01
+    replacesPieceId: ground_compact_soil_patch_01
+    category: 0
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 1677ef1949ffb4641bb22ae509c09504, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/dirt_ground_01.png
+    generatedMaterial: {fileID: 2100000, guid: 872a2df8ceb5e3341862b53db1866a8a, type: 2}
+    generatedPrefab: {fileID: 3124240259546928051, guid: c5f1a24c2ecce1242963bacdbba05e96, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: road_to_dirt_edge_01
+    displayName: Road_to_dirt_edge_01
+    replacesPieceId: ground_compact_soil_patch_02
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 38df3cec3257ce54c8742f0374bea73b, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/road_to_dirt_edge_01.png
+    generatedMaterial: {fileID: 2100000, guid: 6d3a1095e558ca440aee884bea50ca1e, type: 2}
+    generatedPrefab: {fileID: 6115937425937177067, guid: 2153e0832c5f0d9409b49f2f2dfb6259, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: scorched_ground_01
+    displayName: Scorched_ground_01
+    replacesPieceId: ground_scorched_patch_01
+    category: 0
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 389f55636562c8040832319748e5be8a, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/scorched_ground_01.png
+    generatedMaterial: {fileID: 2100000, guid: aa722b40fc8f53f46b445e079073c620, type: 2}
+    generatedPrefab: {fileID: 6638991168362563523, guid: 2e47432b9a59d5449b0242406372f055, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: mud_ground_01
+    displayName: Mud_ground_01
+    replacesPieceId: ground_mud_patch_01
+    category: 0
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: c7ed4785418f29c4f915755531171cd9, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/mud_ground_01.png
+    generatedMaterial: {fileID: 2100000, guid: 91db7e3a0c3c5fc42880b23ae3641213, type: 2}
+    generatedPrefab: {fileID: 2115190391866941781, guid: 6ac7da1146b356b4b97b9d68529a6d1e, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: cracked_concrete_01
+    displayName: Cracked_concrete_01
+    replacesPieceId: transition_concrete_ground_edge_01
+    category: 2
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: fd8f1a2f97934b44fa4d2e22fab5ecd0, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/cracked_concrete_01.png
+    generatedMaterial: {fileID: 2100000, guid: d5264c8431caef3469016c16acbf8d17, type: 2}
+    generatedPrefab: {fileID: 3313513483573069144, guid: 744d6ff17eb35e440a1b74f1053f8c21, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: base_curb_straight
+    displayName: Base_curb_straight
+    replacesPieceId: transition_buildable_edge_01
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: a76c27e8e7437ff468ecaa62a9d30918, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/base_curb_straight.png
+    generatedMaterial: {fileID: 2100000, guid: c94e819f4f4ed244a9e2d9b906c26d1c, type: 2}
+    generatedPrefab: {fileID: 4118731890025778617, guid: aa1cd71cff8df1c459bc4e2a79f9946e, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: road_to_dirt_edge_01
+    displayName: Road_to_dirt_edge_01
+    replacesPieceId: transition_dirt_road_blend_01
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 38df3cec3257ce54c8742f0374bea73b, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/road_to_dirt_edge_01.png
+    generatedMaterial: {fileID: 2100000, guid: 6d3a1095e558ca440aee884bea50ca1e, type: 2}
+    generatedPrefab: {fileID: 2109364399767410007, guid: 64f169362934fbf4a988542e3d4450a7, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: resource_cluster_blue_01
+    displayName: Resource_cluster_blue_01
+    replacesPieceId: resource_cluster_01
+    category: 4
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 8b0f1f7fe8e3edb44b1d4d6c3532788d, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/resource_cluster_blue_01.png
+    generatedMaterial: {fileID: 2100000, guid: 08ebd44e9b5268246bbd25a0bdb9d154, type: 2}
+    generatedPrefab: {fileID: 3284548397231220796, guid: 1ef8f304e038ab543bdf46e43e0dc20b, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: resource_cluster_green_01
+    displayName: Resource_cluster_green_01
+    replacesPieceId: resource_cluster_02
+    category: 4
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 4c6da3b35164be846a32fe808af16095, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/resource_cluster_green_01.png
+    generatedMaterial: {fileID: 2100000, guid: caa0cd0a89d0d584a938fb5f54d9979a, type: 2}
+    generatedPrefab: {fileID: 1436177573047162151, guid: f12f63281fc372f4991b515d0c8a5567, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: resource_cluster_blue_01
+    displayName: Resource_cluster_blue_01
+    replacesPieceId: resource_rich_cluster_01
+    category: 4
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 8b0f1f7fe8e3edb44b1d4d6c3532788d, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/resource_cluster_blue_01.png
+    generatedMaterial: {fileID: 2100000, guid: 08ebd44e9b5268246bbd25a0bdb9d154, type: 2}
+    generatedPrefab: {fileID: 5809683207282337876, guid: 025ddd2b4a850a94487215667c36a16a, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: resource_depleted_01
+    displayName: Resource_depleted_01
+    replacesPieceId: resource_decal_01
+    category: 4
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: d2c3d5f8099b29842a3f6663a2e644f7, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/resource_depleted_01.png
+    generatedMaterial: {fileID: 2100000, guid: f79a6a9f4168edc488f8db6ea3e962c1, type: 2}
+    generatedPrefab: {fileID: 5927209891636775109, guid: 7e20f80bf9661e349b69fadd55df7755, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: resource_cluster_green_01
+    displayName: Resource_cluster_green_01
+    replacesPieceId: resource_harvest_marker_01
+    category: 4
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 4c6da3b35164be846a32fe808af16095, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/resource_cluster_green_01.png
+    generatedMaterial: {fileID: 2100000, guid: caa0cd0a89d0d584a938fb5f54d9979a, type: 2}
+    generatedPrefab: {fileID: 525716397495365903, guid: c207933289169eb40a7a50343d6079de, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: resource_depleted_01
+    displayName: Resource_depleted_01
+    replacesPieceId: transition_resource_edge_01
+    category: 4
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: d2c3d5f8099b29842a3f6663a2e644f7, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/resource_depleted_01.png
+    generatedMaterial: {fileID: 2100000, guid: f79a6a9f4168edc488f8db6ea3e962c1, type: 2}
+    generatedPrefab: {fileID: 569494441847327189, guid: eec69dd768568e341850d6ce87040eda, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: rock_blocker_01
+    displayName: Rock_blocker_01
+    replacesPieceId: obstacle_rock_cluster_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 1a0d9c2cffe07a54d8617ce1d92a4c08, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/rock_blocker_01.png
+    generatedMaterial: {fileID: 2100000, guid: 5788c7bcd77232d4080fcd2fa2ce2641, type: 2}
+    generatedPrefab: {fileID: 5473021300405215971, guid: 86e08f0ed1d082b4d98826ab54a214d2, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: rock_blocker_02
+    displayName: Rock_blocker_02
+    replacesPieceId: obstacle_rock_cluster_02
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 4bd8f5d32d4fbca4e825ace0531b0f10, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/rock_blocker_02.png
+    generatedMaterial: {fileID: 2100000, guid: dacbdf0d4627b2c4894ea6aa7ddf774c, type: 2}
+    generatedPrefab: {fileID: 1893845557730311696, guid: f84b939fb5a975a47ba4ef827999019f, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: ridge_piece_long_01
+    displayName: Ridge_piece_long_01
+    replacesPieceId: obstacle_ridge_piece_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 4c3e68dfffefeea4db91f5c0b53d5819, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/ridge_piece_long_01.png
+    generatedMaterial: {fileID: 2100000, guid: cb3422abc65d7624a88fd223efc77ce7, type: 2}
+    generatedPrefab: {fileID: 7531790311350686357, guid: 773e99a7a097f3241bf13fa83e12f284, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: broken_cliff_corner_01
+    displayName: Broken_cliff_corner_01
+    replacesPieceId: obstacle_cliff_blocker_chunk_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 984a5b11a0ee51c4e8b807797d2b6cee, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/broken_cliff_corner_01.png
+    generatedMaterial: {fileID: 2100000, guid: 912a0116ce3e7d3469265c68234f15aa, type: 2}
+    generatedPrefab: {fileID: 7999849174809193291, guid: f4a970afa4058c348b855b57dff8a9f2, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: tree_cluster_01
+    displayName: Tree_cluster_01
+    replacesPieceId: obstacle_tree_bush_cluster_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 1015a048c71fa8346a563257e6aab5ee, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/tree_cluster_01.png
+    generatedMaterial: {fileID: 2100000, guid: 98c55b0136da6074ebd7b867de2b86b0, type: 2}
+    generatedPrefab: {fileID: 2540101457385394121, guid: 25298791d2ca3e94fa29068a72790aa4, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: wreckage_small_01
+    displayName: Wreckage_small_01
+    replacesPieceId: obstacle_wreckage_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: f5c3806c8c502c44ca4f3c0629b14ce7, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/wreckage_small_01.png
+    generatedMaterial: {fileID: 2100000, guid: bafbb4cc18bbe3a4bad8354bbcd00fee, type: 2}
+    generatedPrefab: {fileID: 537891807996118786, guid: 5fb4de1fd574f294a872b52f928013fa, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: debris_burn_patch_01
+    displayName: Debris_burn_patch_01
+    replacesPieceId: obstacle_debris_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 66d9eb19dec7f6a4498701e4549192a9, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/debris_burn_patch_01.png
+    generatedMaterial: {fileID: 2100000, guid: 7fc9617fdf2085849aa9e0091822f188, type: 2}
+    generatedPrefab: {fileID: 6200773688095945547, guid: ee9a1a9faabb9894c857c63a4ab47809, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: sandbags_straight_01
+    displayName: Sandbags_straight_01
+    replacesPieceId: prop_sandbag_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: a6d828af63c69ae49a8ef7ed182f646c, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/sandbags_straight_01.png
+    generatedMaterial: {fileID: 2100000, guid: 9e22b924b9e4b9c4090f54d8dfbd8a62, type: 2}
+    generatedPrefab: {fileID: 490000851843456034, guid: d3adc06dc3938ea4da82a2b985563d23, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: sandbags_straight_01
+    displayName: Sandbags_straight_01
+    replacesPieceId: prop_sandbag_02
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: a6d828af63c69ae49a8ef7ed182f646c, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/sandbags_straight_01.png
+    generatedMaterial: {fileID: 2100000, guid: 9e22b924b9e4b9c4090f54d8dfbd8a62, type: 2}
+    generatedPrefab: {fileID: 65897696572198075, guid: 65e80be86545e43488028cf4b2fcdb61, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: barrier_concrete_01
+    displayName: Barrier_concrete_01
+    replacesPieceId: prop_barrier_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 9e3231215a5b71f439988823b545f783, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/barrier_concrete_01.png
+    generatedMaterial: {fileID: 2100000, guid: aef73384d9c4d934ba56355586a3f49d, type: 2}
+    generatedPrefab: {fileID: 1395509408360672291, guid: a31c92ad76282f04c9a092ddcec96387, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: anti_tank_obstacle_01
+    displayName: Anti_tank_obstacle_01
+    replacesPieceId: prop_tank_trap_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 7edda09517ffaa24fba7bc7744be748e, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/anti_tank_obstacle_01.png
+    generatedMaterial: {fileID: 2100000, guid: b401528d930776648888545dd65cfa81, type: 2}
+    generatedPrefab: {fileID: 4952602303513599217, guid: 991a525a78a74114b9b11f5779139e06, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: tire_tracks_01
+    displayName: Tire_tracks_01
+    replacesPieceId: prop_tire_tracks_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 365caa16cc5564c45a47e832d2b57a56, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/tire_tracks_01.png
+    generatedMaterial: {fileID: 2100000, guid: c469ec9a76f34574fbe69f193892699e, type: 2}
+    generatedPrefab: {fileID: 575852695686047981, guid: 84428efb74f3029469cb06a230ffee7b, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: debris_small_01
+    displayName: Debris_small_01
+    replacesPieceId: prop_tire_tracks_02
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 14351173936c9b64dbb6d496035b9b2b, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/debris_small_01.png
+    generatedMaterial: {fileID: 2100000, guid: 8d9f5a1e38cd1f34abde3b735b924e0e, type: 2}
+    generatedPrefab: {fileID: 8892678044118617294, guid: 368c65ad71f817a44a38c52a5e58e125, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: crater_01
+    displayName: Crater_01
+    replacesPieceId: prop_shell_mark_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 9ba9106ad27ccbd44a83e33389383b8c, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/crater_01.png
+    generatedMaterial: {fileID: 2100000, guid: 973d059425867c04687cef759aabae4d, type: 2}
+    generatedPrefab: {fileID: 9218149276948082677, guid: 449704d20e85ba44c9bd8266cd108d8a, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: crate_stack_01
+    displayName: Crate_stack_01
+    replacesPieceId: prop_crates_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: f432126bb0c438f4ebc09779fd230982, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/crate_stack_01.png
+    generatedMaterial: {fileID: 2100000, guid: 708f58b378f8888419e1a02177185b85, type: 2}
+    generatedPrefab: {fileID: 6631693557544940331, guid: b43a49fdbca51314d8e71fb9e956daff, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: barrel_group_01
+    displayName: Barrel_group_01
+    replacesPieceId: prop_antenna_beacon_01
+    category: 5
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 3cbed51e7ef16d74d93613daaf80d95b, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/barrel_group_01.png
+    generatedMaterial: {fileID: 2100000, guid: af33d2178bd36c74d9f153217b0bafc4, type: 2}
+    generatedPrefab: {fileID: 7619073769605851350, guid: b6689ba9a5d66124aada65e3196a09f8, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: wreckage_pile_01
+    displayName: Wreckage_pile_01
+    replacesPieceId: prop_destroyed_vehicle_proxy_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 7f62b4c0e9c47324186030f24c7c9364, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/wreckage_pile_01.png
+    generatedMaterial: {fileID: 2100000, guid: 1a076ef2eb08cd043a803b6e45098c43, type: 2}
+    generatedPrefab: {fileID: 2568426801360828325, guid: 7452456692a597540a9319c56d8312ad, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: ridge_piece_long_01
+    displayName: Ridge_piece_long_01
+    replacesPieceId: transition_rock_edge_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 4c3e68dfffefeea4db91f5c0b53d5819, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/ridge_piece_long_01.png
+    generatedMaterial: {fileID: 2100000, guid: cb3422abc65d7624a88fd223efc77ce7, type: 2}
+    generatedPrefab: {fileID: 8752882227112067566, guid: 8cad79b3ec4036b458c4d5662097ae99, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: road_to_dirt_edge_01
+    displayName: Road_to_dirt_edge_01
+    replacesPieceId: ground_road_path_01
+    category: 1
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 38df3cec3257ce54c8742f0374bea73b, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/road_to_dirt_edge_01.png
+    generatedMaterial: {fileID: 2100000, guid: 6d3a1095e558ca440aee884bea50ca1e, type: 2}
+    generatedPrefab: {fileID: 2267193732979445031, guid: 13378104b19c43348bc7e7224e4e4fa2, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: grass_ground_01
+    displayName: Grass_ground_01
+    replacesPieceId: ground_grass_dirt_patch_01
+    category: 0
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 11b3cec00e179ab4383410d8675a8e5e, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/grass_ground_01.png
+    generatedMaterial: {fileID: 2100000, guid: 38eee35e70ec9ef4cb72c33dfbf37ba2, type: 2}
+    generatedPrefab: {fileID: 3409767037733132585, guid: 9a8e27237c1649b47a8367aea4165594, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: grass_ground_02
+    displayName: Grass_ground_02
+    replacesPieceId: ground_grass_dirt_patch_02
+    category: 0
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 1aa5e2814d204cf4489eab4a172424b0, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/grass_ground_02.png
+    generatedMaterial: {fileID: 2100000, guid: d7dda52a8ecee684eb18ee57a16ad95f, type: 2}
+    generatedPrefab: {fileID: 1290320543922699587, guid: 1eb2d3daae4ca554d810e06bfea5e981, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
+  - artId: rock_blocker_01
+    displayName: Rock_blocker_01
+    replacesPieceId: ground_rocky_blocked_01
+    category: 3
+    sourceKind: 0
+    sourceAsset: {fileID: 2800000, guid: 1a0d9c2cffe07a54d8617ce1d92a4c08, type: 3}
+    sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/individual/rock_blocker_01.png
+    generatedMaterial: {fileID: 2100000, guid: 5788c7bcd77232d4080fcd2fa2ce2641, type: 2}
+    generatedPrefab: {fileID: 4959959516008946467, guid: 5d54bdd3325e7284f87e9bc8f4275bd5, type: 3}
+    uvRect: {x: 0, y: 0, z: 1, w: 1}
+    coreBatch: 1
+    playerFacingReplacement: 1
+    notes: Mapped Stage32 player-facing replacement using Stage32.5 Batch01 source
+      art.
