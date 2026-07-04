@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
   pieceId: transition_dirt_road_blend_01
-  displayName: Source Dirt Road Blend 01
+  displayName: Road To Dirt Edge 01
   category: 1
   sizeClass: 5
   footprintFineWidth: 4
@@ -120,7 +120,7 @@ MonoBehaviour:
   questBudgetTag: QuestSafeLow
   rendererCount: 1
   primitiveCount: 1
-  notes: Imported terrain source art from Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_01_full_kit.jpg.
+  notes: Imported terrain source art from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_b_roads_edges.jpg.
     This replaces the player-facing Stage32 proxy for this piece.
 --- !u!114 &5597968612982298533
 MonoBehaviour:
@@ -138,11 +138,11 @@ MonoBehaviour:
   artId: batch01_transition_dirt_road_blend_01
   replacesPieceId: transition_dirt_road_blend_01
   sourceKind: 0
-  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_01_full_kit.jpg
+  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_b_roads_edges.jpg
   sourceImported: 1
   coreBatch: 1
   playerFacingReplacement: 1
-  uvRect: {x: 0.51, y: 0.73, z: 0.1, w: 0.1}
+  uvRect: {x: 0.359375, y: 0.34375, z: 0.25, w: 0.18229167}
 --- !u!205 &4532410990328440461
 LODGroup:
   m_ObjectHideFlags: 0
@@ -152,7 +152,7 @@ LODGroup:
   m_GameObject: {fileID: 5381262362515532154}
   serializedVersion: 3
   m_LocalReferencePoint: {x: 0, y: 0.075, z: 0}
-  m_Size: 2.48
+  m_Size: 3.68
   m_FadeMode: 0
   m_AnimateCrossFading: 0
   m_LastLODIsBillboard: 0

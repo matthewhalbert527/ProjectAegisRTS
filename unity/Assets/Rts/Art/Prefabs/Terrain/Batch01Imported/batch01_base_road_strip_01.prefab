@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
   pieceId: base_road_strip_01
-  displayName: Source Base Road Strip 01
+  displayName: Road Straight 01
   category: 2
   sizeClass: 4
   footprintFineWidth: 5
@@ -120,7 +120,7 @@ MonoBehaviour:
   questBudgetTag: QuestSafeLow
   rendererCount: 1
   primitiveCount: 1
-  notes: Imported terrain source art from Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_03_road_base_edges.jpg.
+  notes: Imported terrain source art from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_b_roads_edges.jpg.
     This replaces the player-facing Stage32 proxy for this piece.
 --- !u!114 &6583929047114917910
 MonoBehaviour:
@@ -138,11 +138,11 @@ MonoBehaviour:
   artId: batch01_base_road_strip_01
   replacesPieceId: base_road_strip_01
   sourceKind: 0
-  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_03_road_base_edges.jpg
+  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_b_roads_edges.jpg
   sourceImported: 1
   coreBatch: 1
   playerFacingReplacement: 1
-  uvRect: {x: 0.04, y: 0.83, z: 0.14, w: 0.12}
+  uvRect: {x: 0.03515625, y: 0.6302083, z: 0.1875, w: 0.265625}
 --- !u!205 &7952383463164201782
 LODGroup:
   m_ObjectHideFlags: 0
@@ -152,7 +152,7 @@ LODGroup:
   m_GameObject: {fileID: 354705000518890225}
   serializedVersion: 3
   m_LocalReferencePoint: {x: 0, y: 0.075, z: 0}
-  m_Size: 3.1
+  m_Size: 4.3
   m_FadeMode: 0
   m_AnimateCrossFading: 0
   m_LastLODIsBillboard: 0

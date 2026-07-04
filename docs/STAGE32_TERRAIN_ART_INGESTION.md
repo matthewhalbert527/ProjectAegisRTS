@@ -19,13 +19,13 @@ Supported source files:
 - `.obj`
 - `.prefab`
 
-The current Batch01 seed uses the four Stage31 terrain source sheets as imported source art:
+The current Batch01 source set uses four named external terrain sheets:
 
 ```text
-terrain_reference_sheet_01_full_kit.jpg
-terrain_reference_sheet_02_board_layout.jpg
-terrain_reference_sheet_03_road_base_edges.jpg
-terrain_reference_sheet_04_cliffs_resources_props.jpg
+batch01_sheet_a_ground_foundations.jpg
+batch01_sheet_b_roads_edges.jpg
+batch01_sheet_c_resources_obstacles.jpg
+batch01_sheet_d_props_vegetation.jpg
 ```
 
 ## Generated Assets
@@ -39,9 +39,12 @@ Run:
 The ingestion pass generates:
 
 - Manifest: `unity/Assets/Rts/ScriptableObjects/Art/TerrainPieces/stage32_terrain_art_manifest.asset`
+- Cropped textures: `unity/Assets/Rts/Art/Textures/Terrain/Batch01Imported/`
 - Materials: `unity/Assets/Rts/Art/Materials/Terrain/Batch01Imported/`
 - Meshes: `unity/Assets/Rts/Art/Meshes/Terrain/Batch01Imported/`
 - Prefabs: `unity/Assets/Rts/Art/Prefabs/Terrain/Batch01Imported/`
+
+Texture-sheet inputs are cropped into one generated PNG per player-facing terrain piece. Ground, road, and pad crops stay opaque. Resource, obstacle, and prop crops use a conservative dark-background alpha cutout so the player-facing scene is not forced to render the source sheet background rectangles.
 
 Each player-facing replacement prefab has:
 

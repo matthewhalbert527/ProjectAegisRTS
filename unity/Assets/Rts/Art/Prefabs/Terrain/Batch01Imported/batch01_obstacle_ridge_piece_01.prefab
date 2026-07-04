@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
   pieceId: obstacle_ridge_piece_01
-  displayName: Source Ridge Piece 01
+  displayName: Ridge Piece Long 01
   category: 3
   sizeClass: 5
   footprintFineWidth: 4
@@ -120,7 +120,7 @@ MonoBehaviour:
   questBudgetTag: QuestSafeLow
   rendererCount: 1
   primitiveCount: 1
-  notes: Imported terrain source art from Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_04_cliffs_resources_props.jpg.
+  notes: Imported terrain source art from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_c_resources_obstacles.jpg.
     This replaces the player-facing Stage32 proxy for this piece.
 --- !u!114 &5212548665359517910
 MonoBehaviour:
@@ -138,11 +138,11 @@ MonoBehaviour:
   artId: batch01_obstacle_ridge_piece_01
   replacesPieceId: obstacle_ridge_piece_01
   sourceKind: 0
-  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_04_cliffs_resources_props.jpg
+  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_c_resources_obstacles.jpg
   sourceImported: 1
   coreBatch: 1
   playerFacingReplacement: 1
-  uvRect: {x: 0.04, y: 0.86, z: 0.2, w: 0.1}
+  uvRect: {x: 0.5625, y: 0.453125, z: 0.35546875, w: 0.19791667}
 --- !u!205 &8196359960424912324
 LODGroup:
   m_ObjectHideFlags: 0
@@ -152,7 +152,7 @@ LODGroup:
   m_GameObject: {fileID: 9206615971768030743}
   serializedVersion: 3
   m_LocalReferencePoint: {x: 0, y: 0.075, z: 0}
-  m_Size: 2.48
+  m_Size: 4.2
   m_FadeMode: 0
   m_AnimateCrossFading: 0
   m_LastLODIsBillboard: 0

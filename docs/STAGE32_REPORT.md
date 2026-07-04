@@ -9,7 +9,7 @@ Stage 32 adds a modular terrain-piece and battlefield set-dressing library plus 
 - Unity-side `TerrainPieceDefinition` assets and a `TerrainPieceLibrary` catalog.
 - Unity-side `TerrainSetDressingProfile` and `TerrainSetDressingLibrary` assets for deterministic visual placement.
 - Batch01 source-art ingestion from `unity/Assets/Rts/Art/Source/Terrain/Batch01`.
-- `TerrainArtManifest` plus generated source-art materials, meshes, and prefabs under `Batch01Imported` folders.
+- `TerrainArtManifest` plus generated source-art cropped textures, materials, meshes, and prefabs under `Batch01Imported` folders.
 - Player-facing source-art replacement prefabs carrying `TerrainArtSourceTag` and `TerrainPieceValidationTag`.
 - Generated primitive prefabs under `unity/Assets/Rts/Art/Prefabs/TerrainPieces` retained as fallback/debug assets.
 - Stage32 material profiles under `unity/Assets/Rts/Art/Materials/TerrainPieces`.
@@ -36,6 +36,8 @@ Stage 32 adds a modular terrain-piece and battlefield set-dressing library plus 
 
 - Total generated debug/fallback prefabs: 62
 - Shared generated-kit materials: 20
+- Batch01 external source sheets: 4
+- Batch01 generated cropped textures: 44
 - Batch01 player-facing source-art replacements: 44
 - Player-facing source-art placements: 44
 

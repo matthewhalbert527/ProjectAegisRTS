@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
   pieceId: resource_harvest_marker_01
-  displayName: Source Resource Harvest Marker 01
+  displayName: Resource Cluster Green Marker
   category: 4
   sizeClass: 0
   footprintFineWidth: 1
@@ -120,7 +120,7 @@ MonoBehaviour:
   questBudgetTag: QuestSafeLow
   rendererCount: 1
   primitiveCount: 1
-  notes: Imported terrain source art from Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_03_road_base_edges.jpg.
+  notes: Imported terrain source art from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_c_resources_obstacles.jpg.
     This replaces the player-facing Stage32 proxy for this piece.
 --- !u!114 &478679559118645197
 MonoBehaviour:
@@ -138,11 +138,11 @@ MonoBehaviour:
   artId: batch01_resource_harvest_marker_01
   replacesPieceId: resource_harvest_marker_01
   sourceKind: 0
-  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_03_road_base_edges.jpg
+  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_c_resources_obstacles.jpg
   sourceImported: 1
   coreBatch: 1
   playerFacingReplacement: 1
-  uvRect: {x: 0.7, y: 0.84000003, z: 0.08, w: 0.08}
+  uvRect: {x: 0.3359375, y: 0.7552083, z: 0.1796875, w: 0.171875}
 --- !u!205 &1870940809163043363
 LODGroup:
   m_ObjectHideFlags: 0
@@ -152,7 +152,7 @@ LODGroup:
   m_GameObject: {fileID: 2620761225275206791}
   serializedVersion: 3
   m_LocalReferencePoint: {x: 0, y: 0.075, z: 0}
-  m_Size: 1.24
+  m_Size: 2.1
   m_FadeMode: 0
   m_AnimateCrossFading: 0
   m_LastLODIsBillboard: 0

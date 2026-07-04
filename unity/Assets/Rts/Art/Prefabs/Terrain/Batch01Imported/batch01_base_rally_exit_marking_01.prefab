@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
   pieceId: base_rally_exit_marking_01
-  displayName: Source Rally Exit Marking 01
+  displayName: Road Crossing 01
   category: 2
   sizeClass: 1
   footprintFineWidth: 3
@@ -120,7 +120,7 @@ MonoBehaviour:
   questBudgetTag: QuestSafeLow
   rendererCount: 1
   primitiveCount: 1
-  notes: Imported terrain source art from Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_03_road_base_edges.jpg.
+  notes: Imported terrain source art from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_b_roads_edges.jpg.
     This replaces the player-facing Stage32 proxy for this piece.
 --- !u!114 &6299531342450790141
 MonoBehaviour:
@@ -138,11 +138,11 @@ MonoBehaviour:
   artId: batch01_base_rally_exit_marking_01
   replacesPieceId: base_rally_exit_marking_01
   sourceKind: 0
-  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_03_road_base_edges.jpg
+  sourceAssetPath: Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_b_roads_edges.jpg
   sourceImported: 1
   coreBatch: 1
   playerFacingReplacement: 1
-  uvRect: {x: 0.48, y: 0.82, z: 0.16, w: 0.12}
+  uvRect: {x: 0.75, y: 0.640625, z: 0.19140625, w: 0.25}
 --- !u!205 &8957159901017739977
 LODGroup:
   m_ObjectHideFlags: 0
@@ -152,7 +152,7 @@ LODGroup:
   m_GameObject: {fileID: 3646011453801278913}
   serializedVersion: 3
   m_LocalReferencePoint: {x: 0, y: 0.075, z: 0}
-  m_Size: 1.86
+  m_Size: 2.58
   m_FadeMode: 0
   m_AnimateCrossFading: 0
   m_LastLODIsBillboard: 0

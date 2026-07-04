@@ -15,6 +15,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public const string GeneratedMaterialFolder = "Assets/Rts/Art/Materials/Terrain/Batch01Imported";
         public const string GeneratedPrefabFolder = "Assets/Rts/Art/Prefabs/Terrain/Batch01Imported";
         public const string GeneratedMeshFolder = "Assets/Rts/Art/Meshes/Terrain/Batch01Imported";
+        public const string GeneratedTextureFolder = "Assets/Rts/Art/Textures/Terrain/Batch01Imported";
         public const int MinimumPlayerFacingSourceReplacements = 32;
 
         public static readonly string[] RequiredPlayerFacingReplacementPieceIds =
@@ -175,7 +176,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static GameObject CreateTexturePrefab(TerrainArtReplacementSpec spec, Texture2D texture, TerrainPieceDefinition definition)
         {
-            var material = CreateTextureMaterial(spec, texture);
+            var croppedTexture = CreateOrUpdateCroppedTexture(spec, texture);
+            var material = CreateTextureMaterial(spec, croppedTexture != null ? croppedTexture : texture, croppedTexture == null ? spec.UvRect : new Vector4(0f, 0f, 1f, 1f));
             var root = new GameObject(spec.PieceId);
             var mesh = CreateOrUpdatePlaneMesh(spec);
             var meshFilter = root.AddComponent<MeshFilter>();
@@ -256,7 +258,67 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             sourceTag.uvRect = spec.UvRect;
         }
 
-        static Material CreateTextureMaterial(TerrainArtReplacementSpec spec, Texture2D texture)
+        static Texture2D CreateOrUpdateCroppedTexture(TerrainArtReplacementSpec spec, Texture2D sourceTexture)
+        {
+            if (sourceTexture == null)
+                return null;
+
+            var sourceWidth = sourceTexture.width;
+            var sourceHeight = sourceTexture.height;
+            var x = Mathf.Clamp(Mathf.RoundToInt(spec.UvRect.x * sourceWidth), 0, sourceWidth - 1);
+            var y = Mathf.Clamp(Mathf.RoundToInt(spec.UvRect.y * sourceHeight), 0, sourceHeight - 1);
+            var width = Mathf.Clamp(Mathf.RoundToInt(spec.UvRect.z * sourceWidth), 1, sourceWidth - x);
+            var height = Mathf.Clamp(Mathf.RoundToInt(spec.UvRect.w * sourceHeight), 1, sourceHeight - y);
+
+            var pixels = sourceTexture.GetPixels(x, y, width, height);
+            var applyCutout = ShouldApplySourceBackgroundCutout(spec);
+            for (var i = 0; i < pixels.Length; i++)
+            {
+                var pixel = pixels[i];
+                pixel.a = applyCutout && IsLikelySourceSheetBackground(pixel) ? 0f : 1f;
+                pixels[i] = pixel;
+            }
+
+            var cropped = new Texture2D(width, height, TextureFormat.RGBA32, true) { name = spec.ArtId + "_crop" };
+            cropped.SetPixels(pixels);
+            cropped.Apply(true, false);
+
+            var texturePath = GeneratedTextureFolder + "/" + spec.ArtId + ".png";
+            var absolutePath = ToAbsoluteProjectPath(texturePath);
+            File.WriteAllBytes(absolutePath, cropped.EncodeToPNG());
+            UnityEngine.Object.DestroyImmediate(cropped);
+
+            AssetDatabase.ImportAsset(texturePath, ImportAssetOptions.ForceSynchronousImport);
+            var importer = AssetImporter.GetAtPath(texturePath) as TextureImporter;
+            if (importer != null)
+            {
+                importer.textureType = TextureImporterType.Default;
+                importer.sRGBTexture = true;
+                importer.alphaIsTransparency = true;
+                importer.mipmapEnabled = true;
+                importer.wrapMode = TextureWrapMode.Clamp;
+                importer.maxTextureSize = 1024;
+                importer.SaveAndReimport();
+            }
+
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
+        }
+
+        static bool ShouldApplySourceBackgroundCutout(TerrainArtReplacementSpec spec)
+        {
+            return spec.Category == TerrainPieceCategory.Prop ||
+                spec.Category == TerrainPieceCategory.Obstacle ||
+                spec.Category == TerrainPieceCategory.Resource;
+        }
+
+        static bool IsLikelySourceSheetBackground(Color pixel)
+        {
+            var max = Mathf.Max(pixel.r, Mathf.Max(pixel.g, pixel.b));
+            var min = Mathf.Min(pixel.r, Mathf.Min(pixel.g, pixel.b));
+            return max < 0.10f || (max < 0.16f && max - min < 0.045f);
+        }
+
+        static Material CreateTextureMaterial(TerrainArtReplacementSpec spec, Texture2D texture, Vector4 textureUvRect)
         {
             var path = GeneratedMaterialFolder + "/" + spec.ArtId + ".mat";
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -268,20 +330,20 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             }
 
             material.mainTexture = texture;
-            material.mainTextureScale = new Vector2(spec.UvRect.z, spec.UvRect.w);
-            material.mainTextureOffset = new Vector2(spec.UvRect.x, spec.UvRect.y);
+            material.mainTextureScale = new Vector2(textureUvRect.z, textureUvRect.w);
+            material.mainTextureOffset = new Vector2(textureUvRect.x, textureUvRect.y);
             material.color = Color.white;
             if (material.HasProperty("_BaseMap"))
             {
                 material.SetTexture("_BaseMap", texture);
-                material.SetTextureScale("_BaseMap", new Vector2(spec.UvRect.z, spec.UvRect.w));
-                material.SetTextureOffset("_BaseMap", new Vector2(spec.UvRect.x, spec.UvRect.y));
+                material.SetTextureScale("_BaseMap", new Vector2(textureUvRect.z, textureUvRect.w));
+                material.SetTextureOffset("_BaseMap", new Vector2(textureUvRect.x, textureUvRect.y));
             }
             if (material.HasProperty("_MainTex"))
             {
                 material.SetTexture("_MainTex", texture);
-                material.SetTextureScale("_MainTex", new Vector2(spec.UvRect.z, spec.UvRect.w));
-                material.SetTextureOffset("_MainTex", new Vector2(spec.UvRect.x, spec.UvRect.y));
+                material.SetTextureScale("_MainTex", new Vector2(textureUvRect.z, textureUvRect.w));
+                material.SetTextureOffset("_MainTex", new Vector2(textureUvRect.x, textureUvRect.y));
             }
             if (material.HasProperty("_BaseColor"))
                 material.SetColor("_BaseColor", Color.white);
@@ -289,11 +351,40 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 material.SetFloat("_Metallic", 0f);
             if (material.HasProperty("_Smoothness"))
                 material.SetFloat("_Smoothness", 0.18f);
-            material.renderQueue = 2450;
+            ConfigureMaterialTransparency(material, ShouldApplySourceBackgroundCutout(spec));
 
             spec.GeneratedMaterial = material;
             EditorUtility.SetDirty(material);
             return material;
+        }
+
+        static void ConfigureMaterialTransparency(Material material, bool transparent)
+        {
+            if (transparent)
+            {
+                material.SetOverrideTag("RenderType", "Transparent");
+                material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                material.SetInt("_ZWrite", 0);
+                if (material.HasProperty("_Surface"))
+                    material.SetFloat("_Surface", 1f);
+                if (material.HasProperty("_AlphaClip"))
+                    material.SetFloat("_AlphaClip", 0f);
+                material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                material.DisableKeyword("_ALPHATEST_ON");
+                material.renderQueue = 3000;
+                return;
+            }
+
+            material.SetOverrideTag("RenderType", "Opaque");
+            material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+            material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+            material.SetInt("_ZWrite", 1);
+            if (material.HasProperty("_Surface"))
+                material.SetFloat("_Surface", 0f);
+            material.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            material.DisableKeyword("_ALPHATEST_ON");
+            material.renderQueue = 2450;
         }
 
         static Mesh CreateOrUpdatePlaneMesh(TerrainArtReplacementSpec spec)
@@ -306,8 +397,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 AssetDatabase.CreateAsset(mesh, path);
             }
 
-            var width = Mathf.Max(0.45f, spec.FootprintFineWidth * 0.62f);
-            var depth = Mathf.Max(0.45f, spec.FootprintFineHeight * 0.62f);
+            var footprintScale = GetVisualFootprintScale(spec);
+            var width = Mathf.Max(0.6f, spec.FootprintFineWidth * footprintScale);
+            var depth = Mathf.Max(0.6f, spec.FootprintFineHeight * footprintScale);
             mesh.Clear();
             mesh.vertices = new[]
             {
@@ -328,6 +420,19 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             mesh.RecalculateBounds();
             EditorUtility.SetDirty(mesh);
             return mesh;
+        }
+
+        static float GetVisualFootprintScale(TerrainArtReplacementSpec spec)
+        {
+            if (spec.Category == TerrainPieceCategory.Prop ||
+                spec.Category == TerrainPieceCategory.Obstacle ||
+                spec.Category == TerrainPieceCategory.Resource)
+                return 1.05f;
+
+            if (spec.Category == TerrainPieceCategory.Transition)
+                return 0.92f;
+
+            return 0.86f;
         }
 
         static void AddLodGroup(GameObject root, params Renderer[] renderers)
@@ -376,60 +481,60 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (textures.Count == 0)
                 return specs;
 
-            var fullKit = FindSource(textures, "full_kit") ?? textures[0];
-            var boardLayout = FindSource(textures, "board_layout") ?? fullKit;
-            var roads = FindSource(textures, "road_base_edges") ?? fullKit;
-            var cliffs = FindSource(textures, "cliffs_resources_props") ?? fullKit;
+            var sheetA = FindSource(textures, "sheet_a_ground_foundations") ?? FindSource(textures, "full_kit") ?? textures[0];
+            var sheetB = FindSource(textures, "sheet_b_roads_edges") ?? FindSource(textures, "road_base_edges") ?? sheetA;
+            var sheetC = FindSource(textures, "sheet_c_resources_obstacles") ?? FindSource(textures, "cliffs_resources_props") ?? sheetA;
+            var sheetD = FindSource(textures, "sheet_d_props_vegetation") ?? sheetC;
 
-            Add(specs, "base_foundation_pad_01", "Source Base Foundation Pad 01", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Medium, 4, 4, "foundation", boardLayout, TopUv(.06f, .60f, .18f, .20f), "Base pad sourced from Batch01 board-layout/base art.");
-            Add(specs, "base_foundation_pad_02", "Source Base Foundation Pad 02", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Medium, 4, 4, "foundation", boardLayout, TopUv(.24f, .60f, .18f, .20f), "Base pad sourced from Batch01 board-layout/base art.");
-            Add(specs, "base_foundation_pad_03", "Source Base Foundation Pad 03", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Medium, 4, 4, "foundation", roads, TopUv(.04f, .37f, .14f, .13f), "Base pad crop from Batch01 road/base source sheet.");
-            Add(specs, "base_production_apron_01", "Source Production Apron 01", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Strip, 5, 2, "foundation", roads, TopUv(.30f, .37f, .22f, .13f), "Industrial apron crop from Batch01 road/base source sheet.");
-            Add(specs, "base_production_apron_02", "Source Production Apron 02", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Strip, 5, 2, "foundation", roads, TopUv(.53f, .37f, .22f, .13f), "Industrial apron crop from Batch01 road/base source sheet.");
-            Add(specs, "base_road_strip_01", "Source Base Road Strip 01", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Strip, 5, 1, "road", roads, TopUv(.04f, .05f, .14f, .12f), "Road strip crop from Batch01 road/base source sheet.");
-            Add(specs, "base_road_strip_02", "Source Base Road Strip 02", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Strip, 5, 1, "road", roads, TopUv(.20f, .05f, .14f, .12f), "Road strip crop from Batch01 road/base source sheet.");
-            Add(specs, "base_rally_exit_marking_01", "Source Rally Exit Marking 01", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Small, 3, 1, "caution", roads, TopUv(.48f, .06f, .16f, .12f), "Intersection marking crop from Batch01 road/base source sheet.");
-            Add(specs, "base_rally_exit_marking_02", "Source Rally Exit Marking 02", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Small, 3, 1, "caution", roads, TopUv(.50f, .20f, .16f, .12f), "Lane marking crop from Batch01 road/base source sheet.");
+            Add(specs, "base_foundation_pad_01", "Concrete Pad Small", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Medium, 4, 4, "foundation", sheetA, PixelUv(335, 405, 235, 180), "Concrete Pad Small crop from Batch01 Sheet A.");
+            Add(specs, "base_foundation_pad_02", "Concrete Pad Medium", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Medium, 4, 4, "foundation", sheetA, PixelUv(585, 400, 310, 180), "Concrete Pad Medium crop from Batch01 Sheet A.");
+            Add(specs, "base_foundation_pad_03", "Foundation Pad Large", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Medium, 4, 4, "foundation", sheetA, PixelUv(890, 410, 350, 370), "Foundation Pad Large crop from Batch01 Sheet A.");
+            Add(specs, "base_production_apron_01", "Concrete Production Apron", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Strip, 5, 2, "foundation", sheetA, PixelUv(585, 400, 310, 180), "Concrete pad apron crop from Batch01 Sheet A.");
+            Add(specs, "base_production_apron_02", "Cracked Concrete Apron", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Strip, 5, 2, "foundation", sheetA, PixelUv(35, 420, 240, 160), "Cracked concrete crop from Batch01 Sheet A.");
+            Add(specs, "base_road_strip_01", "Road Straight 01", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Strip, 5, 1, "road", sheetB, PixelUv(45, 100, 240, 255), "Road Straight 01 crop from Batch01 Sheet B.");
+            Add(specs, "base_road_strip_02", "Damaged Road 01", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Strip, 5, 1, "road", sheetB, PixelUv(35, 455, 325, 185), "Damaged Road 01 crop from Batch01 Sheet B.");
+            Add(specs, "base_rally_exit_marking_01", "Road Crossing 01", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Small, 3, 1, "caution", sheetB, PixelUv(960, 105, 245, 240), "Road Crossing 01 crop from Batch01 Sheet B.");
+            Add(specs, "base_rally_exit_marking_02", "Road T Junction 01", TerrainPieceCategory.BaseConstruction, TerrainPieceSizeClass.Small, 3, 1, "caution", sheetB, PixelUv(600, 100, 315, 235), "Road T Junction 01 crop from Batch01 Sheet B.");
 
-            Add(specs, "ground_compact_soil_patch_01", "Source Compact Soil Patch 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 3, 2, "compact_soil", fullKit, TopUv(.27f, .06f, .10f, .10f), "Compacted dirt crop from Batch01 full-kit source sheet.");
-            Add(specs, "ground_compact_soil_patch_02", "Source Compact Soil Patch 02", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 3, 2, "compact_soil", fullKit, TopUv(.39f, .06f, .10f, .10f), "Damaged dirt crop from Batch01 full-kit source sheet.");
-            Add(specs, "ground_scorched_patch_01", "Source Scorched Patch 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 2, 2, "scorch", cliffs, TopUv(.34f, .31f, .10f, .11f), "Scorch/crater crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "ground_mud_patch_01", "Source Mud Patch 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 2, 2, "mud", fullKit, TopUv(.39f, .17f, .10f, .10f), "Mud/damaged dirt crop from Batch01 full-kit source sheet.");
-            Add(specs, "ground_road_path_01", "Source Road Path 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Strip, 5, 2, "road", roads, TopUv(.04f, .05f, .14f, .12f), "Road surface crop from Batch01 road/base source sheet.");
-            Add(specs, "ground_grass_dirt_patch_01", "Source Grass Dirt Patch 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 3, 3, "grass_dirt", fullKit, TopUv(.03f, .06f, .10f, .10f), "Grass/dirt crop from Batch01 full-kit source sheet.");
-            Add(specs, "ground_grass_dirt_patch_02", "Source Grass Dirt Patch 02", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 3, 3, "grass_dirt", fullKit, TopUv(.15f, .06f, .10f, .10f), "Alternate grass/dirt crop from Batch01 full-kit source sheet.");
-            Add(specs, "ground_rocky_blocked_01", "Source Rocky Blocked 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Medium, 3, 3, "rock", cliffs, TopUv(.72f, .04f, .10f, .11f), "Rock blocker crop from Batch01 cliffs/resources/props sheet.");
+            Add(specs, "ground_compact_soil_patch_01", "Dirt Ground 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 3, 2, "compact_soil", sheetA, PixelUv(565, 58, 225, 235), "Dirt Ground 01 crop from Batch01 Sheet A.");
+            Add(specs, "ground_compact_soil_patch_02", "Road To Dirt Edge 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 3, 2, "compact_soil", sheetB, PixelUv(460, 455, 320, 175), "Road To Dirt Edge 01 crop from Batch01 Sheet B.");
+            Add(specs, "ground_scorched_patch_01", "Scorched Ground 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 2, 2, "scorch", sheetA, PixelUv(1070, 55, 190, 235), "Scorched Ground 01 crop from Batch01 Sheet A.");
+            Add(specs, "ground_mud_patch_01", "Mud Ground 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 2, 2, "mud", sheetA, PixelUv(820, 55, 225, 235), "Mud Ground 01 crop from Batch01 Sheet A.");
+            Add(specs, "ground_road_path_01", "Road To Dirt Path 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Strip, 5, 2, "road", sheetB, PixelUv(460, 455, 320, 175), "Road To Dirt Edge 01 crop from Batch01 Sheet B.");
+            Add(specs, "ground_grass_dirt_patch_01", "Grass Ground 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 3, 3, "grass_dirt", sheetA, PixelUv(20, 55, 260, 245), "Grass Ground 01 crop from Batch01 Sheet A.");
+            Add(specs, "ground_grass_dirt_patch_02", "Grass Ground 02", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Patch, 3, 3, "grass_dirt", sheetA, PixelUv(295, 60, 240, 235), "Grass Ground 02 crop from Batch01 Sheet A.");
+            Add(specs, "ground_rocky_blocked_01", "Rock Blocker 01", TerrainPieceCategory.Ground, TerrainPieceSizeClass.Medium, 3, 3, "rock", sheetC, PixelUv(40, 330, 290, 190), "Rock Blocker 01 crop from Batch01 Sheet C.");
 
-            Add(specs, "transition_concrete_ground_edge_01", "Source Concrete Ground Edge 01", TerrainPieceCategory.Transition, TerrainPieceSizeClass.Edge, 4, 1, "concrete", roads, TopUv(.03f, .51f, .16f, .11f), "Concrete edge crop from Batch01 road/base source sheet.");
-            Add(specs, "transition_buildable_edge_01", "Source Buildable Edge 01", TerrainPieceCategory.Transition, TerrainPieceSizeClass.Edge, 4, 1, "foundation", roads, TopUv(.72f, .52f, .16f, .08f), "Foundation/border crop from Batch01 road/base source sheet.");
-            Add(specs, "transition_dirt_road_blend_01", "Source Dirt Road Blend 01", TerrainPieceCategory.Transition, TerrainPieceSizeClass.Edge, 4, 1, "road", fullKit, TopUv(.51f, .17f, .10f, .10f), "Road/dirt transition crop from Batch01 full-kit source sheet.");
-            Add(specs, "transition_resource_edge_01", "Source Resource Edge 01", TerrainPieceCategory.Transition, TerrainPieceSizeClass.Edge, 3, 1, "resource_ground", cliffs, TopUv(.16f, .24f, .10f, .10f), "Resource ground edge crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "transition_rock_edge_01", "Source Rock Edge 01", TerrainPieceCategory.Transition, TerrainPieceSizeClass.Edge, 3, 1, "rock", cliffs, TopUv(.04f, .04f, .16f, .11f), "Rock edge crop from Batch01 cliffs/resources/props sheet.");
+            Add(specs, "transition_concrete_ground_edge_01", "Cracked Concrete Edge", TerrainPieceCategory.Transition, TerrainPieceSizeClass.Edge, 4, 1, "concrete", sheetA, PixelUv(35, 420, 240, 160), "Cracked Concrete 01 crop from Batch01 Sheet A.");
+            Add(specs, "transition_buildable_edge_01", "Base Curb Straight", TerrainPieceCategory.Transition, TerrainPieceSizeClass.Edge, 4, 1, "foundation", sheetB, PixelUv(925, 755, 300, 95), "Base Curb Straight crop from Batch01 Sheet B.");
+            Add(specs, "transition_dirt_road_blend_01", "Road To Dirt Edge 01", TerrainPieceCategory.Transition, TerrainPieceSizeClass.Edge, 4, 1, "road", sheetB, PixelUv(460, 455, 320, 175), "Road To Dirt Edge 01 crop from Batch01 Sheet B.");
+            Add(specs, "transition_resource_edge_01", "Resource Depleted 01", TerrainPieceCategory.Transition, TerrainPieceSizeClass.Edge, 3, 1, "resource_ground", sheetC, PixelUv(860, 70, 240, 165), "Resource Depleted 01 crop from Batch01 Sheet C.");
+            Add(specs, "transition_rock_edge_01", "Ridge Piece Long 01", TerrainPieceCategory.Transition, TerrainPieceSizeClass.Edge, 3, 1, "rock", sheetC, PixelUv(720, 335, 455, 190), "Ridge Piece Long 01 crop from Batch01 Sheet C.");
 
-            Add(specs, "resource_cluster_01", "Source Resource Cluster 01", TerrainPieceCategory.Resource, TerrainPieceSizeClass.Small, 2, 2, "mineral", cliffs, TopUv(.03f, .24f, .10f, .10f), "Blue resource crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "resource_cluster_02", "Source Resource Cluster 02", TerrainPieceCategory.Resource, TerrainPieceSizeClass.Small, 2, 2, "mineral", cliffs, TopUv(.13f, .24f, .10f, .10f), "Green resource crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "resource_rich_cluster_01", "Source Rich Resource Cluster 01", TerrainPieceCategory.Resource, TerrainPieceSizeClass.Small, 2, 2, "rich_mineral", cliffs, TopUv(.23f, .24f, .10f, .10f), "Rich resource crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "resource_decal_01", "Source Resource Decal 01", TerrainPieceCategory.Resource, TerrainPieceSizeClass.Patch, 3, 3, "resource_ground", fullKit, TopUv(.15f, .37f, .10f, .10f), "Resource-field ground crop from Batch01 full-kit source sheet.");
-            Add(specs, "resource_harvest_marker_01", "Source Resource Harvest Marker 01", TerrainPieceCategory.Resource, TerrainPieceSizeClass.Tiny, 2, 1, "caution", roads, TopUv(.70f, .08f, .08f, .08f), "Small harvest-route marker crop from Batch01 road/base source sheet.");
+            Add(specs, "resource_cluster_01", "Resource Cluster Blue 01", TerrainPieceCategory.Resource, TerrainPieceSizeClass.Small, 2, 2, "mineral", sheetC, PixelUv(70, 65, 230, 170), "Resource Cluster Blue 01 crop from Batch01 Sheet C.");
+            Add(specs, "resource_cluster_02", "Resource Cluster Green 01", TerrainPieceCategory.Resource, TerrainPieceSizeClass.Small, 2, 2, "mineral", sheetC, PixelUv(430, 70, 230, 165), "Resource Cluster Green 01 crop from Batch01 Sheet C.");
+            Add(specs, "resource_rich_cluster_01", "Resource Cluster Blue Rich", TerrainPieceCategory.Resource, TerrainPieceSizeClass.Small, 2, 2, "rich_mineral", sheetC, PixelUv(70, 65, 230, 170), "Resource Cluster Blue 01 crop from Batch01 Sheet C.");
+            Add(specs, "resource_decal_01", "Resource Depleted 01", TerrainPieceCategory.Resource, TerrainPieceSizeClass.Patch, 3, 3, "resource_ground", sheetC, PixelUv(860, 70, 240, 165), "Resource Depleted 01 crop from Batch01 Sheet C.");
+            Add(specs, "resource_harvest_marker_01", "Resource Cluster Green Marker", TerrainPieceCategory.Resource, TerrainPieceSizeClass.Tiny, 2, 1, "caution", sheetC, PixelUv(430, 70, 230, 165), "Resource Cluster Green 01 crop from Batch01 Sheet C.");
 
-            Add(specs, "obstacle_rock_cluster_01", "Source Rock Cluster 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Small, 2, 2, "rock", cliffs, TopUv(.72f, .05f, .10f, .10f), "Rock cluster crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "obstacle_rock_cluster_02", "Source Rock Cluster 02", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Small, 2, 2, "rock", cliffs, TopUv(.84f, .05f, .09f, .10f), "Alternate rock cluster crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "obstacle_ridge_piece_01", "Source Ridge Piece 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Edge, 4, 1, "rock", cliffs, TopUv(.04f, .04f, .20f, .10f), "Ridge crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "obstacle_cliff_blocker_chunk_01", "Source Cliff Blocker Chunk 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Medium, 3, 2, "rock", cliffs, TopUv(.32f, .04f, .18f, .11f), "Cliff blocker crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "obstacle_tree_bush_cluster_01", "Source Tree Bush Cluster 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Small, 2, 2, "foliage", cliffs, TopUv(.10f, .76f, .10f, .10f), "Foliage crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "obstacle_wreckage_01", "Source Wreckage 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Small, 3, 2, "dark_metal", cliffs, TopUv(.03f, .41f, .12f, .11f), "Wreckage crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "obstacle_debris_01", "Source Debris 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Small, 2, 2, "metal", cliffs, TopUv(.38f, .42f, .10f, .10f), "Debris crop from Batch01 cliffs/resources/props sheet.");
+            Add(specs, "obstacle_rock_cluster_01", "Rock Blocker 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Small, 2, 2, "rock", sheetC, PixelUv(40, 330, 290, 190), "Rock Blocker 01 crop from Batch01 Sheet C.");
+            Add(specs, "obstacle_rock_cluster_02", "Rock Blocker 02", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Small, 2, 2, "rock", sheetC, PixelUv(420, 325, 260, 195), "Rock Blocker 02 crop from Batch01 Sheet C.");
+            Add(specs, "obstacle_ridge_piece_01", "Ridge Piece Long 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Edge, 4, 1, "rock", sheetC, PixelUv(720, 335, 455, 190), "Ridge Piece Long 01 crop from Batch01 Sheet C.");
+            Add(specs, "obstacle_cliff_blocker_chunk_01", "Broken Cliff Corner 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Medium, 3, 2, "rock", sheetC, PixelUv(65, 650, 260, 185), "Broken Cliff Corner 01 crop from Batch01 Sheet C.");
+            Add(specs, "obstacle_tree_bush_cluster_01", "Tree Cluster 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Small, 2, 2, "foliage", sheetD, PixelUv(80, 650, 250, 190), "Tree Cluster 01 crop from Batch01 Sheet D.");
+            Add(specs, "obstacle_wreckage_01", "Wreckage Small 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Small, 3, 2, "dark_metal", sheetD, PixelUv(70, 85, 230, 150), "Wreckage Small 01 crop from Batch01 Sheet D.");
+            Add(specs, "obstacle_debris_01", "Debris Burn Patch 01", TerrainPieceCategory.Obstacle, TerrainPieceSizeClass.Small, 2, 2, "metal", sheetC, PixelUv(1035, 645, 225, 190), "Debris Burn Patch 01 crop from Batch01 Sheet C.");
 
-            Add(specs, "prop_sandbag_01", "Source Sandbag 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 2, 1, "sandbag", cliffs, TopUv(.04f, .52f, .13f, .08f), "Sandbag crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "prop_sandbag_02", "Source Sandbag 02", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 2, 1, "sandbag", cliffs, TopUv(.17f, .52f, .13f, .08f), "Curved sandbag crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "prop_barrier_01", "Source Barrier 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 3, 1, "metal", cliffs, TopUv(.47f, .52f, .10f, .08f), "Barrier crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "prop_tank_trap_01", "Source Tank Trap 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 2, 2, "dark_metal", cliffs, TopUv(.04f, .62f, .10f, .08f), "Tank-trap crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "prop_tire_tracks_01", "Source Tire Tracks 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Strip, 4, 1, "tire", cliffs, TopUv(.40f, .31f, .10f, .10f), "Track/scar crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "prop_tire_tracks_02", "Source Tire Tracks 02", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Strip, 4, 1, "tire", fullKit, TopUv(.50f, .37f, .10f, .10f), "Alternate track/scar crop from Batch01 full-kit source sheet.");
-            Add(specs, "prop_shell_mark_01", "Source Shell Mark 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Tiny, 2, 2, "scorch", cliffs, TopUv(.31f, .31f, .10f, .10f), "Shell mark crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "prop_crates_01", "Source Crates 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 2, 2, "metal", cliffs, TopUv(.73f, .62f, .08f, .08f), "Crate crop from Batch01 cliffs/resources/props sheet.");
-            Add(specs, "prop_antenna_beacon_01", "Source Antenna Beacon 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Tiny, 2, 2, "beacon", roads, TopUv(.83f, .66f, .08f, .08f), "Small beacon/sign crop from Batch01 road/base source sheet.");
-            Add(specs, "prop_destroyed_vehicle_proxy_01", "Source Destroyed Vehicle 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 3, 2, "dark_metal", cliffs, TopUv(.18f, .41f, .12f, .11f), "Destroyed vehicle crop from Batch01 cliffs/resources/props sheet.");
+            Add(specs, "prop_sandbag_01", "Sandbags Straight 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 2, 1, "sandbag", sheetB, PixelUv(25, 750, 315, 85), "Sandbags Straight 01 crop from Batch01 Sheet B.");
+            Add(specs, "prop_sandbag_02", "Sandbags Straight 01 Alternate", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 2, 1, "sandbag", sheetB, PixelUv(25, 750, 315, 85), "Sandbags Straight 01 crop from Batch01 Sheet B.");
+            Add(specs, "prop_barrier_01", "Barrier Concrete 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 3, 1, "metal", sheetB, PixelUv(455, 745, 330, 100), "Barrier Concrete 01 crop from Batch01 Sheet B.");
+            Add(specs, "prop_tank_trap_01", "Anti Tank Obstacle 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 2, 2, "dark_metal", sheetD, PixelUv(735, 90, 170, 145), "Anti Tank Obstacle 01 crop from Batch01 Sheet D.");
+            Add(specs, "prop_tire_tracks_01", "Tire Tracks 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Strip, 4, 1, "tire", sheetD, PixelUv(50, 390, 250, 140), "Tire Tracks 01 crop from Batch01 Sheet D.");
+            Add(specs, "prop_tire_tracks_02", "Debris Small 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Strip, 4, 1, "tire", sheetD, PixelUv(420, 390, 260, 140), "Debris Small 01 crop from Batch01 Sheet D.");
+            Add(specs, "prop_shell_mark_01", "Crater 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Tiny, 2, 2, "scorch", sheetC, PixelUv(430, 650, 230, 180), "Crater 01 crop from Batch01 Sheet C.");
+            Add(specs, "prop_crates_01", "Crate Stack 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 2, 2, "metal", sheetD, PixelUv(705, 670, 245, 175), "Crate Stack 01 crop from Batch01 Sheet D.");
+            Add(specs, "prop_antenna_beacon_01", "Barrel Group 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Tiny, 2, 2, "beacon", sheetD, PixelUv(990, 665, 235, 180), "Barrel Group 01 crop from Batch01 Sheet D.");
+            Add(specs, "prop_destroyed_vehicle_proxy_01", "Wreckage Pile 01", TerrainPieceCategory.Prop, TerrainPieceSizeClass.Small, 3, 2, "dark_metal", sheetD, PixelUv(390, 75, 265, 170), "Wreckage Pile 01 crop from Batch01 Sheet D.");
 
             return specs;
         }
@@ -462,6 +567,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         static Vector4 TopUv(float x, float y, float width, float height)
         {
             return new Vector4(x, 1f - y - height, width, height);
+        }
+
+        static Vector4 PixelUv(float x, float y, float width, float height)
+        {
+            const float sourceWidth = 1280f;
+            const float sourceHeight = 960f;
+            return TopUv(x / sourceWidth, y / sourceHeight, width / sourceWidth, height / sourceHeight);
         }
 
         static List<string> FilterTexturePaths(List<string> sourcePaths)
@@ -555,6 +667,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
                 importer.textureType = TextureImporterType.Default;
                 importer.sRGBTexture = true;
+                importer.isReadable = true;
+                importer.alphaIsTransparency = true;
                 importer.mipmapEnabled = true;
                 importer.wrapMode = TextureWrapMode.Clamp;
                 importer.maxTextureSize = 2048;
@@ -595,6 +709,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             CreateFolderRecursive(GeneratedMaterialFolder);
             CreateFolderRecursive(GeneratedPrefabFolder);
             CreateFolderRecursive(GeneratedMeshFolder);
+            CreateFolderRecursive(GeneratedTextureFolder);
             CreateFolderRecursive("Assets/Rts/ScriptableObjects/Art/TerrainPieces");
         }
 
@@ -661,6 +776,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             public TerrainArtSourceKind SourceKind;
             public Vector4 UvRect;
             public Material GeneratedMaterial;
+            public Texture2D GeneratedTexture;
             public string Notes;
         }
     }

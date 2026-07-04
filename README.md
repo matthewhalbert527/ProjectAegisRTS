@@ -408,7 +408,7 @@ Stage 32 adds terrain set dressing and source-art ingestion:
 .\tools\run-stage32-checks.ps1
 ```
 
-Put external terrain art in `unity\Assets\Rts\Art\Source\Terrain\Batch01`. The ingestion pass creates a `TerrainArtManifest`, source-art materials/meshes/prefabs, and player-facing replacements for matching Stage32 terrain-piece IDs. When Batch01 source art exists, Stage16/Stage32 validation fails if the rendered player-facing set dressing is still using primitive-only generated proxies. The old proxy kit remains available through `.\tools\run-stage32-terrain-kit-generator.ps1` for debug/review and fallback only.
+Put external terrain art in `unity\Assets\Rts\Art\Source\Terrain\Batch01`. The ingestion pass creates a `TerrainArtManifest`, per-piece cropped textures, source-art materials/meshes/prefabs, and player-facing replacements for matching Stage32 terrain-piece IDs. When Batch01 source art exists, Stage16/Stage32 validation fails if the rendered player-facing set dressing is still using primitive-only generated proxies. The old proxy kit remains available through `.\tools\run-stage32-terrain-kit-generator.ps1` for debug/review and fallback only.
 
 Stage 33 adds structured tank source/proxy prefab generation:
 
