@@ -1,0 +1,209 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3633198157703762820
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1880603958936362418}
+  - component: {fileID: 6354576078595723444}
+  - component: {fileID: 6184828435929783924}
+  - component: {fileID: 555705224689681287}
+  m_Layer: 0
+  m_Name: prop_antenna_beacon_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1880603958936362418
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3633198157703762820}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3640502801933065775}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6354576078595723444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3633198157703762820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 660ee68d9c4feb440989d298aaba7d2b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
+  pieceId: prop_antenna_beacon_01
+  displayName: Antenna beacon 01
+  category: 5
+  sizeClass: 0
+  footprintFineWidth: 1
+  footprintFineHeight: 1
+  materialProfileId: beacon
+  passabilityVisualHint: Passable visual dressing only; Rts.Core remains authoritative.
+  buildableVisualHint: Buildability visual cue only; Rts.Core remains authoritative.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 0
+  questBudgetTag: QuestSafeStage32_6Runtime
+  rendererCount: 6
+  primitiveCount: 6
+  notes: Stage32.6 runtime terrain mesh/material assembly. No reference-sheet texture
+    or flat image-card runtime usage.
+--- !u!114 &6184828435929783924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3633198157703762820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c93ec1da5a688241a330dcfa6d2add9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.Stage32_6RuntimeTerrainTag
+  runtimeAssetId: barrel_group_01
+  mappedTerrainPieceId: prop_antenna_beacon_01
+  category: 5
+  referenceOnlyPolicyEnforced: 1
+  usesReferenceTexture: 0
+  flatImageCard: 0
+  hasBeveledMesh: 1
+  hasChildGeometry: 1
+  pivotAtOrigin: 1
+  rendererCount: 6
+  materialCount: 2
+  sourceArtPolicy: Batch01 terrain images are art-direction reference only.
+  notes: Created by Stage32.6 terrain art integration correction from modular geometry
+    and shared materials.
+--- !u!205 &555705224689681287
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3633198157703762820}
+  serializedVersion: 3
+  m_LocalReferencePoint: {x: 0, y: 0.21000001, z: 0}
+  m_Size: 1.1
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.08
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 7564771719124774187}
+    - renderer: {fileID: 145739680188784533}
+    - renderer: {fileID: 2986826192780571989}
+    - renderer: {fileID: 614883253466658245}
+    - renderer: {fileID: 648972175625317538}
+    - renderer: {fileID: 4705348241615375194}
+  m_Enabled: 1
+  m_GlobalIlluminationLOD: 0
+--- !u!1001 &881690556643899579
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1880603958936362418}
+    m_Modifications:
+    - target: {fileID: 4519871168275785364, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519871168275785364, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519871168275785364, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519871168275785364, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519871168275785364, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519871168275785364, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519871168275785364, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519871168275785364, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519871168275785364, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519871168275785364, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6138696088853995380, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+      propertyPath: m_Name
+      value: Stage32_6RuntimeAssembly_barrel_group_01
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+--- !u!23 &145739680188784533 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1025028048401442606, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+  m_PrefabInstance: {fileID: 881690556643899579}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &614883253466658245 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 339148675406368126, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+  m_PrefabInstance: {fileID: 881690556643899579}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &648972175625317538 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 377730771161519129, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+  m_PrefabInstance: {fileID: 881690556643899579}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &2986826192780571989 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2688423007434034670, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+  m_PrefabInstance: {fileID: 881690556643899579}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3640502801933065775 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4519871168275785364, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+  m_PrefabInstance: {fileID: 881690556643899579}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &4705348241615375194 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5580142081355887585, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+  m_PrefabInstance: {fileID: 881690556643899579}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &7564771719124774187 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7261794019893122448, guid: da25fb247bb75114ebf6868aaacaa24c, type: 3}
+  m_PrefabInstance: {fileID: 881690556643899579}
+  m_PrefabAsset: {fileID: 0}

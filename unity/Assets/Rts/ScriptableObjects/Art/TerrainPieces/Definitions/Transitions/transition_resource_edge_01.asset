@@ -18,14 +18,14 @@ MonoBehaviour:
   sizeClass: 5
   footprintFineWidth: 3
   footprintFineHeight: 1
-  prefab: {fileID: 2040614652687167911, guid: 4e680b43cdaa1c84cbe684930d4ab262, type: 3}
+  prefab: {fileID: 2060847018469631823, guid: 1839e7cdaea25aa4a8fe66f8c2c02b3f, type: 3}
   materialProfileId: resource_ground
   passabilityVisualHint: Harvest-field visual edge.
   buildableVisualHint: No-build resource edge hint.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_c_resources_obstacles.jpg.
-    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
-    remains authoritative.
+  notes: Stage32.6 runtime terrain assembly mapped from resource_depleted_01. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
   questBudgetTag: QuestSafeLow

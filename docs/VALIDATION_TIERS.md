@@ -730,6 +730,20 @@ When Batch01 source art exists, Stage32 validation must fail if the player-facin
 
 The medium recursion audit includes Stage32 and fails if `run-stage32-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`. The full recursion audit allows the Stage32 full gate to call the Stage31 final gate, but fails if Stage32 starts recursively replaying older full gates. The overlay terrain-kit script is a direct Stage32 generator/validator dependency, not a medium-tier dependency.
 
+## Stage 32.6 Validation
+
+Stage 32.6 adds:
+
+- `.\tools\run-unity-stage32-6-validation.ps1` for corrected terrain asset generation, reference-only sheet enforcement, runtime prefab validation, review-scene creation, and screenshot capture.
+- `.\tools\run-stage32-6-fast-checks.ps1` for terrain-art iteration after small generator/material/prefab changes.
+- `.\tools\run-stage32-6-medium-checks.ps1` for pre-commit confidence without calling prior medium scripts.
+- `.\tools\run-stage32-6-player-facing-checks.ps1` for player-facing terrain and optional Windows player/log coverage.
+- `.\tools\run-stage32-6-checks.ps1` for full Stage32.6 acceptance.
+
+Stage32.6 validation fails if runtime terrain uses Batch01 reference textures, flat image cards, missing runtime prefabs/materials, missing grid-friendly metadata, or player-facing Stage16 set dressing still points at `Batch01Imported` terrain.
+
+The medium recursion audit includes Stage32.6 and fails if `run-stage32-6-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`.
+
 ## Stage 33 Validation
 
 Stage 33 adds:

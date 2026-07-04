@@ -18,14 +18,14 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 392219579057038677, guid: 2d9e23d75ea55c14f9ca0e6f50f6c5f0, type: 3}
+  prefab: {fileID: 1275969383096081318, guid: 9e0a65e9efd1354439ee7d57ce9d9358, type: 3}
   materialProfileId: metal
   passabilityVisualHint: Supply prop visual.
   buildableVisualHint: Keep outside build lanes.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_d_props_vegetation.jpg.
-    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
-    remains authoritative.
+  notes: Stage32.6 runtime terrain assembly mapped from crate_stack_01. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
   questBudgetTag: QuestSafeLow

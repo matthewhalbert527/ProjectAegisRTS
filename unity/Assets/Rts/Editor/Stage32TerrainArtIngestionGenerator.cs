@@ -93,31 +93,38 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public static Stage32TerrainArtIngestionSummary EnsureBatch01TerrainArt()
         {
             EnsureFolders();
-            SeedBatch01FromStage31ReferenceSheets();
+            Stage32_6TerrainArtIntegrationCorrection.MoveBatch01SourceImagesToReferenceFolder();
+            Stage32_6TerrainArtIntegrationCorrection.DeleteLegacyFlatTerrainCards();
             AssetDatabase.Refresh();
 
-            ConfigureTextureImports();
-            var sourcePaths = FindSupportedSourceAssetPaths();
+            var sourcePaths = FindReferenceOnlyImagePaths();
             var summary = new Stage32TerrainArtIngestionSummary { SourceAssetCount = sourcePaths.Count };
             var manifest = LoadOrCreateManifest();
             manifest.batchId = BatchId;
-            manifest.sourceFolder = SourceFolder;
+            manifest.sourceFolder = Stage32_6TerrainArtIntegrationCorrection.ReferenceFolder;
             manifest.entries = new List<TerrainArtManifestEntry>();
 
-            var definitionById = LoadDefinitionMap();
-            var replacementSpecs = BuildReplacementSpecs(sourcePaths);
-            for (var i = 0; i < replacementSpecs.Count; i++)
+            for (var i = 0; i < sourcePaths.Count; i++)
             {
-                var spec = replacementSpecs[i];
-                TerrainPieceDefinition definition;
-                definitionById.TryGetValue(spec.PieceId, out definition);
-                var entry = CreateReplacementEntry(spec, definition);
-                manifest.entries.Add(entry);
-                if (entry.playerFacingReplacement && entry.generatedPrefab != null)
-                    summary.PlayerFacingReplacementCount++;
+                var sourceAsset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(sourcePaths[i]);
+                manifest.entries.Add(new TerrainArtManifestEntry
+                {
+                    artId = Path.GetFileNameWithoutExtension(sourcePaths[i]),
+                    displayName = ObjectNames.NicifyVariableName(Path.GetFileNameWithoutExtension(sourcePaths[i])),
+                    replacesPieceId = string.Empty,
+                    category = TerrainPieceCategory.Ground,
+                    sourceKind = TerrainArtSourceKind.Texture,
+                    sourceAsset = sourceAsset,
+                    sourceAssetPath = sourcePaths[i],
+                    generatedMaterial = null,
+                    generatedPrefab = null,
+                    uvRect = new Vector4(0f, 0f, 1f, 1f),
+                    coreBatch = true,
+                    playerFacingReplacement = false,
+                    notes = "Reference-only terrain art direction. Stage32.6 forbids direct runtime use as flat cards or cropped sheet textures."
+                });
             }
 
-            AddGenericSourceEntries(sourcePaths, manifest);
             EditorUtility.SetDirty(manifest);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -645,6 +652,31 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return paths;
         }
 
+        static List<string> FindReferenceOnlyImagePaths()
+        {
+            var paths = new List<string>();
+            var absoluteFolder = ToAbsoluteProjectPath(Stage32_6TerrainArtIntegrationCorrection.ReferenceFolder);
+            if (!Directory.Exists(absoluteFolder))
+                return paths;
+
+            var files = Directory.GetFiles(absoluteFolder, "*.*", SearchOption.AllDirectories);
+            for (var i = 0; i < files.Length; i++)
+            {
+                var ext = Path.GetExtension(files[i]);
+                if (!ext.Equals(".png", StringComparison.OrdinalIgnoreCase) &&
+                    !ext.Equals(".jpg", StringComparison.OrdinalIgnoreCase) &&
+                    !ext.Equals(".jpeg", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var assetPath = ToAssetPath(files[i]);
+                if (!string.IsNullOrEmpty(assetPath))
+                    paths.Add(assetPath);
+            }
+
+            paths.Sort(StringComparer.OrdinalIgnoreCase);
+            return paths;
+        }
+
         static bool IsSupportedSource(string path)
         {
             var ext = Path.GetExtension(path);
@@ -706,10 +738,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         static void EnsureFolders()
         {
             CreateFolderRecursive(SourceFolder);
-            CreateFolderRecursive(GeneratedMaterialFolder);
-            CreateFolderRecursive(GeneratedPrefabFolder);
-            CreateFolderRecursive(GeneratedMeshFolder);
-            CreateFolderRecursive(GeneratedTextureFolder);
+            CreateFolderRecursive(Stage32_6TerrainArtIntegrationCorrection.ReferenceFolder);
             CreateFolderRecursive("Assets/Rts/ScriptableObjects/Art/TerrainPieces");
         }
 

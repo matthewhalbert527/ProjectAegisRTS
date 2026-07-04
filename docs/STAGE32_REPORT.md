@@ -1,5 +1,7 @@
 # Stage 32 Report
 
+Stage32.6 correction: the original Batch01 cropped texture/card output is rejected for player-facing runtime use. Batch01 sheets now live as reference-only art direction, and player-facing terrain uses Stage32.6 mesh/material prefab assemblies. See `docs/STAGE32_6_REPORT.md`.
+
 Stage 32 adds a modular terrain-piece and battlefield set-dressing library plus a Batch01 terrain source-art ingestion path. The player-facing Stage16 map uses imported source-art replacements when real Batch01 assets exist; primitive generated proxies remain debug/fallback only.
 
 ## Delivered

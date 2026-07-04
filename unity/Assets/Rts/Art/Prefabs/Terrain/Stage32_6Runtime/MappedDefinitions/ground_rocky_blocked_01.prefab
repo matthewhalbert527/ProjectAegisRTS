@@ -1,0 +1,227 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5428873304326837953
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7556249876669723709}
+  - component: {fileID: 1586744884695689871}
+  - component: {fileID: 5810142125609684559}
+  - component: {fileID: 8018186280449113733}
+  m_Layer: 0
+  m_Name: ground_rocky_blocked_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7556249876669723709
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5428873304326837953}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6821738708349627204}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1586744884695689871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5428873304326837953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 660ee68d9c4feb440989d298aaba7d2b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
+  pieceId: ground_rocky_blocked_01
+  displayName: Rocky blocked ground 01
+  category: 0
+  sizeClass: 2
+  footprintFineWidth: 3
+  footprintFineHeight: 3
+  materialProfileId: rock
+  passabilityVisualHint: Visual blocker cue only; Rts.Core remains authoritative.
+  buildableVisualHint: No-build visual cue only; Rts.Core remains authoritative.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 1
+  questBudgetTag: QuestSafeStage32_6Runtime
+  rendererCount: 9
+  primitiveCount: 9
+  notes: Stage32.6 runtime terrain mesh/material assembly. No reference-sheet texture
+    or flat image-card runtime usage.
+--- !u!114 &5810142125609684559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5428873304326837953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c93ec1da5a688241a330dcfa6d2add9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.Stage32_6RuntimeTerrainTag
+  runtimeAssetId: rock_blocker_01
+  mappedTerrainPieceId: ground_rocky_blocked_01
+  category: 0
+  referenceOnlyPolicyEnforced: 1
+  usesReferenceTexture: 0
+  flatImageCard: 0
+  hasBeveledMesh: 1
+  hasChildGeometry: 1
+  pivotAtOrigin: 1
+  rendererCount: 9
+  materialCount: 2
+  sourceArtPolicy: Batch01 terrain images are art-direction reference only.
+  notes: Created by Stage32.6 terrain art integration correction from modular geometry
+    and shared materials.
+--- !u!205 &8018186280449113733
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5428873304326837953}
+  serializedVersion: 3
+  m_LocalReferencePoint: {x: 0.040163636, y: 0.24546969, z: 0.0146164}
+  m_Size: 1.1852138
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.08
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 308249193518980821}
+    - renderer: {fileID: 8102784092067559980}
+    - renderer: {fileID: 5029474265402433790}
+    - renderer: {fileID: 6296561589217674218}
+    - renderer: {fileID: 3434772432065962397}
+    - renderer: {fileID: 3013615175838823453}
+    - renderer: {fileID: 7117517963980647840}
+    - renderer: {fileID: 2817464740332505930}
+    - renderer: {fileID: 5053689501598180913}
+  m_Enabled: 1
+  m_GlobalIlluminationLOD: 0
+--- !u!1001 &6117676241955466105
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7556249876669723709}
+    m_Modifications:
+    - target: {fileID: 742518994215108669, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 742518994215108669, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 742518994215108669, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 742518994215108669, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 742518994215108669, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 742518994215108669, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 742518994215108669, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 742518994215108669, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 742518994215108669, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 742518994215108669, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1079890258459515582, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+      propertyPath: m_Name
+      value: Stage32_6RuntimeAssembly_rock_blocker_01
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+--- !u!23 &308249193518980821 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5810001011806696876, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+  m_PrefabInstance: {fileID: 6117676241955466105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &2817464740332505930 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8358680229294579763, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+  m_PrefabInstance: {fileID: 6117676241955466105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &3013615175838823453 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 9022074719503081316, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+  m_PrefabInstance: {fileID: 6117676241955466105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &3434772432065962397 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8884644893708946148, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+  m_PrefabInstance: {fileID: 6117676241955466105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &5029474265402433790 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1236820922105449351, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+  m_PrefabInstance: {fileID: 6117676241955466105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &5053689501598180913 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1352229919114612040, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+  m_PrefabInstance: {fileID: 6117676241955466105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &6296561589217674218 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 254377815626639507, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+  m_PrefabInstance: {fileID: 6117676241955466105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &6821738708349627204 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 742518994215108669, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+  m_PrefabInstance: {fileID: 6117676241955466105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &7117517963980647840 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 3900357803274733273, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+  m_PrefabInstance: {fileID: 6117676241955466105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &8102784092067559980 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2635877996954997077, guid: aeb80eba889da2a42872c33c76dd3693, type: 3}
+  m_PrefabInstance: {fileID: 6117676241955466105}
+  m_PrefabAsset: {fileID: 0}

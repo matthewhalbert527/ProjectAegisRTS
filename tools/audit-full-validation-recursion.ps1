@@ -6,13 +6,14 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $failures = @()
 $reports = @()
-$fullDependencyPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1|29|30|31|32)-checks(?:\.ps1)?'
+$fullDependencyPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1|29|30|31|32|32-6)-checks(?:\.ps1)?'
 $stage28DisallowedPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1)-checks(?:\.ps1)?'
 $stage28_1DisallowedPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1)-checks(?:\.ps1)?'
 $stage29DisallowedPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28)-checks(?:\.ps1)?'
 $stage30DisallowedPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1)-checks(?:\.ps1)?'
 $stage31DisallowedPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1|29)-checks(?:\.ps1)?'
 $stage32DisallowedPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1|29|30)-checks(?:\.ps1)?'
+$stage32_6DisallowedPattern = 'run-stage(?:9|10|11|12|13|14|15|16|17|18|18-5|19|19-5|20|21|21-5|22|23|24|25|26|27|27-1|28|28-1|29|30|31|32)-checks(?:\.ps1)?'
 
 $scripts = Get-ChildItem -LiteralPath (Join-Path $repoRoot 'tools') -Filter 'run-stage*-checks.ps1' -File |
     Where-Object {
@@ -69,6 +70,10 @@ foreach ($script in $scripts) {
 
             if ($script.Name -eq 'run-stage32-checks.ps1' -and $dependency -match $stage32DisallowedPattern) {
                 $failures += "$($script.Name):$($lineNumber + 1) must not recursively call legacy full gate $dependency"
+            }
+
+            if ($script.Name -eq 'run-stage32-6-checks.ps1' -and $dependency -match $stage32_6DisallowedPattern) {
+                $failures += "$($script.Name):$($lineNumber + 1) must not recursively call prior full gate $dependency"
             }
         }
     }
@@ -171,6 +176,24 @@ if (-not (Test-Path -LiteralPath $stage32Path)) {
     }
 }
 
+$stage32_6Path = Join-Path $repoRoot 'tools\run-stage32-6-checks.ps1'
+if (-not (Test-Path -LiteralPath $stage32_6Path)) {
+    $failures += "Missing full validation script: $stage32_6Path"
+} else {
+    $stage32_6Content = Get-Content -LiteralPath $stage32_6Path -Raw
+    $requiredStage32_6Coverage = @(
+        'run-unity-stage4-validation.ps1',
+        'run-unity-stage5-validation.ps1',
+        'run-unity-stage32-6-validation.ps1',
+        'run-stage32-6-player-facing-checks.ps1'
+    )
+    foreach ($required in $requiredStage32_6Coverage) {
+        if ($stage32_6Content -notmatch [regex]::Escape($required)) {
+            $failures += "run-stage32-6-checks.ps1 does not include direct flattened Stage 32.6 coverage: $required"
+        }
+    }
+}
+
 if ($reports.Count -gt 0) {
     Write-Host 'Full validation dependency references:'
     $reports | ForEach-Object { Write-Host "  $_" }
@@ -181,5 +204,5 @@ if ($failures.Count -gt 0) {
     exit 1
 }
 
-Write-Host 'Full validation recursion audit passed: Stage 28+ full gates avoid recursive legacy full-chain replay through Stage 32.'
+Write-Host 'Full validation recursion audit passed: Stage 28+ full gates avoid recursive legacy full-chain replay through Stage 32.6.'
 $global:LASTEXITCODE = 0

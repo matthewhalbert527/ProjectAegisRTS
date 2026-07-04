@@ -18,14 +18,14 @@ MonoBehaviour:
   sizeClass: 6
   footprintFineWidth: 3
   footprintFineHeight: 3
-  prefab: {fileID: 4190502538623427205, guid: ad951b649d3acff4bb0c740d589eb860, type: 3}
+  prefab: {fileID: 5339120875102537024, guid: cc557f3c092ce7d4aa3d82e4a9a556a2, type: 3}
   materialProfileId: grass_dirt
   passabilityVisualHint: Passable visual ground.
   buildableVisualHint: Buildable hint; stays below fine grid.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_a_ground_foundations.jpg.
-    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
-    remains authoritative.
+  notes: Stage32.6 runtime terrain assembly mapped from grass_ground_01. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
   questBudgetTag: QuestSafeLow

@@ -1,0 +1,233 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4137612141712042834
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5761031143537265717}
+  - component: {fileID: 2706238310506843903}
+  - component: {fileID: 7110289340152794111}
+  - component: {fileID: 8376413405676597330}
+  m_Layer: 0
+  m_Name: obstacle_ridge_piece_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5761031143537265717
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4137612141712042834}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1538272911714549582}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2706238310506843903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4137612141712042834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 660ee68d9c4feb440989d298aaba7d2b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
+  pieceId: obstacle_ridge_piece_01
+  displayName: Ridge piece 01
+  category: 3
+  sizeClass: 5
+  footprintFineWidth: 4
+  footprintFineHeight: 1
+  materialProfileId: rock
+  passabilityVisualHint: Visual blocker cue only; Rts.Core remains authoritative.
+  buildableVisualHint: No-build visual cue only; Rts.Core remains authoritative.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 1
+  questBudgetTag: QuestSafeStage32_6Runtime
+  rendererCount: 10
+  primitiveCount: 10
+  notes: Stage32.6 runtime terrain mesh/material assembly. No reference-sheet texture
+    or flat image-card runtime usage.
+--- !u!114 &7110289340152794111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4137612141712042834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c93ec1da5a688241a330dcfa6d2add9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.Stage32_6RuntimeTerrainTag
+  runtimeAssetId: ridge_piece_long_01
+  mappedTerrainPieceId: obstacle_ridge_piece_01
+  category: 3
+  referenceOnlyPolicyEnforced: 1
+  usesReferenceTexture: 0
+  flatImageCard: 0
+  hasBeveledMesh: 1
+  hasChildGeometry: 1
+  pivotAtOrigin: 1
+  rendererCount: 10
+  materialCount: 2
+  sourceArtPolicy: Batch01 terrain images are art-direction reference only.
+  notes: Created by Stage32.6 terrain art integration correction from modular geometry
+    and shared materials.
+--- !u!205 &8376413405676597330
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4137612141712042834}
+  serializedVersion: 3
+  m_LocalReferencePoint: {x: 0, y: 0.25908977, z: -0.0037681758}
+  m_Size: 2.2
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.08
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 6183678192289852061}
+    - renderer: {fileID: 377470740394842533}
+    - renderer: {fileID: 2758253844063115941}
+    - renderer: {fileID: 1164069629219180917}
+    - renderer: {fileID: 5279363720811290592}
+    - renderer: {fileID: 8864872952715238405}
+    - renderer: {fileID: 8562997226884258270}
+    - renderer: {fileID: 2199129774275029987}
+    - renderer: {fileID: 95381368432401423}
+    - renderer: {fileID: 403692143246170504}
+  m_Enabled: 1
+  m_GlobalIlluminationLOD: 0
+--- !u!1001 &5932908523171445273
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5761031143537265717}
+    m_Modifications:
+    - target: {fileID: 5119721748746241367, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119721748746241367, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119721748746241367, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119721748746241367, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119721748746241367, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119721748746241367, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119721748746241367, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119721748746241367, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119721748746241367, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5119721748746241367, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6754540761680649260, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+      propertyPath: m_Name
+      value: Stage32_6RuntimeAssembly_ridge_piece_long_01
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+--- !u!23 &95381368432401423 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5982803438069605910, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+  m_PrefabInstance: {fileID: 5932908523171445273}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &377470740394842533 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6298538604055749564, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+  m_PrefabInstance: {fileID: 5932908523171445273}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &403692143246170504 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6327521208615609233, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+  m_PrefabInstance: {fileID: 5932908523171445273}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &1164069629219180917 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4788021257527061356, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+  m_PrefabInstance: {fileID: 5932908523171445273}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1538272911714549582 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5119721748746241367, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+  m_PrefabInstance: {fileID: 5932908523171445273}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &2199129774275029987 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5535218881236341242, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+  m_PrefabInstance: {fileID: 5932908523171445273}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &2758253844063115941 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8363929564312346812, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+  m_PrefabInstance: {fileID: 5932908523171445273}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &5279363720811290592 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1950618887130179065, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+  m_PrefabInstance: {fileID: 5932908523171445273}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &6183678192289852061 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 541903460879126660, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+  m_PrefabInstance: {fileID: 5932908523171445273}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &8562997226884258270 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2630115676124226503, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+  m_PrefabInstance: {fileID: 5932908523171445273}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &8864872952715238405 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2977924049944585756, guid: 2507031b0ace7ad459cb2e6ebda37760, type: 3}
+  m_PrefabInstance: {fileID: 5932908523171445273}
+  m_PrefabAsset: {fileID: 0}

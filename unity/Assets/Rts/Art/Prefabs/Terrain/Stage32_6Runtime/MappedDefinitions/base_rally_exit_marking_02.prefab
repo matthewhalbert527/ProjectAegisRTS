@@ -1,0 +1,215 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5227421965473581956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3826383277716564285}
+  - component: {fileID: 9084186889899367221}
+  - component: {fileID: 4653217123704346367}
+  - component: {fileID: 852523112924469501}
+  m_Layer: 0
+  m_Name: base_rally_exit_marking_02
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3826383277716564285
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5227421965473581956}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4486825180928104386}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9084186889899367221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5227421965473581956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 660ee68d9c4feb440989d298aaba7d2b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
+  pieceId: base_rally_exit_marking_02
+  displayName: Rally exit marking 02
+  category: 2
+  sizeClass: 1
+  footprintFineWidth: 3
+  footprintFineHeight: 1
+  materialProfileId: caution
+  passabilityVisualHint: Passable visual dressing only; Rts.Core remains authoritative.
+  buildableVisualHint: Buildability visual cue only; Rts.Core remains authoritative.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 0
+  questBudgetTag: QuestSafeStage32_6Runtime
+  rendererCount: 7
+  primitiveCount: 7
+  notes: Stage32.6 runtime terrain mesh/material assembly. No reference-sheet texture
+    or flat image-card runtime usage.
+--- !u!114 &4653217123704346367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5227421965473581956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c93ec1da5a688241a330dcfa6d2add9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.Stage32_6RuntimeTerrainTag
+  runtimeAssetId: road_t_junction_01
+  mappedTerrainPieceId: base_rally_exit_marking_02
+  category: 2
+  referenceOnlyPolicyEnforced: 1
+  usesReferenceTexture: 0
+  flatImageCard: 0
+  hasBeveledMesh: 1
+  hasChildGeometry: 1
+  pivotAtOrigin: 1
+  rendererCount: 7
+  materialCount: 3
+  sourceArtPolicy: Batch01 terrain images are art-direction reference only.
+  notes: Created by Stage32.6 terrain art integration correction from modular geometry
+    and shared materials.
+--- !u!205 &852523112924469501
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5227421965473581956}
+  serializedVersion: 3
+  m_LocalReferencePoint: {x: 0, y: 0.11, z: 0}
+  m_Size: 2.2
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.08
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 2188011156087436861}
+    - renderer: {fileID: 2325629392145502523}
+    - renderer: {fileID: 2203754393067039051}
+    - renderer: {fileID: 3082342356876211014}
+    - renderer: {fileID: 5288942677086588046}
+    - renderer: {fileID: 2054907033187079839}
+    - renderer: {fileID: 6716496034881522314}
+  m_Enabled: 1
+  m_GlobalIlluminationLOD: 0
+--- !u!1001 &1310957432113430489
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3826383277716564285}
+    m_Modifications:
+    - target: {fileID: 3027611283475976801, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+      propertyPath: m_Name
+      value: Stage32_6RuntimeAssembly_road_t_junction_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 3203488066378934299, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3203488066378934299, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3203488066378934299, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3203488066378934299, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3203488066378934299, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3203488066378934299, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3203488066378934299, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3203488066378934299, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3203488066378934299, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3203488066378934299, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+--- !u!23 &2054907033187079839 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1059766316490434886, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+  m_PrefabInstance: {fileID: 1310957432113430489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &2188011156087436861 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 895112808959150564, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+  m_PrefabInstance: {fileID: 1310957432113430489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &2203754393067039051 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 910916965729621650, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+  m_PrefabInstance: {fileID: 1310957432113430489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &2325629392145502523 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 3636444815459954402, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+  m_PrefabInstance: {fileID: 1310957432113430489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &3082342356876211014 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4104990225165995167, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+  m_PrefabInstance: {fileID: 1310957432113430489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &4486825180928104386 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3203488066378934299, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+  m_PrefabInstance: {fileID: 1310957432113430489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &5288942677086588046 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6581849783288279895, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+  m_PrefabInstance: {fileID: 1310957432113430489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &6716496034881522314 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5693884016146101587, guid: 3ff44c6fe05b4314f81f80f8b0f46edf, type: 3}
+  m_PrefabInstance: {fileID: 1310957432113430489}
+  m_PrefabAsset: {fileID: 0}

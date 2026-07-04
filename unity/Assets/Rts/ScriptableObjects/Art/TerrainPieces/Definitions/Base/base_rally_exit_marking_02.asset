@@ -18,14 +18,14 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 3
   footprintFineHeight: 1
-  prefab: {fileID: 2603759942322345024, guid: 3c4dd4692820ccc43814279e280a244b, type: 3}
+  prefab: {fileID: 5227421965473581956, guid: b2901a364ff801e45ba9ba0ca5d637ad, type: 3}
   materialProfileId: caution
   passabilityVisualHint: Passable rally marking.
   buildableVisualHint: Exit lane indicator.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_b_roads_edges.jpg.
-    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
-    remains authoritative.
+  notes: Stage32.6 runtime terrain assembly mapped from road_t_junction_01. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
   questBudgetTag: QuestSafeLow

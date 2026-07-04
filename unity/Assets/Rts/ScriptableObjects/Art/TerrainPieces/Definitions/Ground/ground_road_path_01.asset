@@ -18,14 +18,14 @@ MonoBehaviour:
   sizeClass: 4
   footprintFineWidth: 5
   footprintFineHeight: 2
-  prefab: {fileID: 1023087206543229339, guid: 470d5404bacd90240881b5ee584f538c, type: 3}
+  prefab: {fileID: 9026243591582328896, guid: 014b92fb7cd43f54690b32b0aac66d9e, type: 3}
   materialProfileId: road
   passabilityVisualHint: Passable path visual.
   buildableVisualHint: Not a gameplay road authority.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_b_roads_edges.jpg.
-    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
-    remains authoritative.
+  notes: Stage32.6 runtime terrain assembly mapped from road_to_dirt_edge_01. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
   questBudgetTag: QuestSafeLow

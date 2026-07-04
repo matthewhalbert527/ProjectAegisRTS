@@ -18,14 +18,13 @@ MonoBehaviour:
   sizeClass: 6
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 647391904401578772, guid: b4466dca4f37b1548969e67a2442ee20, type: 3}
+  prefab: {fileID: 1332586066939857769, guid: 91a5ea914c7e60a4da5c233d77909822, type: 3}
   materialProfileId: tire
   passabilityVisualHint: Shell mark visual.
   buildableVisualHint: Passable visual-only scar.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_c_resources_obstacles.jpg.
-    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
-    remains authoritative.
+  notes: Stage32.6 runtime terrain assembly mapped from crater_01. Reference sheets
+    are art direction only; this prefab is visual-only and never gameplay authority.
   questBudgetTag: QuestSafeLow

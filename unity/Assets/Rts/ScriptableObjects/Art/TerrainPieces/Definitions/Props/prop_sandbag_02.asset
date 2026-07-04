@@ -18,14 +18,14 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 2
   footprintFineHeight: 1
-  prefab: {fileID: 8905699268984526980, guid: 0265bd40ced41214dba5e4a9617f99e1, type: 3}
+  prefab: {fileID: 6568562811487709126, guid: ee1d5794b02b0a34aa7e07942419ae28, type: 3}
   materialProfileId: sandbag
   passabilityVisualHint: Cover prop visual only.
   buildableVisualHint: No-build prop hint.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_b_roads_edges.jpg.
-    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
-    remains authoritative.
+  notes: Stage32.6 runtime terrain assembly mapped from base_curb_corner. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
   questBudgetTag: QuestSafeLow

@@ -18,14 +18,14 @@ MonoBehaviour:
   sizeClass: 6
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 5485570903664716883, guid: c94e725d9e1cf524486a1b029ea93c70, type: 3}
+  prefab: {fileID: 5540349793273472719, guid: fd70905fcc78dab4581797d4081dd657, type: 3}
   materialProfileId: scorch
   passabilityVisualHint: Passable visual ground.
   buildableVisualHint: Visual-only combat scar.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_a_ground_foundations.jpg.
-    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
-    remains authoritative.
+  notes: Stage32.6 runtime terrain assembly mapped from scorched_ground_01. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
   questBudgetTag: QuestSafeLow

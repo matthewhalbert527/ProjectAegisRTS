@@ -1,5 +1,7 @@
 # Stage 32 Terrain Asset Replacement
 
+Stage32.6 correction: the original Batch01 cropped texture/card output is no longer an accepted player-facing replacement path. Batch01 art sheets are reference-only, `Batch01Imported` runtime folders are removed, and Stage16/Stage32 player-facing set dressing maps to Stage32.6 mesh/material prefab assemblies.
+
 Stage 32 now includes two terrain replacement paths in addition to the existing terrain-piece/set-dressing catalog.
 
 - `Batch01` source-art ingestion imports externally supplied texture/model/prefab terrain assets and replaces player-facing Stage16/Stage32 set dressing when real source assets exist.

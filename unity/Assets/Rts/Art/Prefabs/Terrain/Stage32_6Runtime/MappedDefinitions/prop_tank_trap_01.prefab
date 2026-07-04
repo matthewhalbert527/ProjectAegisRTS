@@ -1,0 +1,197 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4437664725914376141
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 742356970580018916}
+  - component: {fileID: 6122414053892021320}
+  - component: {fileID: 267463938367282620}
+  - component: {fileID: 105906080400357631}
+  m_Layer: 0
+  m_Name: prop_tank_trap_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &742356970580018916
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4437664725914376141}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8924685362677953322}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6122414053892021320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4437664725914376141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 660ee68d9c4feb440989d298aaba7d2b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
+  pieceId: prop_tank_trap_01
+  displayName: Tank trap 01
+  category: 5
+  sizeClass: 1
+  footprintFineWidth: 1
+  footprintFineHeight: 1
+  materialProfileId: dark_metal
+  passabilityVisualHint: Visual blocker cue only; Rts.Core remains authoritative.
+  buildableVisualHint: No-build visual cue only; Rts.Core remains authoritative.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 1
+  questBudgetTag: QuestSafeStage32_6Runtime
+  rendererCount: 4
+  primitiveCount: 4
+  notes: Stage32.6 runtime terrain mesh/material assembly. No reference-sheet texture
+    or flat image-card runtime usage.
+--- !u!114 &267463938367282620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4437664725914376141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c93ec1da5a688241a330dcfa6d2add9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.Stage32_6RuntimeTerrainTag
+  runtimeAssetId: anti_tank_obstacle_01
+  mappedTerrainPieceId: prop_tank_trap_01
+  category: 5
+  referenceOnlyPolicyEnforced: 1
+  usesReferenceTexture: 0
+  flatImageCard: 0
+  hasBeveledMesh: 1
+  hasChildGeometry: 1
+  pivotAtOrigin: 1
+  rendererCount: 4
+  materialCount: 2
+  sourceArtPolicy: Batch01 terrain images are art-direction reference only.
+  notes: Created by Stage32.6 terrain art integration correction from modular geometry
+    and shared materials.
+--- !u!205 &105906080400357631
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4437664725914376141}
+  serializedVersion: 3
+  m_LocalReferencePoint: {x: 0, y: 0.14986779, z: 0}
+  m_Size: 1.1
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.08
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 2969399233202548235}
+    - renderer: {fileID: 779878115903206784}
+    - renderer: {fileID: 6046772193895234750}
+    - renderer: {fileID: 9072476176267449795}
+  m_Enabled: 1
+  m_GlobalIlluminationLOD: 0
+--- !u!1001 &4736513431680748054
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 742356970580018916}
+    m_Modifications:
+    - target: {fileID: 4206823656254257468, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4206823656254257468, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4206823656254257468, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4206823656254257468, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4206823656254257468, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4206823656254257468, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4206823656254257468, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4206823656254257468, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4206823656254257468, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4206823656254257468, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7986939951657257054, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+      propertyPath: m_Name
+      value: Stage32_6RuntimeAssembly_anti_tank_obstacle_01
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+--- !u!23 &779878115903206784 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5434110671345188758, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+  m_PrefabInstance: {fileID: 4736513431680748054}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &2969399233202548235 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7533982317495739421, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+  m_PrefabInstance: {fileID: 4736513431680748054}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &6046772193895234750 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1319847827033503400, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+  m_PrefabInstance: {fileID: 4736513431680748054}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8924685362677953322 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4206823656254257468, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+  m_PrefabInstance: {fileID: 4736513431680748054}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &9072476176267449795 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4349510620583763925, guid: 07975b9fb30c5c440bad770f628a613f, type: 3}
+  m_PrefabInstance: {fileID: 4736513431680748054}
+  m_PrefabAsset: {fileID: 0}

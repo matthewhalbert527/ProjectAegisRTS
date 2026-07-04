@@ -1,5 +1,7 @@
 # Stage 32 Terrain Art Ingestion
 
+Stage32.6 supersedes the original Batch01 texture-card runtime output. Batch01 sheet images are now reference-only and must not generate cropped runtime cards. Use `docs/STAGE32_6_TERRAIN_ART_INTEGRATION_CORRECTION.md` and `tools/run-unity-stage32-6-validation.ps1` for the corrected runtime terrain path.
+
 Stage 32 now has a source-art ingestion path for externally supplied terrain art. The old generated terrain proxies remain available for debug/review scenes and fallback, but the player-facing Stage16/Stage32 set dressing must use imported source-art replacements whenever the Batch01 source assets exist.
 
 ## Source Folder

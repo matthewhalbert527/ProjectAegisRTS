@@ -267,8 +267,11 @@ function Repair-UnityGeneratedValidationWhitespace {
         'unity\Assets\Rts\Scenes\Stage32_TerrainSetDressingReview.unity.meta',
         'unity\Assets\Rts\Scenes\Stage32_TerrainAssetReplacementReview.unity',
         'unity\Assets\Rts\Scenes\Stage32_TerrainAssetReplacementReview.unity.meta',
+        'unity\Assets\Rts\Scenes\Stage32_6_TerrainArtIntegrationReview.unity',
+        'unity\Assets\Rts\Scenes\Stage32_6_TerrainArtIntegrationReview.unity.meta',
         'unity\Assets\Rts\Scripts\Boot.meta',
         'unity\Assets\Rts\Scripts\Rendering\Terrain.meta',
+        'unity\Assets\Rts\Scripts\Rendering\TerrainPieces.meta',
         'unity\Assets\Rts\Art\Models\Imported\MVP.meta',
         'unity\Assets\Rts\Art\Models\Source\MVP.meta',
         'unity\Assets\Rts\Art\Prefabs\Actors\Production\MVP.meta',
@@ -283,9 +286,12 @@ function Repair-UnityGeneratedValidationWhitespace {
     }
 
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\Materials') -Include @('*.mat', '*.meta')
+    Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\Meshes\Terrain') -Include @('*.asset', '*.meta')
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\Prefabs\Actors\ProductionProxies') -Include @('*.prefab', '*.meta')
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\Prefabs\Terrain') -Include @('*.prefab', '*.meta')
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\Prefabs\TerrainPieces') -Include @('*.prefab', '*.meta')
+    Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\References\Terrain') -Include @('*.meta')
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\ScriptableObjects\Art') -Include @('*.asset', '*.meta')
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Scripts\Rendering\Terrain') -Include @('*.cs', '*.meta')
+    Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Scripts\Rendering\TerrainPieces') -Include @('*.cs', '*.meta')
 }

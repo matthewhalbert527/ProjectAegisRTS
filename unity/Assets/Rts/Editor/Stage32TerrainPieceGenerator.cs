@@ -59,9 +59,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 definitions.Add(definition);
             }
 
-            var artSummary = Stage32TerrainArtIngestionGenerator.EnsureBatch01TerrainArt();
+            Stage32_6TerrainArtIntegrationCorrection.ApplyRuntimePrefabsToStage32Definitions(definitions);
             var pieceLibrary = CreateTerrainPieceLibrary(definitions);
-            var profile = CreateSetDressingProfile(artSummary.PlayerFacingReplacementCount >= Stage32TerrainArtIngestionGenerator.MinimumPlayerFacingSourceReplacements);
+            var profile = CreateSetDressingProfile(false);
             CreateSetDressingLibrary(profile);
 
             AssetDatabase.SaveAssets();
@@ -533,10 +533,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             profile.maxRenderedPieces = 44;
             profile.preserveFineGridReadability = true;
             profile.visualOnlyNeverGameplayAuthority = true;
-            profile.notes = useSourceArt
-                ? "Player-facing terrain dressing uses imported Batch01 source-art replacements. Generated primitive proxies remain debug/fallback only and are not used by this profile while source art is available."
-                : "Fallback player-facing terrain dressing around base pads, exits, resource fields, and map edges. Uses generated proxies only when imported Batch01 source art is unavailable.";
-            profile.placements = useSourceArt ? BuildImportedSourceArtPlacements() : BuildPlayerFacingPlacements();
+            profile.notes = "Player-facing terrain dressing uses real Unity prefab assemblies. Reference sheets are art direction only and must not be used as runtime terrain cards.";
+            profile.placements = BuildPlayerFacingPlacements();
             EditorUtility.SetDirty(profile);
             return profile;
         }

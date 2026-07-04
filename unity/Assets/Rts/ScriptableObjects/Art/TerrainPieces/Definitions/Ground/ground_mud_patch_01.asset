@@ -18,14 +18,14 @@ MonoBehaviour:
   sizeClass: 6
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 3512908304219083687, guid: d12f8724db1fad0499807df8334cf02e, type: 3}
+  prefab: {fileID: 4385922557359002072, guid: 439bc6a2883c3564eb309a7f37ac6175, type: 3}
   materialProfileId: mud
   passabilityVisualHint: Passable visual ground.
   buildableVisualHint: Avoid as primary build cue.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_a_ground_foundations.jpg.
-    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
-    remains authoritative.
+  notes: Stage32.6 runtime terrain assembly mapped from mud_ground_01. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
   questBudgetTag: QuestSafeLow

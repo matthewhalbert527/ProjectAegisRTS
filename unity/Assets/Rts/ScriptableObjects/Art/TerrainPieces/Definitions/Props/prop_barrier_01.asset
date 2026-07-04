@@ -18,14 +18,14 @@ MonoBehaviour:
   sizeClass: 5
   footprintFineWidth: 3
   footprintFineHeight: 1
-  prefab: {fileID: 2317724520840494627, guid: e94f3f279ff995949b7f9abc0e2c602e, type: 3}
+  prefab: {fileID: 1759022310088768847, guid: 412dfafe98629ff4092742e6fbb249e3, type: 3}
   materialProfileId: metal
   passabilityVisualHint: Barrier visual only.
   buildableVisualHint: No-build edge prop.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_b_roads_edges.jpg.
-    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
-    remains authoritative.
+  notes: Stage32.6 runtime terrain assembly mapped from fence_barrier_01. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
   questBudgetTag: QuestSafeLow

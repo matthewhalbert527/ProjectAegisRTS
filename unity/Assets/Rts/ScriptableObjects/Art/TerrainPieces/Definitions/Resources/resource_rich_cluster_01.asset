@@ -18,14 +18,14 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 2001274224233966631, guid: 94736f9f943e8cd4cab946fa301cd925, type: 3}
+  prefab: {fileID: 4361737122496966897, guid: 9ec3107c00a8b374796d7a547c0c880d, type: 3}
   materialProfileId: rich_mineral
   passabilityVisualHint: Rich harvest visual marker.
   buildableVisualHint: No-build resource hint.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/batch01_sheet_c_resources_obstacles.jpg.
-    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
-    remains authoritative.
+  notes: Stage32.6 runtime terrain assembly mapped from resource_cluster_blue_01.
+    Reference sheets are art direction only; this prefab is visual-only and never
+    gameplay authority.
   questBudgetTag: QuestSafeLow
