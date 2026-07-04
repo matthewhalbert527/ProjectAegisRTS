@@ -736,14 +736,15 @@ The medium recursion audit includes Stage32 and fails if `run-stage32-medium-che
 Stage 32.6 adds:
 
 - `.\tools\run-unity-stage32-6-validation.ps1` for corrected terrain asset generation, reference-only sheet enforcement, runtime prefab validation, review-scene creation, and screenshot capture.
+- `.\tools\run-unity-stage32-6-final-terrain-mesh-validation.ps1` for importing and validating the FinalMeshBatch01 OBJ/MTL/texture terrain pieces.
 - `.\tools\run-stage32-6-fast-checks.ps1` for terrain-art iteration after small generator/material/prefab changes.
 - `.\tools\run-stage32-6-medium-checks.ps1` for pre-commit confidence without calling prior medium scripts.
 - `.\tools\run-stage32-6-player-facing-checks.ps1` for player-facing terrain and optional Windows player/log coverage.
 - `.\tools\run-stage32-6-checks.ps1` for full Stage32.6 acceptance.
 
-Stage32.6 validation fails if runtime terrain uses Batch01 reference textures, flat image cards, missing runtime prefabs/materials, missing grid-friendly metadata, or player-facing Stage16 set dressing still points at `Batch01Imported` terrain.
+Stage32.6 validation fails if runtime terrain uses Batch01 reference textures, flat image cards, missing runtime prefabs/materials, missing grid-friendly metadata, or player-facing Stage16 set dressing still points at `Batch01Imported` terrain. The FinalMeshBatch01 validation fails if either OBJ/MTL source mesh is missing, texture maps are missing, Unity materials/prefabs are not generated, metadata diverges from the manifest, or the focused final-mesh review scene is missing.
 
-The medium recursion audit includes Stage32.6 and fails if `run-stage32-6-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`.
+The Stage32.6 fast and medium tiers call the final-mesh validator directly after the existing Stage32.6 correction validation. The medium recursion audit includes Stage32.6 and fails if `run-stage32-6-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`.
 
 ## Stage 33 Validation
 

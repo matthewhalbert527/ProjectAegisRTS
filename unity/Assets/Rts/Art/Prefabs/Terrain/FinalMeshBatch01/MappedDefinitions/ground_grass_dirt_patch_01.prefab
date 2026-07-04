@@ -1,0 +1,226 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2032785422220369070
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1640151058772608462}
+  - component: {fileID: 514867934393351438}
+  - component: {fileID: 1073940460878721551}
+  - component: {fileID: 7961888988570134101}
+  - component: {fileID: 6753924172917885938}
+  m_Layer: 0
+  m_Name: ground_grass_dirt_patch_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1640151058772608462
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2032785422220369070}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4358841531384105709}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &514867934393351438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2032785422220369070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 660ee68d9c4feb440989d298aaba7d2b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
+  pieceId: ground_grass_dirt_patch_01
+  displayName: Grass dirt patch 01
+  category: 0
+  sizeClass: 6
+  footprintFineWidth: 3
+  footprintFineHeight: 3
+  materialProfileId: finalmesh_ground_grass_dirt_01
+  passabilityVisualHint: Final mesh visual metadata passable=True; Rts.Core remains
+    authoritative.
+  buildableVisualHint: Final mesh visual metadata buildable=True; Rts.Core remains
+    authoritative.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 0
+  questBudgetTag: QuestSafeFinalMeshBatch01
+  rendererCount: 1
+  primitiveCount: 1
+  notes: Stage32.6 FinalMeshBatch01 imported OBJ mesh, not a preview PNG/card.
+--- !u!114 &1073940460878721551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2032785422220369070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab5bfe01d1928654484206239c2fb49c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.Stage32_6FinalTerrainMeshTag
+  assetId: ground_grass_dirt_01
+  sourceMeshPath: Assets/Rts/Art/Source/Terrain/FinalMeshBatch01/ground_grass_dirt_01/ground_grass_dirt_01.obj
+  manifestPath: Assets/Rts/Art/Source/Terrain/FinalMeshBatch01/terrain_final_mesh_batch01_manifest.json
+  category: 0
+  worldSizeMeters: {x: 4, y: 4}
+  fineGridSize: {x: 8, y: 8}
+  passable: 1
+  buildable: 1
+  harvestable: 0
+  playerFacingReplacement: 1
+  previewPngUsedAsRuntimeCard: 0
+  rendererCount: 1
+  materialCount: 4
+  notes: Mapped Stage32 player-facing wrapper for final terrain mesh asset.
+--- !u!114 &7961888988570134101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2032785422220369070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92355fdb168355b4387dfd463027c659, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.Terrain.Stage32TerrainPieceTag
+  terrainId: ground_grass_dirt_patch_01
+  displayName: Grass dirt patch 01
+  category: 0
+  fineGridSize: {x: 3, y: 3}
+  blocksMovement: 0
+  buildable: 1
+  road: 0
+  water: 0
+  resourceField: 0
+  decorativeOnly: 0
+  hasBeveledBase: 1
+  hasTopDownReadableShape: 1
+  questSafeProxy: 1
+  estimatedMeshObjectCount: 1
+  estimatedMaterialCount: 4
+  notes: FinalMeshBatch01 metadata mirrors manifest values. Gameplay authority remains
+    in Rts.Core.
+--- !u!205 &6753924172917885938
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2032785422220369070}
+  serializedVersion: 3
+  m_LocalReferencePoint: {x: 0, y: 0.19478, z: 0}
+  m_Size: 4
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.08
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 3314392077291398763}
+  m_Enabled: 1
+  m_GlobalIlluminationLOD: 0
+--- !u!1001 &4320938010442198278
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1640151058772608462}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7635826562936255635, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value:
+      objectReference: {fileID: 2100000, guid: aef452cb5ffc28349aa5a4c771bf9b07, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value:
+      objectReference: {fileID: 2100000, guid: d9afce92d92089148acaa6bc62c52298, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: 'm_Materials.Array.data[2]'
+      value:
+      objectReference: {fileID: 2100000, guid: a047160dc25279641bebd7bfd7a0e60d, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: 'm_Materials.Array.data[3]'
+      value:
+      objectReference: {fileID: 2100000, guid: 35973d20569fa8c4ab00875dac11a8e2, type: 2}
+    - target: {fileID: 919132149155446097, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+      propertyPath: m_Name
+      value: SourceMesh_ground_grass_dirt_01
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+--- !u!23 &3314392077291398763 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7635826562936255635, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+  m_PrefabInstance: {fileID: 4320938010442198278}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &4358841531384105709 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 11e8bad31ef67014fae413a4f0afeb0a, type: 3}
+  m_PrefabInstance: {fileID: 4320938010442198278}
+  m_PrefabAsset: {fileID: 0}

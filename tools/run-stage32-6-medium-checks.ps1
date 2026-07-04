@@ -54,6 +54,12 @@ if ($LASTEXITCODE -ne 0) {
     throw "run-unity-stage32-6-validation.ps1 failed with exit code $LASTEXITCODE."
 }
 
+Write-ValidationSection 'Stage 32.6 final terrain mesh Batch01 validation'
+& (Join-Path $repoRoot 'tools\run-unity-stage32-6-final-terrain-mesh-validation.ps1') -SkipCoreBuild
+if ($LASTEXITCODE -ne 0) {
+    throw "run-unity-stage32-6-final-terrain-mesh-validation.ps1 failed with exit code $LASTEXITCODE."
+}
+
 Write-ValidationSection 'Stage 32.6 player-facing validation'
 & (Join-Path $repoRoot 'tools\run-stage32-6-player-facing-checks.ps1') -SkipCoreBuild -SkipStage32_6Validation -SkipPlayerBuild -SkipPlayerLog
 if ($LASTEXITCODE -ne 0) {

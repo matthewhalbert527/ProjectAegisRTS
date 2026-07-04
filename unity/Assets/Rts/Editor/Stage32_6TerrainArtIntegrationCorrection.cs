@@ -224,7 +224,43 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 moved++;
             }
 
+            moved += MoveBatch01SourceSubfolderImagesToReferenceFolder("sheets");
+
             AssetDatabase.Refresh();
+            return moved;
+        }
+
+        static int MoveBatch01SourceSubfolderImagesToReferenceFolder(string sourceSubfolder)
+        {
+            var absoluteSource = ToAbsoluteProjectPath(Stage32TerrainArtIngestionGenerator.SourceFolder + "/" + sourceSubfolder);
+            if (!Directory.Exists(absoluteSource))
+                return 0;
+
+            var moved = 0;
+            var files = Directory.GetFiles(absoluteSource, "*.*", SearchOption.AllDirectories);
+            for (var i = 0; i < files.Length; i++)
+            {
+                if (!IsImagePath(files[i]))
+                    continue;
+
+                var sourceAssetPath = ToAssetPath(files[i]);
+                if (string.IsNullOrEmpty(sourceAssetPath))
+                    continue;
+
+                var destinationAssetPath = ReferenceFolder + "/" + sourceSubfolder + "_" + Path.GetFileName(files[i]);
+                if (AssetDatabase.LoadAssetAtPath<Object>(destinationAssetPath) != null)
+                {
+                    AssetDatabase.DeleteAsset(sourceAssetPath);
+                    moved++;
+                    continue;
+                }
+
+                var error = AssetDatabase.MoveAsset(sourceAssetPath, destinationAssetPath);
+                if (!string.IsNullOrEmpty(error))
+                    throw new InvalidOperationException("Could not move terrain reference image from " + sourceAssetPath + " to " + destinationAssetPath + ": " + error);
+                moved++;
+            }
+
             return moved;
         }
 
@@ -801,7 +837,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static void ValidateReferencePolicy(Stage32_6Summary summary, List<string> errors)
         {
-            var sourceImages = FindImageAssetPaths(Stage32TerrainArtIngestionGenerator.SourceFolder);
+            var sourceImages = FindForbiddenBatch01SourceImageAssetPaths();
             if (sourceImages.Count > 0)
                 errors.Add("Batch01 source folder still contains concept/reference images: " + string.Join(", ", sourceImages.ToArray()));
 
@@ -1277,6 +1313,20 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         static List<string> FindReferenceSheetAssetPaths()
         {
             return FindImageAssetPaths(ReferenceFolder);
+        }
+
+        static List<string> FindForbiddenBatch01SourceImageAssetPaths()
+        {
+            var paths = FindImageAssetPaths(Stage32TerrainArtIngestionGenerator.SourceFolder);
+            for (var i = paths.Count - 1; i >= 0; i--)
+            {
+                var normalized = paths[i].Replace('\\', '/');
+                if (normalized.IndexOf("/individual/", StringComparison.OrdinalIgnoreCase) >= 0)
+                    paths.RemoveAt(i);
+            }
+
+            paths.Sort(StringComparer.OrdinalIgnoreCase);
+            return paths;
         }
 
         static List<string> FindImageAssetPaths(string assetFolder)

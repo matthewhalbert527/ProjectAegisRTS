@@ -162,7 +162,7 @@ Complete after local validation. Terrain piece library / battlefield set dressin
 
 ## Stage 32.6
 
-Complete after local validation. Terrain art integration correction pass. Rejects the prior Batch01 cropped texture/card output for player-facing runtime use, moves Batch01 sheets to reference-only storage, removes `Batch01Imported` runtime folders, generates Stage32.6 mesh/material terrain prefab assemblies and mapped player-facing wrappers, adds a Stage32.6 terrain review scene and screenshots, and adds fast/medium/player-facing/full validation tiers while preserving Stage 0-32 behavior, PCDesktop sidebar/safe-area layout, QuestXR hand controls, Stage27.1 placement HUD separation, hidden debug defaults, and UnityEngine-free `Rts.Core`.
+Complete after local validation. Terrain art integration correction pass. Rejects the prior Batch01 cropped texture/card output for player-facing runtime use, moves Batch01 sheets to reference-only storage, removes `Batch01Imported` runtime folders, generates Stage32.6 mesh/material terrain prefab assemblies and mapped player-facing wrappers, imports FinalMeshBatch01 OBJ terrain pieces for `ground_grass_dirt_01` and `resource_cluster_blue_01`, adds Stage32.6 terrain correction and final-mesh review scenes, and adds fast/medium/player-facing/full validation tiers while preserving Stage 0-32 behavior, PCDesktop sidebar/safe-area layout, QuestXR hand controls, Stage27.1 placement HUD separation, hidden debug defaults, and UnityEngine-free `Rts.Core`.
 
 ## Stage 33
 
