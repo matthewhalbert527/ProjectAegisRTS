@@ -59,8 +59,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 definitions.Add(definition);
             }
 
+            var artSummary = Stage32TerrainArtIngestionGenerator.EnsureBatch01TerrainArt();
             var pieceLibrary = CreateTerrainPieceLibrary(definitions);
-            var profile = CreateSetDressingProfile();
+            var profile = CreateSetDressingProfile(artSummary.PlayerFacingReplacementCount >= Stage32TerrainArtIngestionGenerator.MinimumPlayerFacingSourceReplacements);
             CreateSetDressingLibrary(profile);
 
             AssetDatabase.SaveAssets();
@@ -191,7 +192,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             AddSeries(specs, TerrainPieceCategory.Ground, "Ground", "ground_concrete_pad", "Concrete pad", 2, TerrainPieceSizeClass.Medium, 4, 3, "concrete", "Passable visual hardstand.", "Buildable hardstand hint.", true, true, false, "Weathered concrete pad.");
             AddSeries(specs, TerrainPieceCategory.Ground, "Ground", "ground_road_path", "Road path", 2, TerrainPieceSizeClass.Strip, 5, 2, "road", "Passable path visual.", "Not a gameplay road authority.", true, true, false, "Road/path strip.");
             AddSeries(specs, TerrainPieceCategory.Ground, "Ground", "ground_resource_field", "Resource ground", 1, TerrainPieceSizeClass.Patch, 4, 4, "resource_ground", "Passable unless core terrain says otherwise.", "No-build visual hint near resources.", true, true, false, "Harvest-field base tint.");
-            AddSeries(specs, TerrainPieceCategory.Ground, "Ground", "ground_water_shore_placeholder", "Water shore placeholder", 1, TerrainPieceSizeClass.Edge, 4, 2, "water", "Blocked only when core terrain says water.", "No-build visual hint.", true, true, true, "Flat water/shore placeholder.");
+            AddSeries(specs, TerrainPieceCategory.Ground, "Ground", "ground_water_shore_placeholder", "Water shore tile", 1, TerrainPieceSizeClass.Edge, 4, 2, "water", "Blocked only when core terrain says water.", "No-build visual hint.", true, true, true, "Reference-sheet shoreline tile with visible bank detail.");
             AddSeries(specs, TerrainPieceCategory.Ground, "Ground", "ground_rocky_blocked", "Rocky blocked ground", 1, TerrainPieceSizeClass.Medium, 3, 3, "rock", "Blocked visual hint only.", "No-build visual hint.", true, true, true, "Rocky blocked terrain marker.");
 
             AddSeries(specs, TerrainPieceCategory.Transition, "Transitions", "transition_grass_dirt_edge", "Grass dirt edge", 3, TerrainPieceSizeClass.Edge, 4, 1, "grass_dirt", "Passable visual blend.", "Buildable edge remains visual-only.", true, true, false, "Grass to dirt blend edge.");
@@ -320,6 +321,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 }
                 if (spec.Id.IndexOf("tree", StringComparison.OrdinalIgnoreCase) >= 0)
                     CreatePrimitive(parent, "Foliage crown", PrimitiveType.Sphere, new Vector3(0.08f, 0.34f, 0.02f), new Vector3(0.42f, 0.30f, 0.42f), MaterialFor(materials, "foliage"));
+                if (spec.Id.IndexOf("rock", StringComparison.OrdinalIgnoreCase) >= 0 || spec.Id.IndexOf("ridge", StringComparison.OrdinalIgnoreCase) >= 0 || spec.Id.IndexOf("cliff", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    CreatePrimitive(parent, "Stage31 moss cap", PrimitiveType.Cube, new Vector3(-width * 0.10f, 0.27f, depth * 0.06f), new Vector3(width * 0.42f, 0.018f, depth * 0.18f), MaterialFor(materials, "foliage"));
+                    CreatePrimitive(parent, "Stage31 broken rock face", PrimitiveType.Cube, new Vector3(width * 0.18f, 0.15f, -depth * 0.12f), new Vector3(width * 0.18f, 0.09f, depth * 0.34f), MaterialFor(materials, "rock"));
+                }
                 return;
             }
 
@@ -333,6 +339,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     var h = 0.18f + 0.04f * ((spec.Variant + i) % 4);
                     CreatePrimitive(parent, "Resource shard " + i, PrimitiveType.Cylinder, new Vector3(offset.x, 0.06f + h * 0.5f, offset.y), new Vector3(0.11f, h, 0.11f), primary);
                 }
+                CreatePrimitive(parent, "Stage31 mineral bed shadow", PrimitiveType.Cube, new Vector3(0f, 0.026f, 0f), new Vector3(width * 0.62f, 0.012f, depth * 0.55f), MaterialFor(materials, "scorch"));
+                CreatePrimitive(parent, "Stage31 mineral sparkle", PrimitiveType.Sphere, new Vector3(width * 0.22f, 0.24f, depth * 0.10f), new Vector3(0.08f, 0.08f, 0.08f), MaterialFor(materials, spec.MaterialProfileId == "rich_mineral" ? "rich_mineral" : "mineral"));
                 return;
             }
 
@@ -358,6 +366,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 {
                     CreatePrimitive(parent, "Track mark A", PrimitiveType.Cube, new Vector3(-0.16f, 0.018f, 0f), new Vector3(width * 0.78f, 0.016f, 0.045f), primary);
                     CreatePrimitive(parent, "Track mark B", PrimitiveType.Cube, new Vector3(0.16f, 0.019f, 0.12f), new Vector3(width * 0.70f, 0.016f, 0.045f), primary);
+                    CreatePrimitive(parent, "Stage31 track cross tread", PrimitiveType.Cube, new Vector3(0f, 0.031f, -depth * 0.16f), new Vector3(width * 0.46f, 0.010f, 0.035f), MaterialFor(materials, "scorch"));
                 }
                 else
                 {
@@ -384,6 +393,61 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 CreatePrimitive(parent, "Caution footprint cue", PrimitiveType.Cube, new Vector3(0f, 0.040f, depth * 0.30f), new Vector3(width * 0.46f, 0.012f, 0.055f), MaterialFor(materials, "caution"));
             if (spec.Id.IndexOf("water", StringComparison.OrdinalIgnoreCase) >= 0)
                 CreatePrimitive(parent, "Shore highlight", PrimitiveType.Cube, new Vector3(0f, 0.036f, -depth * 0.30f), new Vector3(width * 0.82f, 0.012f, 0.045f), MaterialFor(materials, "grass_dirt"));
+            AddStage31TerrainReferenceDetails(parent, spec, width, depth, materials);
+        }
+
+        static void AddStage31TerrainReferenceDetails(Transform parent, Stage32PieceSpec spec, float width, float depth, Dictionary<string, Material> materials)
+        {
+            var id = spec.Id.ToLowerInvariant();
+
+            if (id.IndexOf("road", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                CreatePrimitive(parent, "Stage31 asphalt shoulder left", PrimitiveType.Cube, new Vector3(-width * 0.42f, 0.040f, 0f), new Vector3(width * 0.08f, 0.014f, depth * 0.92f), MaterialFor(materials, "compact_soil"));
+                CreatePrimitive(parent, "Stage31 asphalt shoulder right", PrimitiveType.Cube, new Vector3(width * 0.42f, 0.041f, 0f), new Vector3(width * 0.08f, 0.014f, depth * 0.92f), MaterialFor(materials, "compact_soil"));
+                CreatePrimitive(parent, "Stage31 lane dash", PrimitiveType.Cube, new Vector3(0f, 0.056f, depth * 0.18f), new Vector3(width * 0.035f, 0.010f, depth * 0.24f), MaterialFor(materials, "concrete"));
+                CreatePrimitive(parent, "Stage31 worn lane dash", PrimitiveType.Cube, new Vector3(0f, 0.057f, -depth * 0.24f), new Vector3(width * 0.032f, 0.010f, depth * 0.16f), MaterialFor(materials, "concrete"));
+                return;
+            }
+
+            if (id.IndexOf("foundation", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                id.IndexOf("concrete", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                id.IndexOf("footprint", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                spec.Category == TerrainPieceCategory.BaseConstruction)
+            {
+                CreatePrimitive(parent, "Stage31 pad north trim", PrimitiveType.Cube, new Vector3(0f, 0.056f, depth * 0.46f), new Vector3(width * 0.90f, 0.018f, depth * 0.035f), MaterialFor(materials, "foundation"));
+                CreatePrimitive(parent, "Stage31 pad east trim", PrimitiveType.Cube, new Vector3(width * 0.46f, 0.057f, 0f), new Vector3(width * 0.035f, 0.018f, depth * 0.82f), MaterialFor(materials, "foundation"));
+                CreatePrimitive(parent, "Stage31 worn slab crack", PrimitiveType.Cube, new Vector3(-width * 0.14f, 0.062f, -depth * 0.08f), new Vector3(width * 0.010f, 0.010f, depth * 0.45f), MaterialFor(materials, "scorch"));
+                return;
+            }
+
+            if (id.IndexOf("water", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                CreatePrimitive(parent, "Stage31 shore bank", PrimitiveType.Cube, new Vector3(width * 0.26f, 0.052f, 0f), new Vector3(width * 0.26f, 0.018f, depth * 0.82f), MaterialFor(materials, "mud"));
+                CreatePrimitive(parent, "Stage31 shore stones", PrimitiveType.Sphere, new Vector3(width * 0.08f, 0.085f, depth * 0.20f), new Vector3(0.08f, 0.025f, 0.06f), MaterialFor(materials, "rock"));
+                CreatePrimitive(parent, "Stage31 shore foam", PrimitiveType.Cube, new Vector3(-width * 0.18f, 0.064f, -depth * 0.18f), new Vector3(width * 0.35f, 0.010f, depth * 0.035f), MaterialFor(materials, "concrete"));
+                return;
+            }
+
+            if (id.IndexOf("grass", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                CreatePrimitive(parent, "Stage31 field tuft a", PrimitiveType.Cube, new Vector3(-width * 0.22f, 0.070f, depth * 0.16f), new Vector3(0.035f, 0.095f, 0.035f), MaterialFor(materials, "foliage"));
+                CreatePrimitive(parent, "Stage31 field tuft b", PrimitiveType.Cube, new Vector3(width * 0.20f, 0.071f, -depth * 0.20f), new Vector3(0.030f, 0.080f, 0.030f), MaterialFor(materials, "foliage"));
+                CreatePrimitive(parent, "Stage31 field stones", PrimitiveType.Sphere, new Vector3(width * 0.08f, 0.068f, depth * 0.26f), new Vector3(0.070f, 0.025f, 0.050f), MaterialFor(materials, "rock"));
+                return;
+            }
+
+            if (id.IndexOf("mud", StringComparison.OrdinalIgnoreCase) >= 0 || id.IndexOf("compact", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                CreatePrimitive(parent, "Stage31 vehicle rut left", PrimitiveType.Cube, new Vector3(-width * 0.16f, 0.048f, 0f), new Vector3(width * 0.050f, 0.012f, depth * 0.78f), MaterialFor(materials, "scorch"));
+                CreatePrimitive(parent, "Stage31 vehicle rut right", PrimitiveType.Cube, new Vector3(width * 0.16f, 0.049f, 0f), new Vector3(width * 0.050f, 0.012f, depth * 0.78f), MaterialFor(materials, "scorch"));
+                return;
+            }
+
+            if (id.IndexOf("scorch", StringComparison.OrdinalIgnoreCase) >= 0 || id.IndexOf("rocky", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                CreatePrimitive(parent, "Stage31 broken ground dark center", PrimitiveType.Cylinder, new Vector3(0f, 0.060f, 0f), new Vector3(width * 0.18f, 0.018f, depth * 0.18f), MaterialFor(materials, "scorch"));
+                CreatePrimitive(parent, "Stage31 broken ground raised rim", PrimitiveType.Sphere, new Vector3(width * 0.22f, 0.086f, -depth * 0.16f), new Vector3(width * 0.08f, 0.030f, depth * 0.06f), MaterialFor(materials, "rock"));
+            }
         }
 
         static Vector2 OffsetFor(int index, int count, float width, float depth)
@@ -454,7 +518,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return library;
         }
 
-        static TerrainSetDressingProfile CreateSetDressingProfile()
+        static TerrainSetDressingProfile CreateSetDressingProfile(bool useSourceArt)
         {
             var profile = AssetDatabase.LoadAssetAtPath<TerrainSetDressingProfile>(SetDressingProfilePath);
             if (profile == null)
@@ -469,8 +533,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             profile.maxRenderedPieces = 44;
             profile.preserveFineGridReadability = true;
             profile.visualOnlyNeverGameplayAuthority = true;
-            profile.notes = "Light player-facing terrain dressing around base pads, exits, resource fields, and map edges. Pieces are visual-only and stay below or outside critical gameplay footprints.";
-            profile.placements = BuildPlayerFacingPlacements();
+            profile.notes = useSourceArt
+                ? "Player-facing terrain dressing uses imported Batch01 source-art replacements. Generated primitive proxies remain debug/fallback only and are not used by this profile while source art is available."
+                : "Fallback player-facing terrain dressing around base pads, exits, resource fields, and map edges. Uses generated proxies only when imported Batch01 source art is unavailable.";
+            profile.placements = useSourceArt ? BuildImportedSourceArtPlacements() : BuildPlayerFacingPlacements();
             EditorUtility.SetDirty(profile);
             return profile;
         }
@@ -539,6 +605,64 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             AddPlacement(placements, "ground_grass_dirt_patch_02", 27.6f, 20.5f, 20f, 1.0f, "field variation");
             AddPlacement(placements, "ground_rocky_blocked_01", 30.0f, 19.2f, -15f, 0.95f, "edge blocked visual");
             return placements;
+        }
+
+        static List<TerrainSetDressingPlacement> BuildImportedSourceArtPlacements()
+        {
+            var placements = new List<TerrainSetDressingPlacement>();
+            AddSourcePlacement(placements, "base_foundation_pad_01", 4.2f, 6.8f, 0f, 1.18f, "starting base pad");
+            AddSourcePlacement(placements, "base_foundation_pad_02", 7.4f, 6.7f, 0f, 1.05f, "starting base pad");
+            AddSourcePlacement(placements, "base_foundation_pad_03", 10.7f, 6.9f, 0f, 1.10f, "starting base pad");
+            AddSourcePlacement(placements, "base_production_apron_01", 12.6f, 8.2f, 90f, 1.05f, "production exit apron");
+            AddSourcePlacement(placements, "base_production_apron_02", 14.8f, 8.2f, 90f, 0.95f, "production exit apron");
+            AddSourcePlacement(placements, "base_road_strip_01", 15.4f, 10.4f, 0f, 1.10f, "scouting route guide");
+            AddSourcePlacement(placements, "base_road_strip_02", 18.0f, 11.8f, 0f, 1.00f, "scouting route guide");
+            AddSourcePlacement(placements, "base_rally_exit_marking_01", 13.5f, 9.6f, 90f, 0.90f, "rally lane");
+            AddSourcePlacement(placements, "base_rally_exit_marking_02", 16.4f, 9.6f, 90f, 0.90f, "rally lane");
+            AddSourcePlacement(placements, "ground_compact_soil_patch_01", 5.3f, 10.0f, 15f, 1.10f, "base worn ground");
+            AddSourcePlacement(placements, "ground_compact_soil_patch_02", 8.8f, 10.6f, -10f, 1.00f, "base worn ground");
+            AddSourcePlacement(placements, "ground_scorched_patch_01", 3.1f, 13.6f, 28f, 0.90f, "battle scar edge");
+            AddSourcePlacement(placements, "ground_mud_patch_01", 19.4f, 14.4f, -18f, 0.90f, "route texture");
+            AddSourcePlacement(placements, "transition_concrete_ground_edge_01", 6.0f, 8.8f, 0f, 1.0f, "base edge blend");
+            AddSourcePlacement(placements, "transition_buildable_edge_01", 11.5f, 5.2f, 0f, 0.95f, "build zone edge");
+            AddSourcePlacement(placements, "transition_dirt_road_blend_01", 17.1f, 10.9f, 0f, 1.0f, "road blend");
+            AddSourcePlacement(placements, "resource_cluster_01", 24.5f, 16.5f, 20f, 1.0f, "resource decoration");
+            AddSourcePlacement(placements, "resource_cluster_02", 25.8f, 17.7f, -12f, 0.92f, "resource decoration");
+            AddSourcePlacement(placements, "resource_rich_cluster_01", 27.1f, 16.4f, 45f, 0.88f, "resource decoration");
+            AddSourcePlacement(placements, "resource_decal_01", 24.8f, 18.6f, 0f, 1.20f, "resource ground tint");
+            AddSourcePlacement(placements, "resource_harvest_marker_01", 22.8f, 15.9f, 90f, 0.80f, "harvest route marker");
+            AddSourcePlacement(placements, "transition_resource_edge_01", 23.4f, 15.2f, 25f, 1.0f, "resource edge");
+            AddSourcePlacement(placements, "obstacle_rock_cluster_01", 1.4f, 2.5f, 14f, 1.0f, "map edge obstacle");
+            AddSourcePlacement(placements, "obstacle_rock_cluster_02", 29.2f, 3.6f, -30f, 1.0f, "map edge obstacle");
+            AddSourcePlacement(placements, "obstacle_ridge_piece_01", 29.5f, 10.8f, 90f, 1.1f, "map edge ridge");
+            AddSourcePlacement(placements, "obstacle_cliff_blocker_chunk_01", 2.0f, 19.2f, 32f, 0.95f, "map edge blocker");
+            AddSourcePlacement(placements, "obstacle_tree_bush_cluster_01", 4.4f, 20.6f, -20f, 0.90f, "map edge foliage");
+            AddSourcePlacement(placements, "obstacle_wreckage_01", 21.2f, 4.2f, -36f, 0.82f, "edge battlefield wreck");
+            AddSourcePlacement(placements, "obstacle_debris_01", 22.7f, 5.1f, 15f, 0.80f, "edge battlefield debris");
+            AddSourcePlacement(placements, "prop_sandbag_01", 12.0f, 14.1f, 0f, 0.75f, "base perimeter prop");
+            AddSourcePlacement(placements, "prop_sandbag_02", 13.2f, 14.2f, 0f, 0.75f, "base perimeter prop");
+            AddSourcePlacement(placements, "prop_barrier_01", 18.7f, 7.1f, 90f, 0.86f, "route edge prop");
+            AddSourcePlacement(placements, "prop_tank_trap_01", 30.1f, 14.6f, 20f, 0.88f, "edge prop");
+            AddSourcePlacement(placements, "prop_tire_tracks_01", 17.4f, 12.7f, 15f, 1.15f, "vehicle path texture");
+            AddSourcePlacement(placements, "prop_tire_tracks_02", 19.6f, 13.5f, 15f, 1.0f, "vehicle path texture");
+            AddSourcePlacement(placements, "prop_shell_mark_01", 21.4f, 13.7f, 12f, 0.80f, "battle scar");
+            AddSourcePlacement(placements, "prop_crates_01", 9.6f, 4.3f, 0f, 0.75f, "base logistics prop");
+            AddSourcePlacement(placements, "prop_antenna_beacon_01", 6.5f, 4.0f, 0f, 0.82f, "base beacon prop");
+            AddSourcePlacement(placements, "prop_destroyed_vehicle_proxy_01", 27.4f, 7.2f, -45f, 0.84f, "edge wreck prop");
+            AddSourcePlacement(placements, "transition_rock_edge_01", 28.4f, 5.3f, 35f, 1.0f, "rock edge blend");
+            AddSourcePlacement(placements, "ground_road_path_01", 20.7f, 12.9f, 8f, 1.05f, "route texture");
+            AddSourcePlacement(placements, "ground_grass_dirt_patch_01", 2.4f, 9.4f, -18f, 1.1f, "field variation");
+            AddSourcePlacement(placements, "ground_grass_dirt_patch_02", 27.6f, 20.5f, 20f, 1.0f, "field variation");
+            AddSourcePlacement(placements, "ground_rocky_blocked_01", 30.0f, 19.2f, -15f, 0.95f, "edge blocked visual");
+            return placements;
+        }
+
+        static void AddSourcePlacement(List<TerrainSetDressingPlacement> placements, string pieceId, float x, float z, float rotationY, float scale, string role)
+        {
+            if (!Stage32TerrainArtIngestionGenerator.IsSourceBackedPlayerFacingPiece(pieceId))
+                return;
+
+            AddPlacement(placements, pieceId, x, z, rotationY, scale, role);
         }
 
         static void AddPlacement(List<TerrainSetDressingPlacement> placements, string pieceId, float x, float z, float rotationY, float scale, string role)

@@ -18,9 +18,9 @@ MonoBehaviour:
   maxRenderedPieces: 44
   preserveFineGridReadability: 1
   visualOnlyNeverGameplayAuthority: 1
-  notes: Light player-facing terrain dressing around base pads, exits, resource fields,
-    and map edges. Pieces are visual-only and stay below or outside critical gameplay
-    footprints.
+  notes: Player-facing terrain dressing uses imported Batch01 source-art replacements.
+    Generated primitive proxies remain debug/fallback only and are not used by this
+    profile while source art is available.
   placements:
   - pieceId: base_foundation_pad_01
     localPosition: {x: 4.2, y: 0.018, z: 6.8}

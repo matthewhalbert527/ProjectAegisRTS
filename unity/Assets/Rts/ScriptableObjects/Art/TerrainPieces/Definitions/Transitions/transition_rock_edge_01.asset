@@ -18,12 +18,14 @@ MonoBehaviour:
   sizeClass: 5
   footprintFineWidth: 3
   footprintFineHeight: 1
-  prefab: {fileID: 8074420012389133794, guid: 189d84e63928d984cae5251649afa2b6, type: 3}
+  prefab: {fileID: 8145262127489574975, guid: 63ec443b988bf354e9eac5b05dc4b8fa, type: 3}
   materialProfileId: rock
   passabilityVisualHint: Blocked edge visual hint only.
   buildableVisualHint: No-build visual edge.
   supportsRotation: 1
   supportsTint: 1
   isGameplayBlockingVisualOnly: 1
-  notes: Rock/blocker edge. Visual metadata only; Rts.Core terrain remains authoritative.
+  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_04_cliffs_resources_props.jpg.
+    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
+    remains authoritative.
   questBudgetTag: QuestSafeLow

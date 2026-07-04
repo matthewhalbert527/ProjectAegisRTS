@@ -1,21 +1,24 @@
 # Stage 32 Report
 
-Stage 32 adds a modular terrain-piece and battlefield set-dressing library so the player-facing Stage16 map reads less like a clean prototype grid and more like a believable war table.
+Stage 32 adds a modular terrain-piece and battlefield set-dressing library plus a Batch01 terrain source-art ingestion path. The player-facing Stage16 map uses imported source-art replacements when real Batch01 assets exist; primitive generated proxies remain debug/fallback only.
 
 ## Delivered
 
-- 96 generated Quest-safe terrain pieces.
+- 96 terrain-piece definitions with stable IDs.
 - Six categories: ground/base terrain, transitions, base construction, obstacles, resources, and props.
 - Unity-side `TerrainPieceDefinition` assets and a `TerrainPieceLibrary` catalog.
 - Unity-side `TerrainSetDressingProfile` and `TerrainSetDressingLibrary` assets for deterministic visual placement.
-- Generated primitive prefabs under `unity/Assets/Rts/Art/Prefabs/TerrainPieces`.
+- Batch01 source-art ingestion from `unity/Assets/Rts/Art/Source/Terrain/Batch01`.
+- `TerrainArtManifest` plus generated source-art materials, meshes, and prefabs under `Batch01Imported` folders.
+- Player-facing source-art replacement prefabs carrying `TerrainArtSourceTag` and `TerrainPieceValidationTag`.
+- Generated primitive prefabs under `unity/Assets/Rts/Art/Prefabs/TerrainPieces` retained as fallback/debug assets.
 - Stage32 material profiles under `unity/Assets/Rts/Art/Materials/TerrainPieces`.
 - `Assets/Rts/Scenes/Stage32_TerrainSetDressingReview.unity` for catalog review, swatches, footprint reference, lighting, QA HUD, and screenshots.
-- Stage16 player-facing set dressing through `TerrainSetDressingRuntimeLayer`.
+- Stage16 player-facing set dressing through `TerrainSetDressingRuntimeLayer`; validation fails if Batch01 exists and rendered Stage16 terrain is still proxy-only.
 - Fast, medium, player-facing, Unity, and full validation scripts.
 - Terrain asset replacement overlay generator and validator.
-- 47 generated modular terrain replacement prefabs under `unity/Assets/Rts/Art/Prefabs/Terrain/Stage32Generated`.
-- 15 shared terrain replacement materials under `unity/Assets/Rts/Art/Materials/Terrain/Stage32Generated`.
+- 62 generated modular terrain replacement prefabs under `unity/Assets/Rts/Art/Prefabs/Terrain/Stage32Generated` for debug/fallback review.
+- 20 shared terrain replacement materials under `unity/Assets/Rts/Art/Materials/Terrain/Stage32Generated`.
 - `Assets/Rts/Scenes/Stage32_TerrainAssetReplacementReview.unity` for replacement-kit review.
 - Generated replacement-kit reports: `docs/STAGE32_GENERATED_TERRAIN_KIT_REPORT.md`, `docs/STAGE32_TERRAIN_QA_REPORT.md`, and `docs/STAGE32_TERRAIN_LIBRARY_INDEX.md`.
 
@@ -31,24 +34,18 @@ Stage 32 adds a modular terrain-piece and battlefield set-dressing library so th
 
 ## Terrain Asset Replacement Overlay Counts
 
-- Ground: 6
-- Transitions: 6
-- Base construction: 10
-- Roads: 5
-- Resources: 5
-- Obstacles: 4
-- Battlefield props: 7
-- Vegetation: 2
-- Water: 2
-- Total prefabs: 47
-- Shared materials: 15
+- Total generated debug/fallback prefabs: 62
+- Shared generated-kit materials: 20
+- Batch01 player-facing source-art replacements: 44
+- Player-facing source-art placements: 44
 
 ## Preservation
 
 - `Rts.Core` remains deterministic and UnityEngine-free.
 - Terrain pieces are visual-only metadata and prefabs.
 - Prefabs include no colliders and do not mutate gameplay terrain, passability, placement, resources, AI, fog, or combat.
-- The replacement overlay uses Unity-only `Stage32TerrainPieceTag` metadata and does not change `Rts.Core`.
+- The source-art replacement path uses Unity-only `TerrainArtSourceTag` and `TerrainPieceValidationTag` metadata and does not change `Rts.Core`.
+- The generated replacement overlay uses Unity-only `Stage32TerrainPieceTag` metadata and remains debug/fallback only when Batch01 source art is present.
 - PCDesktop right sidebar, minimap, safe-area camera framing, and Stage27.1 placement HUD separation remain validation requirements.
 - QuestXR Stage4/Stage5 hand controls remain direct medium-validation dependencies.
 - Debug panels remain hidden by default.
@@ -68,7 +65,13 @@ Use fast checks for terrain-piece iteration:
 .\tools\run-stage32-fast-checks.ps1
 ```
 
-Use the targeted terrain asset replacement generator/validator after editing the overlay generator, validator, terrain tag, generated prefabs, generated materials, or review scene:
+Use the direct terrain source-art ingestion runner after adding or editing external terrain assets:
+
+```powershell
+.\tools\run-stage32-terrain-art-ingestion.ps1
+```
+
+Use the targeted terrain asset replacement generator/validator after editing the fallback/debug overlay generator, validator, terrain tag, generated prefabs, generated materials, or review scene:
 
 ```powershell
 .\tools\run-stage32-terrain-kit-generator.ps1
@@ -96,4 +99,4 @@ The full gate is intentionally slow because it includes the Stage31 final gate, 
 
 Verify the boot menu, Stage16 start, right sidebar/minimap, safe-area board framing, readable fine grid, clear resources, visible buildings/units, Power Plant placement, no Stage3 board-placement HUD during building placement, and a clean `Player.log`.
 
-Open `Assets/Rts/Scenes/Stage32_TerrainAssetReplacementReview.unity` to inspect the generated 47-piece replacement-kit library.
+Open `Assets/Rts/Scenes/Stage32_TerrainAssetReplacementReview.unity` to inspect the generated fallback/debug replacement-kit library.

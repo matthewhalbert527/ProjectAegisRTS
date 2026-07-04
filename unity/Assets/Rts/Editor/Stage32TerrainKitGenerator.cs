@@ -14,9 +14,17 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         private const string Root = "Assets/Rts";
         private const string MaterialFolder = Root + "/Art/Materials/Terrain/Stage32Generated";
         private const string PrefabFolder = Root + "/Art/Prefabs/Terrain/Stage32Generated";
+        private const string ReferenceFolder = Root + "/Art/References/Terrain/Stage31TerrainSource";
         private const string SceneFolder = Root + "/Scenes";
         private const string ScenePath = SceneFolder + "/Stage32_TerrainAssetReplacementReview.unity";
         private const string ReportFileName = "STAGE32_GENERATED_TERRAIN_KIT_REPORT.md";
+        private static readonly string[] ReferenceSheets =
+        {
+            "terrain_reference_sheet_01_full_kit.jpg",
+            "terrain_reference_sheet_02_board_layout.jpg",
+            "terrain_reference_sheet_03_road_base_edges.jpg",
+            "terrain_reference_sheet_04_cliffs_resources_props.jpg"
+        };
 
         private sealed class PieceSpec
         {
@@ -53,6 +61,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             public Material Scorch;
             public Material Vegetation;
             public Material Hazard;
+            public Material LanePaint;
+            public Material Moss;
+            public Material FenceWire;
+            public Material Wood;
+            public Material Rubble;
         }
 
         [MenuItem("ProjectAegisRTS/Stage 32/Generate High Quality Terrain Kit")]
@@ -71,11 +84,20 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 string.Empty,
                 "This package creates high-quality first-pass terrain proxy prefabs using Unity primitives and shared materials. They are intended as realistic, Quest-safe terrain replacements until final artist-authored meshes/textures arrive.",
                 string.Empty,
+                "## Source Reference Sheets",
+                string.Empty
+            };
+
+            AppendReferenceSheetReport(report);
+
+            report.AddRange(new[]
+            {
+                string.Empty,
                 "## Generated Pieces",
                 string.Empty,
                 "| ID | Category | Fine Size | Blocks | Buildable | Notes |",
                 "|---|---|---:|---:|---:|---|"
-            };
+            });
 
             foreach (var spec in specs)
             {
@@ -99,8 +121,22 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             CreateFolderRecursive(MaterialFolder);
             CreateFolderRecursive(PrefabFolder);
+            CreateFolderRecursive(ReferenceFolder);
             CreateFolderRecursive(SceneFolder);
             Directory.CreateDirectory(GetRepoDocsPath(string.Empty));
+        }
+
+        private static void AppendReferenceSheetReport(List<string> report)
+        {
+            for (var i = 0; i < ReferenceSheets.Length; i++)
+            {
+                var path = $"{ReferenceFolder}/{ReferenceSheets[i]}";
+                var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+                report.Add(texture != null
+                    ? $"- `{path}`"
+                    : $"- MISSING: `{path}`");
+            }
+            report.Add("- Integrated as Stage 31 terrain source references for roads, base pads, cliffs, resources, wreckage, barriers, vegetation, and board-layout spacing.");
         }
 
         private static string GetRepoDocsPath(string fileName)
@@ -143,7 +179,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 Water = Mat("stage32_shallow_water", new Color(0.08f, 0.28f, 0.32f, 0.85f), 0.25f),
                 Scorch = Mat("stage32_scorched_soil", new Color(0.10f, 0.09f, 0.08f), 0.95f),
                 Vegetation = Mat("stage32_vegetation_mixed", new Color(0.18f, 0.36f, 0.13f), 0.8f),
-                Hazard = Mat("stage32_hazard_yellow", new Color(0.92f, 0.72f, 0.12f), 0.65f)
+                Hazard = Mat("stage32_hazard_yellow", new Color(0.92f, 0.72f, 0.12f), 0.65f),
+                LanePaint = Mat("stage32_lane_paint_worn", new Color(0.82f, 0.78f, 0.66f), 0.78f),
+                Moss = Mat("stage32_cliff_moss", new Color(0.28f, 0.36f, 0.18f), 0.88f),
+                FenceWire = Mat("stage32_fence_wire_dark", new Color(0.12f, 0.13f, 0.12f), 0.55f, 0.2f),
+                Wood = Mat("stage32_weathered_wood", new Color(0.34f, 0.24f, 0.16f), 0.86f),
+                Rubble = Mat("stage32_rubble_rust", new Color(0.30f, 0.20f, 0.13f), 0.9f)
             };
         }
 
@@ -201,6 +242,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             Add("ramp_concrete_01", "Concrete Ramp 01", Stage32TerrainCategory.BaseConstruction, new Color(.45f,.46f,.44f), new Color(.65f,.54f,.18f), new Vector2Int(4,2), false, true, false, false, false, false, "low ramp/threshold", AddRamp);
             Add("base_curb_straight", "Base Curb Straight", Stage32TerrainCategory.BaseConstruction, new Color(.42f,.43f,.40f), new Color(.12f,.12f,.12f), new Vector2Int(4,1), false, true, false, false, false, true, "straight curb edge", AddCurbStraight);
             Add("base_curb_corner", "Base Curb Corner", Stage32TerrainCategory.BaseConstruction, new Color(.42f,.43f,.40f), new Color(.12f,.12f,.12f), new Vector2Int(2,2), false, true, false, false, false, true, "curb corner", AddCurbCorner);
+            Add("base_octagon_pad_01", "Octagon Base Pad 01", Stage32TerrainCategory.BaseConstruction, new Color(.47f,.47f,.43f), new Color(.20f,.19f,.17f), s4, false, true, false, false, false, false, "octagonal building pad from source sheet", AddOctagonPad);
+            Add("base_industrial_pad_01", "Industrial Base Pad 01", Stage32TerrainCategory.BaseConstruction, new Color(.43f,.43f,.39f), new Color(.78f,.58f,.18f), new Vector2Int(6,4), false, true, false, false, false, false, "industrial pad with worn trim and hatch detail", AddIndustrialPad);
 
             // Roads
             Add("road_straight_01", "Road Straight 01", Stage32TerrainCategory.Road, new Color(.12f,.13f,.13f), new Color(.92f,.86f,.72f), new Vector2Int(4,2), false, false, true, false, false, false, "straight asphalt road", AddRoadStraight);
@@ -208,6 +251,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             Add("road_corner_01", "Road Corner 01", Stage32TerrainCategory.Road, new Color(.12f,.13f,.13f), new Color(.92f,.86f,.72f), s4, false, false, true, false, false, false, "90 degree road corner", AddRoadCorner);
             Add("road_t_junction_01", "Road T Junction 01", Stage32TerrainCategory.Road, new Color(.12f,.13f,.13f), new Color(.92f,.86f,.72f), s4, false, false, true, false, false, false, "road T junction", AddRoadTJunction);
             Add("road_crossing_01", "Road Crossing 01", Stage32TerrainCategory.Road, new Color(.12f,.13f,.13f), new Color(.92f,.86f,.72f), s4, false, false, true, false, false, false, "road intersection", AddRoadCrossing);
+            Add("road_lane_corner_01", "Concrete Lane Corner 01", Stage32TerrainCategory.Road, new Color(.31f,.31f,.29f), new Color(.76f,.72f,.62f), s4, false, false, true, false, false, false, "concrete lane corner with curb trim from source sheet", AddLaneCorner);
+            Add("road_ramp_wide_01", "Wide Road Ramp 01", Stage32TerrainCategory.Road, new Color(.20f,.20f,.18f), new Color(.84f,.66f,.22f), new Vector2Int(5,3), false, false, true, false, false, false, "wide asphalt ramp with worn safety marks", AddRoadRampWide);
+            Add("road_damaged_ramp_01", "Damaged Road Ramp 01", Stage32TerrainCategory.Road, new Color(.18f,.17f,.15f), new Color(.34f,.22f,.13f), new Vector2Int(4,2), false, false, true, false, false, false, "broken ramp variant with rubble and crack detail", AddDamagedRamp);
 
             // Resources
             Add("resource_cluster_blue_01", "Resource Cluster Blue 01", Stage32TerrainCategory.Resource, new Color(.25f,.20f,.16f), new Color(.10f,.45f,.95f), s2, false, false, false, false, true, false, "blue crystal resource cluster", AddLargeBlueCrystals);
@@ -221,15 +267,25 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             Add("rock_blocker_02", "Rock Blocker 02", Stage32TerrainCategory.Obstacle, new Color(.35f,.33f,.28f), new Color(.18f,.17f,.14f), new Vector2Int(4,2), true, false, false, false, false, false, "wide blocking rock cluster", AddRockClusterWide);
             Add("cliff_ridge_straight_01", "Cliff Ridge Straight 01", Stage32TerrainCategory.Obstacle, new Color(.32f,.30f,.25f), new Color(.15f,.14f,.12f), new Vector2Int(4,1), true, false, false, false, false, false, "straight cliff/ridge edge", AddRidge);
             Add("cliff_ridge_corner_01", "Cliff Ridge Corner 01", Stage32TerrainCategory.Obstacle, new Color(.32f,.30f,.25f), new Color(.15f,.14f,.12f), new Vector2Int(2,2), true, false, false, false, false, false, "corner cliff/ridge", AddRidgeCorner);
+            Add("cliff_wall_straight_01", "Cliff Wall Straight 01", Stage32TerrainCategory.Obstacle, new Color(.34f,.32f,.27f), new Color(.20f,.26f,.13f), new Vector2Int(5,1), true, false, false, false, false, false, "tall layered cliff wall with moss cap from source sheet", AddCliffWallStraight);
+            Add("cliff_wall_corner_01", "Cliff Wall Corner 01", Stage32TerrainCategory.Obstacle, new Color(.34f,.32f,.27f), new Color(.20f,.26f,.13f), new Vector2Int(3,3), true, false, false, false, false, false, "corner cliff wall replacement piece", AddCliffWallCorner);
+            Add("boulder_cluster_small_01", "Boulder Cluster Small 01", Stage32TerrainCategory.Obstacle, new Color(.37f,.35f,.30f), new Color(.20f,.26f,.13f), s2, true, false, false, false, false, false, "small scatter boulders for map edges", AddBoulderCluster);
             Add("crater_01", "Crater 01", Stage32TerrainCategory.BattlefieldProp, new Color(.18f,.13f,.10f), new Color(.04f,.04f,.04f), s2, false, false, false, false, false, true, "shell crater", AddCraterDetails);
             Add("tire_tracks_01", "Tire Tracks 01", Stage32TerrainCategory.BattlefieldProp, new Color(.30f,.22f,.16f), new Color(.10f,.09f,.08f), new Vector2Int(4,2), false, true, false, false, false, true, "muddy tire tracks", AddTireTracks);
             Add("wreckage_small_01", "Wreckage Small 01", Stage32TerrainCategory.BattlefieldProp, new Color(.20f,.17f,.14f), new Color(.34f,.20f,.12f), s2, true, false, false, false, false, true, "small destroyed vehicle wreckage", AddWreckage);
             Add("debris_small_01", "Debris Small 01", Stage32TerrainCategory.BattlefieldProp, new Color(.25f,.22f,.18f), new Color(.12f,.12f,.11f), s2, false, false, false, false, false, true, "scattered battlefield debris", AddDebris);
             Add("sandbags_straight_01", "Sandbags Straight 01", Stage32TerrainCategory.BattlefieldProp, new Color(.42f,.32f,.20f), new Color(.60f,.50f,.34f), new Vector2Int(4,1), true, false, false, false, false, true, "sandbag wall", AddSandbags);
             Add("barrier_concrete_01", "Concrete Barrier 01", Stage32TerrainCategory.BattlefieldProp, new Color(.48f,.48f,.44f), new Color(.15f,.15f,.13f), new Vector2Int(3,1), true, false, false, false, false, true, "jersey barrier", AddConcreteBarrier);
+            Add("barrier_corner_01", "Concrete Barrier Corner 01", Stage32TerrainCategory.BattlefieldProp, new Color(.48f,.48f,.44f), new Color(.15f,.15f,.13f), new Vector2Int(2,2), true, false, false, false, false, true, "corner barrier for road and base edges", AddBarrierCorner);
             Add("metal_barricade_01", "Metal Barricade 01", Stage32TerrainCategory.BattlefieldProp, new Color(.28f,.30f,.30f), new Color(.14f,.14f,.13f), new Vector2Int(3,1), true, false, false, false, false, true, "metal barricade", AddMetalBarricade);
+            Add("fence_straight_01", "Fence Straight 01", Stage32TerrainCategory.BattlefieldProp, new Color(.18f,.19f,.18f), new Color(.10f,.10f,.09f), new Vector2Int(4,1), true, false, false, false, false, true, "chain-link fence segment from source sheet", AddFenceStraight);
+            Add("fence_gate_01", "Fence Gate 01", Stage32TerrainCategory.BattlefieldProp, new Color(.18f,.19f,.18f), new Color(.10f,.10f,.09f), new Vector2Int(4,1), true, false, false, false, false, true, "industrial gate segment", AddFenceGate);
+            Add("retaining_wall_01", "Retaining Wall 01", Stage32TerrainCategory.BattlefieldProp, new Color(.40f,.39f,.35f), new Color(.16f,.15f,.13f), new Vector2Int(4,1), true, false, false, false, false, true, "retaining wall segment", AddRetainingWall);
+            Add("retaining_corner_01", "Retaining Corner 01", Stage32TerrainCategory.BattlefieldProp, new Color(.40f,.39f,.35f), new Color(.16f,.15f,.13f), new Vector2Int(2,2), true, false, false, false, false, true, "retaining wall corner", AddRetainingCorner);
             Add("shrub_cluster_01", "Shrub Cluster 01", Stage32TerrainCategory.Vegetation, new Color(.25f,.34f,.18f), new Color(.12f,.26f,.10f), s2, false, true, false, false, false, true, "low shrub cluster", AddShrubs);
             Add("tree_cluster_01", "Tree Cluster 01", Stage32TerrainCategory.Vegetation, new Color(.20f,.30f,.16f), new Color(.10f,.20f,.08f), s2, true, false, false, false, false, true, "small conifer/tree cluster", AddTrees);
+            Add("conifer_line_01", "Conifer Line 01", Stage32TerrainCategory.Vegetation, new Color(.18f,.30f,.14f), new Color(.08f,.18f,.07f), new Vector2Int(5,1), true, false, false, false, false, true, "conifer line for map edges", AddConiferLine);
+            Add("bush_line_01", "Bush Line 01", Stage32TerrainCategory.Vegetation, new Color(.24f,.34f,.17f), new Color(.10f,.22f,.08f), new Vector2Int(4,1), false, true, false, false, false, true, "low bush line for field breakup", AddBushLine);
             Add("water_shore_01", "Water Shore 01", Stage32TerrainCategory.Water, new Color(.08f,.28f,.32f), new Color(.38f,.32f,.22f), s2, true, false, false, true, false, false, "shallow shore edge", AddWaterShore);
             Add("water_corner_01", "Water Corner 01", Stage32TerrainCategory.Water, new Color(.08f,.28f,.32f), new Color(.38f,.32f,.22f), s2, true, false, false, true, false, false, "shallow water corner", AddWaterShore);
             return list;
@@ -352,24 +408,39 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         private static void AddRamp(GameObject r, MaterialSet m) { AddCube(r,"ramp_plate",new Vector3(0,.13f,0),new Vector3(.85f,.035f,.35f),m.Concrete).transform.localRotation=Quaternion.Euler(8,0,0); }
         private static void AddCurbStraight(GameObject r, MaterialSet m) { AddCube(r,"curb",new Vector3(0,.16f,0),new Vector3(.95f,.10f,.12f),m.Concrete); }
         private static void AddCurbCorner(GameObject r, MaterialSet m) { AddCube(r,"curb_a",new Vector3(.25f,.16f,0),new Vector3(.12f,.10f,.85f),m.Concrete); AddCube(r,"curb_b",new Vector3(0,.16f,.25f),new Vector3(.85f,.10f,.12f),m.Concrete); }
-        private static void AddRoadStraight(GameObject r, MaterialSet m) { AddCube(r,"center_line",new Vector3(0,.12f,0),new Vector3(.035f,.012f,.75f),m.Hazard); AddCube(r,"lane_mark",new Vector3(.22f,.13f,0),new Vector3(.025f,.012f,.45f),m.Concrete); }
+        private static void AddRoadStraight(GameObject r, MaterialSet m) { AddCube(r,"center_line",new Vector3(0,.12f,0),new Vector3(.035f,.012f,.75f),m.LanePaint); AddCube(r,"lane_mark",new Vector3(.22f,.13f,0),new Vector3(.025f,.012f,.45f),m.LanePaint); AddCube(r,"road_gravel_left",new Vector3(-.48f,.13f,0),new Vector3(.06f,.014f,.88f),m.Rubble); AddCube(r,"road_gravel_right",new Vector3(.48f,.13f,0),new Vector3(.06f,.014f,.88f),m.Rubble); }
         private static void AddRoadDamaged(GameObject r, MaterialSet m) { AddRoadStraight(r,m); AddCraterDetails(r,m); }
         private static void AddRoadCorner(GameObject r, MaterialSet m) { AddCube(r,"corner_patch_a",new Vector3(-.25f,.12f,0),new Vector3(.45f,.02f,.95f),m.Road); AddCube(r,"corner_patch_b",new Vector3(.22f,.12f,.25f),new Vector3(.95f,.02f,.45f),m.Road); AddCurbCorner(r,m); }
         private static void AddRoadTJunction(GameObject r, MaterialSet m) { AddRoadStraight(r,m); AddCube(r,"t_branch",new Vector3(0,.12f,.25f),new Vector3(.95f,.02f,.35f),m.Road); }
         private static void AddRoadCrossing(GameObject r, MaterialSet m) { AddRoadStraight(r,m); AddCube(r,"cross_branch",new Vector3(0,.12f,0),new Vector3(.95f,.02f,.35f),m.Road); }
+        private static void AddLaneCorner(GameObject r, MaterialSet m) { AddRoadCorner(r,m); AddCube(r,"lane_corner_paint_a",new Vector3(-.20f,.16f,.32f),new Vector3(.035f,.012f,.36f),m.LanePaint); AddCube(r,"lane_corner_paint_b",new Vector3(.28f,.16f,.05f),new Vector3(.36f,.012f,.035f),m.LanePaint); AddCube(r,"concrete_lane_slab",new Vector3(.20f,.145f,-.30f),new Vector3(.58f,.020f,.18f),m.Concrete); }
+        private static void AddRoadRampWide(GameObject r, MaterialSet m) { AddCube(r,"wide_ramp_plate",new Vector3(0,.15f,0),new Vector3(.96f,.040f,.55f),m.Road).transform.localRotation=Quaternion.Euler(6,0,0); AddCube(r,"ramp_side_curb_l",new Vector3(-.54f,.18f,0),new Vector3(.045f,.12f,.58f),m.Concrete); AddCube(r,"ramp_side_curb_r",new Vector3(.54f,.18f,0),new Vector3(.045f,.12f,.58f),m.Concrete); AddCube(r,"ramp_hazard",new Vector3(0,.205f,.24f),new Vector3(.60f,.012f,.030f),m.Hazard); }
+        private static void AddDamagedRamp(GameObject r, MaterialSet m) { AddRoadRampWide(r,m); AddCraterDetails(r,m); AddCube(r,"broken_ramp_edge",new Vector3(.26f,.23f,-.24f),new Vector3(.22f,.035f,.08f),m.Rubble); }
         private static void AddRockCluster(GameObject r, MaterialSet m) { for(int i=0;i<8;i++) AddSphere(r,$"rock_{i}",RandPos(i,.38f,.18f),new Vector3(.18f,.12f,.14f)*(1f+(i%3)*.18f),m.Rock); }
         private static void AddRockClusterWide(GameObject r, MaterialSet m) { for(int i=0;i<12;i++) AddSphere(r,$"wide_rock_{i}",new Vector3(-.85f + i*.15f,.18f,(i%4-.5f)*.22f),new Vector3(.16f,.12f,.13f),m.Rock); }
         private static void AddRidge(GameObject r, MaterialSet m) { for(int i=0;i<9;i++) AddSphere(r,$"ridge_{i}",new Vector3(-.75f+i*.18f,.20f,0),new Vector3(.17f,.14f,.12f),m.Rock); }
         private static void AddRidgeCorner(GameObject r, MaterialSet m) { AddRidge(r,m); AddCube(r,"corner_rock_mass",new Vector3(.25f,.2f,.25f),new Vector3(.35f,.18f,.35f),m.Rock); }
+        private static void AddCliffWallStraight(GameObject r, MaterialSet m) { for(int i=0;i<8;i++) AddCube(r,$"cliff_column_{i}",new Vector3(-.80f+i*.23f,.30f,0),new Vector3(.16f,.36f,.18f),m.Rock); AddCube(r,"moss_top",new Vector3(0,.52f,0),new Vector3(.88f,.035f,.18f),m.Moss); AddRidge(r,m); }
+        private static void AddCliffWallCorner(GameObject r, MaterialSet m) { AddCliffWallStraight(r,m); for(int i=0;i<5;i++) AddCube(r,$"corner_cliff_column_{i}",new Vector3(.34f,.30f,-.48f+i*.20f),new Vector3(.18f,.34f,.14f),m.Rock); AddCube(r,"corner_moss_top",new Vector3(.34f,.52f,0),new Vector3(.18f,.035f,.78f),m.Moss); }
+        private static void AddBoulderCluster(GameObject r, MaterialSet m) { for(int i=0;i<7;i++) AddSphere(r,$"boulder_{i}",RandPos(i,.42f,.18f),new Vector3(.14f+(i%2)*.06f,.11f+(i%3)*.03f,.13f),m.Rock); AddCube(r,"boulder_moss_patch",new Vector3(-.12f,.30f,.08f),new Vector3(.22f,.018f,.10f),m.Moss); }
         private static void AddTireTracks(GameObject r, MaterialSet m) { AddCube(r,"track_left",new Vector3(-.18f,.13f,0),new Vector3(.05f,.012f,.9f),m.Scorch); AddCube(r,"track_right",new Vector3(.18f,.13f,0),new Vector3(.05f,.012f,.9f),m.Scorch); for(int i=0;i<5;i++) AddCube(r,$"track_tread_{i}",new Vector3(-.18f,.145f,-.38f+i*.18f),new Vector3(.16f,.01f,.02f),m.Scorch); }
         private static void AddWreckage(GameObject r, MaterialSet m) { AddCube(r,"wreck_body",new Vector3(0,.18f,0),new Vector3(.45f,.16f,.28f),m.Metal); AddCube(r,"wreck_plate",new Vector3(.12f,.30f,.05f),new Vector3(.28f,.04f,.22f),m.Scorch); AddDebris(r,m); }
         private static void AddDebris(GameObject r, MaterialSet m) { for(int i=0;i<9;i++) AddCube(r,$"debris_{i}",RandPos(i,.42f,.13f),new Vector3(.08f,.03f,.04f), i%2==0?m.Metal:m.Rock); }
         private static void AddSandbags(GameObject r, MaterialSet m) { for(int i=0;i<5;i++) AddSphere(r,$"sandbag_{i}",new Vector3(-.4f+i*.2f,.15f,0),new Vector3(.12f,.06f,.07f),m.Sand); }
         private static void AddConcreteBarrier(GameObject r, MaterialSet m) { AddCube(r,"barrier",new Vector3(0,.20f,0),new Vector3(.75f,.18f,.12f),m.Concrete); AddCube(r,"barrier_dark_base",new Vector3(0,.11f,0),new Vector3(.85f,.04f,.18f),m.Rock); }
+        private static void AddBarrierCorner(GameObject r, MaterialSet m) { AddCube(r,"barrier_a",new Vector3(-.22f,.20f,0),new Vector3(.58f,.18f,.12f),m.Concrete); AddCube(r,"barrier_b",new Vector3(.12f,.20f,.22f),new Vector3(.12f,.18f,.58f),m.Concrete); AddCube(r,"corner_warning_patch",new Vector3(-.16f,.31f,.06f),new Vector3(.24f,.012f,.035f),m.Hazard); }
         private static void AddMetalBarricade(GameObject r, MaterialSet m) { for(int i=0;i<3;i++) AddCube(r,$"metal_post_{i}",new Vector3(-.35f+i*.35f,.22f,0),new Vector3(.04f,.26f,.04f),m.Metal); AddCube(r,"rail",new Vector3(0,.28f,0),new Vector3(.85f,.04f,.04f),m.Metal); }
+        private static void AddFenceStraight(GameObject r, MaterialSet m) { for(int i=0;i<4;i++) AddCube(r,$"fence_post_{i}",new Vector3(-.45f+i*.30f,.32f,0),new Vector3(.025f,.36f,.025f),m.Metal); AddCube(r,"fence_top_rail",new Vector3(0,.48f,0),new Vector3(.95f,.025f,.025f),m.FenceWire); AddCube(r,"fence_mid_rail",new Vector3(0,.31f,0),new Vector3(.90f,.020f,.020f),m.FenceWire); AddCube(r,"fence_shadow_mesh",new Vector3(0,.32f,.012f),new Vector3(.82f,.12f,.010f),m.FenceWire); }
+        private static void AddFenceGate(GameObject r, MaterialSet m) { AddFenceStraight(r,m); AddCube(r,"gate_panel_left",new Vector3(-.23f,.31f,.025f),new Vector3(.26f,.16f,.015f),m.FenceWire); AddCube(r,"gate_panel_right",new Vector3(.23f,.31f,.025f),new Vector3(.26f,.16f,.015f),m.FenceWire); AddCube(r,"gate_warning_sign",new Vector3(.42f,.43f,.035f),new Vector3(.12f,.07f,.012f),m.Hazard); }
+        private static void AddRetainingWall(GameObject r, MaterialSet m) { AddCube(r,"retaining_wall_body",new Vector3(0,.26f,0),new Vector3(.95f,.28f,.14f),m.Concrete); AddCube(r,"retaining_wall_cap",new Vector3(0,.43f,0),new Vector3(1.02f,.05f,.18f),m.Concrete); AddCube(r,"retaining_wall_shadow",new Vector3(0,.12f,-.09f),new Vector3(.88f,.05f,.035f),m.Rock); }
+        private static void AddRetainingCorner(GameObject r, MaterialSet m) { AddRetainingWall(r,m); AddCube(r,"retaining_corner_body",new Vector3(.38f,.26f,.36f),new Vector3(.14f,.28f,.75f),m.Concrete); AddCube(r,"retaining_corner_cap",new Vector3(.38f,.43f,.36f),new Vector3(.18f,.05f,.82f),m.Concrete); }
         private static void AddShrubs(GameObject r, MaterialSet m) { for(int i=0;i<8;i++) AddSphere(r,$"shrub_{i}",RandPos(i,.38f,.14f),new Vector3(.08f,.08f,.08f),m.Vegetation); }
         private static void AddTrees(GameObject r, MaterialSet m) { for(int i=0;i<4;i++){ var p=RandPos(i,.30f,.18f); AddCylinder(r,$"trunk_{i}",p,new Vector3(.035f,.18f,.035f),m.Dirt); AddSphere(r,$"canopy_{i}",p+new Vector3(0,.25f,0),new Vector3(.13f,.18f,.13f),m.Vegetation);} }
+        private static void AddConiferLine(GameObject r, MaterialSet m) { for(int i=0;i<5;i++){ var p=new Vector3(-.45f+i*.22f,.18f,(i%2)*.08f-.04f); AddCylinder(r,$"conifer_trunk_{i}",p,new Vector3(.025f,.16f,.025f),m.Wood); AddSphere(r,$"conifer_lower_{i}",p+new Vector3(0,.22f,0),new Vector3(.12f,.16f,.12f),m.Vegetation); AddSphere(r,$"conifer_upper_{i}",p+new Vector3(0,.36f,0),new Vector3(.08f,.13f,.08f),m.Moss);} }
+        private static void AddBushLine(GameObject r, MaterialSet m) { for(int i=0;i<7;i++) AddSphere(r,$"bush_line_{i}",new Vector3(-.45f+i*.15f,.14f,(i%3-.5f)*.07f),new Vector3(.08f,.07f,.08f), i%2==0?m.Vegetation:m.Moss); }
         private static void AddWaterShore(GameObject r, MaterialSet m) { AddCube(r,"shore_band",new Vector3(.25f,.12f,0),new Vector3(.40f,.02f,.95f),m.Dirt); for(int i=0;i<5;i++) AddSphere(r,$"shore_stone_{i}",RandPos(i,.38f,.13f),new Vector3(.05f,.025f,.04f),m.Rock); }
+        private static void AddOctagonPad(GameObject r, MaterialSet m) { AddPadFrame(r,m); AddCube(r,"octagon_cut_nw",new Vector3(-.42f,.16f,.42f),new Vector3(.22f,.026f,.08f),m.Rock).transform.localRotation=Quaternion.Euler(0,45,0); AddCube(r,"octagon_cut_ne",new Vector3(.42f,.16f,.42f),new Vector3(.22f,.026f,.08f),m.Rock).transform.localRotation=Quaternion.Euler(0,-45,0); AddCube(r,"octagon_cut_sw",new Vector3(-.42f,.16f,-.42f),new Vector3(.22f,.026f,.08f),m.Rock).transform.localRotation=Quaternion.Euler(0,-45,0); AddCube(r,"octagon_cut_se",new Vector3(.42f,.16f,-.42f),new Vector3(.22f,.026f,.08f),m.Rock).transform.localRotation=Quaternion.Euler(0,45,0); }
+        private static void AddIndustrialPad(GameObject r, MaterialSet m) { AddPadFrame(r,m); AddCube(r,"industrial_hatch",new Vector3(.20f,.17f,.12f),new Vector3(.22f,.018f,.18f),m.Metal); AddCube(r,"industrial_worn_stripe_a",new Vector3(-.24f,.18f,.42f),new Vector3(.30f,.012f,.025f),m.Hazard); AddCube(r,"industrial_worn_stripe_b",new Vector3(.24f,.18f,-.42f),new Vector3(.30f,.012f,.025f),m.Hazard); AddCube(r,"industrial_rust_spill",new Vector3(-.20f,.18f,-.12f),new Vector3(.16f,.010f,.10f),m.Rubble); }
 
         private static Vector3 RandPos(int i, float radius, float y)
         {

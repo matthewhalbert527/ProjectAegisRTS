@@ -40,8 +40,10 @@ Reference the current visual checkpoints before replacing any proxy:
 - Stage 30 readability QA review: `build/screenshots/stage30_visual_readability_qa.png`
 - Stage 32 terrain set-dressing review: `build/screenshots/stage32_terrain_set_dressing_review.png`
 - Stage 32 player-facing terrain view: `build/screenshots/stage32_player_facing_terrain_view.png`
+- Stage 31 terrain source references: `unity/Assets/Rts/Art/References/Terrain/Stage31TerrainSource/`
 - Stage 29 direction: `docs/STAGE29_REALISTIC_BATTLEFIELD_VISUAL_DIRECTION.md`
 - Stage 30 readability report: `docs/STAGE30_VISUAL_READABILITY_QA.md`
+- Stage 31 terrain source guide: `docs/STAGE31_TERRAIN_SOURCE_REFERENCES.md`
 - Stage 32 terrain piece library: `docs/STAGE32_TERRAIN_PIECE_LIBRARY.md`
 - Stage 32 set dressing guide: `docs/STAGE32_SET_DRESSING_GUIDE.md`
 - MVP visual QA baseline: `docs/STAGE21_MVP_VISUAL_QA.md`
@@ -49,6 +51,8 @@ Reference the current visual checkpoints before replacing any proxy:
 The screenshot files are generated validation artifacts and may not be tracked by Git. Regenerate them with `.\tools\run-unity-stage29-validation.ps1 -SkipCoreBuild` and `.\tools\run-unity-stage30-validation.ps1 -SkipCoreBuild`.
 
 Stage 32 screenshots are generated with `.\tools\run-unity-stage32-validation.ps1 -SkipCoreBuild`.
+
+Terrain replacement work should use the Stage 31 terrain source sheets as visual direction for modular roads, base pads, cliffs, resources, wreckage, barriers, fences, vegetation, and board spacing. Preserve Stage 30 top-down readability and keep terrain visuals below gameplay-critical actor silhouettes and placement previews.
 
 ## Handoff Acceptance
 

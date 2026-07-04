@@ -82,12 +82,32 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             if (layer.renderer == null || layer.renderer.RenderedPieceCount < 32)
                 throw new InvalidOperationException("Stage 32 smoke expected player-facing set dressing pieces.");
+            ValidatePlayerFacingSourceArtRender(layer);
             if (!layout.IsRightSidebarDockedToScreenEdge() || !mode.IsPcSidebarVisibleForDesktop())
                 throw new InvalidOperationException("Stage 32 smoke expected PCDesktop sidebar to remain visible.");
             if (boardHud.gameObject.activeInHierarchy)
                 throw new InvalidOperationException("Stage 32 smoke expected Stage3 board-placement HUD to remain hidden.");
             if (!debugVisibility.AreDebugPanelsHiddenByDefault())
                 throw new InvalidOperationException("Stage 32 smoke expected debug panels hidden by default.");
+        }
+
+        static void ValidatePlayerFacingSourceArtRender(TerrainSetDressingRuntimeLayer layer)
+        {
+            if (!Stage32TerrainArtIngestionGenerator.HasPlayerFacingSourceArt())
+                return;
+            if (layer.renderer == null || layer.renderer.visualRoot == null)
+                throw new InvalidOperationException("Stage 32 smoke cannot validate source-art terrain because the rendered terrain root is missing.");
+
+            var tags = layer.renderer.visualRoot.GetComponentsInChildren<TerrainArtSourceTag>(true);
+            var valid = 0;
+            for (var i = 0; i < tags.Length; i++)
+                if (tags[i] != null && tags[i].IsPlayerFacingSourceArt())
+                    valid++;
+
+            if (valid < Stage32TerrainArtIngestionGenerator.MinimumPlayerFacingSourceReplacements)
+                throw new InvalidOperationException("Stage 32 smoke expected imported Batch01 source-art terrain. Rendered source-art pieces: " + valid + ".");
+            if (valid < layer.renderer.RenderedPieceCount)
+                throw new InvalidOperationException("Stage 32 smoke rendered proxy-only terrain while Batch01 source art is available. Rendered=" + layer.renderer.RenderedPieceCount + " sourceArt=" + valid + ".");
         }
 
         static void StepRuntime(RtsSimulationDriver driver, BoardRenderer boardRenderer, ActorRenderSystem actorRenderer, int frames, float deltaTime)

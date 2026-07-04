@@ -2,6 +2,8 @@
 
 Stage 8.1 adds validation tiers so normal development does not need to replay the slowest full acceptance chain after every small art, prefab, script, or documentation edit. Stage 9 follows the same model for combat iteration. Stage 10 follows it for economy iteration. Stage 11 follows it for fog/radar/minimap iteration. Stage 12 follows it for AI iteration. Stage 13 follows it for map/terrain/pathing iteration. Stage 14 follows it for feedback iteration. Stage 15 follows it for performance/build-readiness iteration. Stage 16 follows it for playable vertical-slice iteration. Stage 17 follows it for player-facing polish. Stage 18 follows it for tester-guided playability. Stage 18.5 follows it for fine placement grid iteration. Stage 19 follows it for mission flow and fine-grid playability tuning. Stage 19.5 follows it for the PC sidebar and pause menu rework. Stage 20 follows it for MVP proxy visuals. Stage 21 follows it for MVP visual QA. Stage 21.5 follows it for Windows player resolution/UI scaling. Stage 22 follows it for classic RTS command controls. Stage 23 follows it for base management commands. Stage 24 follows it for tech prerequisites and support powers. Stage 25 follows it for engineer capture/repair and transports. Stage 26 follows it for airfield, aircraft, and naval passability foundations. Stage 27 follows it for skirmish playability, AI pressure, and difficulty controls. Stage 27.1 follows it for the PC building placement overlay fix. Stage 28 follows it for integrated feature-regression QA and playtest stabilization. Stage 28.1 follows it for full-gate flattening, PCDesktop safe-area layout, and diagonal fixed-step movement. Stage 29 follows it for realistic battlefield visual-quality iteration. Stage 30 follows it for visual readability QA. Stage 31 follows it for artist handoff/package cleanup. Stage 32 follows it for terrain-piece library and set-dressing iteration. Stage 15.1 flattens the Stage 9-through-Stage 32 medium tiers so they validate direct dependencies instead of recursively calling prior medium checks. A follow-up hardening pass added `tools\audit-medium-validation-recursion.ps1` after runtime output showed recursive medium sections were still possible to miss. Stage 28.1 adds `tools\audit-full-validation-recursion.ps1` so current full gates avoid recursively replaying older full gates, and Stage 29/30/31/32 extend that audit for visual-quality, handoff, and terrain set-dressing gates. The full gate remains required for final acceptance; the faster tiers choose the right amount of evidence during iteration.
 
+Stage 33 keeps the same validation discipline for tank source/proxy prefab generation. Its targeted generator validates the current tank source assets directly, while broad pre-commit confidence still comes from the highest available flat medium gate.
+
 ## Tier Summary
 
 | Tier | Command | Use When | Scope |
@@ -714,13 +716,25 @@ The medium recursion audit includes Stage 31 and fails if `run-stage31-medium-ch
 
 Stage 32 adds:
 
-- `.\tools\run-unity-stage32-validation.ps1` for terrain-piece generation, material/catalog validation, review scene creation, player-facing integration validation, play-mode smoke, and screenshot capture.
-- `.\tools\run-stage32-terrain-kit-generator.ps1` for the overlay terrain asset replacement generator, 47-prefab review kit, QA report, and review scene.
+- `.\tools\run-unity-stage32-validation.ps1` for terrain-piece generation, explicit Batch01 source-art ingestion, material/catalog validation, review scene creation, player-facing integration validation, play-mode smoke, and screenshot capture.
+- `.\tools\run-stage32-terrain-art-ingestion.ps1` for direct external source-art ingestion from `unity\Assets\Rts\Art\Source\Terrain\Batch01`.
+- `.\tools\run-stage32-terrain-kit-generator.ps1` for the fallback/debug terrain asset replacement generator, review kit, QA report, and review scene.
 - `.\tools\run-stage32-fast-checks.ps1` for terrain-piece and set-dressing iteration without replaying Stage1-31 validation chains.
 - `.\tools\run-stage32-medium-checks.ps1` for pre-commit confidence without calling prior medium scripts.
 - `.\tools\run-stage32-player-facing-checks.ps1` for PCDesktop sidebar/safe-area preservation, Stage27.1 placement HUD separation, Player.log, and optional Windows player launch smoke.
 - `.\tools\run-stage32-checks.ps1` for slow full final acceptance through the Stage31 final gate plus Stage32 coverage.
 
-Fast checks are intended for terrain-piece geometry, material profiles, catalog definitions, set-dressing placements, terrain replacement-kit generation, review-scene composition, screenshots, or Stage32 tooling/docs. Medium checks include Rts.Core tests, direct Stage31 handoff/player-facing preservation, direct Stage28.1 safe-area validation, direct Stage27.1 placement validation, direct Stage4/5 hand-control validation, Stage32 validation, the terrain-kit generator/validator, Stage32 player-facing checks with player build/log skipped, recursion audits, the UnityEngine-free scan, and `git diff --check`.
+Fast checks are intended for terrain-piece geometry, material profiles, catalog definitions, set-dressing placements, Batch01 source-art ingestion, terrain replacement-kit generation, review-scene composition, screenshots, or Stage32 tooling/docs. Medium checks include Rts.Core tests, direct Stage31 handoff/player-facing preservation, direct Stage28.1 safe-area validation, direct Stage27.1 placement validation, direct Stage4/5 hand-control validation, Stage32 validation, the terrain-kit generator/validator, Stage32 player-facing checks with player build/log skipped, recursion audits, the UnityEngine-free scan, and `git diff --check`.
+
+When Batch01 source art exists, Stage32 validation must fail if the player-facing profile or rendered Stage16 terrain root still uses primitive-only generated proxies for the core terrain batch. Generated proxy terrain is retained for fallback/debug review scenes only.
 
 The medium recursion audit includes Stage32 and fails if `run-stage32-medium-checks.ps1` calls any prior `run-stage*-medium-checks.ps1`. The full recursion audit allows the Stage32 full gate to call the Stage31 final gate, but fails if Stage32 starts recursively replaying older full gates. The overlay terrain-kit script is a direct Stage32 generator/validator dependency, not a medium-tier dependency.
+
+## Stage 33 Validation
+
+Stage 33 adds:
+
+- `.\tools\run-stage33-tank-source-generator.ps1` for tank source/proxy prefab generation, ActorVisualDefinition integration, review-scene generation, and direct prefab validation.
+- The current highest flat medium gate, `.\tools\run-stage32-medium-checks.ps1`, for pre-commit confidence across existing gameplay, PCDesktop sidebar/safe-area behavior, Stage27.1 placement HUD separation, QuestXR Stage4/Stage5 controls, Player.log checks, recursion audits, the UnityEngine-free scan, and whitespace validation.
+
+Run the Stage33 generator after editing tank source geometry, sockets, descriptors, LODs, materials, ActorVisualDefinition wiring, or the Stage33 review scene. Run the highest medium gate before committing Stage33 changes. Final acceptance should still use the latest full gate when a stage is being accepted; Stage33 does not make medium/full validation recursive.

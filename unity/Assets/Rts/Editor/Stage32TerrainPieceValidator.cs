@@ -182,6 +182,48 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 summary.Errors.Add("Stage 32 player-facing set dressing max pieces should remain Quest-safe.");
 
             summary.PlayerFacingPlacementCount = profile.placements.Count;
+            ValidatePlayerFacingSourceArt(summary, profile);
+        }
+
+        static void ValidatePlayerFacingSourceArt(Stage32ValidationSummary summary, TerrainSetDressingProfile profile)
+        {
+            var manifest = Stage32TerrainArtIngestionGenerator.LoadManifest();
+            summary.SourceArtReplacementCount = manifest == null ? 0 : manifest.CountPlayerFacingReplacements();
+            if (summary.SourceArtReplacementCount == 0)
+                return;
+
+            if (summary.SourceArtReplacementCount < Stage32TerrainArtIngestionGenerator.MinimumPlayerFacingSourceReplacements)
+                summary.Errors.Add("Stage 32 Batch01 source art exists, but fewer than " + Stage32TerrainArtIngestionGenerator.MinimumPlayerFacingSourceReplacements + " player-facing source replacements were generated.");
+
+            var library = Stage32TerrainPieceGenerator.LoadTerrainPieceLibrary();
+            if (library == null)
+            {
+                summary.Errors.Add("Stage 32 cannot validate source-art replacement because the terrain piece library is missing.");
+                return;
+            }
+
+            var sourcePlacements = 0;
+            var proxyPlacements = new List<string>();
+            for (var i = 0; i < profile.placements.Count; i++)
+            {
+                var placement = profile.placements[i];
+                if (placement == null || string.IsNullOrEmpty(placement.pieceId))
+                    continue;
+
+                var definition = library.GetDefinition(placement.pieceId);
+                var prefab = definition != null ? definition.prefab : null;
+                var tag = prefab != null ? prefab.GetComponent<TerrainArtSourceTag>() : null;
+                if (tag != null && tag.IsPlayerFacingSourceArt())
+                    sourcePlacements++;
+                else
+                    proxyPlacements.Add(placement.pieceId);
+            }
+
+            summary.PlayerFacingSourceArtPlacementCount = sourcePlacements;
+            if (sourcePlacements < Stage32TerrainArtIngestionGenerator.MinimumPlayerFacingSourceReplacements)
+                summary.Errors.Add("Stage 32 player-facing set dressing is not using enough imported Batch01 source-art pieces. Source placements: " + sourcePlacements + ".");
+            if (proxyPlacements.Count > 0)
+                summary.Errors.Add("Stage 32 player-facing set dressing still references proxy-only terrain while Batch01 source art is available: " + string.Join(", ", proxyPlacements.ToArray()));
         }
 
         static void RequireFile(Stage32ValidationSummary summary, string repoRoot, string folder, string fileName)
@@ -208,6 +250,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             builder.AppendLine("- Terrain pieces: " + summary.PieceCount);
             builder.AppendLine("- Material profiles: " + summary.MaterialProfileCount);
             builder.AppendLine("- Player-facing placements: " + summary.PlayerFacingPlacementCount);
+            builder.AppendLine("- Batch01 source-art replacements: " + summary.SourceArtReplacementCount);
+            builder.AppendLine("- Player-facing source-art placements: " + summary.PlayerFacingSourceArtPlacementCount);
             builder.AppendLine("- Ground: " + summary.GroundCount);
             builder.AppendLine("- Transitions: " + summary.TransitionCount);
             builder.AppendLine("- Base construction: " + summary.BaseCount);
@@ -236,6 +280,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public int PieceCount;
         public int MaterialProfileCount;
         public int PlayerFacingPlacementCount;
+        public int SourceArtReplacementCount;
+        public int PlayerFacingSourceArtPlacementCount;
         public int GroundCount;
         public int TransitionCount;
         public int BaseCount;

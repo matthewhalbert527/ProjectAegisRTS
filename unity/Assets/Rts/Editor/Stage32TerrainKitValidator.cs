@@ -8,8 +8,16 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
     public static class Stage32TerrainKitValidator
     {
         private const string PrefabFolder = "Assets/Rts/Art/Prefabs/Terrain/Stage32Generated";
+        private const string ReferenceFolder = "Assets/Rts/Art/References/Terrain/Stage31TerrainSource";
         private const string ScenePath = "Assets/Rts/Scenes/Stage32_TerrainAssetReplacementReview.unity";
         private const string ReportFileName = "STAGE32_TERRAIN_QA_REPORT.md";
+        private static readonly string[] RequiredReferenceSheets =
+        {
+            "terrain_reference_sheet_01_full_kit.jpg",
+            "terrain_reference_sheet_02_board_layout.jpg",
+            "terrain_reference_sheet_03_road_base_edges.jpg",
+            "terrain_reference_sheet_04_cliffs_resources_props.jpg"
+        };
 
         [MenuItem("ProjectAegisRTS/Stage 32/Validate Terrain Kit")]
         public static void ValidateTerrainKitMenu() => ValidateTerrainKitBatch();
@@ -27,6 +35,25 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 writer.WriteLine("# Stage 32 Terrain QA Report");
                 writer.WriteLine();
                 writer.WriteLine($"Prefab count: {guids.Length}");
+                writer.WriteLine();
+                writer.WriteLine("## Source Reference Sheets");
+                writer.WriteLine();
+                foreach (var sheet in RequiredReferenceSheets)
+                {
+                    var path = $"{ReferenceFolder}/{sheet}";
+                    var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+                    if (texture == null)
+                    {
+                        failures++;
+                        writer.WriteLine($"- FAIL: `{path}` is missing.");
+                    }
+                    else
+                    {
+                        writer.WriteLine($"- PASS: `{path}` ({texture.width}x{texture.height}).");
+                    }
+                }
+                writer.WriteLine();
+                writer.WriteLine("## Prefabs");
                 writer.WriteLine();
                 writer.WriteLine("| Prefab | Result | Notes |");
                 writer.WriteLine("|---|---|---|");

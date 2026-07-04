@@ -18,13 +18,14 @@ MonoBehaviour:
   sizeClass: 5
   footprintFineWidth: 4
   footprintFineHeight: 1
-  prefab: {fileID: 4470104695452974868, guid: 1f20bdd3963be0c4b9abb647fc2129f3, type: 3}
+  prefab: {fileID: 5381262362515532154, guid: 3b619f89f6a67824d9a25ffc218dc3bf, type: 3}
   materialProfileId: road
   passabilityVisualHint: Passable road blend.
   buildableVisualHint: No build authority.
   supportsRotation: 1
   supportsTint: 1
   isGameplayBlockingVisualOnly: 0
-  notes: Dirt to road transition. Visual metadata only; Rts.Core terrain remains
-    authoritative.
+  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_01_full_kit.jpg.
+    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
+    remains authoritative.
   questBudgetTag: QuestSafeLow

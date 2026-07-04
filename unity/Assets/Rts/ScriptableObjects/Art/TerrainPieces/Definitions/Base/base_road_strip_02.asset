@@ -18,12 +18,14 @@ MonoBehaviour:
   sizeClass: 4
   footprintFineWidth: 5
   footprintFineHeight: 1
-  prefab: {fileID: 8429622085392428413, guid: fe0184f7dbc6efa4fa2beb56233f8a3f, type: 3}
+  prefab: {fileID: 7124800341397147131, guid: d46c4fa1e5b66414989c727400bf70fa, type: 3}
   materialProfileId: road
   passabilityVisualHint: Passable road strip.
   buildableVisualHint: No build authority.
   supportsRotation: 1
   supportsTint: 1
   isGameplayBlockingVisualOnly: 0
-  notes: Base road connection. Visual metadata only; Rts.Core terrain remains authoritative.
+  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_03_road_base_edges.jpg.
+    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
+    remains authoritative.
   questBudgetTag: QuestSafeLow

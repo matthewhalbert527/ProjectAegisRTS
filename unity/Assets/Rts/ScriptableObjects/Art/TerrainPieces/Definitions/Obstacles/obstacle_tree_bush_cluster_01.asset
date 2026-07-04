@@ -18,13 +18,14 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 6231526927757988690, guid: 5cf3b3735b0289f48b7df62530a0157c, type: 3}
+  prefab: {fileID: 5963313931325784656, guid: 165492c4e3acca44fab9f5770526ca1a, type: 3}
   materialProfileId: foliage
   passabilityVisualHint: Blocked forest hint only.
   buildableVisualHint: No-build visual foliage.
   supportsRotation: 1
   supportsTint: 1
   isGameplayBlockingVisualOnly: 1
-  notes: Quest-safe foliage cluster. Visual metadata only; Rts.Core terrain remains
-    authoritative.
+  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_04_cliffs_resources_props.jpg.
+    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
+    remains authoritative.
   questBudgetTag: QuestSafeLow

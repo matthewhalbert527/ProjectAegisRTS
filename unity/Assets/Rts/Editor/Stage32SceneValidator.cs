@@ -112,6 +112,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 throw new InvalidOperationException("Stage 32 player-facing set dressing did not render enough pieces.");
             if (!layer.renderer.LastRenderWasVisualOnly)
                 throw new InvalidOperationException("Stage 32 set dressing profile must remain visual-only.");
+            ValidatePlayerFacingSourceArtRender(layer);
             if (framer == null)
                 throw new InvalidOperationException("Stage 32 expected the PC safe-area camera framer to remain on the main camera.");
 
@@ -119,6 +120,25 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             framer.ApplyFraming();
             if (!framer.IsBoardInsideSafeArea(3f))
                 throw new InvalidOperationException("Stage 32 board safe area failed after terrain set dressing. bounds=" + framer.GetBoardScreenBounds() + " safe=" + safeArea.GameplayViewportRect);
+        }
+
+        static void ValidatePlayerFacingSourceArtRender(TerrainSetDressingRuntimeLayer layer)
+        {
+            if (!Stage32TerrainArtIngestionGenerator.HasPlayerFacingSourceArt())
+                return;
+            if (layer == null || layer.renderer == null || layer.renderer.visualRoot == null)
+                throw new InvalidOperationException("Stage 32 cannot validate source-art terrain because the rendered terrain root is missing.");
+
+            var tags = layer.renderer.visualRoot.GetComponentsInChildren<TerrainArtSourceTag>(true);
+            var valid = 0;
+            for (var i = 0; i < tags.Length; i++)
+                if (tags[i] != null && tags[i].IsPlayerFacingSourceArt())
+                    valid++;
+
+            if (valid < Stage32TerrainArtIngestionGenerator.MinimumPlayerFacingSourceReplacements)
+                throw new InvalidOperationException("Stage 32 player-facing scene still lacks imported Batch01 source-art terrain. Rendered source-art pieces: " + valid + ".");
+            if (valid < layer.renderer.RenderedPieceCount)
+                throw new InvalidOperationException("Stage 32 player-facing scene rendered proxy-only terrain while Batch01 source art is available. Rendered=" + layer.renderer.RenderedPieceCount + " sourceArt=" + valid + ".");
         }
 
         static void StepRuntime(RtsSimulationDriver driver, BoardRenderer boardRenderer, ActorRenderSystem actorRenderer, int frames, float deltaTime)

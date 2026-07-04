@@ -18,13 +18,14 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 3
   footprintFineHeight: 1
-  prefab: {fileID: 805551006260071982, guid: 21852c4f13d5ece448235758723988e6, type: 3}
+  prefab: {fileID: 2603759942322345024, guid: 3c4dd4692820ccc43814279e280a244b, type: 3}
   materialProfileId: caution
   passabilityVisualHint: Passable rally marking.
   buildableVisualHint: Exit lane indicator.
   supportsRotation: 1
   supportsTint: 1
   isGameplayBlockingVisualOnly: 0
-  notes: Rally/exit floor marking. Visual metadata only; Rts.Core terrain remains
-    authoritative.
+  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_03_road_base_edges.jpg.
+    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
+    remains authoritative.
   questBudgetTag: QuestSafeLow

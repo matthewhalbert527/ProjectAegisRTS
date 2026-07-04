@@ -18,12 +18,14 @@ MonoBehaviour:
   sizeClass: 5
   footprintFineWidth: 3
   footprintFineHeight: 1
-  prefab: {fileID: 9155748909168568152, guid: 3e9f449f1dd4fb347b63eff69d15d88e, type: 3}
+  prefab: {fileID: 2040614652687167911, guid: 4e680b43cdaa1c84cbe684930d4ab262, type: 3}
   materialProfileId: resource_ground
   passabilityVisualHint: Harvest-field visual edge.
   buildableVisualHint: No-build resource edge hint.
   supportsRotation: 1
   supportsTint: 1
   isGameplayBlockingVisualOnly: 0
-  notes: Resource field edge. Visual metadata only; Rts.Core terrain remains authoritative.
+  notes: Player-facing source art replacement from Assets/Rts/Art/Source/Terrain/Batch01/terrain_reference_sheet_04_cliffs_resources_props.jpg.
+    Old generated proxy prefab remains available for fallback/debug. Rts.Core terrain
+    remains authoritative.
   questBudgetTag: QuestSafeLow
