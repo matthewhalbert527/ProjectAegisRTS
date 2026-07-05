@@ -202,6 +202,10 @@ function Remove-TrailingWhitespace {
     }
 
     $resolved = (Resolve-Path -LiteralPath $Path).Path
+    if (-not (Test-ValidationTextFile -Path $resolved)) {
+        return
+    }
+
     $text = [System.IO.File]::ReadAllText($resolved)
     if ($text.Length -eq 0) {
         return
@@ -230,6 +234,49 @@ function Remove-TrailingWhitespace {
     }
 }
 
+function Test-ValidationTextFile {
+    param([string]$Path)
+
+    $extension = [System.IO.Path]::GetExtension($Path)
+    $textExtensions = @(
+        '.asmdef',
+        '.asset',
+        '.cs',
+        '.json',
+        '.mat',
+        '.md',
+        '.meta',
+        '.mtl',
+        '.obj',
+        '.prefab',
+        '.ps1',
+        '.txt',
+        '.unity',
+        '.xml'
+    )
+
+    return $textExtensions -contains $extension.ToLowerInvariant()
+}
+
+function Test-IncludePatternMatch {
+    param(
+        [string]$Name,
+        [string[]]$Include
+    )
+
+    if (-not $Include -or $Include.Count -eq 0) {
+        return $true
+    }
+
+    foreach ($pattern in $Include) {
+        if ($Name -like $pattern) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
 function Normalize-WhitespaceInTree {
     param(
         [string]$Path,
@@ -240,7 +287,8 @@ function Normalize-WhitespaceInTree {
         return
     }
 
-    Get-ChildItem -LiteralPath $Path -Recurse -File -Include $Include |
+    Get-ChildItem -LiteralPath $Path -Recurse -File |
+        Where-Object { (Test-IncludePatternMatch -Name $_.Name -Include $Include) -and (Test-ValidationTextFile -Path $_.FullName) } |
         ForEach-Object { Remove-TrailingWhitespace -Path $_.FullName }
 }
 

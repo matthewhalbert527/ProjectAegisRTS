@@ -22,6 +22,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public const string ReviewScenePath = "Assets/Rts/Scenes/Stage32_6_FinalTerrainMeshReview.unity";
         public const string ReportPath = "docs/STAGE32_6_FINAL_TERRAIN_MESHES_REPORT.md";
         public const int RequiredPieceCount = 2;
+        const int MinimumFinalMeshVertices = 100;
+        const int MinimumFinalMeshTriangles = 80;
 
         static readonly Dictionary<string, string> DefinitionToFinalMeshMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -78,6 +80,24 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             {
                 var summary = ValidateFinalMeshBatch01();
                 Debug.Log("Stage 32.6 final terrain mesh Batch01 validation passed. Prefabs: " + summary.PrefabCount);
+                if (Application.isBatchMode)
+                    EditorApplication.Exit(0);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                if (Application.isBatchMode)
+                    EditorApplication.Exit(1);
+                throw;
+            }
+        }
+
+        public static void ValidateStage32_7TerrainArtIntegrationBatch()
+        {
+            try
+            {
+                var summary = ValidateFinalMeshBatch01();
+                Debug.Log("Stage 32.7 terrain art integration validation passed. Final prefabs: " + summary.PrefabCount + ", review scene: " + summary.ReviewScenePath);
                 if (Application.isBatchMode)
                     EditorApplication.Exit(0);
             }
@@ -217,7 +237,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             if (string.Equals(piece.id, "ground_grass_dirt_01", StringComparison.OrdinalIgnoreCase))
             {
-                materials["ground_surface"] = CreateTexturedMaterial(piece.id + "_ground_surface", TexturePath(piece, piece.textures.albedo), TexturePath(piece, piece.textures.normal), new Color(0.78f, 0.86f, 0.70f, 1f), 0.18f, 0f);
+                materials["ground_surface"] = CreateTexturedMaterial(piece.id + "_ground_surface", TexturePath(piece, piece.textures.albedo), TexturePath(piece, piece.textures.normal), TexturePath(piece, piece.textures.roughness), new Color(0.78f, 0.86f, 0.70f, 1f), 0.18f, 0f);
                 materials["edge_dark"] = CreateColorMaterial(piece.id + "_edge_dark", new Color(0.18f, 0.14f, 0.10f, 1f), 0.12f, 0f);
                 materials["stone"] = CreateColorMaterial(piece.id + "_stone", new Color(0.42f, 0.40f, 0.35f, 1f), 0.16f, 0f);
                 materials["grass_detail"] = CreateColorMaterial(piece.id + "_grass_detail", new Color(0.20f, 0.42f, 0.13f, 1f), 0.10f, 0f);
@@ -226,7 +246,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             if (string.Equals(piece.id, "resource_cluster_blue_01", StringComparison.OrdinalIgnoreCase))
             {
-                materials["resource_ground"] = CreateTexturedMaterial(piece.id + "_resource_ground", TexturePath(piece, piece.textures.groundAlbedo), TexturePath(piece, piece.textures.groundNormal), new Color(0.68f, 0.61f, 0.48f, 1f), 0.18f, 0f);
+                materials["resource_ground"] = CreateTexturedMaterial(piece.id + "_resource_ground", TexturePath(piece, piece.textures.groundAlbedo), TexturePath(piece, piece.textures.groundNormal), TexturePath(piece, piece.textures.groundRoughness), new Color(0.68f, 0.61f, 0.48f, 1f), 0.18f, 0f);
                 materials["edge_dark"] = CreateColorMaterial(piece.id + "_edge_dark", new Color(0.18f, 0.13f, 0.09f, 1f), 0.12f, 0f);
                 materials["stone"] = CreateColorMaterial(piece.id + "_stone", new Color(0.42f, 0.40f, 0.36f, 1f), 0.16f, 0f);
                 materials["crystal_blue"] = CreateColorMaterial(piece.id + "_crystal_blue", new Color(0.04f, 0.22f, 1.0f, 1f), 0.78f, 0f);
@@ -238,12 +258,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return materials;
         }
 
-        static Material CreateTexturedMaterial(string materialId, string albedoPath, string normalPath, Color fallbackColor, float smoothness, float metallic)
+        static Material CreateTexturedMaterial(string materialId, string albedoPath, string normalPath, string roughnessPath, Color fallbackColor, float smoothness, float metallic)
         {
             var material = LoadOrCreateMaterial(materialId);
             ApplyBaseMaterialProperties(material, fallbackColor, smoothness, metallic);
             var albedo = string.IsNullOrEmpty(albedoPath) ? null : AssetDatabase.LoadAssetAtPath<Texture2D>(albedoPath);
             var normal = string.IsNullOrEmpty(normalPath) ? null : AssetDatabase.LoadAssetAtPath<Texture2D>(normalPath);
+            var roughness = string.IsNullOrEmpty(roughnessPath) ? null : AssetDatabase.LoadAssetAtPath<Texture2D>(roughnessPath);
             if (albedo != null)
             {
                 material.mainTexture = albedo;
@@ -256,6 +277,21 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             {
                 material.SetTexture("_BumpMap", normal);
                 material.EnableKeyword("_NORMALMAP");
+            }
+            if (roughness != null)
+            {
+                if (material.HasProperty("_MetallicGlossMap"))
+                {
+                    material.SetTexture("_MetallicGlossMap", roughness);
+                    material.EnableKeyword("_METALLICSPECGLOSSMAP");
+                }
+                if (material.HasProperty("_SpecGlossMap"))
+                {
+                    material.SetTexture("_SpecGlossMap", roughness);
+                    material.EnableKeyword("_SPECGLOSSMAP");
+                }
+                if (material.HasProperty("_MaskMap"))
+                    material.SetTexture("_MaskMap", roughness);
             }
             EditorUtility.SetDirty(material);
             return material;
@@ -270,6 +306,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 material.SetTexture("_BaseMap", null);
             if (material.HasProperty("_MainTex"))
                 material.SetTexture("_MainTex", null);
+            if (material.HasProperty("_BumpMap"))
+                material.SetTexture("_BumpMap", null);
+            if (material.HasProperty("_MetallicGlossMap"))
+                material.SetTexture("_MetallicGlossMap", null);
+            if (material.HasProperty("_SpecGlossMap"))
+                material.SetTexture("_SpecGlossMap", null);
+            if (material.HasProperty("_MaskMap"))
+                material.SetTexture("_MaskMap", null);
             EditorUtility.SetDirty(material);
             return material;
         }
@@ -480,49 +524,51 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             scene.name = "Stage32_6_FinalTerrainMeshReview";
 
             var root = new GameObject("Stage32_6 Final Terrain Mesh Review");
-            var x = -5.5f;
+            var positions = new Dictionary<string, Vector3>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "ground_grass_dirt_01", new Vector3(-2.65f, 0f, 0.45f) },
+                { "resource_cluster_blue_01", new Vector3(2.65f, 0f, 0.45f) }
+            };
+
             foreach (var piece in package.pieces)
             {
-                AddPrefabWithLabel(root.transform, PrefabFolder + "/" + piece.id + ".prefab", piece.displayName + "\nfinal mesh\n" + piece.FineGridWidth + "x" + piece.FineGridHeight + " fine grid", x, 0f);
-                AddGridReference(root.transform, piece, x, -3.0f);
-                x += 5.5f;
-            }
+                Vector3 position;
+                if (!positions.TryGetValue(piece.id, out position))
+                    position = new Vector3(0f, 0f, 0.45f);
 
-            var beforeRoot = new GameObject("Before Placeholder Comparison");
-            beforeRoot.transform.SetParent(root.transform, false);
-            beforeRoot.transform.localPosition = new Vector3(-5.5f, 0f, 4.1f);
-            AddPrefabWithLabel(beforeRoot.transform, Stage32_6TerrainArtIntegrationCorrection.RuntimePrefabFolder + "/grass_ground_01.prefab", "before placeholder\ngrass_ground_01", 0f, 0f);
-            AddPrefabWithLabel(beforeRoot.transform, Stage32_6TerrainArtIntegrationCorrection.RuntimePrefabFolder + "/resource_cluster_blue_01.prefab", "before placeholder\nresource_cluster_blue_01", 5.5f, 0f);
+                AddGridReference(root.transform, piece, position.x, position.z);
+                AddPrefabWithLabel(root.transform, PrefabFolder + "/" + piece.id + ".prefab", piece.displayName + "\nfinal OBJ mesh\n" + piece.FineGridWidth + "x" + piece.FineGridHeight + " fine grid", position.x, position.z);
+            }
 
             var hud = new GameObject("Status HUD");
             hud.transform.SetParent(root.transform, false);
-            hud.transform.localPosition = new Vector3(-8.7f, 0.05f, -5.8f);
+            hud.transform.localPosition = new Vector3(-5.45f, 0.05f, -3.95f);
             var text = hud.AddComponent<TextMesh>();
-            text.text = "Stage 32.6 FinalTerrainMeshes Batch01\nImported OBJ meshes + texture materials\nPreview PNGs are reference only";
-            text.characterSize = 0.22f;
+            text.text = "Stage 32.6 FinalTerrainMeshes Batch01\nOnly final OBJ mesh prefabs are displayed\nPreview PNGs and old terrain proxies are excluded";
+            text.characterSize = 0.18f;
             text.anchor = TextAnchor.UpperLeft;
             text.color = new Color(0.92f, 0.96f, 0.93f, 1f);
 
             var light = new GameObject("Directional Light").AddComponent<Light>();
             light.type = LightType.Directional;
-            light.intensity = 1.25f;
-            light.transform.rotation = Quaternion.Euler(48f, -35f, 20f);
+            light.intensity = 1.45f;
+            light.transform.rotation = Quaternion.Euler(52f, -28f, 22f);
 
             var fill = new GameObject("Soft Fill Light").AddComponent<Light>();
             fill.type = LightType.Point;
-            fill.intensity = 0.7f;
-            fill.range = 26f;
-            fill.transform.position = new Vector3(0f, 7f, -4f);
+            fill.intensity = 0.9f;
+            fill.range = 18f;
+            fill.transform.position = new Vector3(0f, 6f, -3f);
 
             var cameraObject = new GameObject("Main Camera");
             cameraObject.tag = "MainCamera";
             var camera = cameraObject.AddComponent<Camera>();
-            camera.transform.position = new Vector3(0f, 12f, -11.5f);
+            camera.transform.position = new Vector3(0f, 9.5f, -7.25f);
             camera.transform.rotation = Quaternion.Euler(58f, 0f, 0f);
             camera.orthographic = true;
-            camera.orthographicSize = 7.4f;
+            camera.orthographicSize = 5.15f;
             camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = new Color(0.055f, 0.07f, 0.075f, 1f);
+            camera.backgroundColor = new Color(0.035f, 0.043f, 0.044f, 1f);
 
             EditorSceneManager.SaveScene(scene, ReviewScenePath);
         }
@@ -653,13 +699,169 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     errors.Add(piece.id + ": TerrainPieceValidationTag missing or incomplete.");
                 if (terrainTag == null || terrainTag.fineGridSize.x != piece.FineGridWidth || terrainTag.fineGridSize.y != piece.FineGridHeight)
                     errors.Add(piece.id + ": Stage32TerrainPieceTag missing or mismatched.");
-                if (prefab.GetComponentInChildren<MeshRenderer>(true) == null && prefab.GetComponentInChildren<SkinnedMeshRenderer>(true) == null)
+                var renderers = prefab.GetComponentsInChildren<Renderer>(true);
+                if (renderers.Length == 0)
                     errors.Add(piece.id + ": prefab has no renderer.");
+                ValidateRendererMaterials(piece, renderers, errors);
+                ValidateSourceMeshGeometry(piece, prefab, errors);
+                ValidatePrimaryMaterialTextures(piece, errors);
                 if (prefab.GetComponent<LODGroup>() == null)
                     errors.Add(piece.id + ": LODGroup missing.");
                 if (prefab.GetComponentsInChildren<Collider>(true).Length > 0)
                     errors.Add(piece.id + ": final visual terrain prefab should not include gameplay colliders.");
             }
+        }
+
+        static void ValidateRendererMaterials(FinalMeshPiece piece, Renderer[] renderers, List<string> errors)
+        {
+            var materialCount = 0;
+            var texturedMaterialCount = 0;
+            for (var i = 0; i < renderers.Length; i++)
+            {
+                var shared = renderers[i].sharedMaterials;
+                for (var j = 0; j < shared.Length; j++)
+                {
+                    var material = shared[j];
+                    if (material == null)
+                    {
+                        errors.Add(piece.id + ": renderer " + renderers[i].name + " has a missing material slot.");
+                        continue;
+                    }
+
+                    materialCount++;
+                    if (MaterialHasAnyTexture(material))
+                        texturedMaterialCount++;
+                }
+            }
+
+            if (materialCount == 0)
+                errors.Add(piece.id + ": prefab has zero assigned materials.");
+            if (texturedMaterialCount == 0)
+                errors.Add(piece.id + ": prefab has no material with source texture references.");
+        }
+
+        static void ValidateSourceMeshGeometry(FinalMeshPiece piece, GameObject prefab, List<string> errors)
+        {
+            var filters = prefab.GetComponentsInChildren<MeshFilter>(true);
+            if (filters.Length == 0)
+            {
+                errors.Add(piece.id + ": prefab has no MeshFilter components.");
+                return;
+            }
+
+            var vertexCount = 0;
+            var triangleCount = 0;
+            var sourceMeshReferences = 0;
+            var primitiveMeshReferences = 0;
+            for (var i = 0; i < filters.Length; i++)
+            {
+                var mesh = filters[i].sharedMesh;
+                if (mesh == null)
+                {
+                    errors.Add(piece.id + ": MeshFilter " + filters[i].name + " has no mesh.");
+                    continue;
+                }
+
+                vertexCount += mesh.vertexCount;
+                triangleCount += mesh.triangles != null ? mesh.triangles.Length / 3 : 0;
+                var assetPath = AssetDatabase.GetAssetPath(mesh).Replace('\\', '/');
+                if (assetPath.StartsWith(SourceFolder + "/", StringComparison.OrdinalIgnoreCase) && assetPath.EndsWith(".obj", StringComparison.OrdinalIgnoreCase))
+                    sourceMeshReferences++;
+                if (IsBuiltinPrimitiveMesh(mesh, assetPath))
+                    primitiveMeshReferences++;
+            }
+
+            if (sourceMeshReferences == 0)
+                errors.Add(piece.id + ": prefab render mesh does not come from FinalMeshBatch01 OBJ source.");
+            if (primitiveMeshReferences > 0)
+                errors.Add(piece.id + ": prefab still references built-in primitive mesh geometry.");
+            if (vertexCount < MinimumFinalMeshVertices)
+                errors.Add(piece.id + ": suspiciously low vertex count " + vertexCount + " for final terrain art.");
+            if (triangleCount < MinimumFinalMeshTriangles)
+                errors.Add(piece.id + ": suspiciously low triangle count " + triangleCount + " for final terrain art.");
+        }
+
+        static bool IsBuiltinPrimitiveMesh(Mesh mesh, string assetPath)
+        {
+            if (!string.IsNullOrEmpty(assetPath) && assetPath.StartsWith(SourceFolder + "/", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            var name = mesh.name;
+            return string.Equals(name, "Cube", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(name, "Plane", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(name, "Quad", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(name, "Sphere", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(name, "Cylinder", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(name, "Capsule", StringComparison.OrdinalIgnoreCase);
+        }
+
+        static void ValidatePrimaryMaterialTextures(FinalMeshPiece piece, List<string> errors)
+        {
+            var materialId = string.Equals(piece.id, "resource_cluster_blue_01", StringComparison.OrdinalIgnoreCase)
+                ? piece.id + "_resource_ground"
+                : piece.id + "_ground_surface";
+            var material = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/" + materialId + ".mat");
+            if (material == null)
+            {
+                errors.Add(piece.id + ": primary textured material missing: " + materialId + ".");
+                return;
+            }
+
+            var albedoPath = string.Equals(piece.id, "resource_cluster_blue_01", StringComparison.OrdinalIgnoreCase)
+                ? TexturePath(piece, piece.textures.groundAlbedo)
+                : TexturePath(piece, piece.textures.albedo);
+            var normalPath = string.Equals(piece.id, "resource_cluster_blue_01", StringComparison.OrdinalIgnoreCase)
+                ? TexturePath(piece, piece.textures.groundNormal)
+                : TexturePath(piece, piece.textures.normal);
+            var roughnessPath = string.Equals(piece.id, "resource_cluster_blue_01", StringComparison.OrdinalIgnoreCase)
+                ? TexturePath(piece, piece.textures.groundRoughness)
+                : TexturePath(piece, piece.textures.roughness);
+
+            RequireMaterialTexture(material, new[] { "_BaseMap", "_MainTex" }, albedoPath, piece.id + " albedo", errors);
+            RequireMaterialTexture(material, new[] { "_BumpMap" }, normalPath, piece.id + " normal", errors);
+            RequireMaterialTexture(material, new[] { "_MetallicGlossMap", "_SpecGlossMap", "_MaskMap" }, roughnessPath, piece.id + " roughness", errors);
+        }
+
+        static void RequireMaterialTexture(Material material, string[] propertyNames, string expectedPath, string label, List<string> errors)
+        {
+            if (string.IsNullOrEmpty(expectedPath))
+            {
+                errors.Add(label + ": expected texture path is empty.");
+                return;
+            }
+
+            for (var i = 0; i < propertyNames.Length; i++)
+            {
+                if (!material.HasProperty(propertyNames[i]))
+                    continue;
+                var texture = material.GetTexture(propertyNames[i]);
+                if (TextureMatchesPath(texture, expectedPath))
+                    return;
+            }
+
+            errors.Add(label + ": material " + material.name + " does not reference " + expectedPath + ".");
+        }
+
+        static bool TextureMatchesPath(Texture texture, string expectedPath)
+        {
+            if (texture == null)
+                return false;
+            var actualPath = AssetDatabase.GetAssetPath(texture).Replace('\\', '/');
+            return string.Equals(actualPath, expectedPath.Replace('\\', '/'), StringComparison.OrdinalIgnoreCase);
+        }
+
+        static bool MaterialHasAnyTexture(Material material)
+        {
+            var propertyNames = material.GetTexturePropertyNames();
+            for (var i = 0; i < propertyNames.Length; i++)
+            {
+                if (!material.HasProperty(propertyNames[i]))
+                    continue;
+                var texture = material.GetTexture(propertyNames[i]);
+                if (texture != null && AssetDatabase.GetAssetPath(texture).Replace('\\', '/').StartsWith(SourceFolder + "/", StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
         }
 
         static void ValidateReviewScene(List<string> errors)
@@ -678,8 +880,38 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             }
 
             var tags = Object.FindObjectsByType<Stage32_6FinalTerrainMeshTag>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            if (tags.Length < RequiredPieceCount)
-                errors.Add("Review scene does not contain both final mesh pieces.");
+            if (tags.Length != RequiredPieceCount)
+                errors.Add("Review scene must contain exactly " + RequiredPieceCount + " final mesh pieces; found " + tags.Length + ".");
+
+            var expected = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "ground_grass_dirt_01", "resource_cluster_blue_01" };
+            for (var i = 0; i < tags.Length; i++)
+            {
+                if (tags[i] == null || string.IsNullOrEmpty(tags[i].assetId))
+                    continue;
+                expected.Remove(tags[i].assetId);
+                if (!tags[i].sourceMeshPath.Replace('\\', '/').StartsWith(SourceFolder + "/", StringComparison.OrdinalIgnoreCase))
+                    errors.Add(tags[i].assetId + ": review scene final mesh tag does not point at FinalMeshBatch01 source.");
+            }
+            foreach (var missing in expected)
+                errors.Add("Review scene is missing final mesh prefab: " + missing + ".");
+
+            var terrainValidationTags = Object.FindObjectsByType<TerrainPieceValidationTag>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (var i = 0; i < terrainValidationTags.Length; i++)
+            {
+                var finalTag = terrainValidationTags[i].GetComponent<Stage32_6FinalTerrainMeshTag>();
+                if (finalTag == null)
+                    errors.Add("Review scene contains a terrain validation tag that is not a final mesh prefab: " + terrainValidationTags[i].name + ".");
+            }
+
+            var objects = Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (var i = 0; i < objects.Length; i++)
+            {
+                var objectName = objects[i].name;
+                if (objectName.IndexOf("before placeholder", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    objectName.IndexOf("placeholder comparison", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    objectName.IndexOf("Batch01Imported", StringComparison.OrdinalIgnoreCase) >= 0)
+                    errors.Add("Review scene contains old placeholder content: " + objectName + ".");
+            }
         }
 
         static void ValidateMappedDefinitions(List<string> errors)
