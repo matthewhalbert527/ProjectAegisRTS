@@ -18,15 +18,15 @@ MonoBehaviour:
   sizeClass: 4
   footprintFineWidth: 5
   footprintFineHeight: 2
-  prefab: {fileID: 2267193732979445031, guid: 13378104b19c43348bc7e7224e4e4fa2, type: 3}
-  materialProfileId: batch01_transition
-  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
-    for passability.
-  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
-    for buildability.
+  prefab: {fileID: 7982957455718549985, guid: b0bb5a00de02c9b4b9263148ada00e08, type: 3}
+  materialProfileId: stage32_8_card_road_straight_01
+  passabilityVisualHint: Stage32.8 image-backed visual replacement; passability remains
+    owned by Rts.Core.
+  buildableVisualHint: Stage32.8 image-backed visual replacement; building placement
+    remains owned by Rts.Core.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/road_to_dirt_edge_01.png.
-    Primitive proxy remains fallback/debug only.
-  questBudgetTag: QuestSafeLow
+  notes: Stage32.8 player-facing image-card visual replacement mapped from road_straight_01.
+    This is an interim visual layer until authored 3D terrain arrives.
+  questBudgetTag: QuestSafeStage32_8Card

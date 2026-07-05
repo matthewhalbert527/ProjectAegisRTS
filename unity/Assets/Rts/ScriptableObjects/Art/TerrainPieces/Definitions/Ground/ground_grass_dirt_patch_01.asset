@@ -18,15 +18,15 @@ MonoBehaviour:
   sizeClass: 6
   footprintFineWidth: 3
   footprintFineHeight: 3
-  prefab: {fileID: 2032785422220369070, guid: 0dd25b1490110774a85df532e3576e9b, type: 3}
-  materialProfileId: finalmesh_ground_grass_dirt_01
-  passabilityVisualHint: Final mesh visual metadata passable=True; Rts.Core remains
-    authoritative.
-  buildableVisualHint: Final mesh visual metadata buildable=True; Rts.Core placement
-    remains authoritative.
+  prefab: {fileID: 4144953778033578022, guid: 6afcce2846bd41f45bcbaf5f55c6b91d, type: 3}
+  materialProfileId: stage32_8_card_grass_ground_01
+  passabilityVisualHint: Stage32.8 image-backed visual replacement; passability remains
+    owned by Rts.Core.
+  buildableVisualHint: Stage32.8 image-backed visual replacement; building placement
+    remains owned by Rts.Core.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Stage32.6 FinalMeshBatch01 replacement using imported OBJ mesh asset ground_grass_dirt_01/ground_grass_dirt_01.obj.
-    Placeholder terrain remains fallback/debug only.
-  questBudgetTag: QuestSafeFinalMeshBatch01
+  notes: Stage32.8 player-facing image-card visual replacement mapped from grass_ground_01.
+    This is an interim visual layer until authored 3D terrain arrives.
+  questBudgetTag: QuestSafeStage32_8Card
