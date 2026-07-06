@@ -8,6 +8,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Buildings
         BuildingVisualProfile activeProfile;
         BuildingPlaceholderPartFactory.PartSet parts;
         Stage7BuildingMaterialLibrary materials;
+        BuildingVisualRig activeRig;
         int maxHealth = 1;
         bool initialized;
         BuildingAnimationVisualState? debugForcedState;
@@ -129,7 +130,10 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Buildings
         void EnsureParts()
         {
             materials = Stage7BuildingMaterialLibrary.Create();
-            parts = BuildingPlaceholderPartFactory.CreateParts(transform, activeProfile, materials);
+            activeRig = GetComponentInChildren<BuildingVisualRig>(true);
+            parts = activeRig != null && activeRig.HasAnimatedParts
+                ? activeRig.CreatePartSet()
+                : BuildingPlaceholderPartFactory.CreateParts(transform, activeProfile, materials);
 
             Lights = GetOrAdd<BuildingLightVisualController>();
             Lights.Initialize(parts, activeProfile, materials);

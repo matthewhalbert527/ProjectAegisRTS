@@ -32,7 +32,8 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Buildings
                 return;
 
             var distance = profile == null ? 0.35f : profile.doorOpenDistance;
-            parts.Door.localPosition = closedLocalPosition + Vector3.down * distance * DoorOpen01;
+            var direction = parts.DoorOpenLocalDirection.sqrMagnitude < 0.001f ? Vector3.down : parts.DoorOpenLocalDirection.normalized;
+            parts.Door.localPosition = closedLocalPosition + direction * distance * DoorOpen01;
         }
     }
 }

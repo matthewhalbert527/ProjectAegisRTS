@@ -38,8 +38,9 @@ namespace ProjectAegisRTS.UnityClient.Boot
             GUILayout.Label("Development Prototype");
             GUILayout.Label("Vertical Slice Build");
             GUILayout.Label("Skirmish: " + (controller == null ? "Normal" : controller.SelectedSkirmishDifficultyLabel));
+            GUILayout.Label("Map: " + MapLabel());
             GUILayout.Space(12f);
-            if (GUILayout.Button("Start Vertical Slice", GUILayout.Height(36f)) && controller != null)
+            if (GUILayout.Button(controller != null && controller.GeneratedSkirmishEnabled ? "Start Generated Skirmish" : "Start Vertical Slice", GUILayout.Height(36f)) && controller != null)
                 controller.StartVerticalSlice();
             if (GUILayout.Button("Controls", GUILayout.Height(32f)) && controller != null)
                 controller.ShowControls();
@@ -56,6 +57,14 @@ namespace ProjectAegisRTS.UnityClient.Boot
         {
             area.width = Mathf.Max(area.width, MinimumAreaWidth);
             area.height = Mathf.Max(area.height, MinimumAreaHeight);
+        }
+
+        string MapLabel()
+        {
+            if (controller == null || !controller.GeneratedSkirmishEnabled)
+                return "Authored vertical slice";
+
+            return "Generated seed " + controller.GeneratedSkirmishSeed;
         }
     }
 }

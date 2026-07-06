@@ -11,8 +11,10 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Buildings
             public readonly List<Transform> Lights = new List<Transform>();
             public Transform Machinery;
             public Transform Door;
+            public Vector3 DoorOpenLocalDirection = Vector3.down;
             public Transform ProductionIndicator;
             public Transform Turbine;
+            public readonly List<Transform> ExtraTurbines = new List<Transform>();
             public Transform RadarDish;
             public Transform CraneArm;
             public Transform RepairArmLeft;

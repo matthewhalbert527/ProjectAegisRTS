@@ -39,6 +39,9 @@ namespace ProjectAegisRTS.UnityClient.Board
 
         public void Load()
         {
+            var sceneBoardWidth = boardWidth;
+            var sceneBoardHeight = boardHeight;
+
             if (!PlayerPrefs.HasKey(PlayerPrefsKey))
             {
                 ClampValues();
@@ -61,6 +64,8 @@ namespace ProjectAegisRTS.UnityClient.Board
                 Debug.LogWarning("Stage 3 board placement settings could not be loaded: " + ex.Message);
             }
 
+            boardWidth = sceneBoardWidth;
+            boardHeight = sceneBoardHeight;
             ClampValues();
         }
 

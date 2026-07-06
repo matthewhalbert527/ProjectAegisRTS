@@ -15,18 +15,18 @@ MonoBehaviour:
   actorTypeId: comm_center
   displayName: Comm Center
   safeDisplayName: Comm Center
-  category: 5
-  productionStatus: 1
+  category: 0
+  productionStatus: 6
   conceptReference: {fileID: 11400000, guid: 1d139900ae7203d4ba0d70f3d5e8f258, type: 2}
   icon: {fileID: 21300000, guid: 7d03375fc9d5feb4caaae0bc70aeeb7b, type: 3}
   generatedBlockoutPrefab: {fileID: 503088726282180214, guid: 25fba202aaf3d2641bc3e7c9bae21207, type: 3}
-  productionPrefab: {fileID: 0}
+  productionPrefab: {fileID: 534597442444988369, guid: acf3349367e9a954fbe5a7bbd2d41dbd, type: 3}
   fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
+  preferredPrefabMode: 1
   motionProfileId: building_static
   buildingProfileId: comm_center_building_visual
-  selectionRadius: 1.1
-  selectionHeight: 0.1
+  selectionRadius: 1.12
+  selectionHeight: 0.08
   footprintWidth: 2
   footprintHeight: 2
   visualScale: 1
@@ -36,11 +36,9 @@ MonoBehaviour:
   useInfantryMotionController: 0
   useAircraftMotionController: 0
   useTurretVisualController: 0
-  requiredSockets: 00000000010000000200000003000000040000000500000014000000160000001700000018000000
-  notes: 'Use original antenna/radar architecture.
-
-    Dish rotation, status lights,
-    powered/low-power/offline loops.'
+  requiredSockets: 020000000100000003000000040000000500000014000000
+  notes: Unity AI building slate production prefab. Textured, socketed, and rigged
+    for powered idle and production movement.
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Comm Center
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_42

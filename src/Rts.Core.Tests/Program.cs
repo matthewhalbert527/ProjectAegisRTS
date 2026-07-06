@@ -7,6 +7,7 @@ using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Demo;
 using ProjectAegisRTS.Economy;
+using ProjectAegisRTS.MapGeneration;
 using ProjectAegisRTS.Match;
 using ProjectAegisRTS.Pathfinding;
 using ProjectAegisRTS.Power;
@@ -28,6 +29,8 @@ namespace ProjectAegisRTS.Tests
                 WorldCreationSucceeds,
                 BuildingPlacementFailsOutsideMap,
                 BuildingPlacementFailsOnOccupiedFootprint,
+                BuildingPlacementFailsOnActiveResourceCell,
+                BuildingPlacementSucceedsOnDepletedResourceCell,
                 BuildingPlacementSucceedsWithinConstructionRadius,
                 BuildingDefinitionsExposeFinePlacementFootprints,
                 PlacementPreviewUsesFineGrid,
@@ -115,6 +118,11 @@ namespace ProjectAegisRTS.Tests
                 DiagonalMovementDoesNotCutBlockedCorners,
                 MapValidationCatchesInvalidLayout,
                 MapSnapshotContainsTerrainAndPathDebug,
+                GeneratedMapIsDeterministic,
+                GeneratedMapChangesWithSeed,
+                GeneratedMapIsLeftRightSymmetric,
+                GeneratedSkirmishWorldCreatesValidMap,
+                GeneratedSkirmishWorldHasReachableResourcesAndEnemy,
                 PathingDeterminismSmokeTest,
                 AircraftAndAirfieldDefinitionsExist,
                 HelipadCreatesAirfieldSnapshot,
@@ -177,6 +185,28 @@ namespace ProjectAegisRTS.Tests
             var world = WorldWithCompletedPowerPlant();
             var result = world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", PlacementCell(4, 4)));
             Assert(!result.Success && result.ErrorCode == "OccupiedCell", "Expected OccupiedCell, got " + result.ErrorCode);
+        }
+
+        static void BuildingPlacementFailsOnActiveResourceCell()
+        {
+            var world = WorldWithCompletedPowerPlant();
+            world.AddResourceCell(new Int2(8, 4), ResourceKind.Ore, 120);
+            var preview = world.PreviewPlacement(1, "power_plant", PlacementCell(8, 4));
+            var result = world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", PlacementCell(8, 4)));
+            Assert(!preview.CanPlace && preview.ErrorCode == "ResourceOccupied", "Expected preview ResourceOccupied, got " + preview.ErrorCode);
+            Assert(!result.Success && result.ErrorCode == "ResourceOccupied", "Expected ResourceOccupied, got " + result.ErrorCode);
+        }
+
+        static void BuildingPlacementSucceedsOnDepletedResourceCell()
+        {
+            var world = WorldWithCompletedPowerPlant();
+            var resourceCell = new Int2(8, 4);
+            world.AddResourceCell(resourceCell, ResourceKind.Ore, 120);
+            world.ResourceCells[resourceCell].Amount = 0;
+            var preview = world.PreviewPlacement(1, "power_plant", PlacementCell(8, 4));
+            var result = world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", PlacementCell(8, 4)));
+            Assert(preview.CanPlace, "Expected preview success after ore depletion: " + preview.ErrorCode);
+            Assert(result.Success, "Expected placement success after ore depletion: " + result.ErrorCode);
         }
 
         static void BuildingPlacementSucceedsWithinConstructionRadius()
@@ -1192,6 +1222,65 @@ namespace ProjectAegisRTS.Tests
             Assert(HasTerrainKind(snapshot.Map, "Road"), "Expected road terrain in snapshot.");
         }
 
+        static void GeneratedMapIsDeterministic()
+        {
+            var settings = MapGenerationSettings.CreateDefaultSkirmish(44031);
+            var generator = new AegisMapGenerator();
+            var a = GeneratedMapSignature(generator.Generate(settings));
+            var b = GeneratedMapSignature(generator.Generate(settings));
+            Assert(a == b, "Expected generated map signatures to match for the same seed.");
+        }
+
+        static void GeneratedMapChangesWithSeed()
+        {
+            var generator = new AegisMapGenerator();
+            var a = GeneratedMapSignature(generator.Generate(MapGenerationSettings.CreateDefaultSkirmish(1001)));
+            var b = GeneratedMapSignature(generator.Generate(MapGenerationSettings.CreateDefaultSkirmish(1002)));
+            Assert(a != b, "Expected generated map signatures to differ for different seeds.");
+        }
+
+        static void GeneratedMapIsLeftRightSymmetric()
+        {
+            var generated = new AegisMapGenerator().Generate(MapGenerationSettings.CreateDefaultSkirmish(7219));
+            for (var y = 0; y < generated.Height; y++)
+                for (var x = 0; x < generated.Width; x++)
+                {
+                    var left = generated.TerrainAt(new Int2(x, y));
+                    var right = generated.TerrainAt(new Int2(generated.Width - 1 - x, y));
+                    Assert(left == right, "Expected mirrored terrain at " + x + "," + y + ".");
+                }
+
+            Assert(generated.Spawns.Count == 2, "Expected two generated spawn points.");
+            Assert(generated.Spawns[0].Cell.X == generated.Width - 1 - generated.Spawns[1].Cell.X, "Expected mirrored spawn X positions.");
+            Assert(generated.Spawns[0].Cell.Y == generated.Spawns[1].Cell.Y, "Expected mirrored spawn Y positions.");
+        }
+
+        static void GeneratedSkirmishWorldCreatesValidMap()
+        {
+            var world = DemoWorldFactory.CreateGeneratedSkirmishWorld(99881, AiDifficultyDefinition.CreateNormal());
+            var snapshot = world.CreateSnapshot(1);
+            Assert(snapshot.Map.Width == 40 && snapshot.Map.Height == 40, "Expected default generated skirmish dimensions.");
+            Assert(snapshot.Map.IsValid, "Expected generated skirmish map to validate: " + string.Join(", ", snapshot.Map.ValidationErrors));
+            Assert(world.FirstActorOfType("fabrication_hub", 1) != null, "Expected player generated base.");
+            Assert(world.FirstActorOfType("fabrication_hub", 2) != null, "Expected enemy generated base.");
+            Assert(snapshot.Economy.Resources.Count > 0, "Expected generated resources.");
+            Assert(snapshot.Ai.Players.Count == 1, "Expected generated AI player.");
+        }
+
+        static void GeneratedSkirmishWorldHasReachableResourcesAndEnemy()
+        {
+            var world = DemoWorldFactory.CreateGeneratedSkirmishWorld(31827, AiDifficultyDefinition.CreateNormal());
+            var harvester = world.FirstActorOfType("harvester", 1);
+            var scout = world.FirstActorOfType("scout_rover", 1);
+            var enemyScout = world.FirstActorOfType("scout_rover", 2);
+
+            Assert(harvester != null && scout != null && enemyScout != null, "Expected generated starter units.");
+            Assert(AnyReachableResource(world, harvester), "Expected at least one reachable generated resource.");
+
+            var enemyPath = world.QueryPath(scout.Id, enemyScout.CellPosition);
+            Assert(enemyPath.Success, "Expected generated road/playable region to connect player and enemy scouts: " + enemyPath.FailureCode);
+        }
+
         static void PathingDeterminismSmokeTest()
         {
             var a = RunPathingDeterministicSequence();
@@ -1286,7 +1375,7 @@ namespace ProjectAegisRTS.Tests
         static void VerticalSliceWorldCreates()
         {
             var world = DemoWorldFactory.CreateVerticalSliceWorld();
-            Assert(world.Map.Width == 32 && world.Map.Height == 32, "Expected 32x32 vertical slice map.");
+            Assert(world.Map.Width == 32 && world.Map.Height == 64, "Expected 32x64 vertical slice map.");
             Assert(world.MatchState.IsConfigured, "Expected vertical slice scenario configuration.");
             Assert(world.ValidateMapForPlayer(1).Success, "Expected valid vertical slice map.");
         }
@@ -1321,8 +1410,8 @@ namespace ProjectAegisRTS.Tests
         {
             var world = DemoWorldFactory.CreateVerticalSliceWorld();
             var snapshot = world.CreateSnapshot(1);
-            Assert(snapshot.Fog.Cells.Count == 1024, "Expected one fog cell per map cell.");
-            Assert(HasCellVisibility(snapshot.Fog, new Int2(31, 31), CellVisibility.Unexplored), "Expected far cells to remain unexplored.");
+            Assert(snapshot.Fog.Cells.Count == 2048, "Expected one fog cell per map cell.");
+            Assert(HasCellVisibility(snapshot.Fog, new Int2(31, 63), CellVisibility.Unexplored), "Expected far cells to remain unexplored.");
             Assert(snapshot.Minimap.ActorDots.Count > 0, "Expected minimap actor data.");
         }
 
@@ -1369,11 +1458,11 @@ namespace ProjectAegisRTS.Tests
 
             for (var i = 0; i < combatUnits.Count; i++)
             {
-                var move = world.IssueCommand(new IssueMoveOrderCommand(1, new[] { combatUnits[i] }, new Int2(20, 21)));
+                var move = world.IssueCommand(new IssueMoveOrderCommand(1, new[] { combatUnits[i] }, new Int2(20, 53)));
                 Assert(move.Success, "Expected combat unit move to staging cell: " + move.ErrorCode);
             }
 
-            RunTicks(world, 260);
+            RunTicks(world, 680);
 
             var attackUnits = new List<ActorId>();
             for (var i = 0; i < combatUnits.Count; i++)
@@ -1762,6 +1851,30 @@ namespace ProjectAegisRTS.Tests
             for (var i = 0; i < snapshot.TerrainCells.Count; i++)
                 if (snapshot.TerrainCells[i].Kind == kind)
                     return true;
+            return false;
+        }
+
+        static string GeneratedMapSignature(GeneratedMapResult generated)
+        {
+            var parts = new List<string>();
+            for (var i = 0; i < generated.TerrainCells.Count; i++)
+                parts.Add(generated.TerrainCells[i].Kind.ToString());
+            for (var i = 0; i < generated.Resources.Count; i++)
+                parts.Add("R:" + generated.Resources[i].Cell + ":" + generated.Resources[i].Amount);
+            for (var i = 0; i < generated.Spawns.Count; i++)
+                parts.Add("S:" + generated.Spawns[i].PlayerId + ":" + generated.Spawns[i].Cell);
+            return string.Join("|", parts);
+        }
+
+        static bool AnyReachableResource(RtsWorld world, ActorState harvester)
+        {
+            foreach (var pair in world.ResourceCells)
+            {
+                var result = world.QueryPath(harvester.Id, pair.Value.Cell);
+                if (result.Success)
+                    return true;
+            }
+
             return false;
         }
 

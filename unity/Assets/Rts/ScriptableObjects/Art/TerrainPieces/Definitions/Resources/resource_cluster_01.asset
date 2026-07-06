@@ -18,15 +18,14 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 5502428457666058578, guid: b2e7e20543659f149a25317b7d98395b, type: 3}
-  materialProfileId: stage32_8_card_resource_cluster_blue_01
-  passabilityVisualHint: Stage32.8 image-backed visual replacement; passability remains
-    owned by Rts.Core.
-  buildableVisualHint: Stage32.8 image-backed visual replacement; building placement
-    remains owned by Rts.Core.
+  prefab: {fileID: 5595807312813088185, guid: 29e1e1a9927d2cc4da03bd2e7797670c, type: 3}
+  materialProfileId: mineral
+  passabilityVisualHint: Harvest visual marker.
+  buildableVisualHint: No-build resource hint.
   supportsRotation: 1
   supportsTint: 0
-  isGameplayBlockingVisualOnly: 1
-  notes: Stage32.8 player-facing image-card visual replacement mapped from resource_cluster_blue_01.
-    This is an interim visual layer until authored 3D terrain arrives.
-  questBudgetTag: QuestSafeStage32_8Card
+  isGameplayBlockingVisualOnly: 0
+  notes: Stage32.6 runtime terrain assembly mapped from resource_cluster_blue_01.
+    Reference sheets are art direction only; this prefab is visual-only and never
+    gameplay authority.
+  questBudgetTag: QuestSafeLow

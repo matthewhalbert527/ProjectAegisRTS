@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ProjectAegisRTS.UnityClient.Boot;
 using ProjectAegisRTS.UnityClient.Bootstrap;
+using ProjectAegisRTS.UnityClient.Board;
 using ProjectAegisRTS.UnityClient.CameraControls;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.InputControls.Desktop;
@@ -87,9 +88,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var playerInitializer = GetOrAdd<PlayerBuildSceneInitializer>(game);
             var debugVisibility = GetOrAdd<DebugHudVisibilityController>(game);
             var bootstrapper = GetOrAdd<RtsGameBootstrapper>(game);
+            bootstrapper.boardWidth = 32;
+            bootstrapper.boardHeight = 64;
+            ConfigureBoardPlacementModel(bootstrapper.boardWidth, bootstrapper.boardHeight, bootstrapper.boardCellSizeMeters);
             EnsureDesktopHud(bootstrapper, driver, progressTracker, missionFlow);
             EnsureDualHandCompatibility(game, driver);
-            Stage32TerrainPieceGenerator.ConfigureStage16SetDressing(game);
+            DisablePlayerFacingTerrainSetDressing(game);
+            ConfigureUnityAiClassicMapBoardSurface();
 
             controller.driver = driver;
             controller.objectiveHud = objectiveHud;
@@ -150,9 +155,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             playerInitializer.startScenarioOnLoad = true;
             playerInitializer.hideDebugPanelsOnStart = true;
             playerInitializer.cancelPlacementOnStart = true;
-            playerInitializer.cameraPosition = new Vector3(16f, 30f, -2f);
+            playerInitializer.cameraPosition = new Vector3(16f, 48f, -3f);
             playerInitializer.cameraRotationEuler = new Vector3(60f, 0f, 0f);
-            playerInitializer.cameraOrthographicSize = 18f;
+            playerInitializer.cameraOrthographicSize = 34f;
 
             debugVisibility.showDebugPanelsByDefault = false;
             debugVisibility.hideDebugPanelsOnStart = true;
@@ -189,25 +194,41 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             Debug.Log("Created Stage 16 scene at " + ScenePath);
         }
 
+        static void ConfigureBoardPlacementModel(int boardWidth, int boardHeight, float metersPerCell)
+        {
+            var boardPlacements = UnityEngine.Object.FindObjectsByType<BoardPlacementController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (var i = 0; i < boardPlacements.Length; i++)
+            {
+                var boardPlacement = boardPlacements[i];
+                if (boardPlacement == null)
+                    continue;
+
+                boardPlacement.model.boardWidth = boardWidth;
+                boardPlacement.model.boardHeight = boardHeight;
+                boardPlacement.model.metersPerCell = metersPerCell;
+                EditorUtility.SetDirty(boardPlacement);
+            }
+        }
+
         static void ConfigureCamera(Camera camera)
         {
             if (camera == null)
                 return;
             camera.orthographic = true;
-            camera.orthographicSize = 18f;
+            camera.orthographicSize = 34f;
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(0.10f, 0.12f, 0.13f, 1f);
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 1000f;
-            camera.transform.position = new Vector3(16f, 30f, -2f);
+            camera.transform.position = new Vector3(16f, 48f, -3f);
             camera.transform.rotation = Quaternion.Euler(60f, 0f, 0f);
 
             var cameraController = camera.GetComponent<RtsCameraController>();
             if (cameraController != null)
             {
                 cameraController.preserveConfiguredTransform = true;
-                cameraController.orthographicSize = 18f;
-                cameraController.maxHeight = 30f;
+                cameraController.orthographicSize = 34f;
+                cameraController.maxHeight = 48f;
             }
 
             if (UnityEngine.Object.FindFirstObjectByType<AudioListener>() == null)
@@ -298,6 +319,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 framer.mapper = UnityEngine.Object.FindFirstObjectByType<BoardCoordinateMapper>();
                 framer.applyOnStart = true;
                 framer.applyOnScreenChange = true;
+                framer.boardPadding = 1.05f;
+                framer.minOrthographicSize = 24f;
+                framer.maxOrthographicSize = 48f;
+                framer.preferredCameraHeight = 48f;
             }
         }
 
@@ -376,6 +401,27 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             rightCoordinator.commandReticle = rightReticle;
         }
 
+        static void DisablePlayerFacingTerrainSetDressing(GameObject game)
+        {
+            RemoveComponentIfPresent<TerrainSetDressingRuntimeLayer>(game);
+            RemoveComponentIfPresent<TerrainSetDressingRenderer>(game);
+            RemoveComponentIfPresent<TerrainPieceRuntimeResolver>(game);
+
+            var board = GameObject.Find("BoardRoot");
+            var setDressing = board != null ? board.transform.Find("Stage32 Terrain Set Dressing") : null;
+            if (setDressing != null)
+                UnityEngine.Object.DestroyImmediate(setDressing.gameObject);
+
+            EditorUtility.SetDirty(game);
+        }
+
+        static void RemoveComponentIfPresent<T>(GameObject game) where T : Component
+        {
+            var component = game != null ? game.GetComponent<T>() : null;
+            if (component != null)
+                UnityEngine.Object.DestroyImmediate(component);
+        }
+
         static void EnsureEventSystem()
         {
             if (UnityEngine.Object.FindFirstObjectByType<EventSystem>() != null)
@@ -384,6 +430,163 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var eventSystem = new GameObject("EventSystem");
             eventSystem.AddComponent<EventSystem>();
             eventSystem.AddComponent<StandaloneInputModule>();
+        }
+
+        static void ConfigureUnityAiClassicMapBoardSurface()
+        {
+            var boardRenderer = UnityEngine.Object.FindFirstObjectByType<BoardRenderer>();
+            if (boardRenderer == null)
+                return;
+
+            var material = LoadOrCreateUnityAiClassicMapBoardMaterial();
+            if (material == null)
+            {
+                Debug.LogWarning("Unity AI classic RTS battlefield texture is missing. Expected: Assets/Rts/Art/UnityAIClassicRtsMap/AITextures/ClassicRtsBattlefieldMapAlbedo.png");
+                return;
+            }
+
+            boardRenderer.boardSurfaceMaterialOverride = material;
+            boardRenderer.boardSurfaceUseSingleTextureAcrossBoard = true;
+            boardRenderer.boardSurfaceTileRepeatsPerCell = 1f;
+            boardRenderer.boardSurfaceDetailRepeatsPerCell = 1f;
+            boardRenderer.boardSurfaceTint = Color.white;
+            boardRenderer.showStaticGridLines = false;
+            EditorUtility.SetDirty(boardRenderer);
+        }
+
+        static Material LoadOrCreateUnityAiClassicMapBoardMaterial()
+        {
+            const string texturePath = "Assets/Rts/Art/UnityAIClassicRtsMap/AITextures/ClassicRtsBattlefieldMapAlbedo.png";
+            const string materialFolder = "Assets/Rts/Art/Materials/Terrain/UnityAIClassicRtsMap";
+            const string materialPath = materialFolder + "/board_classic_rts_battlefield_map.mat";
+
+            var existing = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+            var mapTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
+            if (mapTexture == null)
+                return null;
+
+            EnsureAssetFolder(materialFolder);
+            ConfigureClassicMapTexture(mapTexture);
+            var shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (shader == null)
+                shader = Shader.Find("Standard");
+            if (shader == null)
+                shader = Shader.Find("Unlit/Texture");
+
+            var material = existing != null ? existing : new Material(shader);
+            material.name = "board_classic_rts_battlefield_map";
+            material.shader = shader;
+            SetTexture(material, "_BaseMap", mapTexture);
+            SetTexture(material, "_MainTex", mapTexture);
+            SetColor(material, "_BaseColor", Color.white);
+            SetColor(material, "_Color", Color.white);
+            SetFloat(material, "_Smoothness", 0.18f);
+            SetFloat(material, "_Metallic", 0f);
+
+            EditorUtility.SetDirty(material);
+            if (existing == null)
+                AssetDatabase.CreateAsset(material, materialPath);
+            return material;
+        }
+
+        static void EnsureAssetFolder(string assetFolder)
+        {
+            var parts = assetFolder.Split('/');
+            var current = parts[0];
+            for (var i = 1; i < parts.Length; i++)
+            {
+                var next = current + "/" + parts[i];
+                if (!AssetDatabase.IsValidFolder(next))
+                    AssetDatabase.CreateFolder(current, parts[i]);
+                current = next;
+            }
+        }
+
+        static void SetTexture(Material material, string propertyName, Texture texture)
+        {
+            if (texture != null && material.HasProperty(propertyName))
+                material.SetTexture(propertyName, texture);
+        }
+
+        static Texture2D LoadHighDetailTexture(string assetPath, bool normalMap)
+        {
+            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
+            ConfigureHighDetailTerrainTexture(texture, normalMap);
+            return texture;
+        }
+
+        static void ConfigureClassicMapTexture(Texture texture)
+        {
+            if (texture == null)
+                return;
+
+            var path = AssetDatabase.GetAssetPath(texture);
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null)
+                return;
+
+            importer.textureType = TextureImporterType.Default;
+            importer.maxTextureSize = 4096;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.filterMode = FilterMode.Trilinear;
+            importer.anisoLevel = 16;
+            importer.mipmapEnabled = true;
+            importer.mipMapBias = -0.25f;
+            importer.streamingMipmaps = true;
+            importer.streamingMipmapsPriority = 3;
+
+            var standalone = new TextureImporterPlatformSettings
+            {
+                name = "Standalone",
+                overridden = true,
+                maxTextureSize = 4096,
+                textureCompression = TextureImporterCompression.Uncompressed
+            };
+            importer.SetPlatformTextureSettings(standalone);
+            importer.SaveAndReimport();
+        }
+
+        static void ConfigureHighDetailTerrainTexture(Texture texture, bool normalMap)
+        {
+            if (texture == null)
+                return;
+
+            var path = AssetDatabase.GetAssetPath(texture);
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null)
+                return;
+
+            importer.textureType = normalMap ? TextureImporterType.NormalMap : TextureImporterType.Default;
+            importer.maxTextureSize = 2048;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.filterMode = FilterMode.Trilinear;
+            importer.anisoLevel = 16;
+            importer.mipmapEnabled = true;
+            importer.mipMapBias = -0.35f;
+            importer.streamingMipmaps = true;
+            importer.streamingMipmapsPriority = 3;
+
+            var standalone = new TextureImporterPlatformSettings
+            {
+                name = "Standalone",
+                overridden = true,
+                maxTextureSize = 2048,
+                textureCompression = TextureImporterCompression.Uncompressed
+            };
+            importer.SetPlatformTextureSettings(standalone);
+            importer.SaveAndReimport();
+        }
+
+        static void SetColor(Material material, string propertyName, Color color)
+        {
+            if (material.HasProperty(propertyName))
+                material.SetColor(propertyName, color);
+        }
+
+        static void SetFloat(Material material, string propertyName, float value)
+        {
+            if (material.HasProperty(propertyName))
+                material.SetFloat(propertyName, value);
         }
 
         static Canvas CreateCanvas()

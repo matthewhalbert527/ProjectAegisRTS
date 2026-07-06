@@ -106,6 +106,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 return;
 
             EnsureStage32TerrainPieces();
+            if (AssetDatabase.IsValidFolder(Stage32TerrainSampleGroundTileIntegrator.SampleRoot))
+                Stage32TerrainSampleGroundTileIntegrator.IntegrateGroundTiles();
+
             var layer = GetOrAdd<TerrainSetDressingRuntimeLayer>(game);
             var resolver = GetOrAdd<TerrainPieceRuntimeResolver>(game);
             var renderer = GetOrAdd<TerrainSetDressingRenderer>(game);
@@ -123,7 +126,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             resolver.materialLibrary = layer.materialLibrary;
             renderer.resolver = resolver;
             renderer.profile = layer.activeProfile;
-            renderer.hardInstanceLimit = 52;
+            renderer.hardInstanceLimit = 180;
             renderer.renderOnStart = true;
             renderer.rebuildOnRender = true;
 
@@ -531,10 +534,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             profile.profileId = "stage32_player_facing";
             profile.displayName = "Stage 32 Player-Facing Battlefield Set Dressing";
             profile.deterministicSeed = 3201;
-            profile.maxRenderedPieces = 44;
+            profile.maxRenderedPieces = 180;
             profile.preserveFineGridReadability = true;
             profile.visualOnlyNeverGameplayAuthority = true;
-            profile.notes = "Player-facing terrain dressing uses real Unity prefab assemblies. Reference sheets are art direction only and must not be used as runtime terrain cards.";
+            profile.notes = "Player-facing terrain dressing uses real Unity prefab assemblies and Terrain Sample Asset Pack ground replacements when installed. The Stage16 map is dressed as two vertically stacked 32-cell battlefield sections with classic military RTS-style cliffs, boulders, outpost pads, wreckage, and route details. Reference sheets are art direction only and must not be used as runtime terrain cards.";
             profile.placements = BuildPlayerFacingPlacements();
             EditorUtility.SetDirty(profile);
             return profile;
@@ -570,40 +573,151 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             AddPlacement(placements, "base_rally_exit_marking_02", 16.4f, 9.6f, 90f, 0.90f, "rally lane");
             AddPlacement(placements, "ground_compact_soil_patch_01", 5.3f, 10.0f, 15f, 1.10f, "base worn ground");
             AddPlacement(placements, "ground_compact_soil_patch_02", 8.8f, 10.6f, -10f, 1.00f, "base worn ground");
+            AddPlacement(placements, "ground_compact_soil_patch_03", 11.6f, 10.8f, 8f, 0.92f, "base-to-road worn ground");
+            AddPlacement(placements, "ground_grass_dirt_patch_03", 3.8f, 11.5f, 32f, 1.00f, "player-side heather field variation");
+            AddPlacement(placements, "ground_grass_dirt_patch_04", 7.1f, 13.0f, -24f, 0.95f, "player-side heather field variation");
             AddPlacement(placements, "ground_scorched_patch_01", 3.1f, 13.6f, 28f, 0.90f, "battle scar edge");
             AddPlacement(placements, "ground_mud_patch_01", 19.4f, 14.4f, -18f, 0.90f, "route texture");
+            AddPlacement(placements, "ground_mud_patch_02", 21.2f, 15.5f, 18f, 0.88f, "road shoulder mud");
             AddPlacement(placements, "transition_concrete_ground_edge_01", 6.0f, 8.8f, 0f, 1.0f, "base edge blend");
+            AddPlacement(placements, "transition_concrete_ground_edge_02", 9.2f, 8.7f, 0f, 0.95f, "base edge blend");
             AddPlacement(placements, "transition_buildable_edge_01", 11.5f, 5.2f, 0f, 0.95f, "build zone edge");
+            AddPlacement(placements, "transition_buildable_edge_02", 3.6f, 5.2f, 0f, 0.88f, "build zone edge");
             AddPlacement(placements, "transition_dirt_road_blend_01", 17.1f, 10.9f, 0f, 1.0f, "road blend");
+            AddPlacement(placements, "transition_dirt_road_blend_02", 18.9f, 12.0f, 8f, 0.95f, "road blend");
+            AddPlacement(placements, "transition_dirt_road_blend_03", 20.9f, 13.2f, 10f, 0.90f, "road blend");
             AddPlacement(placements, "resource_cluster_01", 24.5f, 16.5f, 20f, 1.0f, "resource decoration");
             AddPlacement(placements, "resource_cluster_02", 25.8f, 17.7f, -12f, 0.92f, "resource decoration");
+            AddPlacement(placements, "resource_cluster_03", 26.6f, 15.2f, 32f, 0.82f, "resource decoration");
+            AddPlacement(placements, "resource_cluster_04", 28.0f, 17.8f, -28f, 0.76f, "resource decoration");
             AddPlacement(placements, "resource_rich_cluster_01", 27.1f, 16.4f, 45f, 0.88f, "resource decoration");
+            AddPlacement(placements, "resource_rich_cluster_02", 25.2f, 15.0f, -20f, 0.78f, "resource decoration");
             AddPlacement(placements, "resource_decal_01", 24.8f, 18.6f, 0f, 1.20f, "resource ground tint");
+            AddPlacement(placements, "resource_decal_02", 27.0f, 15.7f, 18f, 1.05f, "resource ground tint");
             AddPlacement(placements, "resource_harvest_marker_01", 22.8f, 15.9f, 90f, 0.80f, "harvest route marker");
+            AddPlacement(placements, "resource_harvest_marker_02", 23.4f, 17.2f, 90f, 0.72f, "harvest route marker");
             AddPlacement(placements, "transition_resource_edge_01", 23.4f, 15.2f, 25f, 1.0f, "resource edge");
+            AddPlacement(placements, "transition_resource_edge_02", 26.8f, 18.9f, -16f, 0.94f, "resource edge");
             AddPlacement(placements, "obstacle_rock_cluster_01", 1.4f, 2.5f, 14f, 1.0f, "map edge obstacle");
             AddPlacement(placements, "obstacle_rock_cluster_02", 29.2f, 3.6f, -30f, 1.0f, "map edge obstacle");
+            AddPlacement(placements, "obstacle_rock_cluster_03", 30.0f, 6.5f, -12f, 0.92f, "map edge obstacle");
+            AddPlacement(placements, "obstacle_rock_cluster_04", 1.8f, 6.2f, 28f, 0.85f, "map edge obstacle");
             AddPlacement(placements, "obstacle_ridge_piece_01", 29.5f, 10.8f, 90f, 1.1f, "map edge ridge");
+            AddPlacement(placements, "obstacle_ridge_piece_02", 28.8f, 12.7f, 88f, 0.92f, "map edge ridge");
+            AddPlacement(placements, "obstacle_ridge_piece_03", 30.2f, 16.9f, 84f, 0.82f, "map edge ridge");
             AddPlacement(placements, "obstacle_cliff_blocker_chunk_01", 2.0f, 19.2f, 32f, 0.95f, "map edge blocker");
+            AddPlacement(placements, "obstacle_cliff_blocker_chunk_02", 1.3f, 16.9f, -12f, 0.82f, "map edge blocker");
+            AddPlacement(placements, "obstacle_cliff_blocker_chunk_03", 5.8f, 21.0f, 16f, 0.78f, "map edge blocker");
             AddPlacement(placements, "obstacle_tree_bush_cluster_01", 4.4f, 20.6f, -20f, 0.90f, "map edge foliage");
+            AddPlacement(placements, "obstacle_tree_bush_cluster_02", 8.0f, 21.2f, 24f, 0.82f, "map edge foliage");
             AddPlacement(placements, "obstacle_wreckage_01", 21.2f, 4.2f, -36f, 0.82f, "edge battlefield wreck");
+            AddPlacement(placements, "obstacle_wreckage_02", 24.0f, 5.0f, 28f, 0.74f, "edge battlefield wreck");
             AddPlacement(placements, "obstacle_debris_01", 22.7f, 5.1f, 15f, 0.80f, "edge battlefield debris");
+            AddPlacement(placements, "obstacle_debris_02", 24.7f, 6.4f, -15f, 0.72f, "edge battlefield debris");
             AddPlacement(placements, "prop_sandbag_01", 12.0f, 14.1f, 0f, 0.75f, "base perimeter prop");
             AddPlacement(placements, "prop_sandbag_02", 13.2f, 14.2f, 0f, 0.75f, "base perimeter prop");
+            AddPlacement(placements, "prop_sandbag_03", 14.5f, 14.0f, 8f, 0.68f, "base perimeter prop");
             AddPlacement(placements, "prop_barrier_01", 18.7f, 7.1f, 90f, 0.86f, "route edge prop");
+            AddPlacement(placements, "prop_barrier_02", 19.8f, 8.4f, 90f, 0.74f, "route edge prop");
             AddPlacement(placements, "prop_tank_trap_01", 30.1f, 14.6f, 20f, 0.88f, "edge prop");
+            AddPlacement(placements, "prop_tank_trap_02", 28.9f, 15.5f, -18f, 0.72f, "edge prop");
             AddPlacement(placements, "prop_tire_tracks_01", 17.4f, 12.7f, 15f, 1.15f, "vehicle path texture");
             AddPlacement(placements, "prop_tire_tracks_02", 19.6f, 13.5f, 15f, 1.0f, "vehicle path texture");
             AddPlacement(placements, "prop_shell_mark_01", 21.4f, 13.7f, 12f, 0.80f, "battle scar");
+            AddPlacement(placements, "prop_shell_mark_02", 22.8f, 12.5f, -18f, 0.68f, "battle scar");
             AddPlacement(placements, "prop_crates_01", 9.6f, 4.3f, 0f, 0.75f, "base logistics prop");
+            AddPlacement(placements, "prop_crates_02", 10.7f, 4.5f, 8f, 0.62f, "base logistics prop");
             AddPlacement(placements, "prop_antenna_beacon_01", 6.5f, 4.0f, 0f, 0.82f, "base beacon prop");
             AddPlacement(placements, "prop_destroyed_vehicle_proxy_01", 27.4f, 7.2f, -45f, 0.84f, "edge wreck prop");
+            AddPlacement(placements, "prop_destroyed_vehicle_proxy_02", 26.0f, 6.4f, 25f, 0.70f, "edge wreck prop");
             AddPlacement(placements, "transition_rock_edge_01", 28.4f, 5.3f, 35f, 1.0f, "rock edge blend");
+            AddPlacement(placements, "transition_rock_edge_02", 30.0f, 8.8f, 80f, 0.86f, "rock edge blend");
             AddPlacement(placements, "ground_road_path_01", 20.7f, 12.9f, 8f, 1.05f, "route texture");
+            AddPlacement(placements, "ground_road_path_02", 22.4f, 14.2f, 10f, 0.92f, "route texture");
             AddPlacement(placements, "ground_grass_dirt_patch_01", 2.4f, 9.4f, -18f, 1.1f, "field variation");
             AddPlacement(placements, "ground_grass_dirt_patch_02", 27.6f, 20.5f, 20f, 1.0f, "field variation");
             AddPlacement(placements, "ground_rocky_blocked_01", 30.0f, 19.2f, -15f, 0.95f, "edge blocked visual");
+            StackSecondBattlefieldSection(placements);
+            AddClassicMilitaryRtsDetailPass(placements);
             return placements;
+        }
+
+        static void StackSecondBattlefieldSection(List<TerrainSetDressingPlacement> placements)
+        {
+            var lowerCount = placements.Count;
+            for (var i = 0; i < lowerCount; i++)
+            {
+                var source = placements[i];
+                if (source == null || string.IsNullOrEmpty(source.pieceId))
+                    continue;
+
+                AddPlacement(
+                    placements,
+                    source.pieceId,
+                    source.localPosition.x,
+                    source.localPosition.z + 32f,
+                    source.rotationY,
+                    source.uniformScale,
+                    "stacked northern section: " + source.placementRole);
+            }
+        }
+
+        static void AddClassicMilitaryRtsDetailPass(List<TerrainSetDressingPlacement> placements)
+        {
+            AddPlacement(placements, "obstacle_ridge_piece_01", 3.2f, 33.8f, 4f, 1.05f, "northern cliff line");
+            AddPlacement(placements, "obstacle_ridge_piece_02", 6.8f, 34.3f, -5f, 0.95f, "northern cliff line");
+            AddPlacement(placements, "obstacle_ridge_piece_03", 10.1f, 35.1f, 8f, 0.92f, "northern cliff line");
+            AddPlacement(placements, "obstacle_cliff_blocker_chunk_01", 1.5f, 37.0f, 12f, 0.92f, "northern cliff mass");
+            AddPlacement(placements, "obstacle_cliff_blocker_chunk_02", 29.4f, 39.8f, -20f, 0.98f, "eastern boulder gate");
+            AddPlacement(placements, "obstacle_cliff_blocker_chunk_03", 28.6f, 42.2f, 18f, 0.88f, "eastern boulder gate");
+            AddPlacement(placements, "obstacle_rock_cluster_01", 24.0f, 34.6f, 25f, 0.84f, "scattered boulder detail");
+            AddPlacement(placements, "obstacle_rock_cluster_02", 25.8f, 36.2f, -12f, 0.76f, "scattered boulder detail");
+            AddPlacement(placements, "obstacle_rock_cluster_03", 6.0f, 59.0f, 18f, 0.92f, "northern edge boulders");
+            AddPlacement(placements, "obstacle_rock_cluster_04", 9.2f, 60.0f, -8f, 0.82f, "northern edge boulders");
+            AddPlacement(placements, "obstacle_tree_bush_cluster_01", 13.0f, 36.4f, 16f, 0.80f, "northern vegetation pocket");
+            AddPlacement(placements, "obstacle_tree_bush_cluster_02", 15.5f, 37.0f, -20f, 0.74f, "northern vegetation pocket");
+
+            AddPlacement(placements, "ground_road_path_01", 17.8f, 32.4f, 88f, 1.18f, "vertical road spine");
+            AddPlacement(placements, "ground_road_path_02", 18.0f, 36.6f, 90f, 1.08f, "vertical road spine");
+            AddPlacement(placements, "ground_road_path_01", 18.0f, 40.8f, 90f, 1.08f, "vertical road spine");
+            AddPlacement(placements, "ground_road_path_02", 18.0f, 44.6f, 90f, 1.02f, "vertical road spine");
+            AddPlacement(placements, "transition_dirt_road_blend_01", 15.3f, 45.4f, 0f, 1.0f, "crossroad shoulder");
+            AddPlacement(placements, "transition_dirt_road_blend_02", 20.7f, 45.5f, 0f, 0.96f, "crossroad shoulder");
+            AddPlacement(placements, "prop_tire_tracks_01", 16.8f, 38.7f, 86f, 1.10f, "northbound vehicle tracks");
+            AddPlacement(placements, "prop_tire_tracks_02", 19.4f, 41.4f, 88f, 1.02f, "northbound vehicle tracks");
+
+            AddPlacement(placements, "base_foundation_pad_04", 6.6f, 48.0f, 0f, 0.92f, "abandoned outpost pad");
+            AddPlacement(placements, "ground_concrete_pad_01", 9.9f, 49.0f, 0f, 0.88f, "abandoned outpost pad");
+            AddPlacement(placements, "ground_concrete_pad_02", 13.0f, 49.1f, 0f, 0.82f, "abandoned outpost pad");
+            AddPlacement(placements, "base_production_apron_01", 11.4f, 51.5f, 90f, 0.78f, "abandoned production apron");
+            AddPlacement(placements, "base_footprint_decal_01", 7.1f, 51.2f, 0f, 0.78f, "outpost footprint");
+            AddPlacement(placements, "base_footprint_decal_02", 14.0f, 51.4f, 0f, 0.72f, "outpost footprint");
+            AddPlacement(placements, "prop_crates_01", 5.2f, 50.4f, 12f, 0.70f, "outpost logistics");
+            AddPlacement(placements, "prop_crates_02", 6.2f, 51.6f, -8f, 0.62f, "outpost logistics");
+            AddPlacement(placements, "prop_antenna_beacon_01", 12.6f, 50.8f, 0f, 0.80f, "outpost beacon");
+            AddPlacement(placements, "prop_barrier_01", 4.6f, 48.2f, 90f, 0.82f, "outpost perimeter");
+            AddPlacement(placements, "prop_barrier_02", 15.4f, 48.2f, 90f, 0.72f, "outpost perimeter");
+            AddPlacement(placements, "prop_sandbag_01", 8.2f, 52.7f, 0f, 0.70f, "outpost defense");
+            AddPlacement(placements, "prop_sandbag_02", 9.6f, 52.8f, 0f, 0.70f, "outpost defense");
+            AddPlacement(placements, "prop_tank_trap_01", 16.6f, 52.2f, 20f, 0.78f, "outpost blocker");
+            AddPlacement(placements, "prop_tank_trap_02", 17.6f, 53.2f, -18f, 0.68f, "outpost blocker");
+
+            AddPlacement(placements, "resource_decal_01", 23.4f, 46.5f, 0f, 1.16f, "northern resource field");
+            AddPlacement(placements, "resource_decal_02", 27.2f, 47.0f, 12f, 1.06f, "northern resource field");
+            AddPlacement(placements, "resource_cluster_01", 24.7f, 46.3f, 15f, 0.95f, "northern resource cluster");
+            AddPlacement(placements, "resource_cluster_02", 25.8f, 47.7f, -20f, 0.92f, "northern resource cluster");
+            AddPlacement(placements, "resource_cluster_03", 27.0f, 46.5f, 28f, 0.84f, "northern resource cluster");
+            AddPlacement(placements, "resource_rich_cluster_01", 28.0f, 48.1f, -32f, 0.78f, "northern resource cluster");
+            AddPlacement(placements, "resource_harvest_marker_01", 22.4f, 47.2f, 90f, 0.70f, "resource route marker");
+
+            AddPlacement(placements, "obstacle_wreckage_01", 21.5f, 56.5f, -32f, 0.84f, "enemy approach wreck");
+            AddPlacement(placements, "obstacle_wreckage_02", 24.2f, 57.4f, 20f, 0.76f, "enemy approach wreck");
+            AddPlacement(placements, "obstacle_debris_01", 22.8f, 58.4f, 5f, 0.74f, "enemy approach debris");
+            AddPlacement(placements, "obstacle_debris_02", 25.6f, 59.0f, -16f, 0.68f, "enemy approach debris");
+            AddPlacement(placements, "prop_destroyed_vehicle_proxy_01", 20.2f, 60.3f, -35f, 0.78f, "destroyed vehicle story prop");
+            AddPlacement(placements, "prop_destroyed_vehicle_proxy_02", 26.8f, 60.6f, 28f, 0.70f, "destroyed vehicle story prop");
+            AddPlacement(placements, "prop_shell_mark_01", 18.6f, 55.3f, 16f, 0.72f, "shell mark detail");
+            AddPlacement(placements, "prop_shell_mark_02", 27.2f, 54.8f, -10f, 0.64f, "shell mark detail");
         }
 
         static List<TerrainSetDressingPlacement> BuildImportedSourceArtPlacements()

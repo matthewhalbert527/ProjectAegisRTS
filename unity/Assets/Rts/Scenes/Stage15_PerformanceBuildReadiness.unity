@@ -10633,6 +10633,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47cb6f516e762904e87941b24cc339fc, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.BoardRenderer
+  boardSurfaceMaterialOverride: {fileID: 0}
+  boardSurfaceTileRepeatsPerCell: 1
+  boardSurfaceTint: {r: 1, g: 1, b: 1, a: 1}
+  showStaticGridLines: 1
 --- !u!21 &1501038211
 Material:
   serializedVersion: 8
@@ -13540,8 +13544,10 @@ MonoBehaviour:
   useAiSkirmishDemoWorld: 0
   useMapTerrainDemoWorld: 0
   useVerticalSliceDemoWorld: 0
+  useGeneratedSkirmishWorld: 0
   usePlayerPerspectiveSnapshot: 0
   skirmishDifficultyId: normal
+  generatedSkirmishSeed: 34034
   feedbackEventBus: {fileID: 1950440635}
 --- !u!114 &1950440598
 MonoBehaviour:
@@ -13653,6 +13659,7 @@ MonoBehaviour:
   playerFacingUiModeController: {fileID: 0}
   integratedSystemsStatusHud: {fileID: 0}
   verticalSliceDebugActions: {fileID: 0}
+  featureRegressionHud: {fileID: 0}
   simulationDriver: {fileID: 1950440597}
   inputController: {fileID: 1950440599}
   debugHud: {fileID: 1950440598}

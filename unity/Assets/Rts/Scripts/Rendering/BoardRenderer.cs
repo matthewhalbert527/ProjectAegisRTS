@@ -13,6 +13,15 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         BoardCoordinateMapper mapper;
         Stage1MaterialLibrary materials;
         GameObject hoverCell;
+
+        [Header("Board Surface Visuals")]
+        public Material boardSurfaceMaterialOverride;
+        public bool boardSurfaceUseSingleTextureAcrossBoard;
+        public float boardSurfaceTileRepeatsPerCell = 1f;
+        public float boardSurfaceDetailRepeatsPerCell = 2.25f;
+        public Color boardSurfaceTint = Color.white;
+        public bool showStaticGridLines = true;
+
         public int FineGridLineCount { get; private set; }
 
         public void Initialize(BoardCoordinateMapper coordinateMapper)
@@ -22,7 +31,10 @@ namespace ProjectAegisRTS.UnityClient.Rendering
 
             ClearGeneratedChildren();
             CreateBoardSurface();
-            CreateGridLines();
+            if (showStaticGridLines)
+                CreateGridLines();
+            else
+                FineGridLineCount = CalculateFineGridLineCount();
             hoverCell = CreateFlatCell("Hovered Cell", materials.HoverCell);
             hoverCell.SetActive(false);
         }
@@ -125,7 +137,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
                 0.05f,
                 mapper.BoardHeight * mapper.CellSizeMeters);
             RemoveCollider(surface);
-            SetMaterial(surface, materials.Board);
+            SetMaterial(surface, CreateBoardSurfaceMaterial());
 
             var edge = GameObject.CreatePrimitive(PrimitiveType.Cube);
             edge.name = "Board Edge";
@@ -163,6 +175,16 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             }
         }
 
+        int CalculateFineGridLineCount()
+        {
+            if (mapper == null)
+                return 0;
+
+            var verticalFineLines = mapper.PlacementBoardWidth - mapper.BoardWidth;
+            var horizontalFineLines = mapper.PlacementBoardHeight - mapper.BoardHeight;
+            return Mathf.Max(0, verticalFineLines + horizontalFineLines);
+        }
+
         void CreateLine(string lineName, Vector3 start, Vector3 end, float width, Material material)
         {
             var lineObject = new GameObject(lineName);
@@ -185,6 +207,36 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             RemoveCollider(cell);
             SetMaterial(cell, material);
             return cell;
+        }
+
+        Material CreateBoardSurfaceMaterial()
+        {
+            if (boardSurfaceMaterialOverride == null || mapper == null)
+                return materials.Board;
+
+            var material = new Material(boardSurfaceMaterialOverride);
+            material.name = boardSurfaceMaterialOverride.name + " Board Tiled";
+
+            var repeatsPerCell = Mathf.Max(0.1f, boardSurfaceTileRepeatsPerCell);
+            var textureScale = boardSurfaceUseSingleTextureAcrossBoard
+                ? Vector2.one
+                : new Vector2(mapper.BoardWidth * repeatsPerCell, mapper.BoardHeight * repeatsPerCell);
+            SetTextureScale(material, "_BaseMap", textureScale);
+            SetTextureScale(material, "_MainTex", textureScale);
+            SetTextureScale(material, "_BumpMap", textureScale);
+            SetTextureScale(material, "_NormalMap", textureScale);
+            SetTextureScale(material, "_MaskMap", textureScale);
+
+            var detailRepeatsPerCell = Mathf.Max(repeatsPerCell, boardSurfaceDetailRepeatsPerCell);
+            var detailScale = boardSurfaceUseSingleTextureAcrossBoard
+                ? Vector2.one
+                : new Vector2(mapper.BoardWidth * detailRepeatsPerCell, mapper.BoardHeight * detailRepeatsPerCell);
+            SetTextureScale(material, "_DetailAlbedoMap", detailScale);
+            SetTextureScale(material, "_DetailNormalMap", detailScale);
+
+            SetColor(material, "_BaseColor", boardSurfaceTint);
+            SetColor(material, "_Color", boardSurfaceTint);
+            return material;
         }
 
         void HidePlacementCells()
@@ -224,6 +276,18 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             var renderer = target.GetComponent<Renderer>();
             if (renderer != null)
                 renderer.sharedMaterial = material;
+        }
+
+        static void SetTextureScale(Material material, string propertyName, Vector2 scale)
+        {
+            if (material != null && material.HasProperty(propertyName))
+                material.SetTextureScale(propertyName, scale);
+        }
+
+        static void SetColor(Material material, string propertyName, Color color)
+        {
+            if (material != null && material.HasProperty(propertyName))
+                material.SetColor(propertyName, color);
         }
     }
 }

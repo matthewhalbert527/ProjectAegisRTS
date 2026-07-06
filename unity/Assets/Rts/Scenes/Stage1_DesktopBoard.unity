@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &202652713
+--- !u!1 &221882193
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,8 +127,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 202652715}
-  - component: {fileID: 202652714}
+  - component: {fileID: 221882195}
+  - component: {fileID: 221882194}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -136,13 +136,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!108 &202652714
+--- !u!108 &221882194
 Light:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 202652713}
+  m_GameObject: {fileID: 221882193}
   m_Enabled: 1
   serializedVersion: 13
   m_Type: 1
@@ -201,13 +201,13 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
---- !u!4 &202652715
+--- !u!4 &221882195
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 202652713}
+  m_GameObject: {fileID: 221882193}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40305823, y: -0.27253202, z: 0.12708378, w: 0.8643611}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -216,7 +216,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &858312086
+--- !u!1 &296020450
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -224,9 +224,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 858312089}
-  - component: {fileID: 858312088}
-  - component: {fileID: 858312087}
+  - component: {fileID: 296020453}
+  - component: {fileID: 296020452}
+  - component: {fileID: 296020451}
   m_Layer: 0
   m_Name: BoardRoot
   m_TagString: Untagged
@@ -234,37 +234,37 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &858312087
+--- !u!114 &296020451
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 858312086}
+  m_GameObject: {fileID: 296020450}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 47cb6f516e762904e87941b24cc339fc, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.BoardRenderer
---- !u!114 &858312088
+--- !u!114 &296020452
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 858312086}
+  m_GameObject: {fileID: 296020450}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 92853b76460725b43933e75468cdeab8, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.CoreBridge.BoardCoordinateMapper
---- !u!4 &858312089
+--- !u!4 &296020453
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 858312086}
+  m_GameObject: {fileID: 296020450}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -273,7 +273,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1192599529
+--- !u!1 &727741672
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -281,131 +281,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1192599535}
-  - component: {fileID: 1192599534}
-  - component: {fileID: 1192599533}
-  - component: {fileID: 1192599532}
-  - component: {fileID: 1192599531}
-  - component: {fileID: 1192599530}
-  m_Layer: 0
-  m_Name: RtsGame
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1192599530
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1192599529}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5814b4abcc6d0cd488d388bc67af7357, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.RtsDebugHud
-  visible: 1
-  toggleKey: 96
---- !u!114 &1192599531
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1192599529}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9bd461c885d9e249b86191311780368, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.RtsDesktopInputController
---- !u!114 &1192599532
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1192599529}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b634fabdba009848a0c3e29d3841222, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.ActorRenderSystem
-  motionProfileLibrary: {fileID: 0}
-  buildingProfileLibrary: {fileID: 0}
-  actorVisualDefinitionLibrary: {fileID: 0}
-  actorVisualPrefabResolver: {fileID: 0}
---- !u!114 &1192599533
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1192599529}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03213363cd1898e45ba8ce9216c3cd77, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.CoreBridge.RtsSimulationDriver
-  playerId: 1
-  useCombatDemoWorld: 0
---- !u!114 &1192599534
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1192599529}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18cb866fdbeed0d448e7bd95050cd6ba, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Bootstrap.RtsGameBootstrapper
-  ticksPerSecond: 20
-  boardWidth: 32
-  boardHeight: 32
-  boardCellSizeMeters: 1
-  startPaused: 0
-  enableSmoothVisualInterpolation: 1
-  boardRoot: {fileID: 858312089}
-  coordinateMapper: {fileID: 858312088}
-  boardRenderer: {fileID: 858312087}
-  actorRenderSystem: {fileID: 1192599532}
-  combatVisualProfileLibrary: {fileID: 0}
-  projectileRenderSystem: {fileID: 0}
-  combatEventRenderSystem: {fileID: 0}
-  simulationDriver: {fileID: 1192599533}
-  inputController: {fileID: 1192599531}
-  debugHud: {fileID: 1192599530}
-  cameraController: {fileID: 2015647232}
-  sceneCamera: {fileID: 2015647233}
---- !u!4 &1192599535
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1192599529}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2015647231
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2015647234}
-  - component: {fileID: 2015647233}
-  - component: {fileID: 2015647232}
+  - component: {fileID: 727741675}
+  - component: {fileID: 727741674}
+  - component: {fileID: 727741673}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -413,13 +291,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2015647232
+--- !u!114 &727741673
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2015647231}
+  m_GameObject: {fileID: 727741672}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a4308240f70d20d468a8c6a87ac05c51, type: 3}
@@ -432,13 +310,14 @@ MonoBehaviour:
   maxHeight: 38
   useOrthographicStage1View: 1
   orthographicSize: 28
---- !u!20 &2015647233
+  preserveConfiguredTransform: 0
+--- !u!20 &727741674
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2015647231}
+  m_GameObject: {fileID: 727741672}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
@@ -483,16 +362,192 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!4 &2015647234
+--- !u!4 &727741675
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2015647231}
+  m_GameObject: {fileID: 727741672}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
   m_LocalPosition: {x: 16, y: 38, z: -26}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &748867294
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 748867300}
+  - component: {fileID: 748867299}
+  - component: {fileID: 748867298}
+  - component: {fileID: 748867297}
+  - component: {fileID: 748867296}
+  - component: {fileID: 748867295}
+  m_Layer: 0
+  m_Name: RtsGame
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &748867295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748867294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5814b4abcc6d0cd488d388bc67af7357, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.RtsDebugHud
+  visible: 1
+  toggleKey: 96
+--- !u!114 &748867296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748867294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9bd461c885d9e249b86191311780368, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.RtsDesktopInputController
+--- !u!114 &748867297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748867294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b634fabdba009848a0c3e29d3841222, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.ActorRenderSystem
+  motionProfileLibrary: {fileID: 0}
+  buildingProfileLibrary: {fileID: 0}
+  actorVisualDefinitionLibrary: {fileID: 0}
+  actorVisualPrefabResolver: {fileID: 0}
+--- !u!114 &748867298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748867294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03213363cd1898e45ba8ce9216c3cd77, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.CoreBridge.RtsSimulationDriver
+  playerId: 1
+  useCombatDemoWorld: 0
+  useEconomyDemoWorld: 0
+  useFogRadarDemoWorld: 0
+  useAiSkirmishDemoWorld: 0
+  useMapTerrainDemoWorld: 0
+  useVerticalSliceDemoWorld: 0
+  useGeneratedSkirmishWorld: 0
+  usePlayerPerspectiveSnapshot: 0
+  skirmishDifficultyId: normal
+  generatedSkirmishSeed: 34034
+  feedbackEventBus: {fileID: 0}
+--- !u!114 &748867299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748867294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18cb866fdbeed0d448e7bd95050cd6ba, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Bootstrap.RtsGameBootstrapper
+  ticksPerSecond: 20
+  boardWidth: 32
+  boardHeight: 32
+  boardCellSizeMeters: 1
+  startPaused: 0
+  enableSmoothVisualInterpolation: 1
+  boardRoot: {fileID: 296020453}
+  coordinateMapper: {fileID: 296020452}
+  boardRenderer: {fileID: 296020451}
+  actorRenderSystem: {fileID: 748867297}
+  combatVisualProfileLibrary: {fileID: 0}
+  projectileRenderSystem: {fileID: 0}
+  combatEventRenderSystem: {fileID: 0}
+  resourceFieldRenderSystem: {fileID: 0}
+  harvesterCargoVisualController: {fileID: 0}
+  refineryDockVisualController: {fileID: 0}
+  economyEventRenderSystem: {fileID: 0}
+  fogOverlayRenderer: {fileID: 0}
+  visibilityDebugRenderer: {fileID: 0}
+  radarSnapshotAdapter: {fileID: 0}
+  minimapRenderSystem: {fileID: 0}
+  aiIntentRenderSystem: {fileID: 0}
+  aiPlanTimelineView: {fileID: 0}
+  terrainDebugRenderer: {fileID: 0}
+  pathDebugRenderer: {fileID: 0}
+  mapAuthoringOverlay: {fileID: 0}
+  feedbackProfileLibrary: {fileID: 0}
+  feedbackEventBus: {fileID: 0}
+  audioFeedbackController: {fileID: 0}
+  vfxFeedbackController: {fileID: 0}
+  uiFeedbackController: {fileID: 0}
+  hapticFeedbackAdapter: {fileID: 0}
+  feedbackDebugHud: {fileID: 0}
+  objectPoolService: {fileID: 0}
+  performanceBudgetLibrary: {fileID: 0}
+  runtimePerformanceStats: {fileID: 0}
+  sceneComplexityReporter: {fileID: 0}
+  qualityProfileApplier: {fileID: 0}
+  questBuildReadinessReporter: {fileID: 0}
+  pcBuildReadinessReporter: {fileID: 0}
+  renderStatsHud: {fileID: 0}
+  verticalSliceScenarioController: {fileID: 0}
+  verticalSliceMissionFlowController: {fileID: 0}
+  verticalSliceProgressTracker: {fileID: 0}
+  matchObjectiveHud: {fileID: 0}
+  playerObjectiveHud: {fileID: 0}
+  verticalSliceChecklistHud: {fileID: 0}
+  playerPromptSystem: {fileID: 0}
+  playerPromptHud: {fileID: 0}
+  playerControlsOverlay: {fileID: 0}
+  matchResultHud: {fileID: 0}
+  pauseMenuController: {fileID: 0}
+  pauseMenuHud: {fileID: 0}
+  playerFacingUiModeController: {fileID: 0}
+  integratedSystemsStatusHud: {fileID: 0}
+  verticalSliceDebugActions: {fileID: 0}
+  featureRegressionHud: {fileID: 0}
+  simulationDriver: {fileID: 748867298}
+  inputController: {fileID: 748867296}
+  debugHud: {fileID: 748867295}
+  cameraController: {fileID: 727741673}
+  sceneCamera: {fileID: 727741674}
+--- !u!4 &748867300
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748867294}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -502,7 +557,7 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 858312089}
-  - {fileID: 1192599535}
-  - {fileID: 2015647234}
-  - {fileID: 202652715}
+  - {fileID: 296020453}
+  - {fileID: 748867300}
+  - {fileID: 727741675}
+  - {fileID: 221882195}

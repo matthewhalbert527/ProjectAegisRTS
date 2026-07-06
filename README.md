@@ -581,6 +581,13 @@ Stage 16 vertical slice assets:
 - Stage 30 generated readability report: `docs/STAGE30_VISUAL_READABILITY_QA.md`
 - Stage 31 artist handoff package: `docs/STAGE31_ARTIST_HANDOFF_PACKAGE.md`
 - Stage 31 terrain source references: `docs/STAGE31_TERRAIN_SOURCE_REFERENCES.md`
+
+## AI Reference
+
+- Unity AI and Codex CLI setup: `docs/UNITY_AI_CODEX_CLI_SETUP.md`
+- Unity AI package knowledge index: `docs/UNITY_AI_KNOWLEDGE_INDEX.md`
+- AI-assisted game design workflow: `docs/AI_ASSISTED_GAME_DESIGN_WORKFLOW.md`
+- AI reference entry point: `docs/AI_REFERENCE_README.md`
 - Stage 31 MVP art replacement guide: `docs/STAGE31_MVP_ART_REPLACEMENT_GUIDE.md`
 - Stage 31 per-actor production checklist: `docs/STAGE31_PER_ACTOR_PRODUCTION_CHECKLIST.md`
 - Stage 31 Quest LOD budgets: `docs/STAGE31_QUEST_LOD_BUDGETS.md`

@@ -113,6 +113,7 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
             if (feedbackEventBus != null)
                 simulationDriver.feedbackEventBus = feedbackEventBus;
             simulationDriver.Initialize(ticksPerSecond, startPaused);
+            ApplySnapshotBoardDimensions();
             coordinateMapper.Configure(boardWidth, boardHeight, boardCellSizeMeters, boardRoot);
             boardRenderer.Initialize(coordinateMapper);
             actorRenderSystem.Initialize(coordinateMapper, simulationDriver, enableSmoothVisualInterpolation);
@@ -224,6 +225,19 @@ namespace ProjectAegisRTS.UnityClient.Bootstrap
             debugHud.Initialize(simulationDriver);
             cameraController.Configure(coordinateMapper);
             initialized = true;
+        }
+
+        void ApplySnapshotBoardDimensions()
+        {
+            if (simulationDriver == null || simulationDriver.LatestSnapshot == null || simulationDriver.LatestSnapshot.Map == null)
+                return;
+
+            var map = simulationDriver.LatestSnapshot.Map;
+            if (map.Width <= 0 || map.Height <= 0)
+                return;
+
+            boardWidth = map.Width;
+            boardHeight = map.Height;
         }
 
         void EnsureReferences()

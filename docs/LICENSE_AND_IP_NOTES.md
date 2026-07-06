@@ -4,6 +4,8 @@
 
 OpenRA is GPL-licensed. The copied `external/openra` tree is reference material for Stage 0. If future work copies, modifies, or derives code from OpenRA, preserve GPL headers, keep license notices, and treat the resulting game code as GPL-compatible unless legal review says otherwise.
 
+The Aegis generated-map implementation in `src/Rts.Core/MapGeneration` is a clean, original implementation. It follows the architectural pattern of "settings in, normal deterministic map/world out" after reviewing OpenRA behavior, but it does not copy OpenRA source, YAML, tile definitions, names, assets, or generator code.
+
 ## Red Alert Reference
 
 `external/redalert_reference` is historical reference only. Do not port code, assets, names, or behaviors from it into ProjectAegisRTS. Do not copy EA/Westwood art, audio, names, faction branding, or protected assets.

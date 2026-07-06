@@ -18,15 +18,14 @@ MonoBehaviour:
   sizeClass: 6
   footprintFineWidth: 3
   footprintFineHeight: 2
-  prefab: {fileID: 6115937425937177067, guid: 2153e0832c5f0d9409b49f2f2dfb6259, type: 3}
-  materialProfileId: batch01_transition
-  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
-    for passability.
-  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
-    for buildability.
+  prefab: {fileID: 6958356829409806645, guid: 3a8c6d5301842054b9985fc9b2284cd1, type: 3}
+  materialProfileId: compact_soil
+  passabilityVisualHint: Passable visual ground.
+  buildableVisualHint: Buildable base approach.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/road_to_dirt_edge_01.png.
-    Primitive proxy remains fallback/debug only.
-  questBudgetTag: QuestSafeLow
+  notes: Uses Unity Terrain Sample Asset Pack terrain layer textures and foliage/detail
+    prefabs for the player-facing ground tile replacement. Visual only; gameplay
+    authority remains in Rts.Core.
+  questBudgetTag: QuestSafeTerrainSample

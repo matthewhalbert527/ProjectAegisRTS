@@ -146,6 +146,14 @@ Stage 21 adds Unity-only MVP visual QA and artist-replacement readiness tooling.
 
 Gameplay placement, fine-grid occupancy, production, power, movement, combat, fog, AI, and victory continue to come from deterministic core snapshots and validated command results.
 
+## Generated Map Boundary
+
+Generated skirmish maps are authored in `Rts.Core` through `AegisMapGenerator`. The generator takes explicit `MapGenerationSettings`, uses deterministic integer-only noise and a local PRNG, and returns `GeneratedMapResult` data: terrain cells, spawn cells, and resource cells. `DemoWorldFactory.CreateGeneratedSkirmishWorld` consumes that result and builds a normal `RtsWorld` with existing Aegis rules, actors, resources, AI, match state, snapshots, pathing, fog, economy, and victory logic.
+
+Unity does not generate authoritative terrain or resources. The Boot Options menu only writes local PlayerPrefs for enabling generated skirmish maps and selecting a seed. `RtsSimulationDriver` reads those preferences, asks `DemoWorldFactory` for a generated world, and then treats it the same as the authored vertical-slice world.
+
+The implementation is inspired by OpenRA's generator architecture but does not copy OpenRA generator code, YAML, terrain brushes, assets, names, or protected game data.
+
 ## Command and Snapshot Bridge
 
 The bridge is intentionally simple:

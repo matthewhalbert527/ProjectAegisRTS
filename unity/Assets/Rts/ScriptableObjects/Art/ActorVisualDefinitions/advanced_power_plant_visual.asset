@@ -13,21 +13,21 @@ MonoBehaviour:
   m_Name: advanced_power_plant_visual
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
   actorTypeId: advanced_power_plant
-  displayName: Large Power Plant
+  displayName: Advanced Power Plant
   safeDisplayName: Advanced Power Plant
   category: 0
-  productionStatus: 1
+  productionStatus: 6
   conceptReference: {fileID: 11400000, guid: 1c4e5e304123145488bf0ea4c4ef4a30, type: 2}
   icon: {fileID: 21300000, guid: 68093d1dd40a49348a5cfb4de927e77a, type: 3}
   generatedBlockoutPrefab: {fileID: 1006907124086091323, guid: 6342c7a1d820a0d4b822955ed55db7f9, type: 3}
-  productionPrefab: {fileID: 0}
+  productionPrefab: {fileID: 2573830617291280142, guid: 2f777aea0014af94ab9e9b846643ab29, type: 3}
   fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
+  preferredPrefabMode: 1
   motionProfileId: building_static
   buildingProfileId: advanced_power_plant_building_visual
-  selectionRadius: 1.1
-  selectionHeight: 0.1
-  footprintWidth: 2
+  selectionRadius: 1.6800001
+  selectionHeight: 0.08
+  footprintWidth: 3
   footprintHeight: 2
   visualScale: 1
   prefabHeightOffset: 0
@@ -36,11 +36,9 @@ MonoBehaviour:
   useInfantryMotionController: 0
   useAircraftMotionController: 0
   useTurretVisualController: 0
-  requiredSockets: 00000000010000000200000003000000040000000500000015000000160000001700000018000000
-  notes: 'Should read as upgraded but not copied from legacy RTS art.
-
-    Large
-    turbines, cooling stacks, core glow, slowed/off states.'
+  requiredSockets: 020000000100000003000000040000000500000015000000
+  notes: Unity AI building slate production prefab. Textured, socketed, and rigged
+    for powered idle and production movement.
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Large Power Plant
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_42

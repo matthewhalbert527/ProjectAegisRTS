@@ -12,9 +12,13 @@ namespace ProjectAegisRTS.UnityClient.Boot
         public ControlsHelpHud controlsHelp;
         public OptionsMenuHud optionsMenu;
         public string selectedSkirmishDifficultyId = "normal";
+        public bool generatedSkirmishEnabled;
+        public int generatedSkirmishSeed = 34034;
 
         public string SelectedSkirmishDifficultyId { get { return selectedSkirmishDifficultyId; } }
         public string SelectedSkirmishDifficultyLabel { get { return RtsSimulationDriver.GetSkirmishDifficultyLabel(selectedSkirmishDifficultyId); } }
+        public bool GeneratedSkirmishEnabled { get { return generatedSkirmishEnabled; } }
+        public int GeneratedSkirmishSeed { get { return generatedSkirmishSeed; } }
 
         void Awake()
         {
@@ -28,6 +32,8 @@ namespace ProjectAegisRTS.UnityClient.Boot
                 optionsMenu = FindAnyObjectByType<OptionsMenuHud>();
 
             selectedSkirmishDifficultyId = RtsSimulationDriver.NormalizeSkirmishDifficultyId(PlayerPrefs.GetString(RtsSimulationDriver.SkirmishDifficultyPlayerPrefsKey, selectedSkirmishDifficultyId));
+            generatedSkirmishEnabled = PlayerPrefs.GetInt(RtsSimulationDriver.GeneratedSkirmishEnabledPlayerPrefsKey, generatedSkirmishEnabled ? 1 : 0) != 0;
+            generatedSkirmishSeed = RtsSimulationDriver.NormalizeGeneratedSkirmishSeed(PlayerPrefs.GetInt(RtsSimulationDriver.GeneratedSkirmishSeedPlayerPrefsKey, generatedSkirmishSeed));
             ShowMainMenu(settings == null || settings.startInBootMenu);
         }
 
@@ -49,6 +55,7 @@ namespace ProjectAegisRTS.UnityClient.Boot
         public void StartVerticalSlice()
         {
             SaveSkirmishDifficulty();
+            SaveGeneratedSkirmishSettings();
             SceneManager.LoadScene(verticalSliceSceneName, LoadSceneMode.Single);
         }
 
@@ -56,6 +63,24 @@ namespace ProjectAegisRTS.UnityClient.Boot
         {
             selectedSkirmishDifficultyId = RtsSimulationDriver.NormalizeSkirmishDifficultyId(difficultyId);
             SaveSkirmishDifficulty();
+        }
+
+        public void SetGeneratedSkirmishEnabled(bool enabled)
+        {
+            generatedSkirmishEnabled = enabled;
+            SaveGeneratedSkirmishSettings();
+        }
+
+        public void SetGeneratedSkirmishSeed(int seed)
+        {
+            generatedSkirmishSeed = RtsSimulationDriver.NormalizeGeneratedSkirmishSeed(seed);
+            SaveGeneratedSkirmishSettings();
+        }
+
+        public void RandomizeGeneratedSkirmishSeed()
+        {
+            generatedSkirmishSeed = RtsSimulationDriver.NormalizeGeneratedSkirmishSeed(unchecked(System.Environment.TickCount ^ (int)(System.DateTime.UtcNow.Ticks & 0x7FFFFFFF)));
+            SaveGeneratedSkirmishSettings();
         }
 
         public void ShowControls()
@@ -96,6 +121,13 @@ namespace ProjectAegisRTS.UnityClient.Boot
         void SaveSkirmishDifficulty()
         {
             PlayerPrefs.SetString(RtsSimulationDriver.SkirmishDifficultyPlayerPrefsKey, selectedSkirmishDifficultyId);
+            PlayerPrefs.Save();
+        }
+
+        void SaveGeneratedSkirmishSettings()
+        {
+            PlayerPrefs.SetInt(RtsSimulationDriver.GeneratedSkirmishEnabledPlayerPrefsKey, generatedSkirmishEnabled ? 1 : 0);
+            PlayerPrefs.SetInt(RtsSimulationDriver.GeneratedSkirmishSeedPlayerPrefsKey, generatedSkirmishSeed);
             PlayerPrefs.Save();
         }
     }

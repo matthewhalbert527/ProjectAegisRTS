@@ -36,6 +36,10 @@ namespace ProjectAegisRTS.UnityClient.Rendering.Buildings
                 parts.Machinery.Rotate(Vector3.up, 180f * speed * deltaTime, Space.Self);
             if (parts.Turbine != null)
                 parts.Turbine.Rotate(Vector3.up, (profile == null ? 140f : profile.turbineSpinSpeed) * speed * deltaTime, Space.Self);
+            if (parts.ExtraTurbines != null)
+                for (var i = 0; i < parts.ExtraTurbines.Count; i++)
+                    if (parts.ExtraTurbines[i] != null)
+                        parts.ExtraTurbines[i].Rotate(Vector3.up, (i % 2 == 0 ? -1f : 1f) * (profile == null ? 140f : profile.turbineSpinSpeed) * speed * deltaTime, Space.Self);
             if (parts.RadarDish != null)
                 parts.RadarDish.Rotate(Vector3.up, (profile == null ? 35f : profile.radarDishSpinSpeed) * speed * deltaTime, Space.Self);
             if (parts.CraneArm != null)

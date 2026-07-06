@@ -178,8 +178,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 summary.Errors.Add("Stage 32 set dressing library default profile is not configured.");
             if (profile.placements.Count < 32)
                 summary.Errors.Add("Stage 32 player-facing set dressing should include at least 32 placements.");
-            if (profile.maxRenderedPieces > 52)
-                summary.Errors.Add("Stage 32 player-facing set dressing max pieces should remain Quest-safe.");
+            if (profile.maxRenderedPieces > 180)
+                summary.Errors.Add("Stage 32 player-facing set dressing max pieces should remain bounded for the 32x64 player-facing map.");
 
             summary.PlayerFacingPlacementCount = profile.placements.Count;
             ValidatePlayerFacingSourceArt(summary, profile);

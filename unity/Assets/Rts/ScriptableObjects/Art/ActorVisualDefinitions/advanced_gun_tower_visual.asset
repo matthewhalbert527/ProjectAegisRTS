@@ -16,17 +16,17 @@ MonoBehaviour:
   displayName: Advanced Gun Tower
   safeDisplayName: Advanced Gun Tower
   category: 1
-  productionStatus: 1
+  productionStatus: 6
   conceptReference: {fileID: 11400000, guid: 621d233cdc28aa8419088f58c89b13e3, type: 2}
   icon: {fileID: 21300000, guid: 20a794ff45f119143b2c5f1f5d6a5792, type: 3}
   generatedBlockoutPrefab: {fileID: 397139001457671509, guid: 49d9cf42844196b45bed5a6542cdad81, type: 3}
-  productionPrefab: {fileID: 0}
+  productionPrefab: {fileID: 9016463451458403812, guid: 71aa020c7de615041a2be18d578aaa8c, type: 3}
   fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
-  motionProfileId: default_defense
+  preferredPrefabMode: 1
+  motionProfileId: building_static
   buildingProfileId: advanced_gun_tower_building_visual
-  selectionRadius: 0.6
-  selectionHeight: 0.1
+  selectionRadius: 0.56
+  selectionHeight: 0.08
   footprintWidth: 1
   footprintHeight: 1
   visualScale: 1
@@ -36,11 +36,9 @@ MonoBehaviour:
   useInfantryMotionController: 0
   useAircraftMotionController: 0
   useTurretVisualController: 1
-  requiredSockets: 0000000001000000020000000300000004000000060000000800000009000000160000001700000018000000
-  notes: 'Advanced design should be original and not faction-coded.
-
-    Multi-weapon
-    tracking, charging, recoil, power-down pose.'
+  requiredSockets: 020000000100000003000000040000000500000008000000
+  notes: Unity AI building slate production prefab. Textured, socketed, and rigged
+    for powered idle and production movement.
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Advanced Gun Tower
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_54

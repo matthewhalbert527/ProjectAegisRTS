@@ -15,19 +15,19 @@ MonoBehaviour:
   actorTypeId: tech_center
   displayName: Tech Center
   safeDisplayName: Tech Center
-  category: 5
-  productionStatus: 1
+  category: 0
+  productionStatus: 6
   conceptReference: {fileID: 11400000, guid: bca60f6d760b7694e8d123dc13bafc1d, type: 2}
   icon: {fileID: 21300000, guid: 467b9f286dd70bb4bb712a1eaf97084a, type: 3}
   generatedBlockoutPrefab: {fileID: 7725833219412226788, guid: fee4be1deaebafd488aa698b49adb5ec, type: 3}
-  productionPrefab: {fileID: 0}
+  productionPrefab: {fileID: 6091524070283809545, guid: 46666d7c6cfad8f4087fa1af7a729ea8, type: 3}
   fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
+  preferredPrefabMode: 1
   motionProfileId: building_static
   buildingProfileId: tech_center_building_visual
-  selectionRadius: 1.1
-  selectionHeight: 0.1
-  footprintWidth: 2
+  selectionRadius: 1.6800001
+  selectionHeight: 0.08
+  footprintWidth: 3
   footprintHeight: 2
   visualScale: 1
   prefabHeightOffset: 0
@@ -36,11 +36,9 @@ MonoBehaviour:
   useInfantryMotionController: 0
   useAircraftMotionController: 0
   useTurretVisualController: 0
-  requiredSockets: 00000000010000000200000003000000040000000500000014000000160000001700000018000000
-  notes: 'Avoid faction-specific legacy visual motifs.
-
-    Labs, scanners, antenna
-    arrays, power-state dependent loops.'
+  requiredSockets: 020000000100000003000000040000000500000014000000
+  notes: Unity AI building slate production prefab. Textured, socketed, and rigged
+    for powered idle and production movement.
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Tech Center
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_54

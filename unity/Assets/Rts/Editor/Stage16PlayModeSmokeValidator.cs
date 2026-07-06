@@ -132,9 +132,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 RequireSuccess(debugActions.QueueProduction("power_plant"), "production command");
                 StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 3, 0.05f);
                 RequireSuccess(driver.TrySelectOwnedCombatGroup(), "combat group selection");
-                RequireSuccess(driver.TryIssueMoveSelectedToCell(new Int2(18, 14)), "combat staging move");
-                StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 220, 0.05f);
-                RequireSuccess(debugActions.IssueAttack(), "attack command");
+                RequireSuccess(driver.TryIssueMoveSelectedToCell(new Int2(20, 53)), "combat staging move");
+                StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 700, 0.05f);
+                int enemyHubId;
+                if (!driver.TryFindAliveActorOfType("fabrication_hub", 2, out enemyHubId))
+                    throw new InvalidOperationException("Stage 16 expected an enemy Fabrication Hub attack target.");
+                RequireSuccess(driver.TryIssueDebugAttackSelectedToKnownActor(enemyHubId), "attack command");
                 StepRuntime(driver, boardRenderer, actorRenderer, projectileRenderer, combatRenderer, resourceRenderer, fogRenderer, minimapRenderer, aiRenderer, terrainRenderer, bus, stats, 12, 0.05f);
 
                 RequireSuccess(debugActions.DestroyEnemyBase(), "enemy base destruction");

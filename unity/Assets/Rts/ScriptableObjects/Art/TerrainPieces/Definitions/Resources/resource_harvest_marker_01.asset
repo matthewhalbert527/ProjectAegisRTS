@@ -18,15 +18,14 @@ MonoBehaviour:
   sizeClass: 0
   footprintFineWidth: 1
   footprintFineHeight: 1
-  prefab: {fileID: 525716397495365903, guid: c207933289169eb40a7a50343d6079de, type: 3}
-  materialProfileId: batch01_resource
-  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
-    for passability.
-  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
-    for buildability.
+  prefab: {fileID: 205042340388185992, guid: 80fb83d56e8901d42962b518333e64aa, type: 3}
+  materialProfileId: caution
+  passabilityVisualHint: Harvest-route marker.
+  buildableVisualHint: Keep clear of placement lanes.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/resource_cluster_green_01.png.
-    Primitive proxy remains fallback/debug only.
+  notes: Stage32.6 runtime terrain assembly mapped from resource_cluster_green_01.
+    Reference sheets are art direction only; this prefab is visual-only and never
+    gameplay authority.
   questBudgetTag: QuestSafeLow

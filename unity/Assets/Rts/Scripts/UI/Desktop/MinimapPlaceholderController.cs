@@ -78,7 +78,7 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
                 if (useMinimap)
                     ApplyMinimapDot(dots[i], snapshot.Minimap.ActorDots[i], snapshot.Minimap.Width, snapshot.Minimap.Height);
                 else
-                    ApplyActorDot(dots[i], snapshot.Actors[i]);
+                    ApplyActorDot(dots[i], snapshot.Actors[i], snapshot.Map.Width, snapshot.Map.Height);
             }
         }
 
@@ -94,13 +94,15 @@ namespace ProjectAegisRTS.UnityClient.UI.Desktop
             dot.rectTransform.anchoredPosition = new Vector2(actor.Cell.X / (float)Mathf.Max(1, width) * dotRoot.rect.width, actor.Cell.Y / (float)Mathf.Max(1, height) * dotRoot.rect.height);
         }
 
-        void ApplyActorDot(Image dot, ActorSnapshot actor)
+        void ApplyActorDot(Image dot, ActorSnapshot actor, int width, int height)
         {
             ActorDefinition definition;
             var isBuilding = driver.TryGetDefinition(actor.TypeId, out definition) && definition is BuildingDefinition;
             dot.color = isBuilding ? new Color(0.95f, 0.74f, 0.28f, 1f) : new Color(0.36f, 0.88f, 0.50f, 1f);
             dot.rectTransform.sizeDelta = isBuilding ? new Vector2(7f, 7f) : new Vector2(4f, 4f);
-            dot.rectTransform.anchoredPosition = new Vector2(actor.CellPosition.X / 32f * dotRoot.rect.width, actor.CellPosition.Y / 32f * dotRoot.rect.height);
+            dot.rectTransform.anchoredPosition = new Vector2(
+                actor.CellPosition.X / (float)Mathf.Max(1, width) * dotRoot.rect.width,
+                actor.CellPosition.Y / (float)Mathf.Max(1, height) * dotRoot.rect.height);
         }
     }
 }

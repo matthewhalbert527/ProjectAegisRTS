@@ -13,20 +13,20 @@ MonoBehaviour:
   m_Name: field_hospital_visual
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
   actorTypeId: field_hospital
-  displayName: MASH
+  displayName: Field Hospital
   safeDisplayName: Field Hospital
-  category: 5
-  productionStatus: 9
+  category: 0
+  productionStatus: 6
   conceptReference: {fileID: 11400000, guid: 5da2da8e62dc0c44fa4cc18ef3477dda, type: 2}
   icon: {fileID: 21300000, guid: 0045d2347006bbd48baaf5d19ef98946, type: 3}
   generatedBlockoutPrefab: {fileID: 7999785282270992744, guid: d819414a2ef1cdf4cade34276091ba75, type: 3}
-  productionPrefab: {fileID: 0}
+  productionPrefab: {fileID: 3561622855719260189, guid: d053fd5a7a1095b4d8341e310adf5069, type: 3}
   fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
+  preferredPrefabMode: 1
   motionProfileId: building_static
   buildingProfileId: field_hospital_building_visual
-  selectionRadius: 1.1
-  selectionHeight: 0.1
+  selectionRadius: 1.12
+  selectionHeight: 0.08
   footprintWidth: 2
   footprintHeight: 2
   visualScale: 1
@@ -36,11 +36,9 @@ MonoBehaviour:
   useInfantryMotionController: 0
   useAircraftMotionController: 0
   useTurretVisualController: 0
-  requiredSockets: 000000000100000002000000030000000400000005000000160000001700000018000000
-  notes: 'Use safe name field_hospital in code; review display label before release.
-
-    Medical
-    lights, doors, stretcher/robotic aid motion, low-power shutdown.'
+  requiredSockets: 02000000010000000300000004000000050000000e0000000f000000
+  notes: Unity AI building slate production prefab. Textured, socketed, and rigged
+    for powered idle and production movement.
   ipReviewRequired: 1
   sourceConceptOriginalLabel: MASH
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_42

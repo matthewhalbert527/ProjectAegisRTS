@@ -17,6 +17,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
     public sealed class RtsSimulationDriver : MonoBehaviour
     {
         public const string SkirmishDifficultyPlayerPrefsKey = "ProjectAegisRTS.SkirmishDifficulty";
+        public const string GeneratedSkirmishEnabledPlayerPrefsKey = "ProjectAegisRTS.GeneratedSkirmishEnabled";
+        public const string GeneratedSkirmishSeedPlayerPrefsKey = "ProjectAegisRTS.GeneratedSkirmishSeed";
 
         [SerializeField] int playerId = 1;
         [SerializeField] bool useCombatDemoWorld;
@@ -25,8 +27,10 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         [SerializeField] bool useAiSkirmishDemoWorld;
         [SerializeField] bool useMapTerrainDemoWorld;
         [SerializeField] bool useVerticalSliceDemoWorld;
+        [SerializeField] bool useGeneratedSkirmishWorld;
         [SerializeField] bool usePlayerPerspectiveSnapshot;
         [SerializeField] string skirmishDifficultyId = "normal";
+        [SerializeField] int generatedSkirmishSeed = 34034;
         public FeedbackEventBus feedbackEventBus;
 
         readonly List<int> selectedActorIds = new List<int>();
@@ -58,9 +62,11 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public bool UseAiSkirmishDemoWorld { get { return useAiSkirmishDemoWorld; } set { useAiSkirmishDemoWorld = value; } }
         public bool UseMapTerrainDemoWorld { get { return useMapTerrainDemoWorld; } set { useMapTerrainDemoWorld = value; } }
         public bool UseVerticalSliceDemoWorld { get { return useVerticalSliceDemoWorld; } set { useVerticalSliceDemoWorld = value; } }
+        public bool UseGeneratedSkirmishWorld { get { return useGeneratedSkirmishWorld; } set { useGeneratedSkirmishWorld = value; } }
         public bool UsePlayerPerspectiveSnapshot { get { return usePlayerPerspectiveSnapshot; } set { usePlayerPerspectiveSnapshot = value; } }
         public string SkirmishDifficultyId { get { return skirmishDifficultyId; } }
         public string SkirmishDifficultyLabel { get { return GetSkirmishDifficultyLabel(skirmishDifficultyId); } }
+        public int GeneratedSkirmishSeed { get { return generatedSkirmishSeed; } }
 
         public string CommandMode
         {
@@ -117,7 +123,14 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult ResetDemoWorld()
         {
-            if (useVerticalSliceDemoWorld)
+            ResolveGeneratedSkirmishPreferences();
+
+            if (useGeneratedSkirmishWorld)
+            {
+                usePlayerPerspectiveSnapshot = true;
+                world = DemoWorldFactory.CreateGeneratedSkirmishWorld(generatedSkirmishSeed, ResolveSkirmishDifficulty());
+            }
+            else if (useVerticalSliceDemoWorld)
                 world = DemoWorldFactory.CreateVerticalSliceWorld(ResolveSkirmishDifficulty());
             else if (useMapTerrainDemoWorld)
                 world = DemoWorldFactory.CreateMapTerrainDemoWorld();
@@ -136,7 +149,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             RefreshSnapshot();
             if (feedbackEventBus != null)
                 feedbackEventBus.ResetSnapshotTracking();
-            return RtsCommandResult.Ok(useVerticalSliceDemoWorld ? "Vertical slice demo world reset on " + SkirmishDifficultyLabel + "." : (useMapTerrainDemoWorld ? "Map terrain demo world reset." : (useAiSkirmishDemoWorld ? "AI skirmish demo world reset." : (useFogRadarDemoWorld ? "Fog/radar demo world reset." : (useEconomyDemoWorld ? "Economy demo world reset." : (useCombatDemoWorld ? "Combat demo world reset." : "Demo world reset."))))));
+            return RtsCommandResult.Ok(ResetWorldMessage());
         }
 
         public RtsCommandResult SetSkirmishDifficulty(string difficultyId, bool resetWorld)
@@ -151,6 +164,36 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return RtsCommandResult.Ok("Skirmish difficulty set to " + SkirmishDifficultyLabel + ".");
         }
 
+        public RtsCommandResult SetGeneratedSkirmishEnabled(bool enabled, bool resetWorld)
+        {
+            useGeneratedSkirmishWorld = enabled;
+            PlayerPrefs.SetInt(GeneratedSkirmishEnabledPlayerPrefsKey, useGeneratedSkirmishWorld ? 1 : 0);
+            PlayerPrefs.Save();
+
+            if (resetWorld)
+                return ResetDemoWorld();
+
+            return RtsCommandResult.Ok(useGeneratedSkirmishWorld ? "Generated skirmish maps enabled." : "Generated skirmish maps disabled.");
+        }
+
+        public RtsCommandResult SetGeneratedSkirmishSeed(int seed, bool resetWorld)
+        {
+            generatedSkirmishSeed = NormalizeGeneratedSkirmishSeed(seed);
+            PlayerPrefs.SetInt(GeneratedSkirmishSeedPlayerPrefsKey, generatedSkirmishSeed);
+            PlayerPrefs.Save();
+
+            if (resetWorld && useGeneratedSkirmishWorld)
+                return ResetDemoWorld();
+
+            return RtsCommandResult.Ok("Generated skirmish seed set to " + generatedSkirmishSeed + ".");
+        }
+
+        public RtsCommandResult RandomizeGeneratedSkirmishSeed(bool resetWorld)
+        {
+            var seed = unchecked(Environment.TickCount ^ (int)(DateTime.UtcNow.Ticks & 0x7FFFFFFF));
+            return SetGeneratedSkirmishSeed(seed, resetWorld);
+        }
+
         public RtsCommandResult TryCreateCombatDemoWorld()
         {
             useCombatDemoWorld = true;
@@ -159,6 +202,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useAiSkirmishDemoWorld = false;
             useMapTerrainDemoWorld = false;
             useVerticalSliceDemoWorld = false;
+            useGeneratedSkirmishWorld = false;
+            SaveGeneratedSkirmishEnabledPreference();
             return ResetDemoWorld();
         }
 
@@ -170,6 +215,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useAiSkirmishDemoWorld = false;
             useMapTerrainDemoWorld = false;
             useVerticalSliceDemoWorld = false;
+            useGeneratedSkirmishWorld = false;
+            SaveGeneratedSkirmishEnabledPreference();
             return ResetDemoWorld();
         }
 
@@ -181,7 +228,9 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useAiSkirmishDemoWorld = false;
             useMapTerrainDemoWorld = false;
             useVerticalSliceDemoWorld = false;
+            useGeneratedSkirmishWorld = false;
             usePlayerPerspectiveSnapshot = true;
+            SaveGeneratedSkirmishEnabledPreference();
             return ResetDemoWorld();
         }
 
@@ -193,7 +242,9 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useCombatDemoWorld = false;
             useMapTerrainDemoWorld = false;
             useVerticalSliceDemoWorld = false;
+            useGeneratedSkirmishWorld = false;
             usePlayerPerspectiveSnapshot = false;
+            SaveGeneratedSkirmishEnabledPreference();
             return ResetDemoWorld();
         }
 
@@ -205,7 +256,9 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useEconomyDemoWorld = false;
             useCombatDemoWorld = false;
             useVerticalSliceDemoWorld = false;
+            useGeneratedSkirmishWorld = false;
             usePlayerPerspectiveSnapshot = false;
+            SaveGeneratedSkirmishEnabledPreference();
             return ResetDemoWorld();
         }
 
@@ -217,7 +270,23 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             useFogRadarDemoWorld = false;
             useEconomyDemoWorld = false;
             useCombatDemoWorld = false;
+            useGeneratedSkirmishWorld = false;
             usePlayerPerspectiveSnapshot = true;
+            SaveGeneratedSkirmishEnabledPreference();
+            return ResetDemoWorld();
+        }
+
+        public RtsCommandResult TryCreateGeneratedSkirmishWorld()
+        {
+            useGeneratedSkirmishWorld = true;
+            useVerticalSliceDemoWorld = false;
+            useMapTerrainDemoWorld = false;
+            useAiSkirmishDemoWorld = false;
+            useFogRadarDemoWorld = false;
+            useEconomyDemoWorld = false;
+            useCombatDemoWorld = false;
+            usePlayerPerspectiveSnapshot = true;
+            SaveGeneratedSkirmishEnabledPreference();
             return ResetDemoWorld();
         }
 
@@ -1576,6 +1645,38 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             return AiDifficultyDefinition.CreateForId(skirmishDifficultyId);
         }
 
+        void ResolveGeneratedSkirmishPreferences()
+        {
+            useGeneratedSkirmishWorld = PlayerPrefs.GetInt(GeneratedSkirmishEnabledPlayerPrefsKey, useGeneratedSkirmishWorld ? 1 : 0) != 0;
+            generatedSkirmishSeed = NormalizeGeneratedSkirmishSeed(PlayerPrefs.GetInt(GeneratedSkirmishSeedPlayerPrefsKey, generatedSkirmishSeed));
+        }
+
+        void SaveGeneratedSkirmishEnabledPreference()
+        {
+            PlayerPrefs.SetInt(GeneratedSkirmishEnabledPlayerPrefsKey, useGeneratedSkirmishWorld ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+
+        string ResetWorldMessage()
+        {
+            if (useGeneratedSkirmishWorld)
+                return "Generated skirmish world reset on " + SkirmishDifficultyLabel + " with seed " + generatedSkirmishSeed + ".";
+            if (useVerticalSliceDemoWorld)
+                return "Vertical slice demo world reset on " + SkirmishDifficultyLabel + ".";
+            if (useMapTerrainDemoWorld)
+                return "Map terrain demo world reset.";
+            if (useAiSkirmishDemoWorld)
+                return "AI skirmish demo world reset.";
+            if (useFogRadarDemoWorld)
+                return "Fog/radar demo world reset.";
+            if (useEconomyDemoWorld)
+                return "Economy demo world reset.";
+            if (useCombatDemoWorld)
+                return "Combat demo world reset.";
+
+            return "Demo world reset.";
+        }
+
         public static string NormalizeSkirmishDifficultyId(string difficultyId)
         {
             if (string.Equals(difficultyId, "easy", StringComparison.OrdinalIgnoreCase))
@@ -1583,6 +1684,11 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             if (string.Equals(difficultyId, "hard", StringComparison.OrdinalIgnoreCase))
                 return "hard";
             return "normal";
+        }
+
+        public static int NormalizeGeneratedSkirmishSeed(int seed)
+        {
+            return seed == 0 ? 34034 : seed;
         }
 
         public static string GetSkirmishDifficultyLabel(string difficultyId)

@@ -221,6 +221,10 @@ namespace ProjectAegisRTS.UnityClient.Boot
             framer.applyOnStart = true;
             framer.applyOnScreenChange = true;
             framer.logOnApply = true;
+            framer.boardPadding = 1.05f;
+            framer.minOrthographicSize = Mathf.Max(framer.minOrthographicSize, 24f);
+            framer.maxOrthographicSize = Mathf.Max(framer.maxOrthographicSize, 48f);
+            framer.preferredCameraHeight = Mathf.Max(framer.preferredCameraHeight, 48f);
             framer.ApplyFraming();
         }
 

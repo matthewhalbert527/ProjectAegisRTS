@@ -18,13 +18,14 @@ MonoBehaviour:
   sizeClass: 6
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 7085000687152376168, guid: 9301205a433805340961ed2bcb304de1, type: 3}
+  prefab: {fileID: 4820698086478488899, guid: 0c9330059ff839b4ea469a631f966da5, type: 3}
   materialProfileId: scorch
   passabilityVisualHint: Passable visual ground.
   buildableVisualHint: Visual-only combat scar.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Subtle battlefield scorch. Visual metadata only; Rts.Core terrain remains
-    authoritative.
-  questBudgetTag: QuestSafeLow
+  notes: Uses Unity Terrain Sample Asset Pack terrain layer textures and foliage/detail
+    prefabs for the player-facing ground tile replacement. Visual only; gameplay
+    authority remains in Rts.Core.
+  questBudgetTag: QuestSafeTerrainSample

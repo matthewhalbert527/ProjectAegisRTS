@@ -18,12 +18,14 @@ MonoBehaviour:
   sizeClass: 6
   footprintFineWidth: 4
   footprintFineHeight: 2
-  prefab: {fileID: 6483921174542763268, guid: 7085b65c8820d974b9904db6ca82ef17, type: 3}
+  prefab: {fileID: 432874794187527065, guid: febde2b891259404ba5a9790ef5fef8d, type: 3}
   materialProfileId: compact_soil
   passabilityVisualHint: Passable visual ground.
   buildableVisualHint: Buildable base approach.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Worn construction soil. Visual metadata only; Rts.Core terrain remains authoritative.
-  questBudgetTag: QuestSafeLow
+  notes: Uses Unity Terrain Sample Asset Pack terrain layer textures and foliage/detail
+    prefabs for the player-facing ground tile replacement. Visual only; gameplay
+    authority remains in Rts.Core.
+  questBudgetTag: QuestSafeTerrainSample

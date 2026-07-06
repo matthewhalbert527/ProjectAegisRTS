@@ -18,15 +18,14 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 3
   footprintFineHeight: 2
-  prefab: {fileID: 537891807996118786, guid: 5fb4de1fd574f294a872b52f928013fa, type: 3}
-  materialProfileId: batch01_obstacle
-  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
-    for passability.
-  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
-    for buildability.
+  prefab: {fileID: 1210968301576273040, guid: a3cb6854e4440c54e834b1db1dae041c, type: 3}
+  materialProfileId: dark_metal
+  passabilityVisualHint: Blocked debris hint only.
+  buildableVisualHint: No-build visual wreck.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 1
-  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/wreckage_small_01.png.
-    Primitive proxy remains fallback/debug only.
+  notes: Stage32.6 runtime terrain assembly mapped from wreckage_small_01. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
   questBudgetTag: QuestSafeLow

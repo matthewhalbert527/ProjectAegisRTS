@@ -97,12 +97,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             for (var i = 0; i < combatUnits.Count; i++)
             {
-                var move = world.IssueCommand(new IssueMoveOrderCommand(1, new[] { combatUnits[i] }, new Int2(20, 21)));
+                var move = world.IssueCommand(new IssueMoveOrderCommand(1, new[] { combatUnits[i] }, new Int2(20, 53)));
                 if (!move.Success)
                     throw new InvalidOperationException("Stage 27 staging move failed: " + move.ErrorCode);
             }
 
-            RunTicks(world, 260);
+            RunTicks(world, 680);
 
             var attackUnits = new List<ActorId>();
             for (var i = 0; i < combatUnits.Count; i++)

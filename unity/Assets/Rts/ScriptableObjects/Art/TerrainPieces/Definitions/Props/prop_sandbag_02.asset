@@ -18,15 +18,14 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 2
   footprintFineHeight: 1
-  prefab: {fileID: 65897696572198075, guid: 65e80be86545e43488028cf4b2fcdb61, type: 3}
-  materialProfileId: batch01_obstacle
-  passabilityVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
-    for passability.
-  buildableVisualHint: Batch01 source-art visual. Rts.Core remains authoritative
-    for buildability.
+  prefab: {fileID: 6568562811487709126, guid: ee1d5794b02b0a34aa7e07942419ae28, type: 3}
+  materialProfileId: sandbag
+  passabilityVisualHint: Cover prop visual only.
+  buildableVisualHint: No-build prop hint.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Stage32.5 Batch01 image-backed terrain replacement from Assets/Rts/Art/Source/Terrain/Batch01/individual/sandbags_straight_01.png.
-    Primitive proxy remains fallback/debug only.
+  notes: Stage32.6 runtime terrain assembly mapped from base_curb_corner. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
   questBudgetTag: QuestSafeLow

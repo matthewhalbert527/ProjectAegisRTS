@@ -159,8 +159,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         static void ValidateNormalVictoryPath(RtsSimulationDriver driver, BoardRenderer boardRenderer, ActorRenderSystem actorRenderer, VerticalSliceProgressTracker progress)
         {
             RequireSuccess(driver.TrySelectOwnedCombatGroup(), "select combat group");
-            RequireSuccess(driver.TryIssueMoveSelectedToCell(new Int2(20, 21)), "move combat group to enemy staging cell");
-            StepRuntime(driver, boardRenderer, actorRenderer, 280, 0.05f);
+            RequireSuccess(driver.TryIssueMoveSelectedToCell(new Int2(20, 53)), "move combat group to enemy staging cell");
+            StepRuntime(driver, boardRenderer, actorRenderer, 700, 0.05f);
 
             var enemyHub = FindActor(driver.LatestSnapshot, "fabrication_hub", 2);
             if (enemyHub == null)

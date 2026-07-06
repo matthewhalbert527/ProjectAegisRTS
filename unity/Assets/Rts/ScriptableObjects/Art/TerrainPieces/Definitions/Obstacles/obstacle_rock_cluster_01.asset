@@ -18,15 +18,14 @@ MonoBehaviour:
   sizeClass: 1
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 4720054397418948198, guid: 9f2993ceaf40f284bb4c5543b0fed756, type: 3}
-  materialProfileId: stage32_8_card_rock_blocker_01
-  passabilityVisualHint: Stage32.8 image-backed visual replacement; passability remains
-    owned by Rts.Core.
-  buildableVisualHint: Stage32.8 image-backed visual replacement; building placement
-    remains owned by Rts.Core.
+  prefab: {fileID: 4074412838793536464, guid: 89ef4d9aa319ffb4180aafdfd90b2a33, type: 3}
+  materialProfileId: rock
+  passabilityVisualHint: Blocked visual hint only.
+  buildableVisualHint: No-build visual hint.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 1
-  notes: Stage32.8 player-facing image-card visual replacement mapped from rock_blocker_01.
-    This is an interim visual layer until authored 3D terrain arrives.
-  questBudgetTag: QuestSafeStage32_8Card
+  notes: Stage32.6 runtime terrain assembly mapped from rock_blocker_01. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
+  questBudgetTag: QuestSafeLow

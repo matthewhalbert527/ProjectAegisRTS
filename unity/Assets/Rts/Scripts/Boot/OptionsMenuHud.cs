@@ -21,6 +21,8 @@ namespace ProjectAegisRTS.UnityClient.Boot
         int selectedHeight = 900;
         FullScreenMode selectedFullscreenMode = FullScreenMode.Windowed;
         string selectedSkirmishDifficultyId = "normal";
+        bool generatedSkirmishEnabled;
+        string generatedSkirmishSeedText = "34034";
         float masterVolume = 1f;
         bool showDebugPanelsByDefault;
 
@@ -137,6 +139,21 @@ namespace ProjectAegisRTS.UnityClient.Boot
             DrawDifficultyButton("hard", "Hard");
             GUILayout.EndHorizontal();
             GUILayout.Label("Selected difficulty: " + RtsSimulationDriver.GetSkirmishDifficultyLabel(selectedSkirmishDifficultyId));
+            var newGeneratedEnabled = GUILayout.Toggle(generatedSkirmishEnabled, "Use generated skirmish map");
+            if (newGeneratedEnabled != generatedSkirmishEnabled)
+            {
+                generatedSkirmishEnabled = newGeneratedEnabled;
+                ApplyGeneratedSkirmishPreference();
+            }
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Seed", GUILayout.Width(48f));
+            generatedSkirmishSeedText = GUILayout.TextField(generatedSkirmishSeedText, GUILayout.Height(28f));
+            if (GUILayout.Button("Apply Seed", GUILayout.Height(28f)))
+                ApplyGeneratedSeedPreference();
+            if (GUILayout.Button("Randomize", GUILayout.Height(28f)))
+                RandomizeGeneratedSeedPreference();
+            GUILayout.EndHorizontal();
             GUILayout.Space(8f);
         }
 
@@ -183,6 +200,9 @@ namespace ProjectAegisRTS.UnityClient.Boot
             masterVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MasterVolumeKey, AudioListener.volume));
             showDebugPanelsByDefault = PlayerPrefs.GetInt(DebugPanelsKey, settings != null && settings.showDebugPanelsByDefault ? 1 : 0) != 0;
             selectedSkirmishDifficultyId = RtsSimulationDriver.NormalizeSkirmishDifficultyId(PlayerPrefs.GetString(RtsSimulationDriver.SkirmishDifficultyPlayerPrefsKey, controller == null ? "normal" : controller.SelectedSkirmishDifficultyId));
+            generatedSkirmishEnabled = PlayerPrefs.GetInt(RtsSimulationDriver.GeneratedSkirmishEnabledPlayerPrefsKey, controller != null && controller.GeneratedSkirmishEnabled ? 1 : 0) != 0;
+            var seed = RtsSimulationDriver.NormalizeGeneratedSkirmishSeed(PlayerPrefs.GetInt(RtsSimulationDriver.GeneratedSkirmishSeedPlayerPrefsKey, controller == null ? 34034 : controller.GeneratedSkirmishSeed));
+            generatedSkirmishSeedText = seed.ToString();
         }
 
         void ApplyAudioDebugPreferences(bool save)
@@ -212,6 +232,51 @@ namespace ProjectAegisRTS.UnityClient.Boot
             PlayerPrefs.Save();
         }
 
+        void ApplyGeneratedSkirmishPreference()
+        {
+            if (controller != null)
+            {
+                controller.SetGeneratedSkirmishEnabled(generatedSkirmishEnabled);
+                return;
+            }
+
+            PlayerPrefs.SetInt(RtsSimulationDriver.GeneratedSkirmishEnabledPlayerPrefsKey, generatedSkirmishEnabled ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+
+        void ApplyGeneratedSeedPreference()
+        {
+            int seed;
+            if (!int.TryParse(generatedSkirmishSeedText, out seed))
+                seed = 34034;
+
+            seed = RtsSimulationDriver.NormalizeGeneratedSkirmishSeed(seed);
+            generatedSkirmishSeedText = seed.ToString();
+            if (controller != null)
+            {
+                controller.SetGeneratedSkirmishSeed(seed);
+                return;
+            }
+
+            PlayerPrefs.SetInt(RtsSimulationDriver.GeneratedSkirmishSeedPlayerPrefsKey, seed);
+            PlayerPrefs.Save();
+        }
+
+        void RandomizeGeneratedSeedPreference()
+        {
+            if (controller != null)
+            {
+                controller.RandomizeGeneratedSkirmishSeed();
+                generatedSkirmishSeedText = controller.GeneratedSkirmishSeed.ToString();
+                return;
+            }
+
+            var seed = RtsSimulationDriver.NormalizeGeneratedSkirmishSeed(unchecked(System.Environment.TickCount ^ (int)(System.DateTime.UtcNow.Ticks & 0x7FFFFFFF)));
+            generatedSkirmishSeedText = seed.ToString();
+            PlayerPrefs.SetInt(RtsSimulationDriver.GeneratedSkirmishSeedPlayerPrefsKey, seed);
+            PlayerPrefs.Save();
+        }
+
         void ApplyDisplaySettings()
         {
             if (displaySettings == null)
@@ -227,8 +292,12 @@ namespace ProjectAegisRTS.UnityClient.Boot
             masterVolume = 1f;
             showDebugPanelsByDefault = false;
             selectedSkirmishDifficultyId = "normal";
+            generatedSkirmishEnabled = false;
+            generatedSkirmishSeedText = "34034";
             ApplyAudioDebugPreferences(true);
             ApplySkirmishDifficultyPreference();
+            ApplyGeneratedSkirmishPreference();
+            ApplyGeneratedSeedPreference();
             ResetDisplaySettings();
         }
 

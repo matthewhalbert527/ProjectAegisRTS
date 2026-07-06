@@ -3116,7 +3116,9 @@ namespace ProjectAegisRTS.Simulation
                     return CommandResult.Fail("OutsideMap", "The building footprint extends outside the map.");
                 if (Map.HasBuildingAtPlacementCell(cell))
                     return CommandResult.Fail("OccupiedCell", "The building footprint overlaps an occupied cell.");
-                if (!Map.IsBuildablePlacementCell(cell, Rules))
+                if (HasAvailableResourceAtPlacementCell(cell))
+                    return CommandResult.Fail("ResourceOccupied", "The building footprint overlaps an active resource cell.");
+                if (!IsBuildablePlacementCellConsideringDepletedResources(cell))
                     return CommandResult.Fail("BlockedCell", "The building footprint includes a blocked cell.");
             }
 
@@ -3127,6 +3129,26 @@ namespace ProjectAegisRTS.Simulation
                 return CommandResult.Fail("NoCompletedBuildingPending", "No completed production item is pending placement for this building type.");
 
             return CommandResult.Ok("Placement is valid.");
+        }
+
+        bool HasAvailableResourceAtPlacementCell(Int2 placementCell)
+        {
+            var coarseCell = PlacementGridMetrics.PlacementCellToCoarseCell(placementCell);
+            ResourceCellState resource;
+            return resourceCells.TryGetValue(coarseCell, out resource) && !resource.IsDepleted;
+        }
+
+        bool IsBuildablePlacementCellConsideringDepletedResources(Int2 placementCell)
+        {
+            if (Map.IsBuildablePlacementCell(placementCell, Rules))
+                return true;
+
+            var coarseCell = PlacementGridMetrics.PlacementCellToCoarseCell(placementCell);
+            if (!Map.Contains(coarseCell) || Map.IsBlocked(coarseCell) || Map.GetTerrainKind(coarseCell) != TerrainKind.OreField)
+                return false;
+
+            ResourceCellState resource;
+            return !resourceCells.TryGetValue(coarseCell, out resource) || resource.IsDepleted;
         }
 
         List<Int2> GetPlacementFootprintCells(string typeId, Int2 topLeftCell)

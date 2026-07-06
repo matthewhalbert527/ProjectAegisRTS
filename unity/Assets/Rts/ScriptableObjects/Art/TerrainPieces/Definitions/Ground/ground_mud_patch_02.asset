@@ -18,13 +18,14 @@ MonoBehaviour:
   sizeClass: 6
   footprintFineWidth: 2
   footprintFineHeight: 2
-  prefab: {fileID: 4517626888626267399, guid: b70d16a6dabd53f4f87e434f3157c086, type: 3}
+  prefab: {fileID: 13690115675744458, guid: 14899e08beef92a4c82a101b6556173b, type: 3}
   materialProfileId: mud
   passabilityVisualHint: Passable visual ground.
   buildableVisualHint: Avoid as primary build cue.
   supportsRotation: 1
-  supportsTint: 1
+  supportsTint: 0
   isGameplayBlockingVisualOnly: 0
-  notes: Low, dark mud variation. Visual metadata only; Rts.Core terrain remains
-    authoritative.
-  questBudgetTag: QuestSafeLow
+  notes: Uses Unity Terrain Sample Asset Pack terrain layer textures and foliage/detail
+    prefabs for the player-facing ground tile replacement. Visual only; gameplay
+    authority remains in Rts.Core.
+  questBudgetTag: QuestSafeTerrainSample

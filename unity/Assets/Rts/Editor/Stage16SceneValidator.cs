@@ -113,8 +113,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 throw new InvalidOperationException("Stage 16 bootstrapper scenario references are incomplete.");
             if (!initializer.frameCameraOnStart || !initializer.startScenarioOnLoad || !initializer.hideDebugPanelsOnStart || !initializer.cancelPlacementOnStart)
                 throw new InvalidOperationException("Stage 16 player build initializer defaults are incomplete.");
-            if (Math.Abs(initializer.cameraOrthographicSize - 18f) > 0.01f)
+            if (Math.Abs(initializer.cameraOrthographicSize - 34f) > 0.01f)
                 throw new InvalidOperationException("Stage 16 player build initializer must use the player-readable camera size.");
+            if (bootstrapper.boardWidth != 32 || bootstrapper.boardHeight != 64)
+                throw new InvalidOperationException("Stage 16 bootstrapper must use the enlarged 32x64 vertical slice board.");
             if (debugVisibility.showDebugPanelsByDefault)
                 throw new InvalidOperationException("Stage 16 debug panels must be hidden by default.");
             if (!objectiveHud.visible)
@@ -160,8 +162,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 throw new InvalidOperationException("Stage 16 camera missing.");
             if (!camera.orthographic)
                 throw new InvalidOperationException("Stage 16 camera must be orthographic.");
-            if (Math.Abs(camera.orthographicSize - 18f) > 0.01f)
-                throw new InvalidOperationException("Stage 16 camera orthographic size must be 18.");
+            if (Math.Abs(camera.orthographicSize - 34f) > 0.01f)
+                throw new InvalidOperationException("Stage 16 camera orthographic size must be 34 for the 32x64 player-facing map.");
             if (camera.clearFlags != CameraClearFlags.SolidColor)
                 throw new InvalidOperationException("Stage 16 camera must use a solid player-readable background.");
             if (Math.Abs(camera.nearClipPlane - 0.1f) > 0.01f || Math.Abs(camera.farClipPlane - 1000f) > 0.01f)

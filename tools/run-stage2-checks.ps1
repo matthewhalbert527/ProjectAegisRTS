@@ -87,7 +87,8 @@ function Normalize-UnityGeneratedFiles {
         'unity\Assets\XR\Settings\OpenXR Package Settings.asset',
         'unity\Assets\XR\Settings\OpenXR Package Settings.asset.meta',
         'unity\Assets\XR\Settings.meta',
-        'unity\Assets\XR.meta'
+        'unity\Assets\XR.meta',
+        'unity\ProjectSettings\ProjectSettings.asset'
     )
 
     foreach ($path in $paths) {

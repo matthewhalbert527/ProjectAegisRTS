@@ -5,7 +5,7 @@ Stage 32.6 corrects the rejected terrain-card integration by treating Batch01 sh
 - Runtime terrain prefabs: 40
 - Player-facing mapped wrappers: 44
 - Shared runtime materials: 14
-- Reference-only images: 4
+- Reference-only images: 8
 - Review scene: `Assets/Rts/Scenes/Stage32_6_TerrainArtIntegrationReview.unity`
 - Review screenshot: `build/screenshots/stage32_6/terrain_review.png`
 - Player-facing screenshot: `build/screenshots/stage32_6/player_facing.png`
