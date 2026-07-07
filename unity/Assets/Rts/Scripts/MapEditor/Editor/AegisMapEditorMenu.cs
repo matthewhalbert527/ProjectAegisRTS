@@ -96,6 +96,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             Debug.Log("Built Aegis map-editor proxy materials and prefabs.");
         }
 
+        [MenuItem("Project Aegis/Map Editor/Build Visual Terrain From Aegis Map")]
+        public static void BuildVisualTerrainFromAegisMap()
+        {
+            EnsureFolders();
+            AegisMapVisualBuilder.BuildFromSelectedMap();
+        }
+
         [MenuItem("Project Aegis/Map Editor/Export Unity AI Asset Prompts")]
         public static void ExportUnityAiAssetPrompts()
         {
@@ -113,6 +120,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             EnsureFolder(AegisMapEditorPaths.MapEditorRoot, "Samples");
             EnsureFolder(AegisMapEditorPaths.MapEditorRoot, "AssetPrompts");
             EnsureFolder(AegisMapEditorPaths.MapEditorRoot, "ProxyAssets");
+            EnsureFolder(AegisMapEditorPaths.MapEditorRoot, "VisualAssets");
+            EnsureFolder(AegisMapEditorPaths.MapEditorRoot, "VisualBuilds");
             EnsureFolder("Assets/Rts", "Maps");
             EnsureFolder("Assets/Rts/Maps", "Tiled");
             EnsureFolder("Assets/Rts/Maps", "Generated");

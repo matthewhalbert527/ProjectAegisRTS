@@ -33,10 +33,11 @@ Implemented in Unity:
 - `Project Aegis > Map Editor > Open Map Editor` opens an editor window with procedural controls, prompt text, seed controls, validation, save/export buttons, prompt examples, overlay toggles, warnings/errors, and a generated summary panel.
 - The Unity window calls the deterministic `Rts.Core` bridge through `AegisUnityMapGenerationBridge` when the Unity plugin DLL is current.
 - If the bridge is unavailable, Unity writes a compatible `.aegismap.json` shell and displays a warning instead of failing silently.
+- `Project Aegis > Map Editor > Build Visual Terrain From Aegis Map` reads the selected `.aegismap.json` and builds a deterministic visual terrain scene with blended terrain texture, soft dirt routes, muddy water banks, cliff rock chains, ore clusters, scatter props, and concrete base pads.
 
 Future bridge:
 
-- Add scene-view overlay rendering for starts, resources, blockers, cliffs, and buildability.
+- Replace proxy visual dressing geometry with final original rock, vegetation, water, crater, road, and base-pad assets.
 - Add a command-line converter/generator for batch automation outside Unity.
 
 ## Unity Menu Items
@@ -46,11 +47,13 @@ Future bridge:
 - `Project Aegis > Map Editor > Export Selected Aegis Map to Tiled JSON`
 - `Project Aegis > Map Editor > Create Tiled Starter Tileset`
 - `Project Aegis > Map Editor > Build Proxy Materials and Prefabs`
+- `Project Aegis > Map Editor > Build Visual Terrain From Aegis Map`
 - `Project Aegis > Map Editor > Export Unity AI Asset Prompts`
 
 ## Next Useful Work
 
 - Add a dedicated command-line converter for batch import/export/generation.
-- Add Unity preview rendering from `.aegismap.json` once Unity compile validation is available.
+- Add scene-view overlays for buildability/fairness diagnostics on top of the visual terrain.
+- Add final original modular cliff, water, vegetation, ore, crater, and base-pad assets to replace proxy geometry.
 - Expand Tiled tileset metadata if more terrain or resource types are added.
 - Add optional SuperTiled2Unity documentation for visual-only workflows.

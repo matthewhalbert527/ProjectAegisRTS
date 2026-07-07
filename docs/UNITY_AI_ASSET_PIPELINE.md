@@ -14,6 +14,9 @@ The Unity map editor calls the deterministic `Rts.Core` generation bridge when a
 - Blocker proxy prefab: simple visible map-authoring blocker.
 - Resource proxy visuals: original Project Aegis ore styling.
 - Region overlays: editor-only preview aids.
+- Visual terrain dressing assets: original cliff rocks, boulders, road pebbles, craters, vegetation, ore chunks, base pads, water/bank materials, and biome material profiles.
+
+The current `Build Visual Terrain From Aegis Map` menu item uses deterministic procedural proxy materials and geometry so the map can already render as a dressed RTS battlefield in Unity. Future Unity AI or artist-created assets can replace those proxies without changing `.aegismap.json` gameplay data.
 
 ## Prompt Export
 
