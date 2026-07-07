@@ -198,13 +198,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var height = document.height * PixelsPerCell;
             var pixels = new Color32[width * height];
             var waterDistanceByCell = new int[document.width * document.height];
-            var bankDistanceByCell = new int[document.width * document.height];
             for (var cy = 0; cy < document.height; cy++)
                 for (var cx = 0; cx < document.width; cx++)
                 {
                     var key = cy * document.width + cx;
                     waterDistanceByCell[key] = lookup.DistanceToTerrain(cx, cy, "water", 5);
-                    bankDistanceByCell[key] = lookup.DistanceToNotTerrain(cx, cy, "water", 4);
                 }
 
             for (var py = 0; py < height; py++)
@@ -216,7 +214,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     var localX = (px + 0.5f) / PixelsPerCell;
                     var localY = (py + 0.5f) / PixelsPerCell;
                     var terrain = lookup.TerrainAt(cellX, cellY);
-                    var color = profile.ColorForTerrain(terrain);
+                    var waterInfluence = WaterInfluence(lookup, localX, localY);
+                    var color = profile.ColorForTerrain(terrain == "water" ? document.defaultTerrainId : terrain);
                     color = AddNoise(color, Hash01(seed, px, py), 0.13f);
 
                     var cellKey = cellY * document.width + cellX;
@@ -228,23 +227,26 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     }
 
                     var pathDistance = DistanceToPaths(paths, localX, localY);
-                    if (pathDistance < 2.6f && terrain != "water")
+                    if (pathDistance < 2.6f && waterInfluence < 0.36f)
                     {
                         var edge = Mathf.Clamp01(1f - pathDistance / 2.6f);
                         var worn = Color.Lerp(profile.DirtPath, profile.GravelPath, Mathf.Clamp01(1f - pathDistance / 1.1f));
                         color = Color.Lerp(color, worn, edge * 0.62f);
                     }
 
-                    if (terrain == "water")
+                    if (waterInfluence > 0.02f)
                     {
-                        var bank = bankDistanceByCell[cellKey];
-                        if (bank >= 0 && bank < 3)
-                            color = Color.Lerp(profile.MuddyBank, profile.Water, bank / 3f);
+                        if (waterInfluence < 0.42f)
+                            color = Color.Lerp(color, profile.MuddyBank, waterInfluence * 1.65f);
                         else
-                            color = Color.Lerp(profile.Water, profile.DeepWater, Hash01(seed ^ 0x515EA, cellX, cellY) * 0.35f);
+                        {
+                            var deep = Mathf.Clamp01((waterInfluence - 0.42f) / 0.58f);
+                            var flowNoise = Hash01(seed ^ 0x515EA, px / 3, py / 5) * 0.25f;
+                            color = Color.Lerp(profile.Water, profile.DeepWater, Mathf.Clamp01(deep * 0.76f + flowNoise));
+                        }
                     }
 
-                    if (lookup.HasResource(cellX, cellY))
+                    if (lookup.HasResource(cellX, cellY) && waterInfluence < 0.2f)
                         color = Color.Lerp(color, profile.OreGround, 0.7f);
 
                     pixels[(height - 1 - py) * width + px] = ToColor32(color);
@@ -267,14 +269,30 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             for (var i = 0; i < document.playerStarts.Length; i++)
             {
                 var start = document.playerStarts[i];
-                var pad = CreateQuad("Base Pad P" + start.playerId, 14f, 14f, materials.Concrete);
+                var blend = CreateQuad("Base Pad Terrain Blend P" + start.playerId, 18f, 18f, materials.Dirt);
+                blend.transform.SetParent(parent, false);
+                blend.transform.position = CellCenter(start.x, start.y, 0.028f);
+
+                var pad = CreateQuad("Base Pad P" + start.playerId, 14.5f, 14.5f, materials.Concrete);
                 pad.transform.SetParent(parent, false);
                 pad.transform.position = CellCenter(start.x, start.y, 0.035f);
 
-                var stripe = CreateQuad("Base Pad Trim P" + start.playerId, 10f, 1.2f, materials.ConcreteTrim);
-                stripe.transform.SetParent(parent, false);
-                stripe.transform.position = CellCenter(start.x, start.y + 4, 0.04f);
+                var panel = CreateQuad("Base Pad Inner Panel P" + start.playerId, 8.5f, 8.5f, materials.ConcretePanel);
+                panel.transform.SetParent(parent, false);
+                panel.transform.position = CellCenter(start.x, start.y, 0.041f);
+
+                CreatePadTrim(parent, "North Trim P" + start.playerId, start.x, start.y + 4, 10f, 1.1f, materials.ConcreteTrim);
+                CreatePadTrim(parent, "South Trim P" + start.playerId, start.x, start.y - 4, 10f, 1.1f, materials.ConcreteTrim);
+                CreatePadTrim(parent, "West Trim P" + start.playerId, start.x - 4, start.y, 1.1f, 10f, materials.ConcreteTrim);
+                CreatePadTrim(parent, "East Trim P" + start.playerId, start.x + 4, start.y, 1.1f, 10f, materials.ConcreteTrim);
             }
+        }
+
+        static void CreatePadTrim(Transform parent, string name, int x, int y, float width, float height, Material material)
+        {
+            var trim = CreateQuad(name, width, height, material);
+            trim.transform.SetParent(parent, false);
+            trim.transform.position = CellCenter(x, y, 0.046f);
         }
 
         static void BuildCliffRidges(Transform root, AegisVisualMapDocument document, AegisVisualMapLookup lookup, AegisVisualMaterialSet materials, int seed)
@@ -377,15 +395,16 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             for (var i = 0; i < count; i++)
             {
-                var rock = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                var rock = new GameObject(name);
                 rock.name = name;
                 rock.transform.SetParent(parent, false);
                 var offset = new Vector3((Hash01(seed, cellX + i * 7, cellY) - 0.5f) * 1.2f, 0f, (Hash01(seed, cellX, cellY + i * 13) - 0.5f) * 1.2f);
                 var height = Mathf.Lerp(minScale, maxScale, Hash01(seed ^ 0xA7A, cellX + i, cellY - i));
-                rock.transform.position = CellCenter(cellX, cellY, height * 0.45f) + offset;
-                rock.transform.localScale = new Vector3(height * 0.28f, height * 0.52f, height * 0.36f);
+                var radius = Mathf.Lerp(0.32f, 0.78f, Hash01(seed ^ 0x77A, cellX - i, cellY + i));
+                rock.AddComponent<MeshFilter>().sharedMesh = CreateFacetedRockMesh(seed, cellX, cellY, i, radius, height);
+                rock.AddComponent<MeshRenderer>().sharedMaterial = material;
+                rock.transform.position = CellCenter(cellX, cellY, 0.05f) + offset;
                 rock.transform.rotation = Quaternion.Euler(Hash01(seed, cellX, i) * 12f - 6f, Hash01(seed, i, cellY) * 360f, Hash01(seed, cellY, i) * 12f - 6f);
-                AssignMaterialAndStripCollider(rock, material);
             }
         }
 
@@ -402,13 +421,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static void CreatePebble(Transform parent, int cellX, int cellY, Material material, int seed, string name)
         {
-            var pebble = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            var pebble = new GameObject(name);
             pebble.name = name;
             pebble.transform.SetParent(parent, false);
             pebble.transform.position = CellCenter(cellX, cellY, 0.06f);
             var scale = 0.12f + Hash01(seed, cellX, cellY) * 0.18f;
-            pebble.transform.localScale = new Vector3(scale, scale * 0.55f, scale);
-            AssignMaterialAndStripCollider(pebble, material);
+            pebble.AddComponent<MeshFilter>().sharedMesh = CreateFacetedPebbleMesh(seed, cellX, cellY, scale);
+            pebble.AddComponent<MeshRenderer>().sharedMaterial = material;
+            pebble.transform.rotation = Quaternion.Euler(0f, Hash01(seed ^ 0xDEB, cellX, cellY) * 360f, 0f);
         }
 
         static void CreateCrater(Transform parent, int cellX, int cellY, Material material)
@@ -419,6 +439,93 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             crater.transform.position = CellCenter(cellX, cellY, 0.045f);
             crater.transform.localScale = new Vector3(1.35f, 0.015f, 1.35f);
             AssignMaterialAndStripCollider(crater, material);
+        }
+
+        static Mesh CreateFacetedRockMesh(int seed, int cellX, int cellY, int variant, float radius, float height)
+        {
+            const int sides = 8;
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            for (var i = 0; i < sides; i++)
+            {
+                var angle = i / (float)sides * Mathf.PI * 2f;
+                var jitter = Mathf.Lerp(0.72f, 1.18f, Hash01(seed ^ 0x51A7E, cellX + i + variant * 13, cellY - i));
+                vertices.Add(new Vector3(Mathf.Cos(angle) * radius * jitter, 0f, Mathf.Sin(angle) * radius * 0.72f * jitter));
+            }
+            for (var i = 0; i < sides; i++)
+            {
+                var angle = (i + 0.18f) / sides * Mathf.PI * 2f;
+                var jitter = Mathf.Lerp(0.34f, 0.58f, Hash01(seed ^ 0x923D, cellX - i, cellY + variant * 17));
+                vertices.Add(new Vector3(Mathf.Cos(angle) * radius * jitter, height, Mathf.Sin(angle) * radius * 0.7f * jitter));
+            }
+
+            var top = vertices.Count;
+            vertices.Add(new Vector3((Hash01(seed, cellX, variant) - 0.5f) * radius * 0.28f, height * 1.16f, (Hash01(seed, variant, cellY) - 0.5f) * radius * 0.22f));
+
+            for (var i = 0; i < sides; i++)
+            {
+                var next = (i + 1) % sides;
+                triangles.Add(i);
+                triangles.Add(next);
+                triangles.Add(sides + i);
+                triangles.Add(next);
+                triangles.Add(sides + next);
+                triangles.Add(sides + i);
+
+                triangles.Add(sides + i);
+                triangles.Add(sides + next);
+                triangles.Add(top);
+            }
+
+            var mesh = new Mesh();
+            mesh.name = "Aegis Faceted Rock Mesh";
+            mesh.SetVertices(vertices);
+            mesh.SetTriangles(triangles, 0);
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            return mesh;
+        }
+
+        static Mesh CreateFacetedPebbleMesh(int seed, int cellX, int cellY, float radius)
+        {
+            const int sides = 6;
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            for (var i = 0; i < sides; i++)
+            {
+                var angle = i / (float)sides * Mathf.PI * 2f;
+                var jitter = Mathf.Lerp(0.72f, 1.12f, Hash01(seed ^ 0x0B1E, cellX + i, cellY - i));
+                vertices.Add(new Vector3(Mathf.Cos(angle) * radius * jitter, 0f, Mathf.Sin(angle) * radius * 0.72f * jitter));
+            }
+            for (var i = 0; i < sides; i++)
+            {
+                var angle = (i + 0.2f) / sides * Mathf.PI * 2f;
+                vertices.Add(new Vector3(Mathf.Cos(angle) * radius * 0.6f, radius * 0.32f, Mathf.Sin(angle) * radius * 0.42f));
+            }
+
+            var top = vertices.Count;
+            vertices.Add(new Vector3(0f, radius * 0.42f, 0f));
+            for (var i = 0; i < sides; i++)
+            {
+                var next = (i + 1) % sides;
+                triangles.Add(i);
+                triangles.Add(next);
+                triangles.Add(sides + i);
+                triangles.Add(next);
+                triangles.Add(sides + next);
+                triangles.Add(sides + i);
+                triangles.Add(sides + i);
+                triangles.Add(sides + next);
+                triangles.Add(top);
+            }
+
+            var mesh = new Mesh();
+            mesh.name = "Aegis Faceted Pebble Mesh";
+            mesh.SetVertices(vertices);
+            mesh.SetTriangles(triangles, 0);
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            return mesh;
         }
 
         static GameObject CreateQuad(string name, float width, float height, Material material)
@@ -494,6 +601,27 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             for (var i = 0; i < paths.Count; i++)
                 min = Mathf.Min(min, DistanceToSegment(point, paths[i].A, paths[i].B));
             return min;
+        }
+
+        static float WaterInfluence(AegisVisualMapLookup lookup, float x, float y)
+        {
+            var cellX = Mathf.FloorToInt(x);
+            var cellY = Mathf.FloorToInt(y);
+            var nearest = 9999f;
+            for (var yy = cellY - 3; yy <= cellY + 3; yy++)
+                for (var xx = cellX - 3; xx <= cellX + 3; xx++)
+                    if (lookup.TerrainAt(xx, yy) == "water")
+                    {
+                        var dx = x - (xx + 0.5f);
+                        var dy = y - (yy + 0.5f);
+                        var distance = Mathf.Sqrt(dx * dx + dy * dy);
+                        if (distance < nearest)
+                            nearest = distance;
+                    }
+
+            if (nearest > 1.62f)
+                return 0f;
+            return Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((1.62f - nearest) / 1.08f));
         }
 
         static float DistanceToSegment(Vector2 point, Vector2 a, Vector2 b)
@@ -850,8 +978,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public Material Ore;
         public Material Vegetation;
         public Material Concrete;
+        public Material ConcretePanel;
         public Material ConcreteTrim;
         public Material Crater;
+        public Material Dirt;
 
         public static AegisVisualMaterialSet LoadOrCreate(AegisVisualBiomeProfile profile, bool persistAssets)
         {
@@ -860,12 +990,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 Ground = Material("aegis_visual_ground.mat", Color.white, true, persistAssets),
                 Cliff = Material("aegis_visual_cliff.mat", profile.Cliff, false, persistAssets),
                 Boulder = Material("aegis_visual_boulder.mat", Color.Lerp(profile.Cliff, Color.white, 0.12f), false, persistAssets),
-                Pebble = Material("aegis_visual_pebble.mat", Color.Lerp(profile.Rough, Color.white, 0.1f), false, persistAssets),
+                Pebble = Material("aegis_visual_pebble.mat", Color.Lerp(profile.Rough, profile.MuddyBank, 0.42f), false, persistAssets),
                 Ore = Material("aegis_visual_ore.mat", profile.OreGround, false, persistAssets),
                 Vegetation = Material("aegis_visual_vegetation.mat", profile.Forest, false, persistAssets),
                 Concrete = Material("aegis_visual_concrete_pad.mat", new Color(0.45f, 0.47f, 0.44f, 1f), false, persistAssets),
+                ConcretePanel = Material("aegis_visual_concrete_panel.mat", new Color(0.54f, 0.56f, 0.52f, 1f), false, persistAssets),
                 ConcreteTrim = Material("aegis_visual_concrete_trim.mat", new Color(0.65f, 0.58f, 0.42f, 1f), false, persistAssets),
-                Crater = Material("aegis_visual_crater.mat", new Color(0.08f, 0.07f, 0.06f, 1f), false, persistAssets)
+                Crater = Material("aegis_visual_crater.mat", new Color(0.08f, 0.07f, 0.06f, 1f), false, persistAssets),
+                Dirt = Material("aegis_visual_dirt_blend.mat", Color.Lerp(profile.DirtPath, profile.Grass, 0.28f), false, persistAssets)
             };
         }
 
@@ -875,7 +1007,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             {
                 var transient = new Material(FindShader(textured));
                 transient.name = Path.GetFileNameWithoutExtension(fileName) + "_transient";
-                transient.color = color;
+                ConfigureMaterial(transient, color, textured);
                 return transient;
             }
 
@@ -886,9 +1018,26 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 material = new Material(FindShader(textured));
                 AssetDatabase.CreateAsset(material, path);
             }
-            material.color = color;
+            ConfigureMaterial(material, color, textured);
             EditorUtility.SetDirty(material);
             return material;
+        }
+
+        static void ConfigureMaterial(Material material, Color color, bool textured)
+        {
+            material.color = color;
+            if (material.HasProperty("_BaseColor"))
+                material.SetColor("_BaseColor", color);
+            if (material.HasProperty("_Color"))
+                material.SetColor("_Color", color);
+            if (material.HasProperty("_Metallic"))
+                material.SetFloat("_Metallic", 0f);
+            if (material.HasProperty("_Smoothness"))
+                material.SetFloat("_Smoothness", textured ? 0f : 0.12f);
+            if (material.HasProperty("_Glossiness"))
+                material.SetFloat("_Glossiness", textured ? 0f : 0.08f);
+            if (material.HasProperty("_SpecColor"))
+                material.SetColor("_SpecColor", new Color(0.02f, 0.02f, 0.018f, 1f));
         }
 
         static Shader FindShader(bool textured)

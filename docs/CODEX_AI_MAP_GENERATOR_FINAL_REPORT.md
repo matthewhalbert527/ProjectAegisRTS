@@ -20,7 +20,7 @@
 - Kept the temporary Tiled local export artifact removed and ignored with `*.local-export.tiled.json`.
 - Added deterministic sine/noise watercourse generation for requested water maps, including tests for dry maps, medium-water rivers, and high-water pathability.
 - Improved the Unity visual terrain builder with a closer centered preview camera, higher-resolution terrain texture generation, darker forest terrain colors, curved deterministic visual dirt paths, river/muddy-bank rendering, and deterministic shore pebble/bank grass scatter.
-- Added a river/chokepoint generated sample for visual validation and pointed the Unity batch render at that cleaner 2-player forest river sample.
+- Added faceted procedural rock and pebble meshes, rougher low-gloss generated materials, terrain-blended concrete pad panels/trims, and a cleaner low-water 2-player forest river sample for visual validation.
 
 ## Validation
 
@@ -33,6 +33,7 @@
 - Unity command used:
   `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe -batchmode -quit -projectPath "E:\OpenRA Mod\ProjectAegisRTS\unity" -logFile "E:\OpenRA Mod\ProjectAegisRTS\unity-compile.log" -executeMethod ProjectAegisRTS.UnityClient.EditorTools.AegisMapVisualBuilder.RenderSamplePreviewForBatch`
 - Unity preview image: `C:\Users\matth\AppData\Local\Temp\ProjectAegisRTS\aegis_visual_builder_sample.png`.
+- Latest visual preview uses the 2-player forest river/chokepoint sample with low-water river dressing, faceted cliff/boulder meshes, and detailed base-pad geometry.
 - Core guardrail scan: no `UnityEngine`, `UnityEditor`, OpenRA implementation namespace, or protected C&C / Red Alert identifiers found under `src/Rts.Core`.
 
 ## Samples
