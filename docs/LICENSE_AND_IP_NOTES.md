@@ -14,6 +14,12 @@ The Aegis generated-map implementation in `src/Rts.Core/MapGeneration` is a clea
 
 Concept art and future production assets should remain under `art/` or a separate asset pipeline. Keeping art separate from code helps manage different licensing models later.
 
+## Tiled Map Editor Integration
+
+The Stage 0 Tiled map-editor integration is original Project Aegis code. Tiled is used as an external authoring/interchange tool, and `.aegismap.json` is the Project Aegis runtime map format.
+
+No Command & Conquer / Red Alert implementation files, names, faction identifiers, UI, art, map data, or file formats are used by the map-editor integration. No OpenRA code was copied into `src/Rts.Core/Maps` or the Unity map-editor scripts.
+
 ## Protected Names
 
 Do not use Command & Conquer, Red Alert, EA, GDI, Nod, Soviet, Allied, or similar protected names in new game code, docs intended for shipping, UI, or asset IDs.

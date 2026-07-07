@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="9">
+  <properties>
+    <property name="aegisMapId" value="sample_small_100"/>
+    <property name="displayName" value="Sample Small 100"/>
+  </properties>
+  <tileset firstgid="1" source="sample_small_100.tsx"/>
+  <objectgroup id="1" name="player_starts">
+    <object id="1" name="player_1" type="player_start" x="256" y="256" point="1">
+      <properties>
+        <property name="playerId" type="int" value="1"/>
+      </properties>
+    </object>
+    <object id="2" name="player_2" type="player_start" x="2912" y="2912" point="1">
+      <properties>
+        <property name="playerId" type="int" value="2"/>
+      </properties>
+    </object>
+  </objectgroup>
+  <objectgroup id="2" name="actor_placements">
+    <object id="3" name="player_hub" type="fabrication_hub" x="320" y="320" point="1">
+      <properties>
+        <property name="ownerPlayerId" type="int" value="1"/>
+        <property name="facingDegrees" type="int" value="0"/>
+      </properties>
+    </object>
+    <object id="4" name="enemy_hub" type="fabrication_hub" x="2816" y="2816" point="1">
+      <properties>
+        <property name="ownerPlayerId" type="int" value="2"/>
+        <property name="facingDegrees" type="int" value="180"/>
+      </properties>
+    </object>
+  </objectgroup>
+  <objectgroup id="3" name="resources">
+    <object id="5" name="north_ore" type="ore" x="640" y="512" width="64" height="64">
+      <properties>
+        <property name="resourceKind" value="ore"/>
+        <property name="amount" type="int" value="500"/>
+      </properties>
+    </object>
+  </objectgroup>
+  <objectgroup id="4" name="blockers">
+    <object id="6" name="ridge_blocker" type="blocker" x="1600" y="1600" width="32" height="32"/>
+  </objectgroup>
+  <objectgroup id="5" name="regions">
+    <object id="7" name="central_plateau" type="region" x="1344" y="1344" width="512" height="512">
+      <properties>
+        <property name="regionId" value="central_plateau"/>
+        <property name="purpose" value="skirmish_control"/>
+      </properties>
+    </object>
+  </objectgroup>
+  <objectgroup id="6" name="nav_overrides">
+    <object id="8" name="slow_zone" type="nav" x="1536" y="1472" point="1">
+      <properties>
+        <property name="movementClass" value="ground"/>
+        <property name="passable" type="bool" value="true"/>
+        <property name="cost" type="int" value="3"/>
+      </properties>
+    </object>
+  </objectgroup>
+</map>

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using ProjectAegisRTS.Ai;
 using ProjectAegisRTS.Actors;
 using ProjectAegisRTS.Commands;
@@ -7,6 +9,8 @@ using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Demo;
 using ProjectAegisRTS.Economy;
+using ProjectAegisRTS.Maps;
+using ProjectAegisRTS.Maps.Tiled;
 using ProjectAegisRTS.MapGeneration;
 using ProjectAegisRTS.Match;
 using ProjectAegisRTS.Pathfinding;
@@ -123,6 +127,19 @@ namespace ProjectAegisRTS.Tests
                 GeneratedMapIsLeftRightSymmetric,
                 GeneratedSkirmishWorldCreatesValidMap,
                 GeneratedSkirmishWorldHasReachableResourcesAndEnemy,
+                AegisMapAccepts100x100Maps,
+                AegisMapAccepts400x400Maps,
+                AegisMapRejects99x100Maps,
+                AegisMapRejects401x400Maps,
+                AegisMapCreatesRuntimeWorldFrom400x400,
+                TiledImporterImportsSmallSample,
+                TiledImporterRejectsInfiniteMaps,
+                TiledImporterRejectsUnsupportedOrientation,
+                TiledImporterImportsBlockers,
+                TiledImporterImportsPlayerStarts,
+                TiledImporterImportsActorPlacements,
+                TiledExporterRoundTripsAegisMap,
+                RtsCoreDoesNotReferenceUnityEngine,
                 PathingDeterminismSmokeTest,
                 AircraftAndAirfieldDefinitionsExist,
                 HelipadCreatesAirfieldSnapshot,
@@ -1281,6 +1298,126 @@ namespace ProjectAegisRTS.Tests
             Assert(enemyPath.Success, "Expected generated road/playable region to connect player and enemy scouts: " + enemyPath.FailureCode);
         }
 
+        static void AegisMapAccepts100x100Maps()
+        {
+            var document = ValidAegisMap(100, 100);
+            var result = new AegisMapDocumentValidator().Validate(document, DemoRules.CreateDefaultRules());
+            Assert(result.Success, "Expected 100x100 Aegis map to validate: " + string.Join(", ", result.Errors));
+        }
+
+        static void AegisMapAccepts400x400Maps()
+        {
+            var document = ValidAegisMap(400, 400);
+            var result = new AegisMapDocumentValidator().Validate(document, DemoRules.CreateDefaultRules());
+            Assert(result.Success, "Expected 400x400 Aegis map to validate: " + string.Join(", ", result.Errors));
+        }
+
+        static void AegisMapRejects99x100Maps()
+        {
+            var document = ValidAegisMap(99, 100);
+            var result = new AegisMapDocumentValidator().Validate(document);
+            Assert(!result.Success && ContainsText(result.Errors, "MapWidthTooSmall"), "Expected 99x100 map rejection.");
+        }
+
+        static void AegisMapRejects401x400Maps()
+        {
+            var document = ValidAegisMap(401, 400);
+            var result = new AegisMapDocumentValidator().Validate(document);
+            Assert(!result.Success && ContainsText(result.Errors, "MapWidthTooLarge"), "Expected 401x400 map rejection.");
+        }
+
+        static void AegisMapCreatesRuntimeWorldFrom400x400()
+        {
+            var document = ValidAegisMap(400, 400);
+            document.ActorPlacements.Add(new AegisActorPlacement("fabrication_hub", 1, 6, 6, 0, "player_hub"));
+            document.ActorPlacements.Add(new AegisActorPlacement("scout_rover", 1, 12, 12, 90, "player_scout"));
+            var world = new AegisMapDocumentWorldFactory().CreateWorld(document, DemoRules.CreateDefaultRules());
+            Assert(world.Map.Width == 400 && world.Map.Height == 400, "Expected 400x400 runtime world.");
+            Assert(world.FirstActorOfType("fabrication_hub", 1) != null, "Expected imported fabrication hub.");
+            Assert(world.FirstActorOfType("scout_rover", 1) != null, "Expected imported scout rover.");
+        }
+
+        static void TiledImporterImportsSmallSample()
+        {
+            var path = Path.Combine(RepoRoot(), "unity", "Assets", "Rts", "Maps", "Generated", "sample_small_100.tiled.json");
+            Assert(File.Exists(path), "Expected checked-in Tiled sample at " + path);
+            var result = new AegisTiledMapImporter().ImportFile(path, new AegisTiledImportOptions { DefaultMapId = "sample_small_100" });
+            Assert(result.Success, "Expected Tiled sample import success: " + string.Join(", ", result.Errors));
+            Assert(result.Document.Width == 100 && result.Document.Height == 100, "Expected 100x100 imported sample.");
+            Assert(result.Document.PlayerStarts.Count >= 2, "Expected sample player starts.");
+            Assert(result.Document.ActorPlacements.Count >= 2, "Expected sample actor placements.");
+            Assert(result.Document.Resources.Count > 0, "Expected sample resources.");
+        }
+
+        static void TiledImporterRejectsInfiniteMaps()
+        {
+            var result = new AegisTiledMapImporter().ImportJson(TiledMapJson("orthogonal", true, string.Empty), new AegisTiledImportOptions());
+            Assert(!result.Success && ContainsText(result.Errors, "TiledInfiniteMapUnsupported"), "Expected infinite Tiled map rejection.");
+        }
+
+        static void TiledImporterRejectsUnsupportedOrientation()
+        {
+            var result = new AegisTiledMapImporter().ImportJson(TiledMapJson("isometric", false, string.Empty), new AegisTiledImportOptions());
+            Assert(!result.Success && ContainsText(result.Errors, "TiledOrientationUnsupported"), "Expected unsupported orientation rejection.");
+        }
+
+        static void TiledImporterImportsBlockers()
+        {
+            var layer = "\"layers\":[{\"id\":1,\"name\":\"blockers\",\"type\":\"tilelayer\",\"width\":100,\"height\":100,\"encoding\":\"csv\",\"data\":\"" + CsvLayerData(100, 100, 505, 1) + "\"}]";
+            var result = new AegisTiledMapImporter().ImportJson(TiledMapJson("orthogonal", false, layer), new AegisTiledImportOptions());
+            Assert(result.Success, "Expected blocker import success: " + string.Join(", ", result.Errors));
+            Assert(result.Document.Blockers.Count == 1, "Expected one blocker.");
+            Assert(result.Document.Blockers[0].X == 5 && result.Document.Blockers[0].Y == 5, "Expected blocker at 5,5.");
+        }
+
+        static void TiledImporterImportsPlayerStarts()
+        {
+            var layer = "\"layers\":[{\"id\":1,\"name\":\"player_starts\",\"type\":\"objectgroup\",\"objects\":[{\"id\":1,\"name\":\"player_2\",\"type\":\"player_start\",\"x\":320,\"y\":352,\"point\":true,\"properties\":[{\"name\":\"playerId\",\"type\":\"int\",\"value\":2}]}]}]";
+            var result = new AegisTiledMapImporter().ImportJson(TiledMapJson("orthogonal", false, layer), new AegisTiledImportOptions());
+            Assert(result.Success, "Expected player start import success: " + string.Join(", ", result.Errors));
+            Assert(result.Document.PlayerStarts.Count == 1, "Expected one player start.");
+            Assert(result.Document.PlayerStarts[0].PlayerId == 2, "Expected player 2 start.");
+            Assert(result.Document.PlayerStarts[0].X == 10 && result.Document.PlayerStarts[0].Y == 11, "Expected player start cell 10,11.");
+        }
+
+        static void TiledImporterImportsActorPlacements()
+        {
+            var layer = "\"layers\":[{\"id\":1,\"name\":\"actor_placements\",\"type\":\"objectgroup\",\"objects\":[{\"id\":1,\"name\":\"scout_alpha\",\"type\":\"scout_rover\",\"x\":384,\"y\":416,\"point\":true,\"properties\":[{\"name\":\"ownerPlayerId\",\"type\":\"int\",\"value\":1},{\"name\":\"facingDegrees\",\"type\":\"int\",\"value\":90}]}]}]";
+            var result = new AegisTiledMapImporter().ImportJson(TiledMapJson("orthogonal", false, layer), new AegisTiledImportOptions());
+            Assert(result.Success, "Expected actor placement import success: " + string.Join(", ", result.Errors));
+            Assert(result.Document.ActorPlacements.Count == 1, "Expected one actor placement.");
+            Assert(result.Document.ActorPlacements[0].TypeId == "scout_rover", "Expected scout_rover type.");
+            Assert(result.Document.ActorPlacements[0].OwnerPlayerId == 1, "Expected owner player 1.");
+            Assert(result.Document.ActorPlacements[0].X == 12 && result.Document.ActorPlacements[0].Y == 13, "Expected actor cell 12,13.");
+        }
+
+        static void TiledExporterRoundTripsAegisMap()
+        {
+            var document = ValidAegisMap(100, 100);
+            document.ActorPlacements.Add(new AegisActorPlacement("scout_rover", 1, 16, 16, 90, "round_trip_scout"));
+            var json = new AegisTiledMapExporter().ExportToJson(document);
+            var result = new AegisTiledMapImporter().ImportJson(json, new AegisTiledImportOptions());
+            Assert(result.Success, "Expected exported Tiled JSON to import: " + string.Join(", ", result.Errors));
+            Assert(result.Document.Width == 100 && result.Document.Height == 100, "Expected round-trip dimensions.");
+            Assert(result.Document.PlayerStarts.Count == 2, "Expected round-trip player starts.");
+            Assert(result.Document.ActorPlacements.Count == 1, "Expected round-trip actor placement.");
+            Assert(result.Document.Blockers.Count == 1, "Expected round-trip blocker.");
+        }
+
+        static void RtsCoreDoesNotReferenceUnityEngine()
+        {
+            var coreRoot = Path.Combine(RepoRoot(), "src", "Rts.Core");
+            foreach (var file in Directory.GetFiles(coreRoot, "*.cs", SearchOption.AllDirectories))
+            {
+                var normalized = file.Replace('\\', '/');
+                if (normalized.Contains("/obj/") || normalized.Contains("/bin/"))
+                    continue;
+
+                var text = File.ReadAllText(file);
+                Assert(!text.Contains("UnityEngine"), "Rts.Core must remain UnityEngine-free. Found reference in " + file);
+            }
+        }
+
         static void PathingDeterminismSmokeTest()
         {
             var a = RunPathingDeterministicSequence();
@@ -1531,6 +1668,62 @@ namespace ProjectAegisRTS.Tests
             var a = RunVerticalSliceDeterministicSequence();
             var b = RunVerticalSliceDeterministicSequence();
             Assert(a == b, "Expected vertical slice deterministic summaries to match.");
+        }
+
+        static AegisMapDocument ValidAegisMap(int width, int height)
+        {
+            var document = AegisMapDocument.CreateEmpty(width, height, "test_map_" + width + "x" + height);
+            document.DisplayName = "Test Map " + width + "x" + height;
+            document.PlayerStarts.Add(new AegisPlayerStart(1, 8, 8, "Player 1"));
+            document.PlayerStarts.Add(new AegisPlayerStart(2, Math.Max(10, width - 9), Math.Max(10, height - 9), "Player 2"));
+            document.Resources.Add(new AegisResourcePlacement(12, 12, "ore", 500));
+            document.Resources.Add(new AegisResourcePlacement(Math.Max(20, width - 13), Math.Max(20, height - 13), "ore", 500));
+            document.TerrainBase.Add(new AegisTerrainCell(4, 4, AegisMapTerrainIds.Road));
+            document.Blockers.Add(new AegisBlockerCell(20, 20, true, "test_blocker"));
+            return document;
+        }
+
+        static string TiledMapJson(string orientation, bool infinite, string layersJson)
+        {
+            var layers = string.IsNullOrEmpty(layersJson) ? "\"layers\":[]" : layersJson;
+            return "{" +
+                "\"type\":\"map\"," +
+                "\"orientation\":\"" + orientation + "\"," +
+                "\"renderorder\":\"right-down\"," +
+                "\"width\":100," +
+                "\"height\":100," +
+                "\"tilewidth\":32," +
+                "\"tileheight\":32," +
+                "\"infinite\":" + (infinite ? "true" : "false") + "," +
+                layers + "," +
+                "\"tilesets\":[]" +
+                "}";
+        }
+
+        static string CsvLayerData(int width, int height, int markedIndex, int markedGid)
+        {
+            var builder = new StringBuilder();
+            var length = width * height;
+            for (var i = 0; i < length; i++)
+            {
+                if (i != 0)
+                    builder.Append(',');
+                builder.Append(i == markedIndex ? markedGid : 0);
+            }
+            return builder.ToString();
+        }
+
+        static string RepoRoot()
+        {
+            var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
+            while (directory != null)
+            {
+                if (File.Exists(Path.Combine(directory.FullName, "src", "Rts.Core", "Rts.Core.csproj")))
+                    return directory.FullName;
+                directory = directory.Parent;
+            }
+
+            return Directory.GetCurrentDirectory();
         }
 
         static string RunDeterministicSequence()
