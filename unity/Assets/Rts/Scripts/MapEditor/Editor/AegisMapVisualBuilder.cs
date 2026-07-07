@@ -16,8 +16,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         const int MaxNearCliffBoulders = 650;
         const int MaxVegetation = 850;
         const int MaxCraters = 120;
-        const int MaxRoadPebbles = 450;
-        const int MaxShorePebbles = 520;
+        const int MaxRoadPebbles = 320;
+        const int MaxShorePebbles = 170;
         const int MaxOreProps = 900;
 
         public static void BuildFromSelectedMap()
@@ -364,7 +364,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         CreateRockCluster(parent, "Boulder Scatter", x, y, materials.Boulder, seed ^ 0xB011, 0.35f, 1.1f, 1 + HashRange(seed, x, y, 2));
                         boulders++;
                     }
-                    else if (waterDistance >= 0 && waterDistance <= 2 && shorePebbles < MaxShorePebbles && h < 0.32f)
+                    else if (waterDistance >= 0 && waterDistance <= 2 && shorePebbles < MaxShorePebbles && h < 0.14f)
                     {
                         if (Hash01(seed ^ 0xBA11, x, y) < 0.72f)
                             CreatePebble(parent, x, y, materials.Pebble, seed, "Shore Pebble");
@@ -990,7 +990,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 Ground = Material("aegis_visual_ground.mat", Color.white, true, persistAssets),
                 Cliff = Material("aegis_visual_cliff.mat", profile.Cliff, false, persistAssets),
                 Boulder = Material("aegis_visual_boulder.mat", Color.Lerp(profile.Cliff, Color.white, 0.12f), false, persistAssets),
-                Pebble = Material("aegis_visual_pebble.mat", Color.Lerp(profile.Rough, profile.MuddyBank, 0.42f), false, persistAssets),
+                Pebble = Material("aegis_visual_pebble.mat", Color.Lerp(profile.Cliff, profile.Rough, 0.62f), false, persistAssets),
                 Ore = Material("aegis_visual_ore.mat", profile.OreGround, false, persistAssets),
                 Vegetation = Material("aegis_visual_vegetation.mat", profile.Forest, false, persistAssets),
                 Concrete = Material("aegis_visual_concrete_pad.mat", new Color(0.45f, 0.47f, 0.44f, 1f), false, persistAssets),
