@@ -63,6 +63,12 @@ Resource regeneration metadata, build-pad regions, balance summaries, and genera
 - `unity/Assets/Rts/Maps/Generated/sample_small_100.tiled.json`
 - `unity/Assets/Rts/MapEditor/Samples/sample_small_100.aegismap.json`
 - `unity/Assets/Rts/MapEditor/Samples/sample_large_400_shell.aegismap.json`
+- `unity/Assets/Rts/MapEditor/Samples/sample_ai_small_balanced_2p.aegismap.json`
+- `unity/Assets/Rts/MapEditor/Samples/sample_ai_small_desert_2p_high_ore.aegismap.json`
+- `unity/Assets/Rts/MapEditor/Samples/sample_ai_medium_forest_4p_balanced.aegismap.json`
+- `unity/Assets/Rts/MapEditor/Samples/sample_ai_medium_rocky_4p_chokepoint.aegismap.json`
+- `unity/Assets/Rts/MapEditor/Samples/sample_ai_large_tournament_4p.aegismap.json`
+- `unity/Assets/Rts/MapEditor/Samples/sample_ai_large_rocky_8p_high_resources.aegismap.json`
 
 ## Notes
 

@@ -4,56 +4,64 @@
 
 - Branch: `codex/ai-map-generator-editor`
 - Repository root: `E:\OpenRA Mod\ProjectAegisRTS`
+- Baseline for this hardening pass: commit `ef951eae8530e697fbcb1ef70d964b64d6c07e66`
 
 ## Implementation Summary
 
-- Hardened deterministic prompt parsing for common map-authoring phrases, including explicit sizes, word/digit player counts, resource/cliff/rock/water density phrases, biomes, symmetry, and gameplay profiles.
-- Added generation summary metrics for size, seed, player count, style controls, resource counts, total ore, blocker/cliff/rock counts, build pads, warnings, and validation errors.
-- Expanded balance analysis with connected start pairs, unreachable players, min/max path distance, and nearby resource amount by player.
-- Added optional padded buildability checks while preserving rectangular `1x1` through `5x5` footprint support.
-- Extended standalone resource-field state with per-field regeneration overrides, owner metadata, visibility/depletion state, and ticks-since-harvest inspection.
-- Improved the Unity map editor window with ore regeneration delay, dimension validation before preview, and a generated summary panel.
-- Removed the tracked temporary Tiled local export artifact and kept `*.local-export.tiled.json` ignored.
+- Added a deterministic `AegisMapGenerationBridge` in `src/Rts.Core` so tooling can request prompt-driven generation and receive `.aegismap.json`, Tiled-compatible JSON, validation results, warnings, summary text, and fairness score from the same core path used by tests.
+- Added `AegisMapDocumentJson` serialization helpers for deterministic runtime map JSON round-tripping.
+- Expanded generation/balance summaries with fairness score, connected start pair counts, start distance range, per-player build pad counts, resource imbalance percentage, and a bottleneck estimate.
+- Improved the Unity map editor window with direct core-bridge preview/save/export support when the updated `Rts.Core` plugin is loaded, plus an explicit fallback shell generator if the bridge is unavailable.
+- Added editor controls and status output for overlays, same-seed regeneration, new-seed regeneration, validation, saving `.aegismap.json`, exporting Tiled JSON, prompt examples, warnings, errors, and summary text.
+- Updated the Unity `Rts.Core` plugin DLL/PDB so the editor reflection bridge can call the new core generation bridge in Unity.
+- Added deterministic generated sample `.aegismap.json` maps for small, medium, and large scenarios, including balanced, high-ore, forest, chokepoint, tournament, and 8-player high-resource cases.
+- Kept the temporary Tiled local export artifact removed and ignored with `*.local-export.tiled.json`.
 
 ## Validation
 
 - `dotnet restore src/Rts.Core.Tests/Rts.Core.Tests.csproj`: passed.
 - `dotnet build src/Rts.Core.Tests/Rts.Core.Tests.csproj --no-restore`: passed with 0 warnings and 0 errors.
-- `dotnet run --project src/Rts.Core.Tests/Rts.Core.Tests.csproj`: passed, `171/171`.
-- Tiled export validation: passed with `C:\Program Files\Tiled\tiled.exe`; temporary export existed after export and was removed.
-- Unity batch compile: passed with `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe`, final log return code `0`.
+- `dotnet run --project src/Rts.Core.Tests/Rts.Core.Tests.csproj`: passed, `177/177`.
+- Tiled export validation: passed with `C:\Program Files\Tiled\tiled.exe`.
+- Temporary Tiled export check: `unity/Assets/Rts/Maps/Generated/sample_small_100.local-export.tiled.json` was created by export validation, confirmed present by file lookup, then removed.
+- Unity batch compile: passed with `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe`; final log reported `Application will terminate with return code 0`.
+- Unity command used:
+  `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe -batchmode -quit -projectPath "E:\OpenRA Mod\ProjectAegisRTS\unity" -logFile "E:\OpenRA Mod\ProjectAegisRTS\unity-compile.log"`
 - Core guardrail scan: no `UnityEngine`, `UnityEditor`, OpenRA implementation namespace, or protected C&C / Red Alert identifiers found under `src/Rts.Core`.
+
+## Samples
+
+- Existing Tiled sample remains checked in: `unity/Assets/Rts/Maps/Generated/sample_small_100.tiled.json`.
+- Added generated Aegis map samples:
+  - `unity/Assets/Rts/MapEditor/Samples/sample_ai_small_balanced_2p.aegismap.json`
+  - `unity/Assets/Rts/MapEditor/Samples/sample_ai_small_desert_2p_high_ore.aegismap.json`
+  - `unity/Assets/Rts/MapEditor/Samples/sample_ai_medium_forest_4p_balanced.aegismap.json`
+  - `unity/Assets/Rts/MapEditor/Samples/sample_ai_medium_rocky_4p_chokepoint.aegismap.json`
+  - `unity/Assets/Rts/MapEditor/Samples/sample_ai_large_tournament_4p.aegismap.json`
+  - `unity/Assets/Rts/MapEditor/Samples/sample_ai_large_rocky_8p_high_resources.aegismap.json`
 
 ## Tool Notes
 
-- `tiled` is still missing from PATH, but `C:\Program Files\Tiled\tiled.exe` was found and used.
+- `tiled` is still missing from PATH, but `C:\Program Files\Tiled\tiled.exe` was found and used for validation.
 - `jq`, `zip`, and `unzip` are missing from PATH in this PowerShell session.
 - `openupm` is present at `C:\Users\matth\AppData\Roaming\npm\openupm.ps1`.
 - `.vs/`, `unity-compile.log`, and `*.local-export.tiled.json` are ignored.
 
-## Cleanup
-
-- `unity/Assets/Rts/Maps/Generated/sample_small_100.local-export.tiled.json` was removed from tracking with `git rm`.
-- The real checked-in sample remains: `unity/Assets/Rts/Maps/Generated/sample_small_100.tiled.json`.
-- Unity generated a whitespace-only OpenXR settings diff during validation; it was restored and not staged.
-- `unity-compile.log` was removed before staging.
-
 ## Documentation Updated
 
 - `docs/AI_MAP_GENERATOR_PLAN.md`
-- `docs/RESOURCE_REGENERATION.md`
-- `docs/BUILDING_PLACEMENT_ON_GENERATED_MAPS.md`
-- `docs/TILED_MAP_PIPELINE.md`
 - `docs/MAP_EDITOR_PLAN.md`
+- `docs/TILED_MAP_PIPELINE.md`
 - `docs/UNITY_AI_ASSET_PIPELINE.md`
 - `docs/CODEX_AI_MAP_GENERATOR_FINAL_REPORT.md`
 - `unity/Assets/Rts/Scripts/MapEditor/README.md`
 
 ## Future Work
 
-- Add a direct Unity-to-`Rts.Core` assembly reference or command-line bridge so Unity previews exactly match the core generator.
-- Add richer visual preview overlays for build pads, resources, blockers, cliffs, and pathability.
-- Add deeper tactical fairness scoring once gameplay balance targets are firmer.
+- Replace the current reflection bridge with a formal Unity asmdef or package reference once the Unity project layout for shared runtime code is settled.
+- Add richer in-scene visual preview overlays for build pads, resources, blockers, cliffs, water, and pathability.
+- Add deeper tactical fairness scoring after gameplay-specific balance targets are firmer.
+- Add an explicit Unity editor smoke test harness that opens the map editor window and runs a generation request during batchmode.
 
 ## Source And IP Notes
 

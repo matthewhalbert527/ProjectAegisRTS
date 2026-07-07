@@ -40,7 +40,7 @@ namespace ProjectAegisRTS.Maps.Generation
         public static AegisMapGenerationResult Ok(AegisMapDocument document, AegisMapGenerationRequest request, int seed, IReadOnlyList<string> warnings, AegisMapBuildabilityReport buildability, AegisMapBalanceReport balance)
         {
             var errors = new string[0];
-            var summary = AegisMapGenerationSummary.FromDocument(document, request, seed, buildability, errors, warnings);
+            var summary = AegisMapGenerationSummary.FromDocument(document, request, seed, buildability, balance, errors, warnings);
             return new AegisMapGenerationResult(true, document, request, seed, errors, warnings, buildability, balance, summary);
         }
 
@@ -69,6 +69,11 @@ namespace ProjectAegisRTS.Maps.Generation
         public int CliffBlockerCount { get; private set; }
         public int RockPlacementCount { get; private set; }
         public int BuildPadCount { get; private set; }
+        public int FairnessScore { get; private set; }
+        public int ConnectedStartPairs { get; private set; }
+        public int TotalStartPairs { get; private set; }
+        public int MinStartDistance { get; private set; }
+        public int MaxStartDistance { get; private set; }
         public int WarningCount { get; private set; }
         public int ValidationErrorCount { get; private set; }
 
@@ -81,6 +86,7 @@ namespace ProjectAegisRTS.Maps.Generation
             AegisMapGenerationRequest request,
             int seed,
             AegisMapBuildabilityReport buildability,
+            AegisMapBalanceReport balance,
             IReadOnlyList<string> errors,
             IReadOnlyList<string> warnings)
         {
@@ -97,6 +103,14 @@ namespace ProjectAegisRTS.Maps.Generation
             summary.CliffBlockerCount = CountBlockers(document, "cliff");
             summary.RockPlacementCount = CountBlockers(document, "rock");
             summary.BuildPadCount = buildability == null || buildability.BuildSpots == null ? 0 : buildability.BuildSpots.Count;
+            if (balance != null)
+            {
+                summary.FairnessScore = balance.FairnessScore;
+                summary.ConnectedStartPairs = balance.ConnectedStartPairs;
+                summary.TotalStartPairs = balance.TotalStartPairs;
+                summary.MinStartDistance = balance.MinStartDistance;
+                summary.MaxStartDistance = balance.MaxStartDistance;
+            }
             return summary;
         }
 
@@ -166,11 +180,13 @@ namespace ProjectAegisRTS.Maps.Generation
     public sealed class AegisMapBuildabilityReport
     {
         public IReadOnlyList<AegisMapBuildSpot> BuildSpots { get; private set; }
+        public IReadOnlyList<AegisPlayerBuildPadMetric> BuildPadsByPlayer { get; private set; }
         public IReadOnlyList<string> Warnings { get; private set; }
 
         public AegisMapBuildabilityReport(IReadOnlyList<AegisMapBuildSpot> buildSpots, IReadOnlyList<string> warnings)
         {
             BuildSpots = buildSpots ?? new AegisMapBuildSpot[0];
+            BuildPadsByPlayer = BuildMetrics(BuildSpots);
             Warnings = warnings ?? new string[0];
         }
 
@@ -181,6 +197,48 @@ namespace ProjectAegisRTS.Maps.Generation
                 if (BuildSpots[i].PlayerId == playerId)
                     count++;
             return count;
+        }
+
+        static IReadOnlyList<AegisPlayerBuildPadMetric> BuildMetrics(IReadOnlyList<AegisMapBuildSpot> spots)
+        {
+            var metrics = new List<AegisPlayerBuildPadMetric>();
+            if (spots == null)
+                return metrics;
+
+            for (var i = 0; i < spots.Count; i++)
+            {
+                var playerId = spots[i].PlayerId;
+                var found = false;
+                for (var m = 0; m < metrics.Count; m++)
+                    if (metrics[m].PlayerId == playerId)
+                    {
+                        metrics[m].Increment();
+                        found = true;
+                        break;
+                    }
+                if (!found)
+                    metrics.Add(new AegisPlayerBuildPadMetric(playerId, 1));
+            }
+
+            metrics.Sort((a, b) => a.PlayerId.CompareTo(b.PlayerId));
+            return metrics;
+        }
+    }
+
+    public sealed class AegisPlayerBuildPadMetric
+    {
+        public int PlayerId { get; private set; }
+        public int BuildPadCount { get; private set; }
+
+        public AegisPlayerBuildPadMetric(int playerId, int buildPadCount)
+        {
+            PlayerId = playerId;
+            BuildPadCount = buildPadCount < 0 ? 0 : buildPadCount;
+        }
+
+        public void Increment()
+        {
+            BuildPadCount++;
         }
     }
 
@@ -193,12 +251,15 @@ namespace ProjectAegisRTS.Maps.Generation
         public int TotalStartPairs { get; private set; }
         public int MinStartDistance { get; private set; }
         public int MaxStartDistance { get; private set; }
+        public int FairnessScore { get; private set; }
+        public int ResourceImbalancePercent { get; private set; }
+        public int BottleneckEstimate { get; private set; }
         public IReadOnlyList<int> UnreachablePlayerIds { get; private set; }
         public IReadOnlyList<AegisPlayerResourceMetric> NearbyResourcesByPlayer { get; private set; }
         public IReadOnlyList<string> Warnings { get; private set; }
 
         public AegisMapBalanceReport(bool startsConnected, int resourceCellCount, int blockerCellCount, IReadOnlyList<string> warnings)
-            : this(startsConnected, resourceCellCount, blockerCellCount, 0, 0, 0, 0, new int[0], new AegisPlayerResourceMetric[0], warnings)
+            : this(startsConnected, resourceCellCount, blockerCellCount, 0, 0, 0, 0, 0, 0, 0, new int[0], new AegisPlayerResourceMetric[0], warnings)
         {
         }
 
@@ -210,6 +271,9 @@ namespace ProjectAegisRTS.Maps.Generation
             int totalStartPairs,
             int minStartDistance,
             int maxStartDistance,
+            int fairnessScore,
+            int resourceImbalancePercent,
+            int bottleneckEstimate,
             IReadOnlyList<int> unreachablePlayerIds,
             IReadOnlyList<AegisPlayerResourceMetric> nearbyResourcesByPlayer,
             IReadOnlyList<string> warnings)
@@ -221,6 +285,9 @@ namespace ProjectAegisRTS.Maps.Generation
             TotalStartPairs = totalStartPairs;
             MinStartDistance = minStartDistance;
             MaxStartDistance = maxStartDistance;
+            FairnessScore = fairnessScore;
+            ResourceImbalancePercent = resourceImbalancePercent;
+            BottleneckEstimate = bottleneckEstimate;
             UnreachablePlayerIds = unreachablePlayerIds ?? new int[0];
             NearbyResourcesByPlayer = nearbyResourcesByPlayer ?? new AegisPlayerResourceMetric[0];
             Warnings = warnings ?? new string[0];

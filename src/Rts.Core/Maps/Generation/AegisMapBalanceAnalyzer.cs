@@ -14,22 +14,29 @@ namespace ProjectAegisRTS.Maps.Generation
             var totalPairs = 0;
             var minDistance = 0;
             var maxDistance = 0;
+            var resourceImbalancePercent = 0;
             var connected = AnalyzeStartConnectivity(document, unreachablePlayerIds, out connectedPairs, out totalPairs, out minDistance, out maxDistance);
             if (!connected)
                 warnings.Add("StartsDisconnected:At least one player start cannot reach another start.");
 
-            AnalyzeNearbyResources(document, nearbyResources, warnings);
+            AnalyzeNearbyResources(document, nearbyResources, warnings, out resourceImbalancePercent);
             if (totalPairs > 1 && minDistance > 0 && maxDistance > minDistance * 2)
                 warnings.Add("StartDistanceSpreadHigh:Start path distances vary by more than 2x.");
+            var bottleneckEstimate = EstimateBottleneck(document);
+            var blockerCount = document == null || document.Blockers == null ? 0 : document.Blockers.Count;
+            var fairnessScore = ComputeFairnessScore(connected, connectedPairs, totalPairs, minDistance, maxDistance, resourceImbalancePercent, bottleneckEstimate, blockerCount, document);
 
             return new AegisMapBalanceReport(
                 connected,
                 document == null || document.Resources == null ? 0 : document.Resources.Count,
-                document == null || document.Blockers == null ? 0 : document.Blockers.Count,
+                blockerCount,
                 connectedPairs,
                 totalPairs,
                 minDistance,
                 maxDistance,
+                fairnessScore,
+                resourceImbalancePercent,
+                bottleneckEstimate,
                 unreachablePlayerIds,
                 nearbyResources,
                 warnings);
@@ -124,8 +131,9 @@ namespace ProjectAegisRTS.Maps.Generation
             return -1;
         }
 
-        static void AnalyzeNearbyResources(AegisMapDocument document, List<AegisPlayerResourceMetric> metrics, List<string> warnings)
+        static void AnalyzeNearbyResources(AegisMapDocument document, List<AegisPlayerResourceMetric> metrics, List<string> warnings, out int resourceImbalancePercent)
         {
+            resourceImbalancePercent = 0;
             if (document == null || document.PlayerStarts == null || document.Resources == null)
                 return;
 
@@ -154,8 +162,68 @@ namespace ProjectAegisRTS.Maps.Generation
                     maxAmount = amount;
             }
 
-            if (metrics.Count > 1 && maxAmount > 0 && minAmount * 100 < maxAmount * 65)
-                warnings.Add("NearbyResourceImbalance:Nearby resource amount differs by more than 35 percent between starts.");
+            if (metrics.Count > 1 && maxAmount > 0)
+            {
+                resourceImbalancePercent = (maxAmount - minAmount) * 100 / maxAmount;
+                if (resourceImbalancePercent > 35)
+                    warnings.Add("NearbyResourceImbalance:Nearby resource amount differs by more than 35 percent between starts.");
+            }
+        }
+
+        static int ComputeFairnessScore(
+            bool connected,
+            int connectedPairs,
+            int totalPairs,
+            int minDistance,
+            int maxDistance,
+            int resourceImbalancePercent,
+            int bottleneckEstimate,
+            int blockerCount,
+            AegisMapDocument document)
+        {
+            var score = 100;
+            if (!connected)
+            {
+                var missingPairs = totalPairs - connectedPairs;
+                score -= 50 + missingPairs * 10;
+            }
+
+            if (minDistance > 0 && maxDistance > minDistance)
+            {
+                var spreadPercent = (maxDistance - minDistance) * 100 / maxDistance;
+                score -= Clamp(spreadPercent / 3, 0, 20);
+            }
+
+            score -= Clamp(resourceImbalancePercent / 3, 0, 20);
+            score -= Clamp(bottleneckEstimate / 8, 0, 12);
+
+            if (document != null && document.Width > 0 && document.Height > 0)
+            {
+                var blockerDensityPermille = blockerCount * 1000 / (document.Width * document.Height);
+                if (blockerDensityPermille > 170)
+                    score -= Clamp((blockerDensityPermille - 170) / 8, 0, 18);
+            }
+
+            return Clamp(score, 0, 100);
+        }
+
+        static int EstimateBottleneck(AegisMapDocument document)
+        {
+            if (document == null || document.Blockers == null || document.Width <= 0 || document.Height <= 0)
+                return 0;
+
+            var centerX = document.Width / 2;
+            var centerY = document.Height / 2;
+            var radius = Clamp(System.Math.Min(document.Width, document.Height) / 8, 8, 32);
+            var count = 0;
+            for (var i = 0; i < document.Blockers.Count; i++)
+            {
+                var blocker = document.Blockers[i];
+                if (Abs(blocker.X - centerX) + Abs(blocker.Y - centerY) <= radius)
+                    count++;
+            }
+
+            return count * 100 / (radius * radius * 2 + 1);
         }
 
         static bool CanTraverse(AegisMapDocument document, Dictionary<int, string> terrain, Int2 cell)

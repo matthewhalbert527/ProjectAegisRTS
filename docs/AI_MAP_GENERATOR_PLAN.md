@@ -46,13 +46,31 @@ The generator creates:
 - Resource fields are placed near starts but outside the protected base pad.
 - Buildability analysis exposes clean 1x1 through 5x5 footprint support, rectangular footprints, optional padding checks, and generated build-pad regions.
 - Balance analysis reports connected start pairs, unreachable starts, min/max path distance, nearby resource amount by player, blocker count, and resource count.
-- The generation summary reports width, height, seed, player count, biome, density settings, water, symmetry, profile, resource field count, total resource amount, blocker/cliff/rock counts, build-pad count, warnings, and validation errors.
+- Fairness scoring reports a deterministic 0-100 score from connectivity, path distance spread, nearby resource balance, bottleneck estimate, and blocker density.
+- The generation summary reports width, height, seed, player count, biome, density settings, water, symmetry, profile, resource field count, total resource amount, blocker/cliff/rock counts, build-pad count, fairness score, warnings, and validation errors.
 
 Tiled remains an export/import authoring surface. Generated maps can be exported through the existing Tiled JSON exporter where practical.
+
+## Unity Bridge
+
+The Unity editor now uses `AegisUnityMapGenerationBridge` to call the deterministic `Rts.Core` generation bridge through reflection when the Unity `Rts.Core.dll` plugin is current. The bridge returns `.aegismap.json`, Tiled JSON, warnings/errors, summary text, and fairness score.
+
+If the core bridge is unavailable, Unity falls back to the older compatible shell generator and shows a warning. That fallback is only an editor resilience path; `Rts.Core` remains the authoritative generator.
+
+## Review Samples
+
+Checked-in deterministic samples live under `unity/Assets/Rts/MapEditor/Samples/`:
+
+- `sample_ai_small_balanced_2p.aegismap.json`
+- `sample_ai_small_desert_2p_high_ore.aegismap.json`
+- `sample_ai_medium_forest_4p_balanced.aegismap.json`
+- `sample_ai_medium_rocky_4p_chokepoint.aegismap.json`
+- `sample_ai_large_tournament_4p.aegismap.json`
+- `sample_ai_large_rocky_8p_high_resources.aegismap.json`
 
 ## Not Implemented Yet
 
 - A real LLM provider bridge.
 - Full artistic biome-specific tile palettes.
-- Advanced tactical fairness scoring beyond deterministic start connectivity, distance spread, nearby resource balance, resource counts, and build-pad checks.
-- Direct Unity editor execution of the core generator assembly. The Unity editor currently creates a compatible procedural shell and documents the direct bridge as future work.
+- Advanced tactical fairness scoring beyond deterministic start connectivity, distance spread, nearby resource balance, bottleneck estimate, resource counts, and build-pad checks.
+- Runtime visual overlays in the Unity scene view. The editor tracks overlay toggles and summary metadata, but it does not yet draw map-preview gizmos.

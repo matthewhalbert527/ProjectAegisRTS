@@ -24,17 +24,20 @@ Implemented in `Rts.Core`:
 - Prompt phrases for size, player count, resources, cliffs, rockiness, water, biome, symmetry, profile, seed, and ore regeneration.
 - Deterministic 100x100 through 400x400 generation for 2/4/6/8 players.
 - Buildability checks for rectangular 1x1 through 5x5 footprints, optional padding, and generated build-pad regions.
-- Pathability/fairness metrics for connected start pairs, unreachable starts, path distance spread, and nearby resources by player.
+- Pathability/fairness metrics for connected start pairs, unreachable starts, path distance spread, nearby resources by player, bottleneck estimate, blocker density, and a 0-100 fairness score.
 - Ore depletion/regeneration metadata for generated resource fields.
+- Bridge API for editor tooling: `AegisMapGenerationBridge` returns validated `.aegismap.json`, Tiled JSON, summary text, warnings/errors, and fairness score.
 
 Implemented in Unity:
 
-- `Project Aegis > Map Editor > Open Map Editor` opens an editor window with procedural controls, prompt text, seed controls, validation, save/export buttons, prompt examples, and a generated summary panel.
-- The Unity window writes a compatible `.aegismap.json` shell without calling external AI services.
+- `Project Aegis > Map Editor > Open Map Editor` opens an editor window with procedural controls, prompt text, seed controls, validation, save/export buttons, prompt examples, overlay toggles, warnings/errors, and a generated summary panel.
+- The Unity window calls the deterministic `Rts.Core` bridge through `AegisUnityMapGenerationBridge` when the Unity plugin DLL is current.
+- If the bridge is unavailable, Unity writes a compatible `.aegismap.json` shell and displays a warning instead of failing silently.
 
 Future bridge:
 
-- Wire the Unity editor directly to the `Rts.Core` generator assembly or a command-line bridge so Unity previews exactly match core procedural output.
+- Add scene-view overlay rendering for starts, resources, blockers, cliffs, and buildability.
+- Add a command-line converter/generator for batch automation outside Unity.
 
 ## Unity Menu Items
 
@@ -47,8 +50,7 @@ Future bridge:
 
 ## Next Useful Work
 
-- Add a direct Unity-to-`Rts.Core` assembly reference or command-line bridge for editor generation parity.
-- Add a dedicated command-line converter for batch import/export.
+- Add a dedicated command-line converter for batch import/export/generation.
 - Add Unity preview rendering from `.aegismap.json` once Unity compile validation is available.
 - Expand Tiled tileset metadata if more terrain or resource types are added.
 - Add optional SuperTiled2Unity documentation for visual-only workflows.

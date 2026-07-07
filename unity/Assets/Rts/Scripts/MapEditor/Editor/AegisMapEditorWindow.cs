@@ -35,6 +35,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         bool oreRegenerationEnabled = true;
         int oreRegenerationRate = 2;
         int oreRegenerationDelay = 60;
+        bool showResourcesOverlay = true;
+        bool showBlockersOverlay = true;
+        bool showBuildabilityOverlay = true;
+        bool showStartsOverlay = true;
+        AegisGeneratedMapPreviewModel lastPreview;
         string lastGeneratedJson = string.Empty;
         string status = string.Empty;
         string summary = string.Empty;
@@ -71,17 +76,28 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             oreRegenerationRate = EditorGUILayout.IntSlider("Ore Regen Rate", oreRegenerationRate, 0, 20);
             oreRegenerationDelay = EditorGUILayout.IntSlider("Ore Regen Delay", oreRegenerationDelay, 0, 600);
 
+            EditorGUILayout.Space(4);
+            EditorGUILayout.LabelField("Preview Overlays", EditorStyles.boldLabel);
+            showResourcesOverlay = EditorGUILayout.Toggle("Resources", showResourcesOverlay);
+            showBlockersOverlay = EditorGUILayout.Toggle("Blockers / Cliffs", showBlockersOverlay);
+            showBuildabilityOverlay = EditorGUILayout.Toggle("Buildability", showBuildabilityOverlay);
+            showStartsOverlay = EditorGUILayout.Toggle("Starts", showStartsOverlay);
+
             EditorGUILayout.Space(8);
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Generate Preview"))
                 GeneratePreview();
+            if (GUILayout.Button("Regenerate Same Seed"))
+                GeneratePreview();
+            if (GUILayout.Button("Regenerate New Seed"))
+                RegenerateNewSeed();
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Validate Map"))
                 ValidateCurrent();
             if (GUILayout.Button("Save .aegismap.json"))
                 SaveAegisMap();
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Export Tiled JSON"))
                 ExportTiledJson();
             if (GUILayout.Button("Randomize Seed"))
@@ -96,6 +112,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             EditorGUILayout.LabelField("Generated Map Summary", EditorStyles.boldLabel);
             EditorGUILayout.TextArea(summary, GUILayout.MinHeight(84));
 
+            if (lastPreview != null && (lastPreview.Warnings.Count > 0 || lastPreview.Errors.Count > 0))
+            {
+                EditorGUILayout.LabelField("Warnings / Errors", EditorStyles.boldLabel);
+                EditorGUILayout.TextArea(BuildMessages(lastPreview), GUILayout.MinHeight(72));
+            }
+
             EditorGUILayout.LabelField("Preview", EditorStyles.boldLabel);
             EditorGUILayout.TextArea(string.IsNullOrEmpty(lastGeneratedJson) ? string.Empty : lastGeneratedJson, GUILayout.MinHeight(160));
             EditorGUILayout.EndScrollView();
@@ -106,9 +128,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (!ValidateDimensions())
                 return;
 
-            lastGeneratedJson = BuildCurrentJson();
-            summary = BuildSummary();
-            status = "Generated deterministic preview for seed " + seed + ".";
+            lastPreview = new AegisUnityMapGenerationBridge().Generate(BuildSettings());
+            lastGeneratedJson = lastPreview.AegisMapJson;
+            summary = BuildSummary(lastPreview);
+            if (lastPreview.Success)
+                status = "Generated deterministic preview for seed " + seed + " using " + (lastPreview.UsedCoreBridge ? "Rts.Core." : "Unity fallback shell.");
+            else
+                status = "Error: " + FirstError(lastPreview);
         }
 
         void ValidateCurrent()
@@ -117,10 +143,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var height = ResolveHeight();
             if (!ValidateDimensions())
                 return;
-            if (string.IsNullOrEmpty(lastGeneratedJson))
-                lastGeneratedJson = BuildCurrentJson();
-            summary = BuildSummary();
-            status = "Map settings validated for " + width + "x" + height + ".";
+            if (lastPreview == null || string.IsNullOrEmpty(lastPreview.AegisMapJson))
+                GeneratePreview();
+            if (lastPreview == null || !lastPreview.Success)
+                return;
+            status = "Map settings validated for " + width + "x" + height + " with fairness " + lastPreview.FairnessScore + "/100.";
         }
 
         bool ValidateDimensions()
@@ -146,26 +173,45 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (string.IsNullOrEmpty(path))
                 return;
 
-            File.WriteAllText(path, BuildCurrentJson());
-            AssetDatabase.ImportAsset(path);
-            UnityEditor.Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
-            status = "Saved " + path + ".";
+            try
+            {
+                File.WriteAllText(path, lastPreview.AegisMapJson);
+                AssetDatabase.ImportAsset(path);
+                UnityEditor.Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
+                status = "Saved " + path + ".";
+            }
+            catch (Exception ex)
+            {
+                status = "Error: failed to save Aegis map: " + ex.Message;
+            }
         }
 
         void ExportTiledJson()
         {
-            if (string.IsNullOrEmpty(lastGeneratedJson))
-                lastGeneratedJson = BuildCurrentJson();
+            if (lastPreview == null || string.IsNullOrEmpty(lastPreview.AegisMapJson))
+                GeneratePreview();
+            if (lastPreview == null || !lastPreview.Success)
+                return;
 
             var mapId = "procedural_" + ResolveWidth() + "x" + ResolveHeight() + "_seed_" + seed;
             var path = EditorUtility.SaveFilePanelInProject("Export Tiled JSON", mapId + ".tiled", "json", "Save Tiled-compatible JSON shell.", AegisMapEditorPaths.GeneratedMapsFolder);
             if (string.IsNullOrEmpty(path))
                 return;
 
-            File.WriteAllText(path, AegisMapEditorFileTemplates.CreateTiledJsonShellFromAegisMap(lastGeneratedJson, mapId));
-            AssetDatabase.ImportAsset(path);
-            UnityEditor.Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
-            status = "Exported " + path + ".";
+            try
+            {
+                var tiledJson = string.IsNullOrEmpty(lastPreview.TiledJson)
+                    ? AegisMapEditorFileTemplates.CreateTiledJsonShellFromAegisMap(lastPreview.AegisMapJson, mapId)
+                    : lastPreview.TiledJson;
+                File.WriteAllText(path, tiledJson);
+                AssetDatabase.ImportAsset(path);
+                UnityEditor.Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
+                status = "Exported " + path + ".";
+            }
+            catch (Exception ex)
+            {
+                status = "Error: failed to export Tiled JSON: " + ex.Message;
+            }
         }
 
         void RandomizeSeed()
@@ -177,6 +223,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             status = "Seed randomized to " + seed + ".";
         }
 
+        void RegenerateNewSeed()
+        {
+            RandomizeSeed();
+            GeneratePreview();
+        }
+
         void GeneratePromptExamples()
         {
             var path = AegisMapEditorPaths.AssetPromptsFolder + "/aegis_procedural_prompt_examples.md";
@@ -186,63 +238,58 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             status = "Generated prompt examples at " + path + ".";
         }
 
-        string BuildCurrentJson()
+        AegisUnityMapGenerationSettings BuildSettings()
         {
-            var mapId = "procedural_" + ResolveWidth() + "x" + ResolveHeight() + "_seed_" + seed;
-            return AegisMapEditorFileTemplates.CreateProceduralAegisMapJson(
-                mapId,
-                "Procedural " + SizePresets[sizePreset] + " " + Biomes[biome],
-                prompt,
-                ResolveWidth(),
-                ResolveHeight(),
-                int.Parse(PlayerCounts[playerCountIndex]),
-                Biomes[biome],
-                ResourceDensities[resourceDensity],
-                CliffDensities[cliffDensity],
-                RockinessValues[rockiness],
-                WaterAmounts[waterAmount],
-                Symmetries[symmetry],
-                seed,
-                GameplayProfiles[gameplayProfile],
-                oreRegenerationEnabled,
-                oreRegenerationRate,
-                oreRegenerationDelay);
+            return new AegisUnityMapGenerationSettings
+            {
+                PromptText = prompt,
+                SizePreset = SizePresets[sizePreset],
+                CustomWidth = ResolveWidth(),
+                CustomHeight = ResolveHeight(),
+                PlayerCount = int.Parse(PlayerCounts[playerCountIndex]),
+                Biome = Biomes[biome],
+                ResourceDensity = ResourceDensities[resourceDensity],
+                CliffDensity = CliffDensities[cliffDensity],
+                Rockiness = RockinessValues[rockiness],
+                WaterAmount = WaterAmounts[waterAmount],
+                Symmetry = Symmetries[symmetry],
+                HasExplicitSeed = true,
+                Seed = seed,
+                GameplayProfile = GameplayProfiles[gameplayProfile],
+                OreRegenerationEnabled = oreRegenerationEnabled,
+                OreRegenerationRatePerTick = oreRegenerationRate,
+                OreRegenerationDelayTicks = oreRegenerationDelay
+            };
         }
 
-        string BuildSummary()
+        string BuildSummary(AegisGeneratedMapPreviewModel preview)
         {
-            if (string.IsNullOrEmpty(lastGeneratedJson))
+            if (preview == null)
                 return string.Empty;
 
-            var resources = CountOccurrences(lastGeneratedJson, "\"resourceKind\"");
-            var blockers = CountOccurrences(lastGeneratedJson, "\"blocksGround\"");
-            var starts = CountOccurrences(lastGeneratedJson, "\"playerId\"");
-            return "Size: " + ResolveWidth() + "x" + ResolveHeight() + "\n" +
-                "Seed: " + seed + "\n" +
-                "Players: " + starts + "\n" +
-                "Biome: " + Biomes[biome] + "\n" +
-                "Resources: " + ResourceDensities[resourceDensity] + " (" + resources + " cells)\n" +
-                "Cliffs: " + CliffDensities[cliffDensity] + " (" + blockers + " blocker cells)\n" +
-                "Rockiness: " + RockinessValues[rockiness] + "\n" +
-                "Water: " + WaterAmounts[waterAmount] + "\n" +
-                "Symmetry: " + Symmetries[symmetry] + "\n" +
-                "Profile: " + GameplayProfiles[gameplayProfile] + "\n" +
-                "Ore regen: " + (oreRegenerationEnabled ? oreRegenerationRate + " per tick after " + oreRegenerationDelay + " ticks" : "disabled");
+            var overlayText = "Overlays: " +
+                (showResourcesOverlay ? "resources " : string.Empty) +
+                (showBlockersOverlay ? "blockers " : string.Empty) +
+                (showBuildabilityOverlay ? "buildability " : string.Empty) +
+                (showStartsOverlay ? "starts" : string.Empty);
+            return preview.SummaryText + "\n" + overlayText.TrimEnd();
         }
 
-        static int CountOccurrences(string text, string value)
+        static string BuildMessages(AegisGeneratedMapPreviewModel preview)
         {
-            var count = 0;
-            var index = 0;
-            while (!string.IsNullOrEmpty(text) && index < text.Length)
-            {
-                index = text.IndexOf(value, index, StringComparison.Ordinal);
-                if (index < 0)
-                    break;
-                count++;
-                index += value.Length;
-            }
-            return count;
+            var text = string.Empty;
+            for (var i = 0; i < preview.Errors.Count; i++)
+                text += "ERROR " + preview.Errors[i] + "\n";
+            for (var i = 0; i < preview.Warnings.Count; i++)
+                text += "WARN " + preview.Warnings[i] + "\n";
+            return text;
+        }
+
+        static string FirstError(AegisGeneratedMapPreviewModel preview)
+        {
+            if (preview == null || preview.Errors.Count == 0)
+                return "generation failed.";
+            return preview.Errors[0];
         }
 
         int ResolveWidth()

@@ -6,6 +6,8 @@ Unity AI-generated assets may support map-editor visualization, but they do not 
 
 The current procedural map workflow is deterministic prompt-driven generation. It does not require an external LLM, Unity AI package, cloud project, or network API.
 
+The Unity map editor calls the deterministic `Rts.Core` generation bridge when available. Unity AI packages are not part of map generation, validation, save, export, fairness scoring, buildability checks, or ore regeneration.
+
 ## Map-Editor Asset Categories
 
 - Terrain proxy materials: clear, road, rough, forest, water, cliff, ore.
