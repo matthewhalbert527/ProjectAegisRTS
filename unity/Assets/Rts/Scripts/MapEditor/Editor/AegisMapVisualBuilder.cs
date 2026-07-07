@@ -11,12 +11,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
     public static class AegisMapVisualBuilder
     {
         const float CellSize = 1f;
-        const int PixelsPerCell = 4;
+        const int PixelsPerCell = 8;
         const int MaxCliffRocks = 1400;
         const int MaxNearCliffBoulders = 650;
         const int MaxVegetation = 850;
         const int MaxCraters = 120;
         const int MaxRoadPebbles = 450;
+        const int MaxShorePebbles = 520;
         const int MaxOreProps = 900;
 
         public static void BuildFromSelectedMap()
@@ -67,7 +68,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         public static void RenderSamplePreviewForBatch()
         {
-            var samplePath = AegisMapEditorPaths.SamplesFolder + "/sample_ai_medium_rocky_4p_chokepoint.aegismap.json";
+            var samplePath = AegisMapEditorPaths.SamplesFolder + "/sample_ai_medium_forest_2p_river_chokepoint.aegismap.json";
             var document = AegisVisualMapDocument.Load(samplePath);
             if (document == null)
                 throw new InvalidOperationException("Visual builder render could not load " + samplePath + ".");
@@ -84,9 +85,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(0.06f, 0.08f, 0.07f, 1f);
             camera.orthographic = true;
-            camera.orthographicSize = Mathf.Max(document.width, document.height) * 0.42f;
-            camera.transform.position = new Vector3(document.width * 0.5f, 105f, -document.height * 0.12f);
-            camera.transform.rotation = Quaternion.Euler(64f, 0f, 0f);
+            camera.orthographicSize = Mathf.Max(document.width, document.height) * 0.18f;
+            var pitch = 64f;
+            var cameraHeight = 105f;
+            var centerZ = document.height * 0.5f;
+            camera.transform.position = new Vector3(document.width * 0.5f, cameraHeight, centerZ - cameraHeight / Mathf.Tan(pitch * Mathf.Deg2Rad));
+            camera.transform.rotation = Quaternion.Euler(pitch, 0f, 0f);
 
             var renderTexture = new RenderTexture(1400, 1000, 24, RenderTextureFormat.ARGB32);
             var previous = RenderTexture.active;
@@ -159,7 +163,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             marker.Biome = profile.Name;
 
             var lookup = new AegisVisualMapLookup(document);
-            var paths = BuildGameplayPathSegments(document);
+            var paths = BuildGameplayPathSegments(document, seed);
             var materials = AegisVisualMaterialSet.LoadOrCreate(profile, persistAssets);
             BuildTerrainPlane(root.transform, document, lookup, paths, profile, materials, safeMapId, seed, persistAssets);
             BuildBasePads(root.transform, document, materials);
@@ -224,11 +228,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     }
 
                     var pathDistance = DistanceToPaths(paths, localX, localY);
-                    if (pathDistance < 3.1f && terrain != "water")
+                    if (pathDistance < 2.6f && terrain != "water")
                     {
-                        var edge = Mathf.Clamp01(1f - pathDistance / 3.1f);
+                        var edge = Mathf.Clamp01(1f - pathDistance / 2.6f);
                         var worn = Color.Lerp(profile.DirtPath, profile.GravelPath, Mathf.Clamp01(1f - pathDistance / 1.1f));
-                        color = Color.Lerp(color, worn, edge * 0.82f);
+                        color = Color.Lerp(color, worn, edge * 0.62f);
                     }
 
                     if (terrain == "water")
@@ -323,6 +327,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var vegetation = 0;
             var craters = 0;
             var pebbles = 0;
+            var shorePebbles = 0;
 
             for (var y = 2; y < document.height - 2; y += 2)
             {
@@ -333,6 +338,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         continue;
 
                     var cliffDistance = lookup.DistanceToCliff(x, y, 6);
+                    var waterDistance = lookup.DistanceToTerrain(x, y, "water", 3);
                     var pathDistance = DistanceToPaths(paths, x + 0.5f, y + 0.5f);
                     var h = Hash01(seed ^ 0x5CA77E, x, y);
                     if (cliffDistance >= 0 && cliffDistance <= 3 && boulders < MaxNearCliffBoulders && h < 0.22f)
@@ -340,14 +346,22 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         CreateRockCluster(parent, "Boulder Scatter", x, y, materials.Boulder, seed ^ 0xB011, 0.35f, 1.1f, 1 + HashRange(seed, x, y, 2));
                         boulders++;
                     }
+                    else if (waterDistance >= 0 && waterDistance <= 2 && shorePebbles < MaxShorePebbles && h < 0.32f)
+                    {
+                        if (Hash01(seed ^ 0xBA11, x, y) < 0.72f)
+                            CreatePebble(parent, x, y, materials.Pebble, seed, "Shore Pebble");
+                        else
+                            CreateVegetation(parent, x, y, materials.Vegetation, seed, "Bank Grass");
+                        shorePebbles++;
+                    }
                     else if ((terrain == "forest" || h < 0.055f) && vegetation < MaxVegetation)
                     {
-                        CreateVegetation(parent, x, y, materials.Vegetation, seed);
+                        CreateVegetation(parent, x, y, materials.Vegetation, seed, "Grass Bush");
                         vegetation++;
                     }
                     else if (pathDistance < 3.7f && pathDistance > 1.0f && pebbles < MaxRoadPebbles && h < 0.19f)
                     {
-                        CreatePebble(parent, x, y, materials.Pebble, seed);
+                        CreatePebble(parent, x, y, materials.Pebble, seed, "Road Pebble");
                         pebbles++;
                     }
                     else if (pathDistance > 7f && craters < MaxCraters && h > 0.994f)
@@ -375,10 +389,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             }
         }
 
-        static void CreateVegetation(Transform parent, int cellX, int cellY, Material material, int seed)
+        static void CreateVegetation(Transform parent, int cellX, int cellY, Material material, int seed, string name)
         {
             var bush = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            bush.name = "Grass Bush";
+            bush.name = name;
             bush.transform.SetParent(parent, false);
             bush.transform.position = CellCenter(cellX, cellY, 0.22f);
             var scale = 0.45f + Hash01(seed, cellX, cellY) * 0.55f;
@@ -386,10 +400,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             AssignMaterialAndStripCollider(bush, material);
         }
 
-        static void CreatePebble(Transform parent, int cellX, int cellY, Material material, int seed)
+        static void CreatePebble(Transform parent, int cellX, int cellY, Material material, int seed, string name)
         {
             var pebble = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            pebble.name = "Road Pebble";
+            pebble.name = name;
             pebble.transform.SetParent(parent, false);
             pebble.transform.position = CellCenter(cellX, cellY, 0.06f);
             var scale = 0.12f + Hash01(seed, cellX, cellY) * 0.18f;
@@ -430,7 +444,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return go;
         }
 
-        static List<AegisPathSegment> BuildGameplayPathSegments(AegisVisualMapDocument document)
+        static List<AegisPathSegment> BuildGameplayPathSegments(AegisVisualMapDocument document, int seed)
         {
             var segments = new List<AegisPathSegment>();
             var center = new Vector2(document.width * 0.5f, document.height * 0.5f);
@@ -438,15 +452,37 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             {
                 var start = document.playerStarts[i];
                 var startPoint = new Vector2(start.x + 0.5f, start.y + 0.5f);
-                segments.Add(new AegisPathSegment(startPoint, center));
-            }
-            for (var i = 0; i < document.playerStarts.Length; i++)
-            {
-                var a = document.playerStarts[i];
-                var b = document.playerStarts[(i + 1) % document.playerStarts.Length];
-                segments.Add(new AegisPathSegment(new Vector2(a.x + 0.5f, a.y + 0.5f), new Vector2(b.x + 0.5f, b.y + 0.5f)));
+                AddMeanderingPath(segments, startPoint, center, seed, i + 1);
             }
             return segments;
+        }
+
+        static void AddMeanderingPath(List<AegisPathSegment> segments, Vector2 start, Vector2 end, int seed, int salt)
+        {
+            var delta = end - start;
+            var distance = delta.magnitude;
+            if (distance <= 0.01f)
+                return;
+
+            var direction = delta / distance;
+            var perpendicular = new Vector2(-direction.y, direction.x);
+            var amplitude = Mathf.Min(10f, distance * 0.11f);
+            var previous = start;
+            const int steps = 8;
+            for (var i = 1; i <= steps; i++)
+            {
+                var t = i / (float)steps;
+                var point = Vector2.Lerp(start, end, t);
+                if (i < steps)
+                {
+                    var fade = Mathf.Sin(t * Mathf.PI);
+                    var offset = (Hash01(seed ^ (salt * 0x45D9F3B), i * 37, i * 91) - 0.5f) * 2f * amplitude * fade;
+                    point += perpendicular * offset;
+                }
+
+                segments.Add(new AegisPathSegment(previous, point));
+                previous = point;
+            }
         }
 
         static float DistanceToPaths(List<AegisPathSegment> paths, float x, float y)
@@ -779,7 +815,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 return new AegisVisualBiomeProfile("volcanic", C(0.21f, 0.22f, 0.19f), C(0.12f, 0.17f, 0.12f), C(0.26f, 0.24f, 0.23f), C(0.31f, 0.23f, 0.18f), C(0.35f, 0.34f, 0.31f), C(0.18f, 0.22f, 0.26f), C(0.04f, 0.06f, 0.08f), C(0.27f, 0.18f, 0.12f), C(0.34f, 0.33f, 0.32f), C(0.84f, 0.48f, 0.15f));
             if (id.Contains("rocky") || id.Contains("wasteland"))
                 return new AegisVisualBiomeProfile("rocky", C(0.35f, 0.39f, 0.30f), C(0.18f, 0.27f, 0.16f), C(0.45f, 0.43f, 0.38f), C(0.42f, 0.34f, 0.25f), C(0.44f, 0.43f, 0.39f), C(0.15f, 0.31f, 0.40f), C(0.05f, 0.13f, 0.19f), C(0.28f, 0.23f, 0.16f), C(0.50f, 0.49f, 0.45f), C(0.74f, 0.59f, 0.23f));
-            return new AegisVisualBiomeProfile("forest", C(0.27f, 0.42f, 0.25f), C(0.10f, 0.28f, 0.15f), C(0.38f, 0.36f, 0.28f), C(0.39f, 0.30f, 0.20f), C(0.38f, 0.39f, 0.34f), C(0.16f, 0.35f, 0.44f), C(0.05f, 0.15f, 0.21f), C(0.28f, 0.21f, 0.13f), C(0.47f, 0.47f, 0.43f), C(0.74f, 0.58f, 0.19f));
+            return new AegisVisualBiomeProfile("forest", C(0.16f, 0.29f, 0.14f), C(0.06f, 0.19f, 0.10f), C(0.30f, 0.29f, 0.22f), C(0.34f, 0.25f, 0.16f), C(0.31f, 0.30f, 0.25f), C(0.09f, 0.24f, 0.29f), C(0.03f, 0.10f, 0.14f), C(0.23f, 0.17f, 0.10f), C(0.43f, 0.43f, 0.39f), C(0.74f, 0.58f, 0.19f));
         }
 
         public Color ColorForTerrain(string terrain)
@@ -789,7 +825,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (terrain == "rough")
                 return Rough;
             if (terrain == "road")
-                return GravelPath;
+                return Grass;
             if (terrain == "water")
                 return Water;
             if (terrain == "cliff")
@@ -857,11 +893,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static Shader FindShader(bool textured)
         {
-            var shader = Shader.Find("Universal Render Pipeline/Lit");
-            if (shader == null)
-                shader = Shader.Find("Standard");
+            var shader = textured ? Shader.Find("Universal Render Pipeline/Unlit") : null;
             if (shader == null && textured)
                 shader = Shader.Find("Unlit/Texture");
+            if (shader == null)
+                shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (shader == null)
+                shader = Shader.Find("Standard");
             if (shader == null)
                 shader = Shader.Find("Unlit/Color");
             return shader;

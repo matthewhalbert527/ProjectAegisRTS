@@ -161,6 +161,9 @@ namespace ProjectAegisRTS.Tests
                 AegisProceduralGeneratedMapsPassValidator,
                 AegisProceduralSummaryReportsMetrics,
                 AegisProceduralFairnessScoreReportsHealthyMap,
+                AegisProceduralNoWaterRequestStaysDry,
+                AegisProceduralMediumWaterCreatesRiverCells,
+                AegisProceduralWaterMapPreservesPathability,
                 AegisProceduralLowResourcesCreatesFewerFieldsThanHigh,
                 AegisProceduralResourceRichHasMoreTotalOreThanScarce,
                 AegisProceduralResourcesAvoidPlayerStartPads,
@@ -1657,6 +1660,28 @@ namespace ProjectAegisRTS.Tests
             Assert(result.Summary.FairnessScore == result.Balance.FairnessScore, "Expected summary fairness to mirror balance report.");
         }
 
+        static void AegisProceduralNoWaterRequestStaysDry()
+        {
+            var result = GenerateAegisMap(AegisMapGenerationPreset.Medium, 4242, AegisMapIntensity.Medium, AegisMapIntensity.Low, AegisMapIntensity.Low, 4, AegisMapGameplayProfile.Balanced, AegisMapWaterAmount.None);
+            Assert(result.Success, "Expected no-water map generation success.");
+            Assert(CountTerrain(result.Document, "water") == 0, "Expected no-water request to leave the generated terrain dry.");
+        }
+
+        static void AegisProceduralMediumWaterCreatesRiverCells()
+        {
+            var result = GenerateAegisMap(AegisMapGenerationPreset.Medium, 4242, AegisMapIntensity.Medium, AegisMapIntensity.Low, AegisMapIntensity.Low, 4, AegisMapGameplayProfile.Balanced, AegisMapWaterAmount.Medium);
+            Assert(result.Success, "Expected medium-water map generation success.");
+            Assert(CountTerrain(result.Document, "water") >= 200, "Expected medium-water request to create a visible deterministic watercourse.");
+        }
+
+        static void AegisProceduralWaterMapPreservesPathability()
+        {
+            var result = GenerateAegisMap(AegisMapGenerationPreset.Medium, 4243, AegisMapIntensity.Medium, AegisMapIntensity.Medium, AegisMapIntensity.Medium, 4, AegisMapGameplayProfile.Tournament, AegisMapWaterAmount.High);
+            Assert(result.Success, "Expected high-water map generation success.");
+            Assert(result.Balance.StartsConnected, "Expected generated water crossings to preserve start connectivity.");
+            Assert(CountTerrain(result.Document, "water") >= 400, "Expected high-water request to create a visible river network.");
+        }
+
         static void AegisProceduralLowResourcesCreatesFewerFieldsThanHigh()
         {
             var low = GenerateAegisMap(AegisMapGenerationPreset.Small, 55, AegisMapIntensity.Low, AegisMapIntensity.Low, AegisMapIntensity.Low);
@@ -1869,6 +1894,7 @@ namespace ProjectAegisRTS.Tests
             {
                 "sample_ai_small_balanced_2p.aegismap.json",
                 "sample_ai_small_desert_2p_high_ore.aegismap.json",
+                "sample_ai_medium_forest_2p_river_chokepoint.aegismap.json",
                 "sample_ai_medium_forest_4p_balanced.aegismap.json",
                 "sample_ai_medium_rocky_4p_chokepoint.aegismap.json",
                 "sample_ai_large_tournament_4p.aegismap.json",
@@ -1884,6 +1910,8 @@ namespace ProjectAegisRTS.Tests
                 Assert(validation.Success, "Expected generated sample map to validate: " + sampleNames[i] + " " + string.Join(", ", validation.Errors));
                 Assert(document.PlayerStarts.Count > 0, "Expected generated sample to include player starts: " + sampleNames[i]);
                 Assert(document.Resources.Count > 0, "Expected generated sample to include resources: " + sampleNames[i]);
+                if (sampleNames[i].IndexOf("river", StringComparison.OrdinalIgnoreCase) >= 0)
+                    Assert(CountTerrain(document, "water") > 0, "Expected river sample to include water terrain: " + sampleNames[i]);
             }
         }
 
@@ -2624,6 +2652,11 @@ namespace ProjectAegisRTS.Tests
 
         static AegisMapGenerationResult GenerateAegisMap(AegisMapGenerationPreset preset, int seed, AegisMapIntensity resourceDensity, AegisMapIntensity cliffDensity, AegisMapIntensity rockiness, int playerCount, AegisMapGameplayProfile gameplayProfile)
         {
+            return GenerateAegisMap(preset, seed, resourceDensity, cliffDensity, rockiness, playerCount, gameplayProfile, AegisMapWaterAmount.Low);
+        }
+
+        static AegisMapGenerationResult GenerateAegisMap(AegisMapGenerationPreset preset, int seed, AegisMapIntensity resourceDensity, AegisMapIntensity cliffDensity, AegisMapIntensity rockiness, int playerCount, AegisMapGameplayProfile gameplayProfile, AegisMapWaterAmount waterAmount)
+        {
             var request = AegisMapGenerationRequest.CreateDefault();
             request.SizePreset = preset;
             request.Seed = seed;
@@ -2632,7 +2665,7 @@ namespace ProjectAegisRTS.Tests
             request.ResourceDensity = resourceDensity;
             request.CliffDensity = cliffDensity;
             request.Rockiness = rockiness;
-            request.WaterAmount = AegisMapWaterAmount.Low;
+            request.WaterAmount = waterAmount;
             request.Symmetry = AegisMapSymmetryMode.Horizontal;
             request.GameplayProfile = gameplayProfile;
             request.OreRegenerationEnabled = true;
@@ -2666,6 +2699,15 @@ namespace ProjectAegisRTS.Tests
             var count = 0;
             for (var i = 0; i < document.Blockers.Count; i++)
                 if (document.Blockers[i].Reason == reason)
+                    count++;
+            return count;
+        }
+
+        static int CountTerrain(AegisMapDocument document, string terrainId)
+        {
+            var count = 0;
+            for (var i = 0; i < document.TerrainBase.Count; i++)
+                if (document.TerrainBase[i].TerrainId == terrainId)
                     count++;
             return count;
         }

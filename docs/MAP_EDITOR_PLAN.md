@@ -33,11 +33,11 @@ Implemented in Unity:
 - `Project Aegis > Map Editor > Open Map Editor` opens an editor window with procedural controls, prompt text, seed controls, validation, save/export buttons, prompt examples, overlay toggles, warnings/errors, and a generated summary panel.
 - The Unity window calls the deterministic `Rts.Core` bridge through `AegisUnityMapGenerationBridge` when the Unity plugin DLL is current.
 - If the bridge is unavailable, Unity writes a compatible `.aegismap.json` shell and displays a warning instead of failing silently.
-- `Project Aegis > Map Editor > Build Visual Terrain From Aegis Map` reads the selected `.aegismap.json` and builds a deterministic visual terrain scene with blended terrain texture, soft dirt routes, muddy water banks, cliff rock chains, ore clusters, scatter props, and concrete base pads.
+- `Project Aegis > Map Editor > Build Visual Terrain From Aegis Map` reads the selected `.aegismap.json` and builds a deterministic visual terrain scene with blended terrain texture, soft dirt routes, generated watercourses, muddy water banks, shore scatter, cliff rock chains, ore clusters, scatter props, and concrete base pads.
 
 Future bridge:
 
-- Replace proxy visual dressing geometry with final original rock, vegetation, water, crater, road, and base-pad assets.
+- Replace proxy visual dressing geometry with final original rock, vegetation, animated water, crater, road, and base-pad assets.
 - Add a command-line converter/generator for batch automation outside Unity.
 
 ## Unity Menu Items

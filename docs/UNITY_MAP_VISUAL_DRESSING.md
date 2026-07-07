@@ -22,10 +22,12 @@ Workflow:
    - concrete base pads at player starts
    - deterministic cliff rock chains on blocker/cliff boundaries
    - ore chunk clusters on resource cells
-   - deterministic scatter for boulders, vegetation, road pebbles, and craters
+   - deterministic scatter for boulders, vegetation, road pebbles, shore pebbles, bank grass, and craters
    - generated material and texture assets under `Assets/Rts/MapEditor/VisualAssets` and `Assets/Rts/MapEditor/VisualBuilds`
 
 The visual seed is derived from the map identity and dimensions, so the same map produces the same dressing layout unless the source map changes.
+
+The batch preview validation uses `sample_ai_medium_forest_2p_river_chokepoint.aegismap.json`, a checked-in deterministic sample with river water, cliff/blocker bands, ore clusters, and two connected player starts. This gives the render check a map that exercises the terrain detail layers visible when zoomed in without overcrowding the preview with route lines.
 
 ## Biome Profiles
 
@@ -43,7 +45,7 @@ Profiles currently drive terrain colors, mud banks, water tones, cliff colors, p
 
 - The first pass uses procedural proxy geometry and generated materials; it does not yet use final hand-authored rock, tree, river, road, crater, or base-pad art.
 - Roads are generated as deterministic soft terrain routes between player starts and the map center. A later pass should read explicit road/region/path metadata when map documents include it.
-- Water is rendered through the generated terrain texture with muddy-bank blending. A later pass can replace this with spline meshes, animated water materials, reeds, foam, and shoreline decals.
+- Water is rendered through generated terrain texture watercourses with muddy-bank blending and deterministic shore scatter. A later pass can replace this with spline meshes, animated water materials, reeds, foam, and shoreline decals.
 - Cliff ridges are proxy capsule clusters placed on blocker/cliff boundaries. A later pass should swap these for modular original cliff meshes.
 
 ## Asset Rules

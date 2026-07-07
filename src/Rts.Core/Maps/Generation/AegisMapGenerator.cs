@@ -61,6 +61,7 @@ namespace ProjectAegisRTS.Maps.Generation
             var terrain = new TerrainKind[width * height];
             var protectedCells = new bool[width * height];
             FillTerrain(request, profile, seed, width, height, terrain);
+            PaintWaterCourses(request, seed, terrain, width, height);
 
             var starts = CreatePlayerStarts(request, width, height);
             for (var i = 0; i < starts.Count; i++)
@@ -108,6 +109,64 @@ namespace ProjectAegisRTS.Maps.Generation
                     var canonical = CanonicalCell(request.Symmetry, width, height, x, y);
                     terrain[Index(width, x, y)] = terrainPlanner.PlanTerrain(request, profile, seed, canonical.X, canonical.Y);
                 }
+        }
+
+        static void PaintWaterCourses(AegisMapGenerationRequest request, int seed, TerrainKind[] terrain, int width, int height)
+        {
+            if (request.WaterAmount == AegisMapWaterAmount.None)
+                return;
+
+            var radius = request.WaterAmount == AegisMapWaterAmount.Low ? 1 : request.WaterAmount == AegisMapWaterAmount.Medium ? 2 : 3;
+            var meander = request.WaterAmount == AegisMapWaterAmount.Low ? width / 12 : request.WaterAmount == AegisMapWaterAmount.Medium ? width / 9 : width / 7;
+            if (meander < 4)
+                meander = 4;
+
+            var phase = AegisMapTerrainPlanner.HashToThousand(seed ^ 0x35F15, width, height) / 1000.0 * Math.PI * 2.0;
+            for (var y = 2; y < height - 2; y++)
+            {
+                var t = y / (double)(height - 1);
+                var wave = Math.Sin(t * Math.PI * 2.7 + phase) * 0.65 + Math.Sin(t * Math.PI * 5.1 + phase * 0.5) * 0.35;
+                var noise = AegisMapTerrainPlanner.LayeredNoise(seed ^ 0x6A7E5, y, 17, 19, 9, 4) - 500;
+                var x = width / 2 + (int)Math.Round(wave * meander + noise * meander / 1200.0);
+                PaintWaterDisc(request.Symmetry, terrain, width, height, x, y, radius);
+            }
+
+            if (request.WaterAmount == AegisMapWaterAmount.High)
+            {
+                var branchY = height / 2 + (AegisMapTerrainPlanner.HashToThousand(seed ^ 0x4B4A, width, height) - 500) * height / 5000;
+                for (var x = width / 5; x < width * 4 / 5; x++)
+                {
+                    var noise = AegisMapTerrainPlanner.LayeredNoise(seed ^ 0x2A771, x, 23, 17, 7, 3) - 500;
+                    var y = branchY + noise * height / 9000;
+                    PaintWaterDisc(request.Symmetry, terrain, width, height, x, y, 1);
+                }
+            }
+        }
+
+        static void PaintWaterDisc(AegisMapSymmetryMode symmetry, TerrainKind[] terrain, int width, int height, int x, int y, int radius)
+        {
+            for (var yy = -radius; yy <= radius; yy++)
+                for (var xx = -radius; xx <= radius; xx++)
+                    if (xx * xx + yy * yy <= radius * radius)
+                        PaintSymmetricWaterCell(symmetry, terrain, width, height, x + xx, y + yy);
+        }
+
+        static void PaintSymmetricWaterCell(AegisMapSymmetryMode symmetry, TerrainKind[] terrain, int width, int height, int x, int y)
+        {
+            PaintWaterCell(terrain, width, height, x, y);
+            if (symmetry == AegisMapSymmetryMode.Horizontal || symmetry == AegisMapSymmetryMode.Radial)
+                PaintWaterCell(terrain, width, height, width - 1 - x, y);
+            if (symmetry == AegisMapSymmetryMode.Vertical || symmetry == AegisMapSymmetryMode.Radial)
+                PaintWaterCell(terrain, width, height, x, height - 1 - y);
+            if (symmetry == AegisMapSymmetryMode.Rotational || symmetry == AegisMapSymmetryMode.Radial)
+                PaintWaterCell(terrain, width, height, width - 1 - x, height - 1 - y);
+        }
+
+        static void PaintWaterCell(TerrainKind[] terrain, int width, int height, int x, int y)
+        {
+            if (x <= 1 || y <= 1 || x >= width - 2 || y >= height - 2)
+                return;
+            terrain[Index(width, x, y)] = TerrainKind.Water;
         }
 
         void ApplyCliffsAndRocks(AegisMapGenerationRequest request, AegisMapGenerationProfile profile, int seed, TerrainKind[] terrain, bool[] protectedCells, int width, int height)
