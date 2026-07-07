@@ -19,11 +19,11 @@ Workflow:
 3. Unity creates an `Aegis Visual Map - <mapId>` scene object.
 4. The generated scene includes:
    - a blended terrain texture with grass, rough ground, water, cliffs, ore tinting, soft dirt routes, muddy water banks, and clustered terrain-color transitions that reduce one-cell debug-map artifacts
-   - deterministic road/path decals with soft dust overlays, tire-rut strips, and gravel scuff patches over the terrain texture
-   - concrete base pads at player starts with terrain blend, inner panels, trim strips, seam lines, approach dust, and grime decals
-   - deterministic faceted cliff rock chains on blocker/cliff boundaries
-   - faceted ore nugget clusters with soft ore-stained ground falloff around resource cells
-   - deterministic scatter for faceted boulders, vegetation, road pebbles, shore pebbles, bank grass, and craters
+   - deterministic road/path decals with art-pack soft dust overlays, tire-rut strips, and gravel scuff patches over the terrain texture
+   - concrete base pads at player starts with art-pack base-pad meshes when Unity can import `.glb`, plus terrain blend, inner panels, trim strips, seam lines, approach dust, and grime decals
+   - deterministic art-pack cliff meshes on blocker/cliff boundaries when `.glb` import is available, with generated faceted fallback geometry otherwise
+   - art-pack ore nugget/cluster meshes with soft ore-stained ground falloff around resource cells, plus generated faceted fallback ore if needed
+   - deterministic scatter for art-pack boulders, pebbles, vegetation, river-edge meshes, and craters, again with generated proxy fallbacks where `.glb` is unavailable
    - generated material and texture assets under `Assets/Rts/MapEditor/VisualAssets` and `Assets/Rts/MapEditor/VisualBuilds`
 
 The visual seed is derived from the map identity and dimensions, so the same map produces the same dressing layout unless the source map changes.
@@ -42,6 +42,16 @@ The builder includes original Project Aegis color/material profiles for:
 
 Profiles currently drive terrain colors, mud banks, water tones, cliff colors, path colors, ore-stained soil, vegetation, concrete, pebble roughness, and crater materials.
 
+## Imported Art Pack
+
+`ProjectAegis_MapVisualArtPack_v1` is checked in under:
+
+`unity/Assets/Rts/MapEditor/ArtPack/ProjectAegis_MapVisualArtPack_v1/`
+
+The visual builder reads the pack directly from this folder. It uses the original PNG terrain/material textures and transparent decals for road dust, tire ruts, gravel scuffs, muddy shorelines, water highlights, ore dust, concrete seams/grime, resource glints, and crater overlays. It also instantiates the pack's `.glb` meshes for cliffs, boulders, pebbles, ore clusters, vegetation, river-edge props, craters, and the 14x14 base pad.
+
+This branch adds the Unity glTFast package (`com.unity.cloud.gltfast`) so those `.glb` files import directly in Unity. If the package is removed or unavailable on a future machine, the builder keeps working by falling back to deterministic generated meshes for those props. No Blender or Photoshop remake is required for the supplied pack.
+
 ## Roads And Base Pads
 
 The logical map does not store Unity-only road meshes. The visual builder derives deterministic soft road decals from the same generated start-to-center route segments used for the terrain path texture. These overlays add dust, paired rut strips, and occasional gravel scuffs without changing pathability.
@@ -54,11 +64,10 @@ The logical map still stores water as deterministic terrain cells. The visual bu
 
 ## Current Limits
 
-- The first pass uses procedural proxy geometry and generated materials; it does not yet use final hand-authored rock, tree, river, road, crater, or base-pad art.
+- The builder now uses the original Project Aegis v1 art pack where Unity can import the asset type. GLB mesh rendering is provided by Unity glTFast in this branch; without that package, the builder intentionally falls back to generated proxy geometry.
 - Roads are generated as deterministic soft terrain routes between player starts and the map center. A later pass should read explicit road/region/path metadata when map documents include it.
 - Water is rendered through generated terrain texture watercourses with smooth derived centerlines, muddy-bank blending, shallow ford hints, and deterministic shore scatter. A later pass can replace this with spline meshes, animated water materials, reeds, foam, and shoreline decals.
-- Ore uses generated faceted proxy nuggets and soft ground tinting. A later pass should replace these with original ore/crystal/salvage meshes per resource type.
-- Cliff ridges use deterministic faceted proxy meshes placed on blocker/cliff boundaries. A later pass should swap these for modular original cliff meshes.
+- Ore, cliff, vegetation, crater, river-edge, and base-pad props use imported art-pack assets when available. A later art pass can add higher-poly sculpted meshes, animated water, and tuned LOD/prefab variants.
 
 ## Asset Rules
 

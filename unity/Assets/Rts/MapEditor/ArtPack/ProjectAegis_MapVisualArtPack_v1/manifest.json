@@ -1,0 +1,1447 @@
+{
+  "packId": "project-aegis-map-visual-art-pack-v1",
+  "name": "Project Aegis Map Visual Art Pack v1",
+  "version": "1.0.0",
+  "unityTarget": "Unity 6 / URP-compatible",
+  "worldScale": "1 Unity world cell = 1 Unity unit",
+  "origin": "All textures, decals, meshes, previews, and descriptors were procedurally generated as original Project Aegis assets for this pack.",
+  "runtimeFormatNote": ".aegismap.json remains gameplay source of truth; these assets are visual mappings for generated map metadata.",
+  "assets": [
+    {
+      "id": "forest_grass",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/forest_grass_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/forest_grass_albedo.png",
+        "normal": "Terrain/forest_grass_normal.png",
+        "roughnessAO": "Terrain/forest_grass_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "forest_grass_dark_patch",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/forest_grass_dark_patch_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/forest_grass_dark_patch_albedo.png",
+        "normal": "Terrain/forest_grass_dark_patch_normal.png",
+        "roughnessAO": "Terrain/forest_grass_dark_patch_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "dirt_path",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/dirt_path_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/dirt_path_albedo.png",
+        "normal": "Terrain/dirt_path_normal.png",
+        "roughnessAO": "Terrain/dirt_path_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "gravel_path",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/gravel_path_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/gravel_path_albedo.png",
+        "normal": "Terrain/gravel_path_normal.png",
+        "roughnessAO": "Terrain/gravel_path_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "muddy_bank",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/muddy_bank_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/muddy_bank_albedo.png",
+        "normal": "Terrain/muddy_bank_normal.png",
+        "roughnessAO": "Terrain/muddy_bank_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "shallow_water",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/shallow_water_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/shallow_water_albedo.png",
+        "normal": "Terrain/shallow_water_normal.png",
+        "roughnessAO": "Terrain/shallow_water_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "deep_water",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/deep_water_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/deep_water_albedo.png",
+        "normal": "Terrain/deep_water_normal.png",
+        "roughnessAO": "Terrain/deep_water_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "rough_ground",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/rough_ground_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/rough_ground_albedo.png",
+        "normal": "Terrain/rough_ground_normal.png",
+        "roughnessAO": "Terrain/rough_ground_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "cliff_ground",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/cliff_ground_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/cliff_ground_albedo.png",
+        "normal": "Terrain/cliff_ground_normal.png",
+        "roughnessAO": "Terrain/cliff_ground_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "ore_stained_soil",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/ore_stained_soil_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/ore_stained_soil_albedo.png",
+        "normal": "Terrain/ore_stained_soil_normal.png",
+        "roughnessAO": "Terrain/ore_stained_soil_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "concrete_base_pad",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/concrete_base_pad_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/concrete_base_pad_albedo.png",
+        "normal": "Terrain/concrete_base_pad_normal.png",
+        "roughnessAO": "Terrain/concrete_base_pad_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "concrete_panel",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/concrete_panel_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/concrete_panel_albedo.png",
+        "normal": "Terrain/concrete_panel_normal.png",
+        "roughnessAO": "Terrain/concrete_panel_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "concrete_trim",
+      "category": "terrain_texture",
+      "kind": "texture",
+      "file": "Terrain/concrete_trim_albedo.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/concrete_trim_albedo.png",
+        "normal": "Terrain/concrete_trim_normal.png",
+        "roughnessAO": "Terrain/concrete_trim_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Tile on terrain cells using biome/material ID. Designed as seamless 2048x2048 texture."
+    },
+    {
+      "id": "aegis_cliff_rock",
+      "category": "material_descriptor",
+      "kind": "material",
+      "file": "Materials/aegis_cliff_rock.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_cliff_rock_albedo.png",
+        "normal": "Textures/aegis_cliff_rock_normal.png",
+        "roughnessAO": "Textures/aegis_cliff_rock_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Create URP Lit material in Unity using these texture maps."
+    },
+    {
+      "id": "aegis_boulder_stone",
+      "category": "material_descriptor",
+      "kind": "material",
+      "file": "Materials/aegis_boulder_stone.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Create URP Lit material in Unity using these texture maps."
+    },
+    {
+      "id": "aegis_gold_ore",
+      "category": "material_descriptor",
+      "kind": "material",
+      "file": "Materials/aegis_gold_ore.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_gold_ore_albedo.png",
+        "normal": "Textures/aegis_gold_ore_normal.png",
+        "roughnessAO": "Textures/aegis_gold_ore_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Create URP Lit material in Unity using these texture maps."
+    },
+    {
+      "id": "aegis_blue_crystal",
+      "category": "material_descriptor",
+      "kind": "material",
+      "file": "Materials/aegis_blue_crystal.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_blue_crystal_albedo.png",
+        "normal": "Textures/aegis_blue_crystal_normal.png",
+        "roughnessAO": "Textures/aegis_blue_crystal_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Create URP Lit material in Unity using these texture maps."
+    },
+    {
+      "id": "aegis_salvage_metal",
+      "category": "material_descriptor",
+      "kind": "material",
+      "file": "Materials/aegis_salvage_metal.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_salvage_metal_albedo.png",
+        "normal": "Textures/aegis_salvage_metal_normal.png",
+        "roughnessAO": "Textures/aegis_salvage_metal_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Create URP Lit material in Unity using these texture maps."
+    },
+    {
+      "id": "aegis_vegetation",
+      "category": "material_descriptor",
+      "kind": "material",
+      "file": "Materials/aegis_vegetation.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_vegetation_albedo.png",
+        "normal": "Textures/aegis_vegetation_normal.png",
+        "roughnessAO": "Textures/aegis_vegetation_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Create URP Lit material in Unity using these texture maps."
+    },
+    {
+      "id": "aegis_concrete",
+      "category": "material_descriptor",
+      "kind": "material",
+      "file": "Materials/aegis_concrete.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_concrete_albedo.png",
+        "normal": "Textures/aegis_concrete_normal.png",
+        "roughnessAO": "Textures/aegis_concrete_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Create URP Lit material in Unity using these texture maps."
+    },
+    {
+      "id": "soft_dust_overlay",
+      "category": "road_path_decal",
+      "kind": "transparent_png",
+      "file": "Decals/soft_dust_overlay.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "tire_rut_left",
+      "category": "road_path_decal",
+      "kind": "transparent_png",
+      "file": "Decals/tire_rut_left.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "tire_rut_right",
+      "category": "road_path_decal",
+      "kind": "transparent_png",
+      "file": "Decals/tire_rut_right.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "gravel_scuff_01",
+      "category": "road_path_decal",
+      "kind": "transparent_png",
+      "file": "Decals/gravel_scuff_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "gravel_scuff_02",
+      "category": "road_path_decal",
+      "kind": "transparent_png",
+      "file": "Decals/gravel_scuff_02.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "worn_path_edge_01",
+      "category": "road_path_decal",
+      "kind": "transparent_png",
+      "file": "Decals/worn_path_edge_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "mud_track_01",
+      "category": "road_path_decal",
+      "kind": "transparent_png",
+      "file": "Decals/mud_track_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "muddy_shoreline_01",
+      "category": "river_decal",
+      "kind": "transparent_png",
+      "file": "Decals/muddy_shoreline_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "muddy_shoreline_02",
+      "category": "river_decal",
+      "kind": "transparent_png",
+      "file": "Decals/muddy_shoreline_02.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "shallow_ford_overlay",
+      "category": "river_decal",
+      "kind": "transparent_png",
+      "file": "Decals/shallow_ford_overlay.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "water_highlight_streaks",
+      "category": "river_decal",
+      "kind": "transparent_png",
+      "file": "Decals/water_highlight_streaks.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "ore_dust_soft_01",
+      "category": "resource_decal",
+      "kind": "transparent_png",
+      "file": "Decals/ore_dust_soft_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "ore_dust_soft_02",
+      "category": "resource_decal",
+      "kind": "transparent_png",
+      "file": "Decals/ore_dust_soft_02.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "resource_glint_01",
+      "category": "resource_decal",
+      "kind": "transparent_png",
+      "file": "Decals/resource_glint_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "crater_small_01",
+      "category": "crater_battlefield_decal",
+      "kind": "transparent_png",
+      "file": "Decals/crater_small_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "crater_medium_01",
+      "category": "crater_battlefield_decal",
+      "kind": "transparent_png",
+      "file": "Decals/crater_medium_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "crater_large_01",
+      "category": "crater_battlefield_decal",
+      "kind": "transparent_png",
+      "file": "Decals/crater_large_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "scorch_mark_01",
+      "category": "crater_battlefield_decal",
+      "kind": "transparent_png",
+      "file": "Decals/scorch_mark_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "scorch_mark_02",
+      "category": "crater_battlefield_decal",
+      "kind": "transparent_png",
+      "file": "Decals/scorch_mark_02.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "rubble_scatter_01",
+      "category": "crater_battlefield_decal",
+      "kind": "transparent_png",
+      "file": "Decals/rubble_scatter_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "rubble_scatter_02",
+      "category": "crater_battlefield_decal",
+      "kind": "transparent_png",
+      "file": "Decals/rubble_scatter_02.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "base_pad_panel_center",
+      "category": "base_pad_decal",
+      "kind": "transparent_png",
+      "file": "Decals/base_pad_panel_center.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "base_pad_trim_straight",
+      "category": "base_pad_decal",
+      "kind": "transparent_png",
+      "file": "Decals/base_pad_trim_straight.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "base_pad_trim_corner",
+      "category": "base_pad_decal",
+      "kind": "transparent_png",
+      "file": "Decals/base_pad_trim_corner.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "concrete_seam_line",
+      "category": "base_pad_decal",
+      "kind": "transparent_png",
+      "file": "Decals/concrete_seam_line.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "concrete_grime_01",
+      "category": "base_pad_decal",
+      "kind": "transparent_png",
+      "file": "Decals/concrete_grime_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "concrete_grime_02",
+      "category": "base_pad_decal",
+      "kind": "transparent_png",
+      "file": "Decals/concrete_grime_02.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "concrete_crack_01",
+      "category": "base_pad_decal",
+      "kind": "transparent_png",
+      "file": "Decals/concrete_crack_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "concrete_crack_02",
+      "category": "base_pad_decal",
+      "kind": "transparent_png",
+      "file": "Decals/concrete_crack_02.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "landing_marking_01",
+      "category": "base_pad_decal",
+      "kind": "transparent_png",
+      "file": "Decals/landing_marking_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "construction_wear_01",
+      "category": "base_pad_decal",
+      "kind": "transparent_png",
+      "file": "Decals/construction_wear_01.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Place as transparent decal on terrain; random rotate/scale for variation."
+    },
+    {
+      "id": "grass_tuft_01_billboard",
+      "category": "vegetation_billboard",
+      "kind": "transparent_png",
+      "file": "Textures/grass_tuft_01_billboard.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Optional transparent billboard fallback for vegetation; align to camera or use as low-poly sprite."
+    },
+    {
+      "id": "grass_tuft_02_billboard",
+      "category": "vegetation_billboard",
+      "kind": "transparent_png",
+      "file": "Textures/grass_tuft_02_billboard.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Optional transparent billboard fallback for vegetation; align to camera or use as low-poly sprite."
+    },
+    {
+      "id": "bush_low_01_billboard",
+      "category": "vegetation_billboard",
+      "kind": "transparent_png",
+      "file": "Textures/bush_low_01_billboard.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Optional transparent billboard fallback for vegetation; align to camera or use as low-poly sprite."
+    },
+    {
+      "id": "bush_low_02_billboard",
+      "category": "vegetation_billboard",
+      "kind": "transparent_png",
+      "file": "Textures/bush_low_02_billboard.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Optional transparent billboard fallback for vegetation; align to camera or use as low-poly sprite."
+    },
+    {
+      "id": "cliff_straight_01",
+      "category": "cliff_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Cliffs/cliff_straight_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_cliff_rock_albedo.png",
+        "normal": "Textures/aegis_cliff_rock_normal.png",
+        "roughnessAO": "Textures/aegis_cliff_rock_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place along generated cliff edges; rotate in 90 degree increments or align to edge normal. No colliders included."
+    },
+    {
+      "id": "cliff_straight_02",
+      "category": "cliff_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Cliffs/cliff_straight_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_cliff_rock_albedo.png",
+        "normal": "Textures/aegis_cliff_rock_normal.png",
+        "roughnessAO": "Textures/aegis_cliff_rock_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place along generated cliff edges; rotate in 90 degree increments or align to edge normal. No colliders included."
+    },
+    {
+      "id": "cliff_wall_tall_01",
+      "category": "cliff_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Cliffs/cliff_wall_tall_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_cliff_rock_albedo.png",
+        "normal": "Textures/aegis_cliff_rock_normal.png",
+        "roughnessAO": "Textures/aegis_cliff_rock_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place along generated cliff edges; rotate in 90 degree increments or align to edge normal. No colliders included."
+    },
+    {
+      "id": "cliff_wall_low_01",
+      "category": "cliff_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Cliffs/cliff_wall_low_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_cliff_rock_albedo.png",
+        "normal": "Textures/aegis_cliff_rock_normal.png",
+        "roughnessAO": "Textures/aegis_cliff_rock_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place along generated cliff edges; rotate in 90 degree increments or align to edge normal. No colliders included."
+    },
+    {
+      "id": "cliff_endcap_01",
+      "category": "cliff_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Cliffs/cliff_endcap_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_cliff_rock_albedo.png",
+        "normal": "Textures/aegis_cliff_rock_normal.png",
+        "roughnessAO": "Textures/aegis_cliff_rock_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place along generated cliff edges; rotate in 90 degree increments or align to edge normal. No colliders included."
+    },
+    {
+      "id": "cliff_spire_cluster_01",
+      "category": "cliff_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Cliffs/cliff_spire_cluster_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_cliff_rock_albedo.png",
+        "normal": "Textures/aegis_cliff_rock_normal.png",
+        "roughnessAO": "Textures/aegis_cliff_rock_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place along generated cliff edges; rotate in 90 degree increments or align to edge normal. No colliders included."
+    },
+    {
+      "id": "cliff_spire_cluster_02",
+      "category": "cliff_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Cliffs/cliff_spire_cluster_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_cliff_rock_albedo.png",
+        "normal": "Textures/aegis_cliff_rock_normal.png",
+        "roughnessAO": "Textures/aegis_cliff_rock_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place along generated cliff edges; rotate in 90 degree increments or align to edge normal. No colliders included."
+    },
+    {
+      "id": "cliff_corner_inner_01",
+      "category": "cliff_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Cliffs/cliff_corner_inner_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_cliff_rock_albedo.png",
+        "normal": "Textures/aegis_cliff_rock_normal.png",
+        "roughnessAO": "Textures/aegis_cliff_rock_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Use at inner cliff bends; pivot near corner base."
+    },
+    {
+      "id": "cliff_corner_outer_01",
+      "category": "cliff_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Cliffs/cliff_corner_outer_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_cliff_rock_albedo.png",
+        "normal": "Textures/aegis_cliff_rock_normal.png",
+        "roughnessAO": "Textures/aegis_cliff_rock_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Use at outer cliff bends; pivot near corner base."
+    },
+    {
+      "id": "boulder_large_01",
+      "category": "rock_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Rocks/boulder_large_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as blocker/decorative rock. Use random yaw and scale 0.85-1.2."
+    },
+    {
+      "id": "boulder_large_02",
+      "category": "rock_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Rocks/boulder_large_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as blocker/decorative rock. Use random yaw and scale 0.85-1.2."
+    },
+    {
+      "id": "boulder_medium_01",
+      "category": "rock_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Rocks/boulder_medium_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as blocker/decorative rock. Use random yaw and scale 0.85-1.2."
+    },
+    {
+      "id": "boulder_medium_02",
+      "category": "rock_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Rocks/boulder_medium_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as blocker/decorative rock. Use random yaw and scale 0.85-1.2."
+    },
+    {
+      "id": "pebble_cluster_01",
+      "category": "rock_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Rocks/pebble_cluster_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as nonblocking scatter or light blocker based on map metadata. Random yaw for variation."
+    },
+    {
+      "id": "pebble_cluster_02",
+      "category": "rock_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Rocks/pebble_cluster_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as nonblocking scatter or light blocker based on map metadata. Random yaw for variation."
+    },
+    {
+      "id": "scatter_stones_01",
+      "category": "rock_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Rocks/scatter_stones_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as nonblocking scatter or light blocker based on map metadata. Random yaw for variation."
+    },
+    {
+      "id": "scatter_stones_02",
+      "category": "rock_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Rocks/scatter_stones_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as nonblocking scatter or light blocker based on map metadata. Random yaw for variation."
+    },
+    {
+      "id": "ore_nugget_gold_01",
+      "category": "resource_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Resources/ore_nugget_gold_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_gold_ore_albedo.png",
+        "normal": "Textures/aegis_gold_ore_normal.png",
+        "roughnessAO": "Textures/aegis_gold_ore_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place inside ore fields; hide/scale as resource amount depletes."
+    },
+    {
+      "id": "ore_nugget_gold_02",
+      "category": "resource_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Resources/ore_nugget_gold_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_gold_ore_albedo.png",
+        "normal": "Textures/aegis_gold_ore_normal.png",
+        "roughnessAO": "Textures/aegis_gold_ore_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place inside ore fields; hide/scale as resource amount depletes."
+    },
+    {
+      "id": "ore_nugget_gold_03",
+      "category": "resource_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Resources/ore_nugget_gold_03.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_gold_ore_albedo.png",
+        "normal": "Textures/aegis_gold_ore_normal.png",
+        "roughnessAO": "Textures/aegis_gold_ore_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place inside ore fields; hide/scale as resource amount depletes."
+    },
+    {
+      "id": "ore_cluster_gold_01",
+      "category": "resource_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Resources/ore_cluster_gold_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_gold_ore_albedo.png",
+        "normal": "Textures/aegis_gold_ore_normal.png",
+        "roughnessAO": "Textures/aegis_gold_ore_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as an ore field visual anchor; pair with ore_dust decals."
+    },
+    {
+      "id": "ore_cluster_gold_02",
+      "category": "resource_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Resources/ore_cluster_gold_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_gold_ore_albedo.png",
+        "normal": "Textures/aegis_gold_ore_normal.png",
+        "roughnessAO": "Textures/aegis_gold_ore_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as an ore field visual anchor; pair with ore_dust decals."
+    },
+    {
+      "id": "crystal_cluster_blue_01",
+      "category": "resource_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Resources/crystal_cluster_blue_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_blue_crystal_albedo.png",
+        "normal": "Textures/aegis_blue_crystal_normal.png",
+        "roughnessAO": "Textures/aegis_blue_crystal_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as crystal/rare resource field; use emission material in Unity if desired."
+    },
+    {
+      "id": "salvage_scrap_01",
+      "category": "resource_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Resources/salvage_scrap_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_salvage_metal_albedo.png",
+        "normal": "Textures/aegis_salvage_metal_normal.png",
+        "roughnessAO": "Textures/aegis_salvage_metal_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as salvage field or neutral battlefield salvage. Non-faction-specific original shapes."
+    },
+    {
+      "id": "salvage_scrap_02",
+      "category": "resource_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Resources/salvage_scrap_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_salvage_metal_albedo.png",
+        "normal": "Textures/aegis_salvage_metal_normal.png",
+        "roughnessAO": "Textures/aegis_salvage_metal_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as salvage field or neutral battlefield salvage. Non-faction-specific original shapes."
+    },
+    {
+      "id": "energy_node_01",
+      "category": "resource_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Resources/energy_node_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_blue_crystal_albedo.png",
+        "normal": "Textures/aegis_blue_crystal_normal.png",
+        "roughnessAO": "Textures/aegis_blue_crystal_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place on energy resource cells. Optional glow/emission in Unity."
+    },
+    {
+      "id": "bush_low_01",
+      "category": "vegetation_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Vegetation/bush_low_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_vegetation_albedo.png",
+        "normal": "Textures/aegis_vegetation_normal.png",
+        "roughnessAO": "Textures/aegis_vegetation_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as decorative foliage. Can be nonblocking or light blocker by map metadata."
+    },
+    {
+      "id": "bush_low_02",
+      "category": "vegetation_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Vegetation/bush_low_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_vegetation_albedo.png",
+        "normal": "Textures/aegis_vegetation_normal.png",
+        "roughnessAO": "Textures/aegis_vegetation_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as decorative foliage. Can be nonblocking or light blocker by map metadata."
+    },
+    {
+      "id": "grass_tuft_01",
+      "category": "vegetation_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Vegetation/grass_tuft_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_vegetation_albedo.png",
+        "normal": "Textures/aegis_vegetation_normal.png",
+        "roughnessAO": "Textures/aegis_vegetation_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as low decorative grass. Use instancing/batching for performance."
+    },
+    {
+      "id": "grass_tuft_02",
+      "category": "vegetation_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Vegetation/grass_tuft_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_vegetation_albedo.png",
+        "normal": "Textures/aegis_vegetation_normal.png",
+        "roughnessAO": "Textures/aegis_vegetation_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as low decorative grass. Use instancing/batching for performance."
+    },
+    {
+      "id": "tree_small_01",
+      "category": "vegetation_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Vegetation/tree_small_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_vegetation_albedo.png",
+        "normal": "Textures/aegis_vegetation_normal.png",
+        "roughnessAO": "Textures/aegis_vegetation_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as small tree decoration/blocker. Keep outside base pads and major building pads."
+    },
+    {
+      "id": "tree_small_02",
+      "category": "vegetation_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Vegetation/tree_small_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_vegetation_albedo.png",
+        "normal": "Textures/aegis_vegetation_normal.png",
+        "roughnessAO": "Textures/aegis_vegetation_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as small tree decoration/blocker. Keep outside base pads and major building pads."
+    },
+    {
+      "id": "stump_01",
+      "category": "vegetation_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Vegetation/stump_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_vegetation_albedo.png",
+        "normal": "Textures/aegis_vegetation_normal.png",
+        "roughnessAO": "Textures/aegis_vegetation_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place as light decorative obstacle or forest detail."
+    },
+    {
+      "id": "river_rock_cluster_01",
+      "category": "river_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/River/river_rock_cluster_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place along river edges or shallow fords. Mostly nonblocking unless map metadata says otherwise."
+    },
+    {
+      "id": "river_rock_cluster_02",
+      "category": "river_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/River/river_rock_cluster_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place along river edges or shallow fords. Mostly nonblocking unless map metadata says otherwise."
+    },
+    {
+      "id": "reed_clump_01",
+      "category": "river_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/River/reed_clump_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_vegetation_albedo.png",
+        "normal": "Textures/aegis_vegetation_normal.png",
+        "roughnessAO": "Textures/aegis_vegetation_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place in muddy banks or shallow water; decorative/nonblocking."
+    },
+    {
+      "id": "reed_clump_02",
+      "category": "river_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/River/reed_clump_02.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_vegetation_albedo.png",
+        "normal": "Textures/aegis_vegetation_normal.png",
+        "roughnessAO": "Textures/aegis_vegetation_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place in muddy banks or shallow water; decorative/nonblocking."
+    },
+    {
+      "id": "base_pad_14x14",
+      "category": "base_pad_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/BasePads/base_pad_14x14.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at base center on y=0; footprint is 14 x 14 Unity units.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_concrete_albedo.png",
+        "normal": "Textures/aegis_concrete_normal.png",
+        "roughnessAO": "Textures/aegis_concrete_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Place at player start or main construction area. Keep base centered on player start cell; 14x14 Unity units."
+    },
+    {
+      "id": "crater_small_mesh_01",
+      "category": "crater_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Craters/crater_small_mesh_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Optional low-profile crater mesh; use transparent crater decals for primary visual."
+    },
+    {
+      "id": "crater_medium_mesh_01",
+      "category": "crater_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Craters/crater_medium_mesh_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Optional low-profile crater mesh; use transparent crater decals for primary visual."
+    },
+    {
+      "id": "crater_large_mesh_01",
+      "category": "crater_mesh",
+      "kind": "glb_mesh",
+      "file": "Meshes/Craters/crater_large_mesh_01.glb",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "Pivot at local origin; most meshes rest on y=0 plane.",
+      "materialTexturePaths": {
+        "albedo": "Textures/aegis_boulder_stone_albedo.png",
+        "normal": "Textures/aegis_boulder_stone_normal.png",
+        "roughnessAO": "Textures/aegis_boulder_stone_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "Optional low-profile crater mesh; use transparent crater decals for primary visual."
+    },
+    {
+      "id": "forest_grass_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/forest_grass.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/forest_grass_albedo.png",
+        "normal": "Terrain/forest_grass_normal.png",
+        "roughnessAO": "Terrain/forest_grass_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "forest_grass_dark_patch_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/forest_grass_dark_patch.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/forest_grass_dark_patch_albedo.png",
+        "normal": "Terrain/forest_grass_dark_patch_normal.png",
+        "roughnessAO": "Terrain/forest_grass_dark_patch_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "dirt_path_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/dirt_path.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/dirt_path_albedo.png",
+        "normal": "Terrain/dirt_path_normal.png",
+        "roughnessAO": "Terrain/dirt_path_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "gravel_path_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/gravel_path.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/gravel_path_albedo.png",
+        "normal": "Terrain/gravel_path_normal.png",
+        "roughnessAO": "Terrain/gravel_path_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "muddy_bank_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/muddy_bank.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/muddy_bank_albedo.png",
+        "normal": "Terrain/muddy_bank_normal.png",
+        "roughnessAO": "Terrain/muddy_bank_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "shallow_water_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/shallow_water.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/shallow_water_albedo.png",
+        "normal": "Terrain/shallow_water_normal.png",
+        "roughnessAO": "Terrain/shallow_water_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "deep_water_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/deep_water.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/deep_water_albedo.png",
+        "normal": "Terrain/deep_water_normal.png",
+        "roughnessAO": "Terrain/deep_water_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "rough_ground_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/rough_ground.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/rough_ground_albedo.png",
+        "normal": "Terrain/rough_ground_normal.png",
+        "roughnessAO": "Terrain/rough_ground_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "cliff_ground_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/cliff_ground.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/cliff_ground_albedo.png",
+        "normal": "Terrain/cliff_ground_normal.png",
+        "roughnessAO": "Terrain/cliff_ground_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "ore_stained_soil_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/ore_stained_soil.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/ore_stained_soil_albedo.png",
+        "normal": "Terrain/ore_stained_soil_normal.png",
+        "roughnessAO": "Terrain/ore_stained_soil_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "concrete_base_pad_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/concrete_base_pad.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/concrete_base_pad_albedo.png",
+        "normal": "Terrain/concrete_base_pad_normal.png",
+        "roughnessAO": "Terrain/concrete_base_pad_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "concrete_panel_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/concrete_panel.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/concrete_panel_albedo.png",
+        "normal": "Terrain/concrete_panel_normal.png",
+        "roughnessAO": "Terrain/concrete_panel_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "concrete_trim_terrain_material",
+      "category": "terrain_material_descriptor",
+      "kind": "material",
+      "file": "Materials/concrete_trim.terrain.material.json",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {
+        "albedo": "Terrain/concrete_trim_albedo.png",
+        "normal": "Terrain/concrete_trim_normal.png",
+        "roughnessAO": "Terrain/concrete_trim_roughness_ao.png"
+      },
+      "recommendedPlacementRules": "URP Lit material descriptor for terrain splat/layer setup."
+    },
+    {
+      "id": "ProjectAegisArtPackManifest_cs",
+      "category": "unity_import_code",
+      "kind": "csharp_source",
+      "file": "UnityImport/ProjectAegisArtPackManifest.cs",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Optional DTO classes for reading manifest.json into Unity tooling."
+    },
+    {
+      "id": "contact_sheet",
+      "category": "preview",
+      "kind": "preview_png",
+      "file": "Preview/contact_sheet.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Preview contact sheet for quick asset review."
+    },
+    {
+      "id": "forest_river_cliffs_preview",
+      "category": "preview",
+      "kind": "preview_png",
+      "file": "Preview/forest_river_cliffs_preview.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Rendered procedural composition preview for art direction validation."
+    },
+    {
+      "id": "base_pad_ore_preview",
+      "category": "preview",
+      "kind": "preview_png",
+      "file": "Preview/base_pad_ore_preview.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Rendered procedural composition preview for art direction validation."
+    },
+    {
+      "id": "road_crater_scatter_preview",
+      "category": "preview",
+      "kind": "preview_png",
+      "file": "Preview/road_crater_scatter_preview.png",
+      "intendedUnityScale": "1 Unity unit = 1 file unit",
+      "pivotNotes": "origin/local base center unless noted",
+      "materialTexturePaths": {},
+      "recommendedPlacementRules": "Rendered procedural composition preview for art direction validation."
+    }
+  ]
+}

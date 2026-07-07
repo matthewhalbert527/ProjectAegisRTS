@@ -171,6 +171,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var rivers = BuildVisualRiverSegments(document, lookup);
             var materials = AegisVisualMaterialSet.LoadOrCreate(profile, persistAssets);
             BuildTerrainPlane(root.transform, document, lookup, paths, rivers, profile, materials, safeMapId, seed, persistAssets);
+            BuildRiverDressing(root.transform, rivers, materials, seed);
             BuildRoadWear(root.transform, paths, materials, seed);
             BuildBasePads(root.transform, document, materials, seed);
             BuildCliffRidges(root.transform, document, lookup, materials, seed);
@@ -308,9 +309,20 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 var apronCenter = startPoint + approach * 8.6f;
                 CreateOrientedQuad(parent, "Base Pad Approach Dust P" + start.playerId, apronCenter, 7.4f, 5.6f, 0.033f, materials.RoadDust, approachAngle);
 
-                var pad = CreateQuad("Base Pad P" + start.playerId, 14.5f, 14.5f, materials.Concrete);
-                pad.transform.SetParent(parent, false);
-                pad.transform.position = CellCenter(start.x, start.y, 0.035f);
+                var loadedPadMesh = AegisMapArtPack.TryInstantiatePrefab(
+                    parent,
+                    "Base Pad Mesh P" + start.playerId,
+                    "Meshes/BasePads/base_pad_14x14.glb",
+                    CellCenter(start.x, start.y, 0.038f),
+                    Quaternion.identity,
+                    Vector3.one,
+                    materials.Concrete);
+                if (!loadedPadMesh)
+                {
+                    var pad = CreateQuad("Base Pad P" + start.playerId, 14.5f, 14.5f, materials.Concrete);
+                    pad.transform.SetParent(parent, false);
+                    pad.transform.position = CellCenter(start.x, start.y, 0.035f);
+                }
 
                 var panel = CreateQuad("Base Pad Inner Panel P" + start.playerId, 8.5f, 8.5f, materials.ConcretePanel);
                 panel.transform.SetParent(parent, false);
@@ -329,6 +341,40 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 CreatePadTrim(parent, "East Trim P" + start.playerId, start.x + 4, start.y, 1.1f, 10f, materials.ConcreteTrim);
 
                 CreateBaseGrime(parent, start.x, start.y, start.playerId, seed, materials.ConcreteGrime);
+            }
+        }
+
+        static void BuildRiverDressing(Transform root, List<AegisRiverSegment> rivers, AegisVisualMaterialSet materials, int seed)
+        {
+            if (rivers.Count == 0)
+                return;
+
+            var parent = new GameObject("River Edge Art Pack Dressing").transform;
+            parent.SetParent(root, false);
+            for (var i = 0; i < rivers.Count; i++)
+            {
+                var segment = rivers[i];
+                var delta = segment.B - segment.A;
+                var length = delta.magnitude;
+                if (length < 1.2f)
+                    continue;
+
+                var direction = delta / length;
+                var perpendicular = new Vector2(-direction.y, direction.x);
+                var angle = DirectionAngle(direction);
+                var center = (segment.A + segment.B) * 0.5f;
+                CreateOrientedQuad(parent, "Muddy Shoreline Left", center + perpendicular * (segment.Radius + 0.35f), 1.15f, length + 0.4f, 0.033f, materials.MuddyShoreline, angle);
+                CreateOrientedQuad(parent, "Muddy Shoreline Right", center - perpendicular * (segment.Radius + 0.35f), 1.15f, length + 0.4f, 0.033f, materials.MuddyShoreline, angle + 180f);
+
+                if (i % 3 == 0)
+                    CreateOrientedQuad(parent, "Water Highlight Streak", center, Mathf.Max(0.55f, segment.Radius * 0.65f), Mathf.Min(length * 0.56f, 8f), 0.036f, materials.WaterHighlightDecal, angle + Hash01(seed ^ 0xA7E5, i, Mathf.RoundToInt(length)) * 12f - 6f);
+
+                if (i % 5 == 0)
+                {
+                    var meshPath = AegisMapArtPack.Pick(AegisMapArtPack.RiverMeshes, seed ^ 0x7711, i, Mathf.RoundToInt(length * 10f));
+                    var pos = new Vector3(center.x + perpendicular.x * (segment.Radius + 0.8f), 0.05f, center.y + perpendicular.y * (segment.Radius + 0.8f));
+                    AegisMapArtPack.TryInstantiatePrefab(parent, "River Edge Mesh", meshPath, pos, Quaternion.Euler(0f, angle, 0f), Vector3.one, materials.Vegetation);
+                }
             }
         }
 
@@ -419,19 +465,31 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             {
                 var resource = document.resources[i];
                 var chunkCount = 2 + HashRange(seed ^ 0x0A0E, resource.x, resource.y, 4);
+                if (Hash01(seed ^ 0x0D057, resource.x, resource.y) < 0.34f)
+                    CreateGroundDisc(parent, "Ore Dust Decal", resource.x, resource.y, 0.68f, 0.52f, materials.OreDust, seed ^ 0x0D057);
                 for (var c = 0; c < chunkCount; c++)
                 {
-                    var ore = new GameObject("Ore Nugget");
-                    ore.name = "Ore Chunk";
-                    ore.transform.SetParent(parent, false);
                     var ox = (Hash01(seed, resource.x + c * 11, resource.y) - 0.5f) * 0.72f;
                     var oz = (Hash01(seed, resource.x, resource.y + c * 17) - 0.5f) * 0.72f;
                     var radius = 0.13f + Hash01(seed ^ 0x0E11, resource.x + c, resource.y - c) * 0.17f;
                     var height = 0.18f + Hash01(seed ^ 0x0E12, resource.x - c, resource.y + c) * 0.28f;
-                    ore.AddComponent<MeshFilter>().sharedMesh = CreateFacetedOreMesh(seed, resource.x, resource.y, c, radius, height);
-                    ore.AddComponent<MeshRenderer>().sharedMaterial = materials.Ore;
-                    ore.transform.position = CellCenter(resource.x, resource.y, height * 0.34f) + new Vector3(ox, 0f, oz);
-                    ore.transform.rotation = Quaternion.Euler(0f, Hash01(seed, resource.x + c, resource.y - c) * 360f, 0f);
+                    var position = CellCenter(resource.x, resource.y, height * 0.34f) + new Vector3(ox, 0f, oz);
+                    var rotation = Quaternion.Euler(0f, Hash01(seed, resource.x + c, resource.y - c) * 360f, 0f);
+                    var meshPath = AegisMapArtPack.Pick(AegisMapArtPack.OreMeshes, seed ^ 0x0E13, resource.x + c, resource.y - c);
+                    var imported = AegisMapArtPack.TryInstantiatePrefab(parent, "Ore Chunk", meshPath, position, rotation, Vector3.one * Mathf.Lerp(0.58f, 1.05f, Hash01(seed ^ 0x0E14, resource.x, resource.y + c)), materials.Ore);
+                    if (!imported)
+                    {
+                        var ore = new GameObject("Ore Nugget");
+                        ore.name = "Ore Chunk";
+                        ore.transform.SetParent(parent, false);
+                        ore.AddComponent<MeshFilter>().sharedMesh = CreateFacetedOreMesh(seed, resource.x, resource.y, c, radius, height);
+                        ore.AddComponent<MeshRenderer>().sharedMaterial = materials.Ore;
+                        ore.transform.position = position;
+                        ore.transform.rotation = rotation;
+                    }
+
+                    if (c == 0 && Hash01(seed ^ 0x6117, resource.x, resource.y) > 0.55f)
+                        CreateGroundDisc(parent, "Resource Glint Decal", resource.x, resource.y, 0.32f, 0.22f, materials.ResourceGlint, seed ^ 0x6117);
                 }
             }
         }
@@ -521,21 +579,36 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             for (var i = 0; i < count; i++)
             {
-                var rock = new GameObject(name);
-                rock.name = name;
-                rock.transform.SetParent(parent, false);
                 var offset = new Vector3((Hash01(seed, cellX + i * 7, cellY) - 0.5f) * 1.2f, 0f, (Hash01(seed, cellX, cellY + i * 13) - 0.5f) * 1.2f);
                 var height = Mathf.Lerp(minScale, maxScale, Hash01(seed ^ 0xA7A, cellX + i, cellY - i));
                 var radius = Mathf.Lerp(0.32f, 0.78f, Hash01(seed ^ 0x77A, cellX - i, cellY + i));
-                rock.AddComponent<MeshFilter>().sharedMesh = CreateFacetedRockMesh(seed, cellX, cellY, i, radius, height);
-                rock.AddComponent<MeshRenderer>().sharedMaterial = material;
-                rock.transform.position = CellCenter(cellX, cellY, 0.05f) + offset;
-                rock.transform.rotation = Quaternion.Euler(Hash01(seed, cellX, i) * 12f - 6f, Hash01(seed, i, cellY) * 360f, Hash01(seed, cellY, i) * 12f - 6f);
+                var position = CellCenter(cellX, cellY, 0.05f) + offset;
+                var rotation = Quaternion.Euler(Hash01(seed, cellX, i) * 12f - 6f, Hash01(seed, i, cellY) * 360f, Hash01(seed, cellY, i) * 12f - 6f);
+                var isBoulder = name.IndexOf("Boulder", StringComparison.OrdinalIgnoreCase) >= 0;
+                var candidates = isBoulder ? AegisMapArtPack.BoulderMeshes : AegisMapArtPack.CliffMeshes;
+                var meshPath = AegisMapArtPack.Pick(candidates, seed ^ 0xA771, cellX + i, cellY - i);
+                var artMinScale = isBoulder ? 0.48f : 0.34f;
+                var artMaxScale = isBoulder ? 0.92f : 0.62f;
+                var imported = AegisMapArtPack.TryInstantiatePrefab(parent, name, meshPath, position, rotation, Vector3.one * Mathf.Lerp(artMinScale, artMaxScale, Hash01(seed ^ 0xC0DE, cellX, cellY + i)), material);
+                if (!imported)
+                {
+                    var rock = new GameObject(name);
+                    rock.name = name;
+                    rock.transform.SetParent(parent, false);
+                    rock.AddComponent<MeshFilter>().sharedMesh = CreateFacetedRockMesh(seed, cellX, cellY, i, radius, height);
+                    rock.AddComponent<MeshRenderer>().sharedMaterial = material;
+                    rock.transform.position = position;
+                    rock.transform.rotation = rotation;
+                }
             }
         }
 
         static void CreateVegetation(Transform parent, int cellX, int cellY, Material material, int seed, string name)
         {
+            var meshPath = AegisMapArtPack.Pick(AegisMapArtPack.VegetationMeshes, seed ^ 0xF01A6E, cellX, cellY);
+            if (AegisMapArtPack.TryInstantiatePrefab(parent, name, meshPath, CellCenter(cellX, cellY, 0.04f), Quaternion.Euler(0f, Hash01(seed ^ 0x6E71, cellX, cellY) * 360f, 0f), Vector3.one * Mathf.Lerp(0.72f, 1.22f, Hash01(seed ^ 0x6E72, cellX, cellY)), material))
+                return;
+
             var bush = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             bush.name = name;
             bush.transform.SetParent(parent, false);
@@ -547,6 +620,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static void CreatePebble(Transform parent, int cellX, int cellY, Material material, int seed, string name)
         {
+            var meshPath = AegisMapArtPack.Pick(AegisMapArtPack.PebbleMeshes, seed ^ 0x0BB1E, cellX, cellY);
+            if (AegisMapArtPack.TryInstantiatePrefab(parent, name, meshPath, CellCenter(cellX, cellY, 0.055f), Quaternion.Euler(0f, Hash01(seed ^ 0xDEB, cellX, cellY) * 360f, 0f), Vector3.one * Mathf.Lerp(0.45f, 0.85f, Hash01(seed ^ 0x0BB2E, cellX, cellY)), material))
+                return;
+
             var pebble = new GameObject(name);
             pebble.name = name;
             pebble.transform.SetParent(parent, false);
@@ -559,6 +636,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static void CreateCrater(Transform parent, int cellX, int cellY, Material rimMaterial, Material centerMaterial, int seed)
         {
+            var craterMesh = AegisMapArtPack.Pick(AegisMapArtPack.CraterMeshes, seed ^ 0xC2A7E, cellX, cellY);
+            AegisMapArtPack.TryInstantiatePrefab(parent, "Crater Mesh", craterMesh, CellCenter(cellX, cellY, 0.036f), Quaternion.Euler(0f, Hash01(seed, cellX, cellY) * 360f, 0f), Vector3.one, rimMaterial);
+
             var rim = CreateGroundDiscObject("Crater Mud Rim", 1.08f, 0.86f, rimMaterial);
             rim.transform.SetParent(parent, false);
             rim.transform.position = CellCenter(cellX, cellY, 0.043f);
@@ -1546,30 +1626,38 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public Material RoadDust;
         public Material RoadRut;
         public Material RoadScuff;
+        public Material MuddyShoreline;
+        public Material WaterHighlightDecal;
+        public Material OreDust;
+        public Material ResourceGlint;
         public Material Shadow;
 
         public static AegisVisualMaterialSet LoadOrCreate(AegisVisualBiomeProfile profile, bool persistAssets)
         {
             return new AegisVisualMaterialSet
             {
-                Ground = Material("aegis_visual_ground.mat", Color.white, true, persistAssets),
-                Cliff = Material("aegis_visual_cliff.mat", Color.Lerp(profile.Cliff, new Color(0.22f, 0.22f, 0.20f, 1f), 0.28f), false, persistAssets),
-                Boulder = Material("aegis_visual_boulder.mat", Color.Lerp(profile.Cliff, new Color(0.28f, 0.29f, 0.27f, 1f), 0.45f), false, persistAssets),
-                Pebble = Material("aegis_visual_pebble.mat", Color.Lerp(profile.Cliff, profile.Rough, 0.62f), false, persistAssets),
-                Ore = Material("aegis_visual_ore.mat", profile.OreGround, false, persistAssets),
-                Vegetation = Material("aegis_visual_vegetation.mat", Color.Lerp(profile.Forest, profile.Grass, 0.22f), false, persistAssets),
-                Concrete = Material("aegis_visual_concrete_pad.mat", new Color(0.45f, 0.47f, 0.44f, 1f), false, persistAssets),
-                ConcretePanel = Material("aegis_visual_concrete_panel.mat", new Color(0.54f, 0.56f, 0.52f, 1f), false, persistAssets),
-                ConcreteTrim = Material("aegis_visual_concrete_trim.mat", new Color(0.65f, 0.58f, 0.42f, 1f), false, persistAssets),
-                ConcreteLine = Material("aegis_visual_concrete_line.mat", new Color(0.16f, 0.17f, 0.16f, 0.72f), false, persistAssets, true),
-                ConcreteGrime = Material("aegis_visual_concrete_grime.mat", new Color(0.08f, 0.075f, 0.06f, 0.34f), false, persistAssets, true),
-                Crater = Material("aegis_visual_crater.mat", new Color(0.015f, 0.014f, 0.012f, 1f), false, persistAssets),
-                CraterRim = Material("aegis_visual_crater_rim.mat", new Color(0.16f, 0.115f, 0.072f, 1f), false, persistAssets),
-                Dirt = Material("aegis_visual_dirt_blend.mat", Color.Lerp(profile.DirtPath, profile.Grass, 0.28f), false, persistAssets),
-                RoadDust = Material("aegis_visual_road_dust_decal.mat", new Color(profile.DirtPath.r, profile.DirtPath.g, profile.DirtPath.b, 0.28f), false, persistAssets, true),
-                RoadRut = Material("aegis_visual_road_rut_decal.mat", new Color(0.12f, 0.105f, 0.075f, 0.26f), false, persistAssets, true),
-                RoadScuff = Material("aegis_visual_road_scuff_decal.mat", new Color(profile.GravelPath.r, profile.GravelPath.g, profile.GravelPath.b, 0.34f), false, persistAssets, true),
-                Shadow = Material("aegis_visual_contact_shadow.mat", new Color(0.02f, 0.025f, 0.018f, 0.42f), false, persistAssets, true)
+                Ground = AegisMapArtPack.Material("aegis_visual_ground.mat", Color.white, true, persistAssets),
+                Cliff = AegisMapArtPack.Material("aegis_visual_cliff.mat", Color.Lerp(profile.Cliff, new Color(0.22f, 0.22f, 0.20f, 1f), 0.28f), true, persistAssets, false, "Textures/aegis_cliff_rock_albedo.png", "Textures/aegis_cliff_rock_normal.png", "Textures/aegis_cliff_rock_roughness_ao.png"),
+                Boulder = AegisMapArtPack.Material("aegis_visual_boulder.mat", Color.Lerp(profile.Cliff, new Color(0.28f, 0.29f, 0.27f, 1f), 0.45f), true, persistAssets, false, "Textures/aegis_boulder_stone_albedo.png", "Textures/aegis_boulder_stone_normal.png", "Textures/aegis_boulder_stone_roughness_ao.png"),
+                Pebble = AegisMapArtPack.Material("aegis_visual_pebble.mat", Color.Lerp(profile.Cliff, profile.Rough, 0.62f), true, persistAssets, false, "Textures/aegis_boulder_stone_albedo.png", "Textures/aegis_boulder_stone_normal.png", "Textures/aegis_boulder_stone_roughness_ao.png"),
+                Ore = AegisMapArtPack.Material("aegis_visual_ore.mat", profile.OreGround, true, persistAssets, false, "Textures/aegis_gold_ore_albedo.png", "Textures/aegis_gold_ore_normal.png", "Textures/aegis_gold_ore_roughness_ao.png"),
+                Vegetation = AegisMapArtPack.Material("aegis_visual_vegetation.mat", Color.Lerp(profile.Forest, profile.Grass, 0.22f), true, persistAssets, false, "Textures/aegis_vegetation_albedo.png", "Textures/aegis_vegetation_normal.png", "Textures/aegis_vegetation_roughness_ao.png"),
+                Concrete = AegisMapArtPack.Material("aegis_visual_concrete_pad.mat", new Color(0.45f, 0.47f, 0.44f, 1f), true, persistAssets, false, "Terrain/concrete_base_pad_albedo.png", "Terrain/concrete_base_pad_normal.png", "Terrain/concrete_base_pad_roughness_ao.png"),
+                ConcretePanel = AegisMapArtPack.Material("aegis_visual_concrete_panel.mat", new Color(0.54f, 0.56f, 0.52f, 1f), true, persistAssets, false, "Terrain/concrete_panel_albedo.png", "Terrain/concrete_panel_normal.png", "Terrain/concrete_panel_roughness_ao.png"),
+                ConcreteTrim = AegisMapArtPack.Material("aegis_visual_concrete_trim.mat", new Color(0.65f, 0.58f, 0.42f, 1f), true, persistAssets, false, "Terrain/concrete_trim_albedo.png", "Terrain/concrete_trim_normal.png", "Terrain/concrete_trim_roughness_ao.png"),
+                ConcreteLine = AegisMapArtPack.Material("aegis_visual_concrete_line.mat", new Color(0.16f, 0.17f, 0.16f, 0.72f), true, persistAssets, true, "Decals/concrete_seam_line.png"),
+                ConcreteGrime = AegisMapArtPack.Material("aegis_visual_concrete_grime.mat", new Color(0.08f, 0.075f, 0.06f, 0.48f), true, persistAssets, true, "Decals/concrete_grime_01.png"),
+                Crater = AegisMapArtPack.Material("aegis_visual_crater.mat", new Color(0.045f, 0.038f, 0.030f, 0.88f), true, persistAssets, true, "Decals/crater_large_01.png"),
+                CraterRim = AegisMapArtPack.Material("aegis_visual_crater_rim.mat", new Color(0.16f, 0.115f, 0.072f, 0.88f), true, persistAssets, true, "Decals/crater_medium_01.png"),
+                Dirt = AegisMapArtPack.Material("aegis_visual_dirt_blend.mat", Color.Lerp(profile.DirtPath, profile.Grass, 0.28f), true, persistAssets, false, "Terrain/dirt_path_albedo.png", "Terrain/dirt_path_normal.png", "Terrain/dirt_path_roughness_ao.png"),
+                RoadDust = AegisMapArtPack.Material("aegis_visual_road_dust_decal.mat", new Color(profile.DirtPath.r, profile.DirtPath.g, profile.DirtPath.b, 0.42f), true, persistAssets, true, "Decals/soft_dust_overlay.png"),
+                RoadRut = AegisMapArtPack.Material("aegis_visual_road_rut_decal.mat", new Color(0.12f, 0.105f, 0.075f, 0.38f), true, persistAssets, true, "Decals/tire_rut_left.png"),
+                RoadScuff = AegisMapArtPack.Material("aegis_visual_road_scuff_decal.mat", new Color(profile.GravelPath.r, profile.GravelPath.g, profile.GravelPath.b, 0.46f), true, persistAssets, true, "Decals/gravel_scuff_01.png"),
+                MuddyShoreline = AegisMapArtPack.Material("aegis_visual_muddy_shoreline_decal.mat", new Color(profile.MuddyBank.r, profile.MuddyBank.g, profile.MuddyBank.b, 0.46f), true, persistAssets, true, "Decals/muddy_shoreline_01.png"),
+                WaterHighlightDecal = AegisMapArtPack.Material("aegis_visual_water_highlight_decal.mat", new Color(profile.WaterHighlight.r, profile.WaterHighlight.g, profile.WaterHighlight.b, 0.38f), true, persistAssets, true, "Decals/water_highlight_streaks.png"),
+                OreDust = AegisMapArtPack.Material("aegis_visual_ore_dust_decal.mat", new Color(profile.OreGround.r, profile.OreGround.g, profile.OreGround.b, 0.42f), true, persistAssets, true, "Decals/ore_dust_soft_01.png"),
+                ResourceGlint = AegisMapArtPack.Material("aegis_visual_resource_glint_decal.mat", new Color(1f, 0.85f, 0.38f, 0.46f), true, persistAssets, true, "Decals/resource_glint_01.png"),
+                Shadow = AegisMapArtPack.Material("aegis_visual_contact_shadow.mat", new Color(0.02f, 0.025f, 0.018f, 0.42f), false, persistAssets, true)
             };
         }
 

@@ -34,10 +34,11 @@ Implemented in Unity:
 - The Unity window calls the deterministic `Rts.Core` bridge through `AegisUnityMapGenerationBridge` when the Unity plugin DLL is current.
 - If the bridge is unavailable, Unity writes a compatible `.aegismap.json` shell and displays a warning instead of failing silently.
 - `Project Aegis > Map Editor > Build Visual Terrain From Aegis Map` reads the selected `.aegismap.json` and builds a deterministic visual terrain scene with blended terrain texture, soft dirt routes, generated watercourses, muddy water banks, shore scatter, faceted cliff rock chains, ore clusters, scatter props, and detailed concrete base pads.
+- `ProjectAegis_MapVisualArtPack_v1` is imported under `unity/Assets/Rts/MapEditor/ArtPack/` and wired into the visual builder. The builder uses the pack's original PNG textures/decals directly and instantiates its GLB meshes through Unity glTFast.
 
 Future bridge:
 
-- Replace proxy visual dressing geometry with final original rock, vegetation, animated water, crater, road, and base-pad assets.
+- Tune imported art-pack prefab scale/material overrides after art direction review.
 - Add a command-line converter/generator for batch automation outside Unity.
 
 ## Unity Menu Items
@@ -54,6 +55,6 @@ Future bridge:
 
 - Add a dedicated command-line converter for batch import/export/generation.
 - Add scene-view overlays for buildability/fairness diagnostics on top of the visual terrain.
-- Add final original modular cliff, water, vegetation, ore, crater, and base-pad assets to replace proxy geometry.
+- Add higher-fidelity modular cliff, water, vegetation, ore, crater, and base-pad asset variants once final art direction is approved.
 - Expand Tiled tileset metadata if more terrain or resource types are added.
 - Add optional SuperTiled2Unity documentation for visual-only workflows.

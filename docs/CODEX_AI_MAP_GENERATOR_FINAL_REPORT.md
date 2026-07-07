@@ -24,6 +24,9 @@
 - Added a smooth visual river pass that derives centerline segments from logical water cells, renders softer riverbanks from the derived path, and adds shallow muddy connectors across short gameplay crossing gaps without changing `.aegismap.json` gameplay truth.
 - Reworked Unity ore dressing from square yellow resource-cell tinting and cube chunks into soft ore-stained ground falloff plus deterministic faceted ore nuggets.
 - Added deterministic Unity road and base-pad dressing with soft road dust overlays, tire-rut decals, gravel scuffs, concrete seam lines, approach aprons, and grime decals.
+- Imported `ProjectAegis_MapVisualArtPack_v1` under `unity/Assets/Rts/MapEditor/ArtPack/` with its manifest, license/origin note, terrain textures, decals, previews, and GLB meshes.
+- Added Unity glTFast (`com.unity.cloud.gltfast`) so the art pack's GLB cliff, rock, ore, vegetation, river, crater, and base-pad meshes import directly.
+- Wired the visual builder to use art-pack PNG materials/decals and deterministic art-pack mesh placements, with generated fallback geometry if an asset is unavailable.
 
 ## Validation
 
@@ -34,10 +37,11 @@
 - Temporary Tiled export check: `unity/Assets/Rts/Maps/Generated/sample_small_100.local-export.tiled.json` was created by export validation, confirmed present by file lookup, then removed.
 - Unity batch render validation: passed with `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe`; final log reported `Application will terminate with return code 0`.
 - Latest Unity render validation for the smooth visual-river pass also passed with return code `0`.
+- Art-pack Unity render validation passed after adding glTFast. Unity log showed art-pack `.glb` files importing through `GLTFast.Editor:GltfImporter`, then rendered a fresh preview with return code `0`.
 - Unity command used:
-  `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe -batchmode -quit -projectPath "E:\OpenRA Mod\ProjectAegisRTS\unity" -logFile "E:\OpenRA Mod\ProjectAegisRTS\unity-compile.log" -executeMethod ProjectAegisRTS.UnityClient.EditorTools.AegisMapVisualBuilder.RenderSamplePreviewForBatch`
+  `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe -batchmode -quit -projectPath "E:\OpenRA Mod\ProjectAegisRTS-mapgen-artpack\unity" -logFile "E:\OpenRA Mod\ProjectAegisRTS-mapgen-artpack\unity-compile.log" -executeMethod ProjectAegisRTS.UnityClient.EditorTools.AegisMapVisualBuilder.RenderSamplePreviewForBatch`
 - Unity preview image: `C:\Users\matth\AppData\Local\Temp\ProjectAegisRTS\aegis_visual_builder_sample.png`.
-- Latest visual preview uses the 2-player forest river/chokepoint sample with low-water river dressing, faceted cliff/boulder meshes, and detailed base-pad geometry.
+- Latest visual preview uses the 2-player forest river/chokepoint sample with low-water river dressing, art-pack PNG decals/materials, glTFast-imported GLB map props, and detailed base-pad geometry.
 - Core guardrail scan: no `UnityEngine`, `UnityEditor`, OpenRA implementation namespace, or protected C&C / Red Alert identifiers found under `src/Rts.Core`.
 
 ## Samples
@@ -58,6 +62,7 @@
 - `jq`, `zip`, and `unzip` are missing from PATH in this PowerShell session.
 - `openupm` is present at `C:\Users\matth\AppData\Roaming\npm\openupm.ps1`.
 - `.vs/`, `unity-compile.log`, and `*.local-export.tiled.json` are ignored.
+- Unity glTFast is now listed in `unity/Packages/manifest.json` and resolved in `unity/Packages/packages-lock.json`.
 
 ## Documentation Updated
 
@@ -75,7 +80,8 @@
 - Add richer in-scene visual preview overlays for build pads, resources, blockers, cliffs, water, and pathability.
 - Add deeper tactical fairness scoring after gameplay-specific balance targets are firmer.
 - Add an explicit Unity editor smoke test harness that opens the map editor window and runs a generation request during batchmode.
-- Replace proxy terrain dressing with final original modular cliff meshes, water materials, vegetation, ore, crater, base-pad, and decal assets.
+- Add a purpose-built art-pack showcase map once the next prompt focuses on composition, close-up terrain readability, and screenshot quality.
+- Tune imported art-pack mesh scale, LODs, collision-free prefab variants, and material overrides as the final Project Aegis map-art direction settles.
 
 ## Source And IP Notes
 

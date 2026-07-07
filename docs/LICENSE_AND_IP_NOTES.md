@@ -14,6 +14,10 @@ The Aegis generated-map implementation in `src/Rts.Core/MapGeneration` is a clea
 
 Concept art and future production assets should remain under `art/` or a separate asset pipeline. Keeping art separate from code helps manage different licensing models later.
 
+`unity/Assets/Rts/MapEditor/ArtPack/ProjectAegis_MapVisualArtPack_v1/` contains original procedural Project Aegis map-visual assets delivered for this repository. Its included `LICENSE_AND_ORIGIN.md` states that the textures, decals, meshes, previews, manifest data, and helper code were created for Project Aegis and do not copy or derive from Command & Conquer, Red Alert, OpenRA, Warcraft, StarCraft, Total Annihilation, or other RTS assets.
+
+The Unity visual builder uses this pack as editor-side visual mapping for `.aegismap.json` terrain, resources, blockers, roads, craters, base pads, and biome decoration. The pack does not make Unity or Tiled the runtime source of truth.
+
 ## Tiled Map Editor Integration
 
 The Stage 0 Tiled map-editor integration is original Project Aegis code. Tiled is used as an external authoring/interchange tool, and `.aegismap.json` is the Project Aegis runtime map format.
