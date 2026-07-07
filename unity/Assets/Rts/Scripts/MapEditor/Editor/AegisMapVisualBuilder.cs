@@ -69,6 +69,17 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public static void RenderSamplePreviewForBatch()
         {
             var samplePath = AegisMapEditorPaths.SamplesFolder + "/sample_ai_medium_forest_2p_river_chokepoint.aegismap.json";
+            RenderPreviewForBatch(samplePath, "aegis_visual_builder_sample.png", 0.17f, 0.38f, 0.48f, 1400, 1000);
+        }
+
+        public static void RenderArtPackShowcaseForBatch()
+        {
+            var samplePath = AegisMapEditorPaths.SamplesFolder + "/sample_art_pack_showcase_160_forest_river.aegismap.json";
+            RenderPreviewForBatch(samplePath, "aegis_art_pack_showcase.png", 0.24f, 0.50f, 0.50f, 1600, 1100);
+        }
+
+        static void RenderPreviewForBatch(string samplePath, string outputFileName, float orthographicScale, float centerXScale, float centerZScale, int outputWidth, int outputHeight)
+        {
             var document = AegisVisualMapDocument.Load(samplePath);
             if (document == null)
                 throw new InvalidOperationException("Visual builder render could not load " + samplePath + ".");
@@ -88,15 +99,15 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(0.06f, 0.08f, 0.07f, 1f);
             camera.orthographic = true;
-            camera.orthographicSize = Mathf.Max(document.width, document.height) * 0.17f;
+            camera.orthographicSize = Mathf.Max(document.width, document.height) * orthographicScale;
             var pitch = 64f;
             var cameraHeight = 105f;
-            var centerX = document.width * 0.38f;
-            var centerZ = document.height * 0.48f;
+            var centerX = document.width * centerXScale;
+            var centerZ = document.height * centerZScale;
             camera.transform.position = new Vector3(centerX, cameraHeight, centerZ - cameraHeight / Mathf.Tan(pitch * Mathf.Deg2Rad));
             camera.transform.rotation = Quaternion.Euler(pitch, 0f, 0f);
 
-            var renderTexture = new RenderTexture(1400, 1000, 24, RenderTextureFormat.ARGB32);
+            var renderTexture = new RenderTexture(outputWidth, outputHeight, 24, RenderTextureFormat.ARGB32);
             var previous = RenderTexture.active;
             camera.targetTexture = renderTexture;
             camera.Render();
@@ -109,7 +120,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var outputDir = Path.Combine(Path.GetTempPath(), "ProjectAegisRTS");
             Directory.CreateDirectory(outputDir);
-            var outputPath = Path.Combine(outputDir, "aegis_visual_builder_sample.png");
+            var outputPath = Path.Combine(outputDir, outputFileName);
             File.WriteAllBytes(outputPath, image.EncodeToPNG());
             Debug.Log("Aegis map visual builder rendered preview: " + outputPath);
 
@@ -1642,9 +1653,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 Pebble = AegisMapArtPack.Material("aegis_visual_pebble.mat", Color.Lerp(profile.Cliff, profile.Rough, 0.62f), true, persistAssets, false, "Textures/aegis_boulder_stone_albedo.png", "Textures/aegis_boulder_stone_normal.png", "Textures/aegis_boulder_stone_roughness_ao.png"),
                 Ore = AegisMapArtPack.Material("aegis_visual_ore.mat", profile.OreGround, true, persistAssets, false, "Textures/aegis_gold_ore_albedo.png", "Textures/aegis_gold_ore_normal.png", "Textures/aegis_gold_ore_roughness_ao.png"),
                 Vegetation = AegisMapArtPack.Material("aegis_visual_vegetation.mat", Color.Lerp(profile.Forest, profile.Grass, 0.22f), true, persistAssets, false, "Textures/aegis_vegetation_albedo.png", "Textures/aegis_vegetation_normal.png", "Textures/aegis_vegetation_roughness_ao.png"),
-                Concrete = AegisMapArtPack.Material("aegis_visual_concrete_pad.mat", new Color(0.45f, 0.47f, 0.44f, 1f), true, persistAssets, false, "Terrain/concrete_base_pad_albedo.png", "Terrain/concrete_base_pad_normal.png", "Terrain/concrete_base_pad_roughness_ao.png"),
-                ConcretePanel = AegisMapArtPack.Material("aegis_visual_concrete_panel.mat", new Color(0.54f, 0.56f, 0.52f, 1f), true, persistAssets, false, "Terrain/concrete_panel_albedo.png", "Terrain/concrete_panel_normal.png", "Terrain/concrete_panel_roughness_ao.png"),
-                ConcreteTrim = AegisMapArtPack.Material("aegis_visual_concrete_trim.mat", new Color(0.65f, 0.58f, 0.42f, 1f), true, persistAssets, false, "Terrain/concrete_trim_albedo.png", "Terrain/concrete_trim_normal.png", "Terrain/concrete_trim_roughness_ao.png"),
+                Concrete = AegisMapArtPack.Material("aegis_visual_concrete_pad.mat", new Color(0.82f, 0.84f, 0.80f, 1f), true, persistAssets, false, "Terrain/concrete_base_pad_albedo.png", "Terrain/concrete_base_pad_normal.png", "Terrain/concrete_base_pad_roughness_ao.png"),
+                ConcretePanel = AegisMapArtPack.Material("aegis_visual_concrete_panel.mat", new Color(0.88f, 0.90f, 0.86f, 1f), true, persistAssets, false, "Terrain/concrete_panel_albedo.png", "Terrain/concrete_panel_normal.png", "Terrain/concrete_panel_roughness_ao.png"),
+                ConcreteTrim = AegisMapArtPack.Material("aegis_visual_concrete_trim.mat", new Color(0.92f, 0.82f, 0.58f, 1f), true, persistAssets, false, "Terrain/concrete_trim_albedo.png", "Terrain/concrete_trim_normal.png", "Terrain/concrete_trim_roughness_ao.png"),
                 ConcreteLine = AegisMapArtPack.Material("aegis_visual_concrete_line.mat", new Color(0.16f, 0.17f, 0.16f, 0.72f), true, persistAssets, true, "Decals/concrete_seam_line.png"),
                 ConcreteGrime = AegisMapArtPack.Material("aegis_visual_concrete_grime.mat", new Color(0.08f, 0.075f, 0.06f, 0.48f), true, persistAssets, true, "Decals/concrete_grime_01.png"),
                 Crater = AegisMapArtPack.Material("aegis_visual_crater.mat", new Color(0.045f, 0.038f, 0.030f, 0.88f), true, persistAssets, true, "Decals/crater_large_01.png"),

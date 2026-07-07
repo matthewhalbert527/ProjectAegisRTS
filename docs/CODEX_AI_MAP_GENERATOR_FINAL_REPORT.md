@@ -27,6 +27,7 @@
 - Imported `ProjectAegis_MapVisualArtPack_v1` under `unity/Assets/Rts/MapEditor/ArtPack/` with its manifest, license/origin note, terrain textures, decals, previews, and GLB meshes.
 - Added Unity glTFast (`com.unity.cloud.gltfast`) so the art pack's GLB cliff, rock, ore, vegetation, river, crater, and base-pad meshes import directly.
 - Wired the visual builder to use art-pack PNG materials/decals and deterministic art-pack mesh placements, with generated fallback geometry if an asset is unavailable.
+- Added an art-pack showcase `.aegismap.json` sample focused on a forest river battlefield composition with two concrete base pads, road dust, river bends, cliff/rock ridges, ore fields, vegetation, craters, and deterministic prop dressing.
 
 ## Validation
 
@@ -38,9 +39,13 @@
 - Unity batch render validation: passed with `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe`; final log reported `Application will terminate with return code 0`.
 - Latest Unity render validation for the smooth visual-river pass also passed with return code `0`.
 - Art-pack Unity render validation passed after adding glTFast. Unity log showed art-pack `.glb` files importing through `GLTFast.Editor:GltfImporter`, then rendered a fresh preview with return code `0`.
+- Art-pack showcase render validation passed with return code `0`.
 - Unity command used:
   `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe -batchmode -quit -projectPath "E:\OpenRA Mod\ProjectAegisRTS-mapgen-artpack\unity" -logFile "E:\OpenRA Mod\ProjectAegisRTS-mapgen-artpack\unity-compile.log" -executeMethod ProjectAegisRTS.UnityClient.EditorTools.AegisMapVisualBuilder.RenderSamplePreviewForBatch`
+- Showcase render command used:
+  `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe -batchmode -quit -projectPath "E:\OpenRA Mod\ProjectAegisRTS-mapgen-artpack\unity" -logFile "E:\OpenRA Mod\ProjectAegisRTS-mapgen-artpack\unity-compile.log" -executeMethod ProjectAegisRTS.UnityClient.EditorTools.AegisMapVisualBuilder.RenderArtPackShowcaseForBatch`
 - Unity preview image: `C:\Users\matth\AppData\Local\Temp\ProjectAegisRTS\aegis_visual_builder_sample.png`.
+- Art-pack showcase image: `C:\Users\matth\AppData\Local\Temp\ProjectAegisRTS\aegis_art_pack_showcase.png`.
 - Latest visual preview uses the 2-player forest river/chokepoint sample with low-water river dressing, art-pack PNG decals/materials, glTFast-imported GLB map props, and detailed base-pad geometry.
 - Core guardrail scan: no `UnityEngine`, `UnityEditor`, OpenRA implementation namespace, or protected C&C / Red Alert identifiers found under `src/Rts.Core`.
 
@@ -55,6 +60,7 @@
   - `unity/Assets/Rts/MapEditor/Samples/sample_ai_medium_rocky_4p_chokepoint.aegismap.json`
   - `unity/Assets/Rts/MapEditor/Samples/sample_ai_large_tournament_4p.aegismap.json`
   - `unity/Assets/Rts/MapEditor/Samples/sample_ai_large_rocky_8p_high_resources.aegismap.json`
+  - `unity/Assets/Rts/MapEditor/Samples/sample_art_pack_showcase_160_forest_river.aegismap.json`
 
 ## Tool Notes
 
@@ -80,8 +86,8 @@
 - Add richer in-scene visual preview overlays for build pads, resources, blockers, cliffs, water, and pathability.
 - Add deeper tactical fairness scoring after gameplay-specific balance targets are firmer.
 - Add an explicit Unity editor smoke test harness that opens the map editor window and runs a generation request during batchmode.
-- Add a purpose-built art-pack showcase map once the next prompt focuses on composition, close-up terrain readability, and screenshot quality.
 - Tune imported art-pack mesh scale, LODs, collision-free prefab variants, and material overrides as the final Project Aegis map-art direction settles.
+- Keep iterating on the showcase map with higher-detail hand-authored set dressing, tuned material response, and production prefab variants once final art direction is locked.
 
 ## Source And IP Notes
 

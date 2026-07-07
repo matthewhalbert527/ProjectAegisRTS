@@ -1899,7 +1899,8 @@ namespace ProjectAegisRTS.Tests
                 "sample_ai_medium_forest_4p_balanced.aegismap.json",
                 "sample_ai_medium_rocky_4p_chokepoint.aegismap.json",
                 "sample_ai_large_tournament_4p.aegismap.json",
-                "sample_ai_large_rocky_8p_high_resources.aegismap.json"
+                "sample_ai_large_rocky_8p_high_resources.aegismap.json",
+                "sample_art_pack_showcase_160_forest_river.aegismap.json"
             };
 
             for (var i = 0; i < sampleNames.Length; i++)
