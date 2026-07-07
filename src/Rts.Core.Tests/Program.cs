@@ -179,6 +179,7 @@ namespace ProjectAegisRTS.Tests
                 AegisProceduralProfilesAdjustRegenerationSettings,
                 AegisMapDocumentJsonRoundTripsGeneratedMap,
                 AegisMapGenerationBridgeProducesCoreJsonAndTiledJson,
+                AegisGeneratedSampleAegisMapsValidate,
                 AegisResourceSimulationHarvestReducesAmount,
                 AegisResourceSimulationHarvestReachesZeroAndDepletes,
                 AegisResourceSimulationRejectsDepletedHarvest,
@@ -1859,6 +1860,31 @@ namespace ProjectAegisRTS.Tests
             Assert(result.TiledJson.Contains("\"orientation\""), "Expected bridge Tiled JSON.");
             Assert(result.FairnessScore >= 70, "Expected bridge fairness score.");
             Assert(result.SummaryText.Contains("Fairness:"), "Expected bridge summary fairness text.");
+        }
+
+        static void AegisGeneratedSampleAegisMapsValidate()
+        {
+            var sampleRoot = Path.Combine(RepoRoot(), "unity", "Assets", "Rts", "MapEditor", "Samples");
+            var sampleNames = new[]
+            {
+                "sample_ai_small_balanced_2p.aegismap.json",
+                "sample_ai_small_desert_2p_high_ore.aegismap.json",
+                "sample_ai_medium_forest_4p_balanced.aegismap.json",
+                "sample_ai_medium_rocky_4p_chokepoint.aegismap.json",
+                "sample_ai_large_tournament_4p.aegismap.json",
+                "sample_ai_large_rocky_8p_high_resources.aegismap.json"
+            };
+
+            for (var i = 0; i < sampleNames.Length; i++)
+            {
+                var path = Path.Combine(sampleRoot, sampleNames[i]);
+                Assert(File.Exists(path), "Expected generated sample map to exist: " + sampleNames[i]);
+                var document = AegisMapDocumentJson.Deserialize(File.ReadAllText(path));
+                var validation = new AegisMapDocumentValidator().Validate(document);
+                Assert(validation.Success, "Expected generated sample map to validate: " + sampleNames[i] + " " + string.Join(", ", validation.Errors));
+                Assert(document.PlayerStarts.Count > 0, "Expected generated sample to include player starts: " + sampleNames[i]);
+                Assert(document.Resources.Count > 0, "Expected generated sample to include resources: " + sampleNames[i]);
+            }
         }
 
         static void AegisResourceSimulationHarvestReducesAmount()

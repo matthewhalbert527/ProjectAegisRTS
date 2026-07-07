@@ -49,7 +49,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             settings = settings ?? new AegisUnityMapGenerationSettings();
             var model = TryGenerateWithCore(settings);
-            if (model.Success)
+            if (model.Success || model.UsedCoreBridge)
                 return model;
 
             return GenerateFallbackShell(settings, model.Errors);

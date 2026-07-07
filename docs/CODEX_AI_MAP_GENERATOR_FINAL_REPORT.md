@@ -12,16 +12,18 @@
 - Added `AegisMapDocumentJson` serialization helpers for deterministic runtime map JSON round-tripping.
 - Expanded generation/balance summaries with fairness score, connected start pair counts, start distance range, per-player build pad counts, resource imbalance percentage, and a bottleneck estimate.
 - Improved the Unity map editor window with direct core-bridge preview/save/export support when the updated `Rts.Core` plugin is loaded, plus an explicit fallback shell generator if the bridge is unavailable.
+- Preserved authoritative core generation/validation errors in the Unity bridge instead of replacing them with a fallback shell.
 - Added editor controls and status output for overlays, same-seed regeneration, new-seed regeneration, validation, saving `.aegismap.json`, exporting Tiled JSON, prompt examples, warnings, errors, and summary text.
 - Updated the Unity `Rts.Core` plugin DLL/PDB so the editor reflection bridge can call the new core generation bridge in Unity.
 - Added deterministic generated sample `.aegismap.json` maps for small, medium, and large scenarios, including balanced, high-ore, forest, chokepoint, tournament, and 8-player high-resource cases.
+- Added test coverage that reads and validates every checked-in generated sample `.aegismap.json` file.
 - Kept the temporary Tiled local export artifact removed and ignored with `*.local-export.tiled.json`.
 
 ## Validation
 
 - `dotnet restore src/Rts.Core.Tests/Rts.Core.Tests.csproj`: passed.
 - `dotnet build src/Rts.Core.Tests/Rts.Core.Tests.csproj --no-restore`: passed with 0 warnings and 0 errors.
-- `dotnet run --project src/Rts.Core.Tests/Rts.Core.Tests.csproj`: passed, `177/177`.
+- `dotnet run --project src/Rts.Core.Tests/Rts.Core.Tests.csproj`: passed, `178/178`.
 - Tiled export validation: passed with `C:\Program Files\Tiled\tiled.exe`.
 - Temporary Tiled export check: `unity/Assets/Rts/Maps/Generated/sample_small_100.local-export.tiled.json` was created by export validation, confirmed present by file lookup, then removed.
 - Unity batch compile: passed with `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe`; final log reported `Application will terminate with return code 0`.
