@@ -21,6 +21,7 @@
 - Added deterministic sine/noise watercourse generation for requested water maps, including tests for dry maps, medium-water rivers, and high-water pathability.
 - Improved the Unity visual terrain builder with a closer centered preview camera, higher-resolution terrain texture generation, darker forest terrain colors, curved deterministic visual dirt paths, river/muddy-bank rendering, and deterministic shore pebble/bank grass scatter.
 - Added faceted procedural rock and pebble meshes, rougher low-gloss generated materials, terrain-blended concrete pad panels/trims, and a cleaner low-water 2-player forest river sample for visual validation.
+- Added a smooth visual river pass that derives centerline segments from logical water cells, renders softer riverbanks from the derived path, and adds shallow muddy connectors across short gameplay crossing gaps without changing `.aegismap.json` gameplay truth.
 
 ## Validation
 
@@ -30,6 +31,7 @@
 - Tiled export validation: passed with `C:\Program Files\Tiled\tiled.exe`.
 - Temporary Tiled export check: `unity/Assets/Rts/Maps/Generated/sample_small_100.local-export.tiled.json` was created by export validation, confirmed present by file lookup, then removed.
 - Unity batch render validation: passed with `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe`; final log reported `Application will terminate with return code 0`.
+- Latest Unity render validation for the smooth visual-river pass also passed with return code `0`.
 - Unity command used:
   `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe -batchmode -quit -projectPath "E:\OpenRA Mod\ProjectAegisRTS\unity" -logFile "E:\OpenRA Mod\ProjectAegisRTS\unity-compile.log" -executeMethod ProjectAegisRTS.UnityClient.EditorTools.AegisMapVisualBuilder.RenderSamplePreviewForBatch`
 - Unity preview image: `C:\Users\matth\AppData\Local\Temp\ProjectAegisRTS\aegis_visual_builder_sample.png`.

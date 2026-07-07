@@ -168,8 +168,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var lookup = new AegisVisualMapLookup(document);
             var paths = BuildGameplayPathSegments(document, seed);
+            var rivers = BuildVisualRiverSegments(document, lookup);
             var materials = AegisVisualMaterialSet.LoadOrCreate(profile, persistAssets);
-            BuildTerrainPlane(root.transform, document, lookup, paths, profile, materials, safeMapId, seed, persistAssets);
+            BuildTerrainPlane(root.transform, document, lookup, paths, rivers, profile, materials, safeMapId, seed, persistAssets);
             BuildBasePads(root.transform, document, materials);
             BuildCliffRidges(root.transform, document, lookup, materials, seed);
             BuildOreClusters(root.transform, document, materials, seed);
@@ -177,9 +178,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return root;
         }
 
-        static void BuildTerrainPlane(Transform root, AegisVisualMapDocument document, AegisVisualMapLookup lookup, List<AegisPathSegment> paths, AegisVisualBiomeProfile profile, AegisVisualMaterialSet materials, string safeMapId, int seed, bool persistAssets)
+        static void BuildTerrainPlane(Transform root, AegisVisualMapDocument document, AegisVisualMapLookup lookup, List<AegisPathSegment> paths, List<AegisRiverSegment> rivers, AegisVisualBiomeProfile profile, AegisVisualMaterialSet materials, string safeMapId, int seed, bool persistAssets)
         {
-            var texture = CreateTerrainTexture(document, lookup, paths, profile, seed);
+            var texture = CreateTerrainTexture(document, lookup, paths, rivers, profile, seed);
             var material = new Material(materials.Ground);
             material.name = safeMapId + "_terrain_material";
             material.mainTexture = texture;
@@ -196,7 +197,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             terrain.transform.position = new Vector3((document.width - 1) * CellSize * 0.5f, 0f, (document.height - 1) * CellSize * 0.5f);
         }
 
-        static Texture2D CreateTerrainTexture(AegisVisualMapDocument document, AegisVisualMapLookup lookup, List<AegisPathSegment> paths, AegisVisualBiomeProfile profile, int seed)
+        static Texture2D CreateTerrainTexture(AegisVisualMapDocument document, AegisVisualMapLookup lookup, List<AegisPathSegment> paths, List<AegisRiverSegment> rivers, AegisVisualBiomeProfile profile, int seed)
         {
             var width = document.width * PixelsPerCell;
             var height = document.height * PixelsPerCell;
@@ -220,7 +221,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     var fracX = localX - cellX;
                     var fracY = localY - cellY;
                     var terrain = lookup.TerrainAt(cellX, cellY);
-                    var waterInfluence = WaterInfluence(lookup, localX, localY);
+                    var waterInfluence = WaterInfluence(lookup, rivers, localX, localY);
                     var color = profile.ColorForTerrain(terrain == "water" ? document.defaultTerrainId : terrain);
                     color = ApplyClusteredTerrainStrength(document, lookup, profile, terrain, cellX, cellY, color);
                     color = FeatherTerrainEdge(document, lookup, profile, terrain, cellX, cellY, fracX, fracY, color);
@@ -229,7 +230,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
                     var cellKey = cellY * document.width + cellX;
                     var waterDistance = waterDistanceByCell[cellKey];
-                    if (waterDistance >= 0 && waterDistance <= 4 && terrain != "water")
+                    if (rivers.Count == 0 && waterDistance >= 0 && waterDistance <= 4 && terrain != "water")
                     {
                         var t = 1f - waterDistance / 4f;
                         color = Color.Lerp(color, profile.MuddyBank, t * 0.7f);
@@ -649,6 +650,145 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             }
         }
 
+        static List<AegisRiverSegment> BuildVisualRiverSegments(AegisVisualMapDocument document, AegisVisualMapLookup lookup)
+        {
+            var boundsSet = false;
+            var minX = document.width;
+            var maxX = -1;
+            var minY = document.height;
+            var maxY = -1;
+            for (var y = 0; y < document.height; y++)
+                for (var x = 0; x < document.width; x++)
+                    if (lookup.TerrainAt(x, y) == "water")
+                    {
+                        boundsSet = true;
+                        if (x < minX)
+                            minX = x;
+                        if (x > maxX)
+                            maxX = x;
+                        if (y < minY)
+                            minY = y;
+                        if (y > maxY)
+                            maxY = y;
+                    }
+
+            if (!boundsSet)
+                return new List<AegisRiverSegment>();
+
+            var verticalSpan = maxY - minY;
+            var horizontalSpan = maxX - minX;
+            if (verticalSpan >= horizontalSpan)
+                return BuildRowRiverSegments(document, lookup);
+            return BuildColumnRiverSegments(document, lookup);
+        }
+
+        static List<AegisRiverSegment> BuildRowRiverSegments(AegisVisualMapDocument document, AegisVisualMapLookup lookup)
+        {
+            var samples = new AegisRiverSample[document.height];
+            for (var y = 0; y < document.height; y++)
+            {
+                var count = 0;
+                var sum = 0f;
+                var min = document.width;
+                var max = -1;
+                for (var x = 0; x < document.width; x++)
+                    if (lookup.TerrainAt(x, y) == "water")
+                    {
+                        count++;
+                        sum += x + 0.5f;
+                        if (x < min)
+                            min = x;
+                        if (x > max)
+                            max = x;
+                    }
+
+                if (count > 0)
+                    samples[y] = new AegisRiverSample(sum / count, y + 0.5f, Mathf.Clamp((max - min + 1) * 0.5f + 0.72f, 1.25f, 4.4f));
+            }
+
+            return ConnectRiverSamples(SmoothRiverSamples(samples));
+        }
+
+        static List<AegisRiverSegment> BuildColumnRiverSegments(AegisVisualMapDocument document, AegisVisualMapLookup lookup)
+        {
+            var samples = new AegisRiverSample[document.width];
+            for (var x = 0; x < document.width; x++)
+            {
+                var count = 0;
+                var sum = 0f;
+                var min = document.height;
+                var max = -1;
+                for (var y = 0; y < document.height; y++)
+                    if (lookup.TerrainAt(x, y) == "water")
+                    {
+                        count++;
+                        sum += y + 0.5f;
+                        if (y < min)
+                            min = y;
+                        if (y > max)
+                            max = y;
+                    }
+
+                if (count > 0)
+                    samples[x] = new AegisRiverSample(x + 0.5f, sum / count, Mathf.Clamp((max - min + 1) * 0.5f + 0.72f, 1.25f, 4.4f));
+            }
+
+            return ConnectRiverSamples(SmoothRiverSamples(samples));
+        }
+
+        static AegisRiverSample[] SmoothRiverSamples(AegisRiverSample[] samples)
+        {
+            var smoothed = new AegisRiverSample[samples.Length];
+            for (var i = 0; i < samples.Length; i++)
+            {
+                if (samples[i] == null)
+                    continue;
+
+                var weight = 0f;
+                var x = 0f;
+                var y = 0f;
+                var radius = 0f;
+                for (var offset = -2; offset <= 2; offset++)
+                {
+                    var index = i + offset;
+                    if (index < 0 || index >= samples.Length || samples[index] == null)
+                        continue;
+                    var w = offset == 0 ? 3f : offset == -1 || offset == 1 ? 2f : 1f;
+                    weight += w;
+                    x += samples[index].X * w;
+                    y += samples[index].Y * w;
+                    radius += samples[index].Radius * w;
+                }
+
+                smoothed[i] = new AegisRiverSample(x / weight, y / weight, radius / weight);
+            }
+
+            return smoothed;
+        }
+
+        static List<AegisRiverSegment> ConnectRiverSamples(AegisRiverSample[] samples)
+        {
+            var segments = new List<AegisRiverSegment>();
+            AegisRiverSample previous = null;
+            for (var i = 0; i < samples.Length; i++)
+            {
+                var sample = samples[i];
+                if (sample == null)
+                    continue;
+                if (previous != null)
+                {
+                    var gap = Vector2.Distance(previous.Point, sample.Point);
+                    if (gap <= 2.4f)
+                        segments.Add(new AegisRiverSegment(previous.Point, sample.Point, (previous.Radius + sample.Radius) * 0.5f, 1f));
+                    else if (gap <= 9f)
+                        segments.Add(new AegisRiverSegment(previous.Point, sample.Point, (previous.Radius + sample.Radius) * 0.34f, 0.34f));
+                }
+                previous = sample;
+            }
+
+            return segments;
+        }
+
         static float DistanceToPaths(List<AegisPathSegment> paths, float x, float y)
         {
             if (paths == null || paths.Count == 0)
@@ -660,7 +800,46 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return min;
         }
 
-        static float WaterInfluence(AegisVisualMapLookup lookup, float x, float y)
+        static float WaterInfluence(AegisVisualMapLookup lookup, List<AegisRiverSegment> rivers, float x, float y)
+        {
+            var cellInfluence = CellWaterInfluence(lookup, x, y);
+            if (rivers == null || rivers.Count == 0)
+                return cellInfluence;
+
+            var riverInfluence = RiverInfluence(rivers, x, y);
+            return Mathf.Max(riverInfluence, cellInfluence * 0.38f);
+        }
+
+        static float RiverInfluence(List<AegisRiverSegment> rivers, float x, float y)
+        {
+            var point = new Vector2(x, y);
+            var influence = 0f;
+            for (var i = 0; i < rivers.Count; i++)
+            {
+                var signedDistance = DistanceToSegment(point, rivers[i].A, rivers[i].B) - rivers[i].Radius;
+                var segmentInfluence = RiverSegmentInfluence(signedDistance);
+                if (segmentInfluence > rivers[i].MaxInfluence)
+                    segmentInfluence = rivers[i].MaxInfluence;
+                if (segmentInfluence > influence)
+                    influence = segmentInfluence;
+            }
+
+            return influence;
+        }
+
+        static float RiverSegmentInfluence(float nearestSignedDistance)
+        {
+            const float bankWidth = 1.65f;
+            if (nearestSignedDistance > bankWidth)
+                return 0f;
+            if (nearestSignedDistance > 0f)
+                return Mathf.Lerp(0.03f, 0.41f, Mathf.SmoothStep(0f, 1f, 1f - nearestSignedDistance / bankWidth));
+
+            var deepest = Mathf.Clamp01((-nearestSignedDistance + 0.18f) / 2.1f);
+            return Mathf.Lerp(0.44f, 1f, Mathf.SmoothStep(0f, 1f, deepest));
+        }
+
+        static float CellWaterInfluence(AegisVisualMapLookup lookup, float x, float y)
         {
             var cellX = Mathf.FloorToInt(x);
             var cellY = Mathf.FloorToInt(y);
@@ -806,6 +985,44 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             {
                 A = a;
                 B = b;
+            }
+        }
+
+        sealed class AegisRiverSegment
+        {
+            public readonly Vector2 A;
+            public readonly Vector2 B;
+            public readonly float Radius;
+            public readonly float MaxInfluence;
+
+            public AegisRiverSegment(Vector2 a, Vector2 b, float radius, float maxInfluence)
+            {
+                A = a;
+                B = b;
+                Radius = radius;
+                MaxInfluence = maxInfluence;
+            }
+        }
+
+        sealed class AegisRiverSample
+        {
+            public readonly Vector2 Point;
+            public readonly float Radius;
+
+            public float X
+            {
+                get { return Point.x; }
+            }
+
+            public float Y
+            {
+                get { return Point.y; }
+            }
+
+            public AegisRiverSample(float x, float y, float radius)
+            {
+                Point = new Vector2(x, y);
+                Radius = radius;
             }
         }
 

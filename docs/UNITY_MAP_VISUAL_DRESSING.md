@@ -18,7 +18,7 @@ Workflow:
 2. Run the menu item.
 3. Unity creates an `Aegis Visual Map - <mapId>` scene object.
 4. The generated scene includes:
-   - a blended terrain texture with grass, rough ground, water, cliffs, ore tinting, soft dirt routes, and muddy water banks
+   - a blended terrain texture with grass, rough ground, water, cliffs, ore tinting, soft dirt routes, muddy water banks, and clustered terrain-color transitions that reduce one-cell debug-map artifacts
    - concrete base pads at player starts with terrain blend, inner panels, and trim strips
    - deterministic faceted cliff rock chains on blocker/cliff boundaries
    - ore chunk clusters on resource cells
@@ -41,11 +41,15 @@ The builder includes original Project Aegis color/material profiles for:
 
 Profiles currently drive terrain colors, mud banks, water tones, cliff colors, path colors, ore tinting, vegetation, concrete, pebble roughness, and crater materials.
 
+## Water Rendering
+
+The logical map still stores water as deterministic terrain cells. The visual builder now derives a smooth river centerline from those cells and renders water/bank influence from that line instead of drawing each water cell as a visible square. Short gaps in the logical watercourse can receive a shallow muddy ford connector so gameplay crossings remain readable without turning the runtime map into a Unity-only source of truth.
+
 ## Current Limits
 
 - The first pass uses procedural proxy geometry and generated materials; it does not yet use final hand-authored rock, tree, river, road, crater, or base-pad art.
 - Roads are generated as deterministic soft terrain routes between player starts and the map center. A later pass should read explicit road/region/path metadata when map documents include it.
-- Water is rendered through generated terrain texture watercourses with muddy-bank blending and deterministic shore scatter. Gameplay-cleared crossings may appear as ford-like breaks. A later pass can replace this with spline meshes, animated water materials, reeds, foam, and shoreline decals.
+- Water is rendered through generated terrain texture watercourses with smooth derived centerlines, muddy-bank blending, shallow ford hints, and deterministic shore scatter. A later pass can replace this with spline meshes, animated water materials, reeds, foam, and shoreline decals.
 - Cliff ridges use deterministic faceted proxy meshes placed on blocker/cliff boundaries. A later pass should swap these for modular original cliff meshes.
 
 ## Asset Rules
