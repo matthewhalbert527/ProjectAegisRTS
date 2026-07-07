@@ -1672,6 +1672,7 @@ namespace ProjectAegisRTS.Tests
             var result = GenerateAegisMap(AegisMapGenerationPreset.Medium, 4242, AegisMapIntensity.Medium, AegisMapIntensity.Low, AegisMapIntensity.Low, 4, AegisMapGameplayProfile.Balanced, AegisMapWaterAmount.Medium);
             Assert(result.Success, "Expected medium-water map generation success.");
             Assert(CountTerrain(result.Document, "water") >= 200, "Expected medium-water request to create a visible deterministic watercourse.");
+            Assert(CountTerrain(result.Document, "water") < 5000, "Expected medium-water request to avoid flooding the map with noisy water blobs.");
         }
 
         static void AegisProceduralWaterMapPreservesPathability()

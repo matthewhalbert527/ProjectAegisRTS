@@ -10634,7 +10634,9 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.BoardRenderer
   boardSurfaceMaterialOverride: {fileID: 0}
+  boardSurfaceUseSingleTextureAcrossBoard: 0
   boardSurfaceTileRepeatsPerCell: 1
+  boardSurfaceDetailRepeatsPerCell: 2.25
   boardSurfaceTint: {r: 1, g: 1, b: 1, a: 1}
   showStaticGridLines: 1
 --- !u!21 &1501038211
@@ -13851,6 +13853,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualPrefabResolver
   definitionLibrary: {fileID: 1950440613}
+  preferFallbackPrefabForBudgetValidation: 1
 --- !u!114 &1950440612
 MonoBehaviour:
   m_ObjectHideFlags: 0

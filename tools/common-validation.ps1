@@ -327,6 +327,7 @@ function Repair-UnityGeneratedValidationWhitespace {
         'unity\Assets\Rts\Art\Models\Imported\MVP.meta',
         'unity\Assets\Rts\Art\Models\Source\MVP.meta',
         'unity\Assets\Rts\Art\Prefabs\Actors\Production\MVP.meta',
+        'unity\Assets\Rts\Art\UnityAITankSlate.meta',
         'unity\Assets\Rts\Art\Prefabs\Terrain.meta',
         'unity\Assets\XR\Settings\OpenXR Package Settings.asset',
         'unity\ProjectSettings\ProjectSettings.asset',
@@ -344,6 +345,8 @@ function Repair-UnityGeneratedValidationWhitespace {
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\Prefabs\TerrainPieces') -Include @('*.prefab', '*.meta')
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\References\Terrain') -Include @('*.meta')
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\Source\Terrain') -Include @('*.meta')
+    Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\UnityAIClassicRtsMap') -Include @('*.meta')
+    Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Art\UnityAITankSlate') -Include @('*.mat', '*.prefab', '*.meta')
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\ScriptableObjects\Art') -Include @('*.asset', '*.meta')
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Scripts\Rendering\Terrain') -Include @('*.cs', '*.meta')
     Normalize-WhitespaceInTree -Path (Join-Path $RepoRoot 'unity\Assets\Rts\Scripts\Rendering\TerrainPieces') -Include @('*.cs', '*.meta')

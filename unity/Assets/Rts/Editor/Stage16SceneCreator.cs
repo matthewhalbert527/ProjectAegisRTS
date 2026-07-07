@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ProjectAegisRTS.UnityClient.Art;
 using ProjectAegisRTS.UnityClient.Boot;
 using ProjectAegisRTS.UnityClient.Bootstrap;
 using ProjectAegisRTS.UnityClient.Board;
@@ -60,6 +61,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var scene = EditorSceneManager.GetActiveScene();
             var game = RequireObject("RtsGame");
             ConfigureCamera(Camera.main != null ? Camera.main : UnityEngine.Object.FindFirstObjectByType<Camera>());
+            ConfigurePlayerFacingPrefabResolver();
 
             var driver = GetOrAdd<RtsSimulationDriver>(game);
             driver.UseVerticalSliceDemoWorld = true;
@@ -192,6 +194,16 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             UpdateBuildScenes();
             AssetDatabase.SaveAssets();
             Debug.Log("Created Stage 16 scene at " + ScenePath);
+        }
+
+        static void ConfigurePlayerFacingPrefabResolver()
+        {
+            var prefabResolver = UnityEngine.Object.FindFirstObjectByType<ActorVisualPrefabResolver>();
+            if (prefabResolver == null)
+                return;
+
+            prefabResolver.preferFallbackPrefabForBudgetValidation = false;
+            EditorUtility.SetDirty(prefabResolver);
         }
 
         static void ConfigureBoardPlacementModel(int boardWidth, int boardHeight, float metersPerCell)

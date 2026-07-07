@@ -111,11 +111,11 @@ namespace ProjectAegisRTS.Maps.Generation
             switch (amount)
             {
                 case AegisMapWaterAmount.Low:
-                    return 950;
+                    return 1001;
                 case AegisMapWaterAmount.Medium:
-                    return 895;
+                    return 1001;
                 case AegisMapWaterAmount.High:
-                    return 835;
+                    return 950;
                 default:
                     return 1001;
             }

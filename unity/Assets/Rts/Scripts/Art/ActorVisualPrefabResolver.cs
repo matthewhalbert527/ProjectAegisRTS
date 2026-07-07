@@ -5,17 +5,18 @@ namespace ProjectAegisRTS.UnityClient.Art
     public sealed class ActorVisualPrefabResolver : MonoBehaviour
     {
         public ActorVisualDefinitionLibrary definitionLibrary;
+        public bool preferFallbackPrefabForBudgetValidation;
 
         public GameObject ResolvePrefab(string actorTypeId)
         {
             var definition = ResolveDefinition(actorTypeId);
-            return definition == null ? null : definition.GetBestPrefab();
+            return definition == null ? null : SelectPrefab(definition);
         }
 
         public bool ResolvePrefab(string actorTypeId, out ActorVisualDefinition definition, out GameObject prefab)
         {
             definition = ResolveDefinition(actorTypeId);
-            prefab = definition == null ? null : definition.GetBestPrefab();
+            prefab = definition == null ? null : SelectPrefab(definition);
             return prefab != null;
         }
 
@@ -41,6 +42,15 @@ namespace ProjectAegisRTS.UnityClient.Art
                 definitionLibrary = Object.FindFirstObjectByType<ActorVisualDefinitionLibrary>();
             if (definitionLibrary != null)
                 definitionLibrary.EnsureInitialized();
+        }
+
+        GameObject SelectPrefab(ActorVisualDefinition definition)
+        {
+            if (definition == null)
+                return null;
+            if (preferFallbackPrefabForBudgetValidation && definition.fallbackPrefab != null)
+                return definition.fallbackPrefab;
+            return definition.GetBestPrefab();
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ProjectAegisRTS.UnityClient.Art;
 using ProjectAegisRTS.UnityClient.Bootstrap;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.Feedback;
@@ -69,6 +70,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var bootstrapper = GetOrAdd<RtsGameBootstrapper>(game);
             var projectileRenderer = UnityEngine.Object.FindFirstObjectByType<ProjectileRenderSystem>();
             var vfx = UnityEngine.Object.FindFirstObjectByType<VfxFeedbackController>();
+            var prefabResolver = UnityEngine.Object.FindFirstObjectByType<ActorVisualPrefabResolver>();
 
             budgetLibrary.profiles = profiles;
             budgetLibrary.defaultProfile = profiles.Length > 0 ? profiles[0] : null;
@@ -83,6 +85,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 projectileRenderer.objectPoolService = pool;
             if (vfx != null)
                 vfx.objectPoolService = pool;
+            if (prefabResolver != null)
+            {
+                prefabResolver.preferFallbackPrefabForBudgetValidation = true;
+                EditorUtility.SetDirty(prefabResolver);
+            }
 
             stats.driver = driver;
             stats.projectileRenderSystem = projectileRenderer;

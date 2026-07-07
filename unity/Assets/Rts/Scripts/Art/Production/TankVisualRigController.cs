@@ -16,15 +16,21 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
         public Transform trackRightRoot;
         public Transform[] wheelLeft;
         public Transform[] wheelRight;
+        public Renderer[] trackRenderers;
+        public Transform muzzleFlashRoot;
+        public Light muzzleFlashLight;
 
         [Header("Visual Tuning")]
         public float turretTurnDegreesPerSecond = 180f;
+        public bool driveTurretFromDesiredAim;
         public float barrelRecoilDistance = 0.08f;
         public float recoilReturnSpeed = 8f;
         public float wheelRotationDegreesPerMeter = 650f;
         public float trackScrollUnitsPerMeter = 1.6f;
         public float suspensionBobMeters = 0.025f;
         public float suspensionFrequency = 5f;
+        public float muzzleFlashDuration = 0.08f;
+        public float muzzleFlashSpinDegreesPerSecond = 720f;
         public bool estimateMotionFromTransform = true;
 
         [Header("Debug State")]
@@ -32,6 +38,7 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
         public float trackPhaseLeft;
         public float trackPhaseRight;
         public float recoil01;
+        public float muzzleFlashTimer;
         public Vector3 desiredAimWorldDirection = Vector3.forward;
 
         private Vector3 _lastPosition;
@@ -55,6 +62,8 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
         public void TriggerRecoil(float amount = 1f)
         {
             recoil01 = Mathf.Clamp01(Mathf.Max(recoil01, amount));
+            muzzleFlashTimer = Mathf.Max(muzzleFlashTimer, muzzleFlashDuration);
+            UpdateMuzzleFlash(0f);
         }
 
         public void ApplyVisualMotion(Vector3 worldVelocity, float deltaTime)
@@ -68,6 +77,7 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
             float wheelDegrees = distance * wheelRotationDegreesPerMeter;
             RotateWheels(wheelLeft, wheelDegrees);
             RotateWheels(wheelRight, wheelDegrees);
+            ScrollTrackMaterials();
 
             if (bodyRoot != null)
             {
@@ -79,6 +89,7 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
 
             UpdateTurret(deltaTime);
             UpdateRecoil(deltaTime);
+            UpdateMuzzleFlash(deltaTime);
         }
 
         private void CacheInitials()
@@ -123,6 +134,9 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
 
         private void UpdateTurret(float deltaTime)
         {
+            if (!driveTurretFromDesiredAim)
+                return;
+
             if (turretRoot == null || desiredAimWorldDirection.sqrMagnitude < 0.0001f)
                 return;
 
@@ -143,6 +157,54 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
             Vector3 p = _barrelInitialLocalPosition;
             p.z -= barrelRecoilDistance * recoil01;
             barrelRoot.localPosition = p;
+        }
+
+        private void ScrollTrackMaterials()
+        {
+            if (trackRenderers == null)
+                return;
+
+            for (int i = 0; i < trackRenderers.Length; i++)
+            {
+                Renderer r = trackRenderers[i];
+                if (r == null)
+                    continue;
+
+                Material m = r.material;
+                if (m == null)
+                    continue;
+
+                var offset = new Vector2(0f, i == 0 ? -trackPhaseLeft : trackPhaseRight);
+                if (m.HasProperty("_BaseMap"))
+                    m.SetTextureOffset("_BaseMap", offset);
+                if (m.HasProperty("_MainTex"))
+                    m.SetTextureOffset("_MainTex", offset);
+            }
+        }
+
+        private void UpdateMuzzleFlash(float deltaTime)
+        {
+            if (muzzleFlashTimer > 0f)
+                muzzleFlashTimer = Mathf.Max(0f, muzzleFlashTimer - Mathf.Max(0f, deltaTime));
+
+            bool active = muzzleFlashTimer > 0f;
+            if (muzzleFlashRoot != null)
+            {
+                if (muzzleFlashRoot.gameObject.activeSelf != active)
+                    muzzleFlashRoot.gameObject.SetActive(active);
+                if (active)
+                {
+                    float t = muzzleFlashDuration <= 0.0001f ? 1f : muzzleFlashTimer / muzzleFlashDuration;
+                    muzzleFlashRoot.localScale = Vector3.one * Mathf.Lerp(0.35f, 1.0f, t);
+                    muzzleFlashRoot.Rotate(Vector3.forward, muzzleFlashSpinDegreesPerSecond * Mathf.Max(0f, deltaTime), Space.Self);
+                }
+            }
+
+            if (muzzleFlashLight != null)
+            {
+                muzzleFlashLight.enabled = active;
+                muzzleFlashLight.intensity = active ? Mathf.Lerp(0.5f, 3.0f, muzzleFlashTimer / Mathf.Max(0.0001f, muzzleFlashDuration)) : 0f;
+            }
         }
     }
 }

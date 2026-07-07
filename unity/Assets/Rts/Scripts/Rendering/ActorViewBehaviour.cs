@@ -3,6 +3,7 @@ using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.UnityClient.Art;
+using ProjectAegisRTS.UnityClient.Art.Production;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.Rendering.Buildings;
 using ProjectAegisRTS.UnityClient.Rendering.Motion;
@@ -26,6 +27,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         GameObject productionMarker;
         GameObject leftTrackMarker;
         GameObject rightTrackMarker;
+        TankVisualRigController tankRig;
         Vector3 previousSnapshotPosition;
         Vector3 targetSnapshotPosition;
         bool hasPosition;
@@ -35,6 +37,8 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         float interpolationAlpha;
         float ticksPerSecond = 20f;
         int lastSnapshotTick = -1;
+        int lastTankWeaponCooldownRemaining = -1;
+        string lastTankWeaponId = string.Empty;
 
         public int ActorId { get; private set; }
         public Vector3 PreviousSnapshotPosition { get { return previousSnapshotPosition; } }
@@ -137,6 +141,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             UpdateStateMarkers(definition, materials, snapshot);
             if (BuildingVisual != null && BuildingVisual.enabled)
                 BuildingVisual.ApplySnapshot(snapshot, definition.MaxHealth);
+            UpdateTankVisualRig(snapshot, mapper);
         }
 
         public void TickVisual(float deltaTime)
@@ -232,6 +237,38 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             rightTrackMarker = SocketGameObject(ActorPrefabSocketKind.TrackRight);
             if (rightTrackMarker == null)
                 rightTrackMarker = SocketGameObject(ActorPrefabSocketKind.WheelRight);
+            tankRig = prefabInstance.GetComponentInChildren<TankVisualRigController>(true);
+        }
+
+        void UpdateTankVisualRig(ActorSnapshot snapshot, BoardCoordinateMapper mapper)
+        {
+            if (tankRig == null)
+                return;
+
+            if (snapshot.IsAttacking && mapper != null)
+            {
+                var targetWorld = mapper.CellToWorldCenter(snapshot.AttackTargetCell);
+                var direction = targetWorld - transform.position;
+                direction.y = 0f;
+                if (direction.sqrMagnitude > 0.001f)
+                {
+                    tankRig.driveTurretFromDesiredAim = true;
+                    tankRig.SetAimDirection(direction);
+                }
+            }
+            else
+            {
+                tankRig.driveTurretFromDesiredAim = false;
+            }
+
+            bool weaponActive = !string.IsNullOrEmpty(snapshot.ActiveWeaponId) && snapshot.WeaponCooldownRemaining > 0;
+            bool cooldownReset = lastTankWeaponCooldownRemaining >= 0 && snapshot.WeaponCooldownRemaining > lastTankWeaponCooldownRemaining + 1;
+            bool newWeapon = !string.Equals(snapshot.ActiveWeaponId, lastTankWeaponId, System.StringComparison.Ordinal);
+            if (weaponActive && (lastTankWeaponCooldownRemaining <= 0 || cooldownReset || newWeapon))
+                tankRig.TriggerRecoil(1f);
+
+            lastTankWeaponCooldownRemaining = snapshot.WeaponCooldownRemaining;
+            lastTankWeaponId = snapshot.ActiveWeaponId;
         }
 
         void CreateBuildingVisual(BuildingDefinition definition, Stage1MaterialLibrary materials)
@@ -450,6 +487,9 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             productionMarker = null;
             leftTrackMarker = null;
             rightTrackMarker = null;
+            tankRig = null;
+            lastTankWeaponCooldownRemaining = -1;
+            lastTankWeaponId = string.Empty;
             if (BuildingVisual != null)
                 BuildingVisual.ResetVisualState();
             BuildingVisual = null;

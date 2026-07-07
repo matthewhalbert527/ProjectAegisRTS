@@ -16,19 +16,19 @@ MonoBehaviour:
   displayName: Heavy Tank
   safeDisplayName: Heavy Tank
   category: 3
-  productionStatus: 2
+  productionStatus: 6
   conceptReference: {fileID: 11400000, guid: db3f754cd0b531344aa1dc6451d931ef, type: 2}
   icon: {fileID: 21300000, guid: 3d44a5303abcf1d4e9c60ef6ba98c4ee, type: 3}
   generatedBlockoutPrefab: {fileID: 3601469172071875844, guid: 34ffab87eddab624c92fc5377f1dfcf0, type: 3}
-  productionPrefab: {fileID: 3966635111560821715, guid: ec6f2d15a53c9f84385566110bd3dcee, type: 3}
-  fallbackPrefab: {fileID: 3601469172071875844, guid: 34ffab87eddab624c92fc5377f1dfcf0, type: 3}
+  productionPrefab: {fileID: 4241666179252988042, guid: 86be7eacebb894642811022978f466fa, type: 3}
+  fallbackPrefab: {fileID: 3966635111560821715, guid: ec6f2d15a53c9f84385566110bd3dcee, type: 3}
   preferredPrefabMode: 1
   motionProfileId: tracked_heavy
   buildingProfileId:
-  selectionRadius: 0.6
-  selectionHeight: 0.1
-  footprintWidth: 1
-  footprintHeight: 1
+  selectionRadius: 1.1609999
+  selectionHeight: 0.08
+  footprintWidth: 6
+  footprintHeight: 5
   visualScale: 1
   prefabHeightOffset: 0
   useBuildingVisualController: 0
@@ -36,11 +36,9 @@ MonoBehaviour:
   useInfantryMotionController: 0
   useAircraftMotionController: 0
   useTurretVisualController: 1
-  requiredSockets: 00000000010000000200000003000000040000000600000008000000090000000c0000000d0000001700000018000000
-  notes: 'Use as concept direction; final design needs distinct original geometry.
-
-    Heavy
-    tread movement, slow pivot, barrel recoil, engine vibration, damage states.'
+  requiredSockets: 0000000001000000020000000300000004000000050000000800000009000000060000000c0000000d0000001700000018000000
+  notes: Production visual now uses Unity AI/Codex generated textured tank prefab.
+    Stage33 source prefab remains fallback.
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Heavy Tank
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_29
