@@ -202,6 +202,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var width = document.width * PixelsPerCell;
             var height = document.height * PixelsPerCell;
             var pixels = new Color32[width * height];
+            var resourceFields = BuildVisualResourceFields(document);
             var waterDistanceByCell = new int[document.width * document.height];
             for (var cy = 0; cy < document.height; cy++)
                 for (var cx = 0; cx < document.width; cx++)
@@ -262,8 +263,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         }
                     }
 
-                    if (lookup.HasResource(cellX, cellY) && waterInfluence < 0.2f)
-                        color = Color.Lerp(color, profile.OreGround, 0.7f);
+                    var resourceInfluence = ResourceGroundInfluence(resourceFields, localX, localY, seed);
+                    if (resourceInfluence > 0f && waterInfluence < 0.2f)
+                    {
+                        var oreSoil = Color.Lerp(profile.Rough, profile.OreGround, 0.32f);
+                        color = Color.Lerp(color, oreSoil, resourceInfluence * 0.62f);
+                        if (resourceInfluence > 0.52f)
+                            color = Color.Lerp(color, profile.OreGround, (resourceInfluence - 0.52f) * 0.18f);
+                    }
 
                     pixels[(height - 1 - py) * width + px] = ToColor32(color);
                 }
@@ -341,17 +348,45 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 var chunkCount = 2 + HashRange(seed ^ 0x0A0E, resource.x, resource.y, 4);
                 for (var c = 0; c < chunkCount; c++)
                 {
-                    var ore = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    var ore = new GameObject("Ore Nugget");
                     ore.name = "Ore Chunk";
                     ore.transform.SetParent(parent, false);
                     var ox = (Hash01(seed, resource.x + c * 11, resource.y) - 0.5f) * 0.72f;
                     var oz = (Hash01(seed, resource.x, resource.y + c * 17) - 0.5f) * 0.72f;
-                    ore.transform.position = CellCenter(resource.x, resource.y, 0.15f) + new Vector3(ox, 0f, oz);
+                    var radius = 0.13f + Hash01(seed ^ 0x0E11, resource.x + c, resource.y - c) * 0.17f;
+                    var height = 0.18f + Hash01(seed ^ 0x0E12, resource.x - c, resource.y + c) * 0.28f;
+                    ore.AddComponent<MeshFilter>().sharedMesh = CreateFacetedOreMesh(seed, resource.x, resource.y, c, radius, height);
+                    ore.AddComponent<MeshRenderer>().sharedMaterial = materials.Ore;
+                    ore.transform.position = CellCenter(resource.x, resource.y, height * 0.34f) + new Vector3(ox, 0f, oz);
                     ore.transform.rotation = Quaternion.Euler(0f, Hash01(seed, resource.x + c, resource.y - c) * 360f, 0f);
-                    ore.transform.localScale = new Vector3(0.28f, 0.18f + Hash01(seed, resource.x, c) * 0.22f, 0.28f);
-                    AssignMaterialAndStripCollider(ore, materials.Ore);
                 }
             }
+        }
+
+        static List<AegisOreVisualField> BuildVisualResourceFields(AegisVisualMapDocument document)
+        {
+            var groups = new Dictionary<string, AegisOreVisualFieldBuilder>();
+            for (var i = 0; i < document.resources.Length; i++)
+            {
+                var resource = document.resources[i];
+                var id = string.IsNullOrEmpty(resource.fieldId) ? "resource_" + i.ToString() : resource.fieldId;
+                AegisOreVisualFieldBuilder builder;
+                if (!groups.TryGetValue(id, out builder))
+                {
+                    builder = new AegisOreVisualFieldBuilder();
+                    groups[id] = builder;
+                }
+                builder.Add(resource.x + 0.5f, resource.y + 0.5f);
+            }
+
+            var fields = new List<AegisOreVisualField>();
+            foreach (var pair in groups)
+            {
+                var field = pair.Value.Build();
+                if (field != null)
+                    fields.Add(field);
+            }
+            return fields;
         }
 
         static void BuildScatter(Transform root, AegisVisualMapDocument document, AegisVisualMapLookup lookup, List<AegisPathSegment> paths, AegisVisualMaterialSet materials, int seed)
@@ -542,6 +577,46 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var mesh = new Mesh();
             mesh.name = "Aegis Faceted Pebble Mesh";
+            mesh.SetVertices(vertices);
+            mesh.SetTriangles(triangles, 0);
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            return mesh;
+        }
+
+        static Mesh CreateFacetedOreMesh(int seed, int cellX, int cellY, int variant, float radius, float height)
+        {
+            const int sides = 7;
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            for (var i = 0; i < sides; i++)
+            {
+                var angle = i / (float)sides * Mathf.PI * 2f;
+                var jitter = Mathf.Lerp(0.62f, 1.18f, Hash01(seed ^ 0x0E31, cellX + i + variant, cellY - i));
+                vertices.Add(new Vector3(Mathf.Cos(angle) * radius * jitter, 0f, Mathf.Sin(angle) * radius * 0.78f * jitter));
+            }
+
+            var crown = vertices.Count;
+            vertices.Add(new Vector3((Hash01(seed ^ 0x0E32, cellX, variant) - 0.5f) * radius * 0.35f, height, (Hash01(seed ^ 0x0E33, variant, cellY) - 0.5f) * radius * 0.3f));
+            var shoulder = vertices.Count;
+            vertices.Add(new Vector3((Hash01(seed ^ 0x0E34, cellY, variant) - 0.5f) * radius * 0.5f, height * 0.56f, (Hash01(seed ^ 0x0E35, variant, cellX) - 0.5f) * radius * 0.5f));
+
+            for (var i = 0; i < sides; i++)
+            {
+                var next = (i + 1) % sides;
+                triangles.Add(i);
+                triangles.Add(next);
+                triangles.Add(crown);
+                if (i % 2 == 0)
+                {
+                    triangles.Add(i);
+                    triangles.Add(shoulder);
+                    triangles.Add(next);
+                }
+            }
+
+            var mesh = new Mesh();
+            mesh.name = "Aegis Faceted Ore Mesh";
             mesh.SetVertices(vertices);
             mesh.SetTriangles(triangles, 0);
             mesh.RecalculateBounds();
@@ -902,6 +977,32 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return Color.Lerp(baseColor, color, strength);
         }
 
+        static float ResourceGroundInfluence(List<AegisOreVisualField> fields, float x, float y, int seed)
+        {
+            if (fields == null || fields.Count == 0)
+                return 0f;
+
+            var influence = 0f;
+            for (var i = 0; i < fields.Count; i++)
+            {
+                var dx = (x - fields[i].Center.x) / fields[i].RadiusX;
+                var dy = (y - fields[i].Center.y) / fields[i].RadiusY;
+                var distance = Mathf.Sqrt(dx * dx + dy * dy);
+                if (distance > 1.35f)
+                    continue;
+
+                var fieldInfluence = Mathf.SmoothStep(0f, 1f, 1f - distance / 1.35f);
+                if (fieldInfluence > influence)
+                    influence = fieldInfluence;
+            }
+
+            if (influence <= 0f)
+                return 0f;
+
+            var brokenEdge = Mathf.Lerp(0.68f, 1.04f, Hash01(seed ^ 0x0E99, Mathf.FloorToInt(x * 3f), Mathf.FloorToInt(y * 3f)));
+            return Mathf.Clamp01(influence * brokenEdge);
+        }
+
         static float DistanceToSegment(Vector2 point, Vector2 a, Vector2 b)
         {
             var ab = b - a;
@@ -1023,6 +1124,57 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             {
                 Point = new Vector2(x, y);
                 Radius = radius;
+            }
+        }
+
+        sealed class AegisOreVisualField
+        {
+            public readonly Vector2 Center;
+            public readonly float RadiusX;
+            public readonly float RadiusY;
+
+            public AegisOreVisualField(Vector2 center, float radiusX, float radiusY)
+            {
+                Center = center;
+                RadiusX = radiusX;
+                RadiusY = radiusY;
+            }
+        }
+
+        sealed class AegisOreVisualFieldBuilder
+        {
+            float sumX;
+            float sumY;
+            int count;
+            float minX = float.MaxValue;
+            float maxX = float.MinValue;
+            float minY = float.MaxValue;
+            float maxY = float.MinValue;
+
+            public void Add(float x, float y)
+            {
+                sumX += x;
+                sumY += y;
+                count++;
+                if (x < minX)
+                    minX = x;
+                if (x > maxX)
+                    maxX = x;
+                if (y < minY)
+                    minY = y;
+                if (y > maxY)
+                    maxY = y;
+            }
+
+            public AegisOreVisualField Build()
+            {
+                if (count <= 0)
+                    return null;
+
+                var center = new Vector2(sumX / count, sumY / count);
+                var radiusX = Mathf.Clamp((maxX - minX) * 0.5f + 2.6f, 2.8f, 7.5f);
+                var radiusY = Mathf.Clamp((maxY - minY) * 0.5f + 2.6f, 2.8f, 7.5f);
+                return new AegisOreVisualField(center, radiusX, radiusY);
             }
         }
 
@@ -1254,14 +1406,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             var id = (document.displayName + " " + document.mapId).ToLowerInvariant();
             if (id.Contains("desert"))
-                return new AegisVisualBiomeProfile("desert", C(0.56f, 0.48f, 0.31f), C(0.32f, 0.35f, 0.19f), C(0.49f, 0.43f, 0.34f), C(0.52f, 0.38f, 0.23f), C(0.42f, 0.40f, 0.35f), C(0.18f, 0.36f, 0.43f), C(0.08f, 0.19f, 0.26f), C(0.30f, 0.48f, 0.52f), C(0.35f, 0.25f, 0.16f), C(0.48f, 0.46f, 0.40f), C(0.72f, 0.58f, 0.22f));
+                return new AegisVisualBiomeProfile("desert", C(0.56f, 0.48f, 0.31f), C(0.32f, 0.35f, 0.19f), C(0.49f, 0.43f, 0.34f), C(0.52f, 0.38f, 0.23f), C(0.42f, 0.40f, 0.35f), C(0.18f, 0.36f, 0.43f), C(0.08f, 0.19f, 0.26f), C(0.30f, 0.48f, 0.52f), C(0.35f, 0.25f, 0.16f), C(0.48f, 0.46f, 0.40f), C(0.58f, 0.46f, 0.18f));
             if (id.Contains("tundra"))
-                return new AegisVisualBiomeProfile("tundra", C(0.48f, 0.54f, 0.50f), C(0.24f, 0.36f, 0.32f), C(0.55f, 0.56f, 0.52f), C(0.40f, 0.37f, 0.32f), C(0.46f, 0.48f, 0.48f), C(0.19f, 0.38f, 0.50f), C(0.08f, 0.17f, 0.28f), C(0.36f, 0.54f, 0.62f), C(0.42f, 0.38f, 0.32f), C(0.58f, 0.60f, 0.58f), C(0.78f, 0.64f, 0.24f));
+                return new AegisVisualBiomeProfile("tundra", C(0.48f, 0.54f, 0.50f), C(0.24f, 0.36f, 0.32f), C(0.55f, 0.56f, 0.52f), C(0.40f, 0.37f, 0.32f), C(0.46f, 0.48f, 0.48f), C(0.19f, 0.38f, 0.50f), C(0.08f, 0.17f, 0.28f), C(0.36f, 0.54f, 0.62f), C(0.42f, 0.38f, 0.32f), C(0.58f, 0.60f, 0.58f), C(0.60f, 0.50f, 0.20f));
             if (id.Contains("volcanic"))
-                return new AegisVisualBiomeProfile("volcanic", C(0.21f, 0.22f, 0.19f), C(0.12f, 0.17f, 0.12f), C(0.26f, 0.24f, 0.23f), C(0.31f, 0.23f, 0.18f), C(0.35f, 0.34f, 0.31f), C(0.18f, 0.22f, 0.26f), C(0.04f, 0.06f, 0.08f), C(0.30f, 0.34f, 0.38f), C(0.27f, 0.18f, 0.12f), C(0.34f, 0.33f, 0.32f), C(0.84f, 0.48f, 0.15f));
+                return new AegisVisualBiomeProfile("volcanic", C(0.21f, 0.22f, 0.19f), C(0.12f, 0.17f, 0.12f), C(0.26f, 0.24f, 0.23f), C(0.31f, 0.23f, 0.18f), C(0.35f, 0.34f, 0.31f), C(0.18f, 0.22f, 0.26f), C(0.04f, 0.06f, 0.08f), C(0.30f, 0.34f, 0.38f), C(0.27f, 0.18f, 0.12f), C(0.34f, 0.33f, 0.32f), C(0.62f, 0.36f, 0.15f));
             if (id.Contains("rocky") || id.Contains("wasteland"))
-                return new AegisVisualBiomeProfile("rocky", C(0.35f, 0.39f, 0.30f), C(0.18f, 0.27f, 0.16f), C(0.45f, 0.43f, 0.38f), C(0.42f, 0.34f, 0.25f), C(0.44f, 0.43f, 0.39f), C(0.15f, 0.31f, 0.40f), C(0.05f, 0.13f, 0.19f), C(0.27f, 0.43f, 0.48f), C(0.28f, 0.23f, 0.16f), C(0.50f, 0.49f, 0.45f), C(0.74f, 0.59f, 0.23f));
-            return new AegisVisualBiomeProfile("forest", C(0.16f, 0.29f, 0.14f), C(0.06f, 0.19f, 0.10f), C(0.30f, 0.29f, 0.22f), C(0.34f, 0.25f, 0.16f), C(0.31f, 0.30f, 0.25f), C(0.09f, 0.24f, 0.29f), C(0.03f, 0.10f, 0.14f), C(0.20f, 0.39f, 0.42f), C(0.23f, 0.17f, 0.10f), C(0.43f, 0.43f, 0.39f), C(0.74f, 0.58f, 0.19f));
+                return new AegisVisualBiomeProfile("rocky", C(0.35f, 0.39f, 0.30f), C(0.18f, 0.27f, 0.16f), C(0.45f, 0.43f, 0.38f), C(0.42f, 0.34f, 0.25f), C(0.44f, 0.43f, 0.39f), C(0.15f, 0.31f, 0.40f), C(0.05f, 0.13f, 0.19f), C(0.27f, 0.43f, 0.48f), C(0.28f, 0.23f, 0.16f), C(0.50f, 0.49f, 0.45f), C(0.58f, 0.47f, 0.19f));
+            return new AegisVisualBiomeProfile("forest", C(0.16f, 0.29f, 0.14f), C(0.06f, 0.19f, 0.10f), C(0.30f, 0.29f, 0.22f), C(0.34f, 0.25f, 0.16f), C(0.31f, 0.30f, 0.25f), C(0.09f, 0.24f, 0.29f), C(0.03f, 0.10f, 0.14f), C(0.20f, 0.39f, 0.42f), C(0.23f, 0.17f, 0.10f), C(0.43f, 0.43f, 0.39f), C(0.55f, 0.42f, 0.15f));
         }
 
         public Color ColorForTerrain(string terrain)

@@ -22,6 +22,7 @@
 - Improved the Unity visual terrain builder with a closer centered preview camera, higher-resolution terrain texture generation, darker forest terrain colors, curved deterministic visual dirt paths, river/muddy-bank rendering, and deterministic shore pebble/bank grass scatter.
 - Added faceted procedural rock and pebble meshes, rougher low-gloss generated materials, terrain-blended concrete pad panels/trims, and a cleaner low-water 2-player forest river sample for visual validation.
 - Added a smooth visual river pass that derives centerline segments from logical water cells, renders softer riverbanks from the derived path, and adds shallow muddy connectors across short gameplay crossing gaps without changing `.aegismap.json` gameplay truth.
+- Reworked Unity ore dressing from square yellow resource-cell tinting and cube chunks into soft ore-stained ground falloff plus deterministic faceted ore nuggets.
 
 ## Validation
 

@@ -21,7 +21,7 @@ Workflow:
    - a blended terrain texture with grass, rough ground, water, cliffs, ore tinting, soft dirt routes, muddy water banks, and clustered terrain-color transitions that reduce one-cell debug-map artifacts
    - concrete base pads at player starts with terrain blend, inner panels, and trim strips
    - deterministic faceted cliff rock chains on blocker/cliff boundaries
-   - ore chunk clusters on resource cells
+   - faceted ore nugget clusters with soft ore-stained ground falloff around resource cells
    - deterministic scatter for faceted boulders, vegetation, road pebbles, shore pebbles, bank grass, and craters
    - generated material and texture assets under `Assets/Rts/MapEditor/VisualAssets` and `Assets/Rts/MapEditor/VisualBuilds`
 
@@ -39,7 +39,7 @@ The builder includes original Project Aegis color/material profiles for:
 - volcanic
 - rocky / wasteland
 
-Profiles currently drive terrain colors, mud banks, water tones, cliff colors, path colors, ore tinting, vegetation, concrete, pebble roughness, and crater materials.
+Profiles currently drive terrain colors, mud banks, water tones, cliff colors, path colors, ore-stained soil, vegetation, concrete, pebble roughness, and crater materials.
 
 ## Water Rendering
 
@@ -50,6 +50,7 @@ The logical map still stores water as deterministic terrain cells. The visual bu
 - The first pass uses procedural proxy geometry and generated materials; it does not yet use final hand-authored rock, tree, river, road, crater, or base-pad art.
 - Roads are generated as deterministic soft terrain routes between player starts and the map center. A later pass should read explicit road/region/path metadata when map documents include it.
 - Water is rendered through generated terrain texture watercourses with smooth derived centerlines, muddy-bank blending, shallow ford hints, and deterministic shore scatter. A later pass can replace this with spline meshes, animated water materials, reeds, foam, and shoreline decals.
+- Ore uses generated faceted proxy nuggets and soft ground tinting. A later pass should replace these with original ore/crystal/salvage meshes per resource type.
 - Cliff ridges use deterministic faceted proxy meshes placed on blocker/cliff boundaries. A later pass should swap these for modular original cliff meshes.
 
 ## Asset Rules
