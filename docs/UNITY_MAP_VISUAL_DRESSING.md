@@ -19,7 +19,8 @@ Workflow:
 3. Unity creates an `Aegis Visual Map - <mapId>` scene object.
 4. The generated scene includes:
    - a blended terrain texture with grass, rough ground, water, cliffs, ore tinting, soft dirt routes, muddy water banks, and clustered terrain-color transitions that reduce one-cell debug-map artifacts
-   - concrete base pads at player starts with terrain blend, inner panels, and trim strips
+   - deterministic road/path decals with soft dust overlays, tire-rut strips, and gravel scuff patches over the terrain texture
+   - concrete base pads at player starts with terrain blend, inner panels, trim strips, seam lines, approach dust, and grime decals
    - deterministic faceted cliff rock chains on blocker/cliff boundaries
    - faceted ore nugget clusters with soft ore-stained ground falloff around resource cells
    - deterministic scatter for faceted boulders, vegetation, road pebbles, shore pebbles, bank grass, and craters
@@ -40,6 +41,12 @@ The builder includes original Project Aegis color/material profiles for:
 - rocky / wasteland
 
 Profiles currently drive terrain colors, mud banks, water tones, cliff colors, path colors, ore-stained soil, vegetation, concrete, pebble roughness, and crater materials.
+
+## Roads And Base Pads
+
+The logical map does not store Unity-only road meshes. The visual builder derives deterministic soft road decals from the same generated start-to-center route segments used for the terrain path texture. These overlays add dust, paired rut strips, and occasional gravel scuffs without changing pathability.
+
+Base pads are also visual-only dressing on top of player start metadata. Each generated pad receives concrete panels, thin seam decals, trim strips, a dusty approach apron facing the map center, and deterministic grime marks so start areas read less like flat placeholder slabs.
 
 ## Water Rendering
 

@@ -171,7 +171,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var rivers = BuildVisualRiverSegments(document, lookup);
             var materials = AegisVisualMaterialSet.LoadOrCreate(profile, persistAssets);
             BuildTerrainPlane(root.transform, document, lookup, paths, rivers, profile, materials, safeMapId, seed, persistAssets);
-            BuildBasePads(root.transform, document, materials);
+            BuildRoadWear(root.transform, paths, materials, seed);
+            BuildBasePads(root.transform, document, materials, seed);
             BuildCliffRidges(root.transform, document, lookup, materials, seed);
             BuildOreClusters(root.transform, document, materials, seed);
             BuildScatter(root.transform, document, lookup, paths, materials, seed);
@@ -285,16 +286,27 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return texture;
         }
 
-        static void BuildBasePads(Transform root, AegisVisualMapDocument document, AegisVisualMaterialSet materials)
+        static void BuildBasePads(Transform root, AegisVisualMapDocument document, AegisVisualMaterialSet materials, int seed)
         {
             var parent = new GameObject("Base Pads").transform;
             parent.SetParent(root, false);
+            var mapCenter = new Vector2(document.width * 0.5f, document.height * 0.5f);
             for (var i = 0; i < document.playerStarts.Length; i++)
             {
                 var start = document.playerStarts[i];
+                var startPoint = new Vector2(start.x + 0.5f, start.y + 0.5f);
+                var approach = mapCenter - startPoint;
+                if (approach.sqrMagnitude < 0.01f)
+                    approach = Vector2.up;
+                approach.Normalize();
+                var approachAngle = DirectionAngle(approach);
+
                 var blend = CreateQuad("Base Pad Terrain Blend P" + start.playerId, 18f, 18f, materials.Dirt);
                 blend.transform.SetParent(parent, false);
                 blend.transform.position = CellCenter(start.x, start.y, 0.028f);
+
+                var apronCenter = startPoint + approach * 8.6f;
+                CreateOrientedQuad(parent, "Base Pad Approach Dust P" + start.playerId, apronCenter, 7.4f, 5.6f, 0.033f, materials.RoadDust, approachAngle);
 
                 var pad = CreateQuad("Base Pad P" + start.playerId, 14.5f, 14.5f, materials.Concrete);
                 pad.transform.SetParent(parent, false);
@@ -304,10 +316,51 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 panel.transform.SetParent(parent, false);
                 panel.transform.position = CellCenter(start.x, start.y, 0.041f);
 
+                CreatePadLine(parent, "Base Pad Center Seam X P" + start.playerId, start.x, start.y, 0f, 0f, 12.8f, 0.12f, materials.ConcreteLine, 0.049f);
+                CreatePadLine(parent, "Base Pad Center Seam Z P" + start.playerId, start.x, start.y, 0f, 0f, 0.12f, 12.8f, materials.ConcreteLine, 0.05f);
+                CreatePadLine(parent, "Base Pad Inner Seam North P" + start.playerId, start.x, start.y, 0f, 2.9f, 7.2f, 0.08f, materials.ConcreteLine, 0.051f);
+                CreatePadLine(parent, "Base Pad Inner Seam South P" + start.playerId, start.x, start.y, 0f, -2.9f, 7.2f, 0.08f, materials.ConcreteLine, 0.051f);
+                CreatePadLine(parent, "Base Pad Inner Seam East P" + start.playerId, start.x, start.y, 2.9f, 0f, 0.08f, 7.2f, materials.ConcreteLine, 0.052f);
+                CreatePadLine(parent, "Base Pad Inner Seam West P" + start.playerId, start.x, start.y, -2.9f, 0f, 0.08f, 7.2f, materials.ConcreteLine, 0.052f);
+
                 CreatePadTrim(parent, "North Trim P" + start.playerId, start.x, start.y + 4, 10f, 1.1f, materials.ConcreteTrim);
                 CreatePadTrim(parent, "South Trim P" + start.playerId, start.x, start.y - 4, 10f, 1.1f, materials.ConcreteTrim);
                 CreatePadTrim(parent, "West Trim P" + start.playerId, start.x - 4, start.y, 1.1f, 10f, materials.ConcreteTrim);
                 CreatePadTrim(parent, "East Trim P" + start.playerId, start.x + 4, start.y, 1.1f, 10f, materials.ConcreteTrim);
+
+                CreateBaseGrime(parent, start.x, start.y, start.playerId, seed, materials.ConcreteGrime);
+            }
+        }
+
+        static void BuildRoadWear(Transform root, List<AegisPathSegment> paths, AegisVisualMaterialSet materials, int seed)
+        {
+            var parent = new GameObject("Road And Path Decals").transform;
+            parent.SetParent(root, false);
+            for (var i = 0; i < paths.Count; i++)
+            {
+                var segment = paths[i];
+                var delta = segment.B - segment.A;
+                var length = delta.magnitude;
+                if (length < 1.2f)
+                    continue;
+
+                var direction = delta / length;
+                var perpendicular = new Vector2(-direction.y, direction.x);
+                var angle = DirectionAngle(direction);
+                var center = (segment.A + segment.B) * 0.5f;
+                var width = Mathf.Lerp(2.8f, 4.4f, Hash01(seed ^ 0xA71D, i, Mathf.RoundToInt(length * 10f)));
+                CreateOrientedQuad(parent, "Soft Road Dust", center, width, length + 1.1f, 0.031f, materials.RoadDust, angle);
+
+                var rutOffset = Mathf.Clamp(width * 0.22f, 0.55f, 0.92f);
+                CreateOrientedQuad(parent, "Left Road Rut", center + perpendicular * rutOffset, 0.18f, length * 0.86f, 0.034f, materials.RoadRut, angle);
+                CreateOrientedQuad(parent, "Right Road Rut", center - perpendicular * rutOffset, 0.18f, length * 0.86f, 0.034f, materials.RoadRut, angle);
+
+                if (length > 8f)
+                {
+                    var scuffT = Mathf.Lerp(0.24f, 0.76f, Hash01(seed ^ 0x5C0F, i, 11));
+                    var scuffCenter = Vector2.Lerp(segment.A, segment.B, scuffT) + perpendicular * (Hash01(seed ^ 0x5C10, i, 3) - 0.5f) * width * 0.5f;
+                    CreateOrientedQuad(parent, "Road Gravel Scuff", scuffCenter, width * 0.65f, 2.8f, 0.036f, materials.RoadScuff, angle + Hash01(seed ^ 0x5C11, i, 5) * 22f - 11f);
+                }
             }
         }
 
@@ -316,6 +369,26 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var trim = CreateQuad(name, width, height, material);
             trim.transform.SetParent(parent, false);
             trim.transform.position = CellCenter(x, y, 0.046f);
+        }
+
+        static void CreatePadLine(Transform parent, string name, int x, int y, float offsetX, float offsetY, float width, float height, Material material, float elevation)
+        {
+            var line = CreateQuad(name, width, height, material);
+            line.transform.SetParent(parent, false);
+            line.transform.position = new Vector3((x + 0.5f) * CellSize + offsetX, elevation, (y + 0.5f) * CellSize + offsetY);
+        }
+
+        static void CreateBaseGrime(Transform parent, int cellX, int cellY, int playerId, int seed, Material material)
+        {
+            for (var i = 0; i < 4; i++)
+            {
+                var grime = CreateGroundDiscObject("Concrete Grime P" + playerId, Mathf.Lerp(0.55f, 1.45f, Hash01(seed ^ 0x6A1, cellX + i, cellY)), Mathf.Lerp(0.38f, 1.18f, Hash01(seed ^ 0x6A2, cellX, cellY + i)), material);
+                grime.transform.SetParent(parent, false);
+                var ox = (Hash01(seed ^ 0x6A3, cellX + i * 7, cellY) - 0.5f) * 9.8f;
+                var oz = (Hash01(seed ^ 0x6A4, cellX, cellY + i * 11) - 0.5f) * 9.8f;
+                grime.transform.position = new Vector3((cellX + 0.5f) * CellSize + ox, 0.054f + i * 0.001f, (cellY + 0.5f) * CellSize + oz);
+                grime.transform.rotation = Quaternion.Euler(0f, Hash01(seed ^ 0x6A5, cellX + i, cellY - i) * 360f, 0f);
+            }
         }
 
         static void BuildCliffRidges(Transform root, AegisVisualMapDocument document, AegisVisualMapLookup lookup, AegisVisualMaterialSet materials, int seed)
@@ -653,6 +726,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             disc.transform.SetParent(parent, false);
             disc.transform.position = CellCenter(cellX, cellY, 0.032f);
             disc.transform.rotation = Quaternion.Euler(0f, Hash01(seed, cellX, cellY) * 360f, 0f);
+        }
+
+        static void CreateOrientedQuad(Transform parent, string name, Vector2 center, float width, float height, float elevation, Material material, float angleDegrees)
+        {
+            var quad = CreateQuad(name, width, height, material);
+            quad.transform.SetParent(parent, false);
+            quad.transform.position = new Vector3(center.x, elevation, center.y);
+            quad.transform.rotation = Quaternion.Euler(0f, angleDegrees, 0f);
         }
 
         static GameObject CreateGroundDiscObject(string name, float radiusX, float radiusZ, Material material)
@@ -1016,6 +1097,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         static Vector3 CellCenter(int x, int y, float elevation)
         {
             return new Vector3((x + 0.5f) * CellSize, elevation, (y + 0.5f) * CellSize);
+        }
+
+        static float DirectionAngle(Vector2 direction)
+        {
+            if (direction.sqrMagnitude < 0.0001f)
+                return 0f;
+            return Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
         }
 
         static Color AddNoise(Color color, float noise, float amount)
@@ -1450,9 +1538,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public Material Concrete;
         public Material ConcretePanel;
         public Material ConcreteTrim;
+        public Material ConcreteLine;
+        public Material ConcreteGrime;
         public Material Crater;
         public Material CraterRim;
         public Material Dirt;
+        public Material RoadDust;
+        public Material RoadRut;
+        public Material RoadScuff;
         public Material Shadow;
 
         public static AegisVisualMaterialSet LoadOrCreate(AegisVisualBiomeProfile profile, bool persistAssets)
@@ -1468,9 +1561,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 Concrete = Material("aegis_visual_concrete_pad.mat", new Color(0.45f, 0.47f, 0.44f, 1f), false, persistAssets),
                 ConcretePanel = Material("aegis_visual_concrete_panel.mat", new Color(0.54f, 0.56f, 0.52f, 1f), false, persistAssets),
                 ConcreteTrim = Material("aegis_visual_concrete_trim.mat", new Color(0.65f, 0.58f, 0.42f, 1f), false, persistAssets),
+                ConcreteLine = Material("aegis_visual_concrete_line.mat", new Color(0.16f, 0.17f, 0.16f, 0.72f), false, persistAssets, true),
+                ConcreteGrime = Material("aegis_visual_concrete_grime.mat", new Color(0.08f, 0.075f, 0.06f, 0.34f), false, persistAssets, true),
                 Crater = Material("aegis_visual_crater.mat", new Color(0.015f, 0.014f, 0.012f, 1f), false, persistAssets),
                 CraterRim = Material("aegis_visual_crater_rim.mat", new Color(0.16f, 0.115f, 0.072f, 1f), false, persistAssets),
                 Dirt = Material("aegis_visual_dirt_blend.mat", Color.Lerp(profile.DirtPath, profile.Grass, 0.28f), false, persistAssets),
+                RoadDust = Material("aegis_visual_road_dust_decal.mat", new Color(profile.DirtPath.r, profile.DirtPath.g, profile.DirtPath.b, 0.28f), false, persistAssets, true),
+                RoadRut = Material("aegis_visual_road_rut_decal.mat", new Color(0.12f, 0.105f, 0.075f, 0.26f), false, persistAssets, true),
+                RoadScuff = Material("aegis_visual_road_scuff_decal.mat", new Color(profile.GravelPath.r, profile.GravelPath.g, profile.GravelPath.b, 0.34f), false, persistAssets, true),
                 Shadow = Material("aegis_visual_contact_shadow.mat", new Color(0.02f, 0.025f, 0.018f, 0.42f), false, persistAssets, true)
             };
         }
