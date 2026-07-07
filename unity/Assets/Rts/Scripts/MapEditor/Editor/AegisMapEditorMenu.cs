@@ -12,7 +12,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public static void OpenMapEditor()
         {
             EnsureFolders();
-            Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(AegisMapEditorPaths.MapEditorRoot);
+            UnityEditor.Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(AegisMapEditorPaths.MapEditorRoot);
             EditorUtility.DisplayDialog("Project Aegis Map Editor", "Map-editor folders and samples are ready under Assets/Rts/MapEditor.", "OK");
         }
 
@@ -37,7 +37,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var tiledJson = File.ReadAllText(sourcePath);
             File.WriteAllText(targetPath, AegisMapEditorFileTemplates.CreateAegisMapShellFromTiledJson(tiledJson, mapId));
             AssetDatabase.ImportAsset(targetPath);
-            Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(targetPath);
+            UnityEditor.Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(targetPath);
             Debug.Log("Imported Tiled JSON shell to Aegis map: " + targetPath + ". Use Rts.Core importer tests for deterministic conversion.");
         }
 
@@ -45,7 +45,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public static void ExportSelectedAegisMapToTiledJson()
         {
             EnsureFolders();
-            var selectedPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+            var selectedPath = AssetDatabase.GetAssetPath(UnityEditor.Selection.activeObject);
             if (string.IsNullOrEmpty(selectedPath) || !selectedPath.EndsWith(".aegismap.json"))
             {
                 EditorUtility.DisplayDialog("Export Aegis Map", "Select a .aegismap.json asset first.", "OK");
@@ -65,7 +65,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var aegisJson = File.ReadAllText(selectedPath);
             File.WriteAllText(targetPath, AegisMapEditorFileTemplates.CreateTiledJsonShellFromAegisMap(aegisJson, mapId));
             AssetDatabase.ImportAsset(targetPath);
-            Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(targetPath);
+            UnityEditor.Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(targetPath);
             Debug.Log("Exported selected Aegis map shell to Tiled JSON: " + targetPath);
         }
 
@@ -76,7 +76,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var path = AegisMapEditorPaths.TiledMapsFolder + "/aegis_starter_tiles.tsx";
             File.WriteAllText(path, AegisMapEditorFileTemplates.StarterTilesetTsx());
             AssetDatabase.ImportAsset(path);
-            Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(path);
+            UnityEditor.Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(path);
             Debug.Log("Created Tiled starter tileset: " + path);
         }
 
@@ -103,7 +103,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var path = AegisMapEditorPaths.AssetPromptsFolder + "/aegis_map_editor_asset_prompts.md";
             File.WriteAllText(path, AegisMapEditorFileTemplates.UnityAiAssetPromptMarkdown());
             AssetDatabase.ImportAsset(path);
-            Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(path);
+            UnityEditor.Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(path);
             Debug.Log("Exported Unity AI asset prompts: " + path);
         }
 

@@ -8,11 +8,13 @@
 ## Cleanup Status
 
 - `git status --short` was run.
-- `.vs/` was not ignored at the start of cleanup.
-- Added `.vs/` to `.gitignore`.
-- `unity/.vs/` is now ignored by `.gitignore:8`.
-- `CODEX_TILED_MAP_EDITOR_BRIEF.md` was found in the attached files and copied to the repository root.
-- `docs/TILED_MAP_PIPELINE.md` now references the checked-in brief.
+- Final validation was rerun during the cleanup/staging pass.
+- `.vs/` is ignored by `.gitignore`.
+- `unity/.vs/` is ignored by `.gitignore:8`.
+- `CODEX_TILED_MAP_EDITOR_BRIEF.md` was found at the repository root.
+- `docs/TILED_MAP_PIPELINE.md` references the checked-in brief.
+- Temporary Tiled local export was removed after validation.
+- `unity-compile.log` is treated as temporary and must not be staged.
 
 ## Changed File Summary
 
@@ -24,25 +26,53 @@
 - Docs: `docs/CODEX_MAP_EDITOR_SETUP_REPORT.md`, `docs/TILED_MAP_PIPELINE.md`, `docs/MAP_EDITOR_PLAN.md`, `docs/UNITY_AI_ASSET_PIPELINE.md`, `docs/LICENSE_AND_IP_NOTES.md`, this final report.
 - Samples and Unity scaffolding: `unity/Assets/Rts/Maps/*`, `unity/Assets/Rts/MapEditor/*`, `unity/Assets/Rts/Scripts/MapEditor/*`.
 
-## Test Results
+## .NET Test Result
 
 - SDK used: `.NET SDK 8.0.422` from `C:\Users\matth\.dotnet`.
 - `dotnet restore src/Rts.Core.Tests/Rts.Core.Tests.csproj`: passed.
 - `dotnet build src/Rts.Core.Tests/Rts.Core.Tests.csproj --no-restore`: passed with 0 warnings and 0 errors.
 - `dotnet run --project src/Rts.Core.Tests/Rts.Core.Tests.csproj`: passed, `130/130`.
 
+## Tiled Export Result
+
+- `tiled` was not visible on PATH in this PowerShell session.
+- Tiled executable found at `C:\Program Files\Tiled\tiled.exe`.
+- Export validation was run with:
+
+```powershell
+& "C:\Program Files\Tiled\tiled.exe" --export-map json --embed-tilesets --resolve-types-and-properties "unity/Assets/Rts/Maps/Tiled/sample_small_100.tmx" "unity/Assets/Rts/Maps/Generated/sample_small_100.local-export.tiled.json"
+```
+
+- `Test-Path "unity/Assets/Rts/Maps/Generated/sample_small_100.local-export.tiled.json"` returned true after export.
+- Temporary file `unity/Assets/Rts/Maps/Generated/sample_small_100.local-export.tiled.json` was removed after validation.
+
+## Unity Compile Result
+
+- Unity project version: `6000.5.1f1`.
+- Matching Unity Editor found at `E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe`.
+- Unity batch compile was run with:
+
+```powershell
+& "E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe" -batchmode -quit -projectPath "E:\OpenRA Mod\ProjectAegisRTS\unity" -logFile "E:\OpenRA Mod\ProjectAegisRTS\unity-compile.log"
+```
+
+- Initial Unity 6000 compile surfaced map-editor-specific `Selection.activeObject` namespace errors in `AegisMapEditorMenu.cs`.
+- The menu script was fixed by qualifying editor selection calls as `UnityEditor.Selection.activeObject`.
+- Unity batch compile was rerun and passed with exit code `0`.
+- `unity-compile.log` is temporary and was removed before staging.
+
 ## Package Check
 
 - `System.Text.Json` reference in `src/Rts.Core/Rts.Core.csproj`: intentional, used for deterministic Tiled JSON import/export DTO parsing.
 - Version: `8.0.5`.
-- Compatibility: compatible with `netstandard2.1`; the restored package includes a `netstandard2.0` asset and the `netstandard2.1` core project restores/builds successfully.
+- Compatibility: compatible with `netstandard2.1`; restore/build succeeded with the `netstandard2.1` core project.
 
 ## Guardrail Checks
 
 - `src/Rts.Core` does not reference `UnityEngine`.
 - `src/Rts.Core` does not reference `UnityEditor`.
 - `src/Rts.Core` does not reference OpenRA implementation namespaces.
-- `src/Rts.Core` scan found no C&C / Red Alert protected names or identifiers checked for this cleanup.
+- `src/Rts.Core` scan found no checked C&C / Red Alert protected names or identifiers.
 - Map size rules are exactly:
   - min width: `100`
   - min height: `100`
@@ -72,23 +102,26 @@ All required menu item strings were found in `unity/Assets/Rts/Scripts/MapEditor
 - `Project Aegis > Map Editor > Build Proxy Materials and Prefabs`
 - `Project Aegis > Map Editor > Export Unity AI Asset Prompts`
 
-## Unity And Optional Tools
+## Optional Tools
 
-- Unity batch compile run: no.
-- Reason: `Unity.exe` and `Unity` are missing from PATH in this environment.
-- Exact local command to run when Unity is available:
+- `jq`: missing from PATH in this PowerShell session.
+- `zip`: missing from PATH.
+- `unzip`: missing from PATH.
+- `tiled`: missing from PATH, but `C:\Program Files\Tiled\tiled.exe` was found and used.
+- `openupm`: found at `C:\Users\matth\AppData\Roaming\npm\openupm.ps1`; not used because OpenUPM is optional and may hang.
+- `npm`: found.
 
-```powershell
-Unity.exe -batchmode -quit -projectPath unity -logFile unity-compile.log
-```
+## Workspace Notes
 
-Optional tools still missing from PATH:
-
-- `jq`
-- `zip`
-- `unzip`
-- `tiled`
-- `openupm`
+- Unity generated `.meta` files for the intended new map-editor assets; those are part of the Unity asset scaffolding.
+- Unity temporarily modified `unity/Assets/XR/Settings/OpenXR Package Settings.asset` during validation; that unrelated change was restored before staging.
+- The local temporary Tiled export is a forbidden temporary artifact and was not staged.
+- No forbidden paths should be staged:
+  - `.vs/`
+  - `build/`
+  - zip files
+  - `unity-compile.log`
+  - local temporary Tiled export files
 
 ## Source And IP Confirmation
 
