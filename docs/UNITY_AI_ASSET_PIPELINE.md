@@ -4,6 +4,8 @@
 
 Unity AI-generated assets may support map-editor visualization, but they do not define gameplay rules or runtime map data. The authoritative map content remains `.aegismap.json` imported and validated by `Rts.Core`.
 
+The current procedural map workflow is deterministic prompt-driven generation. It does not require an external LLM, Unity AI package, cloud project, or network API.
+
 ## Map-Editor Asset Categories
 
 - Terrain proxy materials: clear, road, rough, forest, water, cliff, ore.
@@ -22,3 +24,5 @@ Generated assets should use original Project Aegis names and identifiers. Do not
 ## Optional Tools
 
 SuperTiled2Unity may be used later as a visual/editor convenience. It is not required for deterministic import/export and should not become a gameplay dependency.
+
+Unity AI packages remain optional for future original visual asset ideation. Any generated asset still needs human review before it is treated as production art.

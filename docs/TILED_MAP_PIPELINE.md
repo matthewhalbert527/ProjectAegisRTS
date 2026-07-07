@@ -54,7 +54,7 @@ Tiled JSON is not loaded as the authoritative runtime map format.
 
 The procedural prompt generator also outputs `AegisMapDocument`. Generated maps can be saved directly as `.aegismap.json` and exported with `AegisTiledMapExporter` when an author needs to inspect or edit the result in Tiled.
 
-Resource regeneration metadata remains an Aegis runtime concern. Tiled export preserves practical layer/object data, but `.aegismap.json` remains authoritative for gameplay validation.
+Resource regeneration metadata, build-pad regions, balance summaries, and generated-map warnings remain Aegis runtime/editor concerns. Tiled export preserves practical layer/object data, but `.aegismap.json` remains authoritative for gameplay validation.
 
 ## Samples
 
@@ -67,3 +67,5 @@ Resource regeneration metadata remains an Aegis runtime concern. Tiled export pr
 ## Notes
 
 The authoritative implementation brief is checked in at the repository root as `CODEX_TILED_MAP_EDITOR_BRIEF.md`. The Stage 0 implementation was originally completed from the user prompt while that file was unavailable, then verified against the attached brief during cleanup.
+
+Temporary validation exports such as `*.local-export.tiled.json` are ignored and should not be tracked. The checked-in sample `sample_small_100.tiled.json` remains the canonical sample export.

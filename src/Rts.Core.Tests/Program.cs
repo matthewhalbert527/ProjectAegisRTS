@@ -141,34 +141,47 @@ namespace ProjectAegisRTS.Tests
                 TiledImporterImportsActorPlacements,
                 TiledExporterRoundTripsAegisMap,
                 AegisMapPromptParserParsesSizePresets,
+                AegisMapPromptParserParsesExplicitSizes,
+                AegisMapPromptParserParsesPlayerCounts,
                 AegisMapPromptParserParsesResourceDensity,
                 AegisMapPromptParserParsesCliffDensity,
                 AegisMapPromptParserParsesRockiness,
+                AegisMapPromptParserParsesWaterBiomeProfileAndSymmetry,
+                AegisMapPromptParserWarnsForTinyAndHuge,
                 AegisMapPromptParserHandlesUnknownWordsWithWarnings,
                 AegisProceduralGeneratorCreatesSmall100,
                 AegisProceduralGeneratorCreatesMedium200,
                 AegisProceduralGeneratorCreatesLarge400,
+                AegisProceduralGeneratorCreatesRequestedPlayerCounts,
                 AegisProceduralGeneratorRejectsBelowMinimumSize,
                 AegisProceduralGeneratorRejectsAboveMaximumSize,
                 AegisProceduralGeneratorIsDeterministicForSameSeed,
                 AegisProceduralGeneratorChangesWithDifferentSeeds,
                 AegisProceduralGeneratedMapsPassValidator,
+                AegisProceduralSummaryReportsMetrics,
                 AegisProceduralLowResourcesCreatesFewerFieldsThanHigh,
+                AegisProceduralResourceRichHasMoreTotalOreThanScarce,
                 AegisProceduralResourcesAvoidPlayerStartPads,
                 AegisProceduralHighCliffsCreatesMoreBlockersThanLow,
                 AegisProceduralRockyMapsCreateMoreRockBlockers,
                 AegisProceduralEachStartHasCleanBuildPads,
                 AegisProceduralPreservesPathabilityBetweenStarts,
+                AegisProceduralChokepointPreservesConnectivity,
+                AegisProceduralTournamentResourcesAreBalanced,
                 AegisProceduralBuildabilityAcceptsBasePads,
+                AegisProceduralBuildabilitySupportsFootprintsAndPadding,
                 AegisProceduralBuildabilityRejectsBlockersCliffsResources,
                 AegisProceduralLargeMapBuildabilityCompletes,
+                AegisProceduralProfilesAdjustRegenerationSettings,
                 AegisResourceSimulationHarvestReducesAmount,
                 AegisResourceSimulationHarvestReachesZeroAndDepletes,
                 AegisResourceSimulationRejectsDepletedHarvest,
                 AegisResourceSimulationRegenerationDelayWorks,
                 AegisResourceSimulationRegeneratesAndCapsAtMax,
+                AegisResourceSimulationUsesPerFieldRegenerationRules,
                 AegisResourceSimulationIsDeterministic,
                 RtsCoreDoesNotReferenceUnityEngine,
+                RtsCoreDoesNotReferenceOpenRaOrProtectedIdentifiers,
                 PathingDeterminismSmokeTest,
                 AircraftAndAirfieldDefinitionsExist,
                 HelipadCreatesAirfieldSnapshot,
@@ -1443,23 +1456,82 @@ namespace ProjectAegisRTS.Tests
             Assert(custom.Request.ResolveWidth() == 200 && custom.Request.ResolveHeight() == 200, "Expected custom 200x200 parse.");
         }
 
+        static void AegisMapPromptParserParsesExplicitSizes()
+        {
+            var parser = new AegisMapNaturalLanguageRequestParser();
+            var small = parser.Parse("100x100 grassland map").Request;
+            var medium = parser.Parse("200 by 200 desert map").Request;
+            var large = parser.Parse("400x400 tundra map").Request;
+            Assert(small.ResolveWidth() == 100 && small.ResolveHeight() == 100, "Expected 100x100 parse.");
+            Assert(medium.ResolveWidth() == 200 && medium.ResolveHeight() == 200, "Expected 200 by 200 parse.");
+            Assert(large.ResolveWidth() == 400 && large.ResolveHeight() == 400, "Expected 400x400 parse.");
+        }
+
+        static void AegisMapPromptParserParsesPlayerCounts()
+        {
+            var parser = new AegisMapNaturalLanguageRequestParser();
+            Assert(parser.Parse("two player small map").Request.PlayerCount == 2, "Expected two-player parse.");
+            Assert(parser.Parse("2 players small map").Request.PlayerCount == 2, "Expected 2 players parse.");
+            Assert(parser.Parse("four player medium map").Request.PlayerCount == 4, "Expected four-player parse.");
+            Assert(parser.Parse("six player medium map").Request.PlayerCount == 6, "Expected six-player parse.");
+            Assert(parser.Parse("eight player large map").Request.PlayerCount == 8, "Expected eight-player parse.");
+        }
+
         static void AegisMapPromptParserParsesResourceDensity()
         {
-            var request = new AegisMapNaturalLanguageRequestParser().Parse("large map with lots of ore and high resources").Request;
-            Assert(request.ResourceDensity == AegisMapIntensity.High || request.ResourceDensity == AegisMapIntensity.VeryHigh, "Expected high resource density.");
+            var parser = new AegisMapNaturalLanguageRequestParser();
+            Assert(parser.Parse("large map with lots of ore and high resources").Request.ResourceDensity >= AegisMapIntensity.High, "Expected high resource density.");
+            Assert(parser.Parse("medium map with a lot of ore").Request.ResourceDensity >= AegisMapIntensity.High, "Expected a lot of ore to parse high.");
+            Assert(parser.Parse("small map with very low resources").Request.ResourceDensity == AegisMapIntensity.VeryLow, "Expected very low resources.");
+            Assert(parser.Parse("balanced resources on a medium map").Request.ResourceDensity == AegisMapIntensity.Medium, "Expected balanced resources.");
         }
 
         static void AegisMapPromptParserParsesCliffDensity()
         {
-            var request = new AegisMapNaturalLanguageRequestParser().Parse("small desert map with high cliffs").Request;
-            Assert(request.CliffDensity == AegisMapIntensity.High, "Expected high cliff density.");
+            var parser = new AegisMapNaturalLanguageRequestParser();
+            Assert(parser.Parse("small desert map with no cliffs").Request.CliffDensity == AegisMapIntensity.None, "Expected no cliffs.");
+            Assert(parser.Parse("small desert map with few cliffs").Request.CliffDensity == AegisMapIntensity.Low, "Expected few cliffs.");
+            Assert(parser.Parse("small desert map with high cliffs").Request.CliffDensity == AegisMapIntensity.High, "Expected high cliff density.");
+            Assert(parser.Parse("small cliffy desert map").Request.CliffDensity == AegisMapIntensity.VeryHigh, "Expected cliffy map to be very high.");
+            Assert(parser.Parse("small desert map with extreme cliffs").Request.CliffDensity == AegisMapIntensity.Extreme, "Expected extreme cliff density.");
         }
 
         static void AegisMapPromptParserParsesRockiness()
         {
-            var request = new AegisMapNaturalLanguageRequestParser().Parse("200 by 200 forest map with high rockiness and regenerating ore").Request;
+            var parser = new AegisMapNaturalLanguageRequestParser();
+            var request = parser.Parse("200 by 200 forest map with high rockiness and regenerating ore").Request;
             Assert(request.Rockiness == AegisMapIntensity.High, "Expected high rockiness.");
             Assert(request.OreRegenerationEnabled, "Expected regenerating ore flag.");
+            Assert(parser.Parse("flat grassland map").Request.Rockiness == AegisMapIntensity.None, "Expected flat map to have no rockiness.");
+            Assert(parser.Parse("not rocky desert map").Request.Rockiness == AegisMapIntensity.None, "Expected not rocky map to have no rockiness.");
+            Assert(parser.Parse("very rocky map with lots of rocks").Request.Rockiness == AegisMapIntensity.High, "Expected rocky phrases to parse high.");
+            Assert(parser.Parse("extreme rockiness").Request.Rockiness == AegisMapIntensity.Extreme, "Expected extreme rockiness.");
+        }
+
+        static void AegisMapPromptParserParsesWaterBiomeProfileAndSymmetry()
+        {
+            var parser = new AegisMapNaturalLanguageRequestParser();
+            var request = parser.Parse("huge eight player volcanic tournament symmetric map with lots of water and resource rich ore").Request;
+            Assert(request.ResolveWidth() == 400 && request.ResolveHeight() == 400, "Expected huge to clamp to large.");
+            Assert(request.PlayerCount == 8, "Expected eight-player parse.");
+            Assert(request.Biome == AegisMapBiome.Volcanic, "Expected volcanic biome.");
+            Assert(request.WaterAmount == AegisMapWaterAmount.High, "Expected high water.");
+            Assert(request.Symmetry == AegisMapSymmetryMode.Horizontal, "Expected symmetric mirrored map.");
+            Assert(request.GameplayProfile == AegisMapGameplayProfile.Tournament, "Expected tournament profile.");
+
+            Assert(parser.Parse("wide open grassland map with no water").Request.GameplayProfile == AegisMapGameplayProfile.Open, "Expected wide open profile.");
+            Assert(parser.Parse("many choke points defensive wasteland map").Request.GameplayProfile == AegisMapGameplayProfile.Defensive, "Expected defensive profile to win last.");
+            Assert(parser.Parse("radial tundra map with some water").Request.Symmetry == AegisMapSymmetryMode.Radial, "Expected radial symmetry.");
+            Assert(parser.Parse("vertical mirrored forest map").Request.Symmetry == AegisMapSymmetryMode.Vertical, "Expected vertical mirrored symmetry.");
+        }
+
+        static void AegisMapPromptParserWarnsForTinyAndHuge()
+        {
+            var parser = new AegisMapNaturalLanguageRequestParser();
+            var tiny = parser.Parse("tiny two player map");
+            var huge = parser.Parse("huge eight player map");
+            Assert(tiny.Request.ResolveWidth() == 100 && ContainsText(tiny.Warnings, "MapSizeTinyUnsupported"), "Expected tiny warning and small size.");
+            Assert(huge.Request.ResolveWidth() == 400 && ContainsText(huge.Warnings, "MapSizeHugeClamped"), "Expected huge warning and large size.");
         }
 
         static void AegisMapPromptParserHandlesUnknownWordsWithWarnings()
@@ -1488,6 +1560,14 @@ namespace ProjectAegisRTS.Tests
             var result = GenerateAegisMap(AegisMapGenerationPreset.Large, 123);
             Assert(result.Success, "Expected large generation success: " + string.Join(", ", result.Errors));
             Assert(result.Document.Width == 400 && result.Document.Height == 400, "Expected 400x400 large generated map.");
+        }
+
+        static void AegisProceduralGeneratorCreatesRequestedPlayerCounts()
+        {
+            Assert(GenerateAegisMapWithPlayers(2).Document.PlayerStarts.Count == 2, "Expected 2 player starts.");
+            Assert(GenerateAegisMapWithPlayers(4).Document.PlayerStarts.Count == 4, "Expected 4 player starts.");
+            Assert(GenerateAegisMapWithPlayers(6).Document.PlayerStarts.Count == 6, "Expected 6 player starts.");
+            Assert(GenerateAegisMapWithPlayers(8).Document.PlayerStarts.Count == 8, "Expected 8 player starts.");
         }
 
         static void AegisProceduralGeneratorRejectsBelowMinimumSize()
@@ -1534,11 +1614,32 @@ namespace ProjectAegisRTS.Tests
             Assert(validation.Success, "Expected generated map validation: " + string.Join(", ", validation.Errors));
         }
 
+        static void AegisProceduralSummaryReportsMetrics()
+        {
+            var result = GenerateAegisMap(AegisMapGenerationPreset.Medium, 991);
+            Assert(result.Success, "Expected generated map success.");
+            Assert(result.Summary.Width == result.Document.Width && result.Summary.Height == result.Document.Height, "Expected summary dimensions.");
+            Assert(result.Summary.Seed == 991, "Expected summary seed.");
+            Assert(result.Summary.PlayerCount == result.Document.PlayerStarts.Count, "Expected summary player count.");
+            Assert(result.Summary.ResourceFieldCount == result.Document.Resources.Count, "Expected summary resource count.");
+            Assert(result.Summary.TotalResourceAmount == TotalResourceAmount(result.Document), "Expected summary resource amount.");
+            Assert(result.Summary.BlockerCellCount == result.Document.Blockers.Count, "Expected summary blocker count.");
+            Assert(result.Summary.BuildPadCount == result.Buildability.BuildSpots.Count, "Expected summary build pad count.");
+        }
+
         static void AegisProceduralLowResourcesCreatesFewerFieldsThanHigh()
         {
             var low = GenerateAegisMap(AegisMapGenerationPreset.Small, 55, AegisMapIntensity.Low, AegisMapIntensity.Low, AegisMapIntensity.Low);
             var high = GenerateAegisMap(AegisMapGenerationPreset.Small, 55, AegisMapIntensity.VeryHigh, AegisMapIntensity.Low, AegisMapIntensity.Low);
             Assert(low.Document.Resources.Count < high.Document.Resources.Count, "Expected high resource density to create more fields.");
+        }
+
+        static void AegisProceduralResourceRichHasMoreTotalOreThanScarce()
+        {
+            var scarce = GenerateAegisMap(AegisMapGenerationPreset.Medium, 56, AegisMapIntensity.Low, AegisMapIntensity.Low, AegisMapIntensity.Low, 4, AegisMapGameplayProfile.Scarce);
+            var rich = GenerateAegisMap(AegisMapGenerationPreset.Medium, 56, AegisMapIntensity.High, AegisMapIntensity.Low, AegisMapIntensity.Low, 4, AegisMapGameplayProfile.ResourceRich);
+            Assert(scarce.Success && rich.Success, "Expected resource profile maps to generate.");
+            Assert(rich.Summary.TotalResourceAmount > scarce.Summary.TotalResourceAmount, "Expected resource-rich map to have more total ore than scarce map.");
         }
 
         static void AegisProceduralResourcesAvoidPlayerStartPads()
@@ -1586,12 +1687,51 @@ namespace ProjectAegisRTS.Tests
             Assert(result.Balance.StartsConnected, "Expected generated starts to remain connected.");
         }
 
+        static void AegisProceduralChokepointPreservesConnectivity()
+        {
+            var result = GenerateAegisMap(AegisMapGenerationPreset.Medium, 906, AegisMapIntensity.Medium, AegisMapIntensity.High, AegisMapIntensity.High, 4, AegisMapGameplayProfile.Chokepoint);
+            Assert(result.Success, "Expected chokepoint generated map success: " + string.Join(", ", result.Errors));
+            Assert(result.Balance.StartsConnected, "Expected chokepoint map to keep starts connected.");
+            Assert(result.Balance.ConnectedStartPairs == result.Balance.TotalStartPairs, "Expected all start pairs connected.");
+            Assert(result.Balance.MinStartDistance > 0 && result.Balance.MaxStartDistance >= result.Balance.MinStartDistance, "Expected path distance metrics.");
+        }
+
+        static void AegisProceduralTournamentResourcesAreBalanced()
+        {
+            var result = GenerateAegisMap(AegisMapGenerationPreset.Medium, 907, AegisMapIntensity.Medium, AegisMapIntensity.Low, AegisMapIntensity.Low, 4, AegisMapGameplayProfile.Tournament);
+            Assert(result.Success, "Expected tournament generated map success.");
+            Assert(result.Balance.NearbyResourcesByPlayer.Count == 4, "Expected resource metrics for each player.");
+            var min = int.MaxValue;
+            var max = 0;
+            for (var i = 0; i < result.Balance.NearbyResourcesByPlayer.Count; i++)
+            {
+                var amount = result.Balance.NearbyResourcesByPlayer[i].NearbyResourceAmount;
+                if (amount < min)
+                    min = amount;
+                if (amount > max)
+                    max = amount;
+            }
+            Assert(min > 0, "Expected each tournament start to have nearby ore.");
+            Assert(min * 100 >= max * 65, "Expected tournament nearby resources within 35 percent.");
+        }
+
         static void AegisProceduralBuildabilityAcceptsBasePads()
         {
             var result = GenerateAegisMap(AegisMapGenerationPreset.Small, 903);
             var analyzer = new AegisMapBuildabilityAnalyzer();
             var spot = result.Buildability.BuildSpots[0];
             Assert(analyzer.CanPlace(result.Document, spot.Footprint, spot.TopLeft.X, spot.TopLeft.Y), "Expected generated base build pad to accept placement.");
+        }
+
+        static void AegisProceduralBuildabilitySupportsFootprintsAndPadding()
+        {
+            var result = GenerateAegisMap(AegisMapGenerationPreset.Small, 908);
+            var analyzer = new AegisMapBuildabilityAnalyzer();
+            var spot = result.Buildability.BuildSpots[0];
+            Assert(analyzer.CanPlace(result.Document, AegisBuildingFootprint.Square(2), spot.TopLeft.X, spot.TopLeft.Y), "Expected 2x2 placement success.");
+            Assert(analyzer.CanPlace(result.Document, AegisBuildingFootprint.Square(3), spot.TopLeft.X, spot.TopLeft.Y), "Expected 3x3 placement success.");
+            Assert(analyzer.CanPlace(result.Document, AegisBuildingFootprint.Square(4), spot.TopLeft.X, spot.TopLeft.Y), "Expected 4x4 placement success.");
+            Assert(analyzer.CanPlace(result.Document, new AegisBuildingFootprint(5, 3), spot.TopLeft.X, spot.TopLeft.Y, 1), "Expected rectangular footprint with padding to place in clean base area.");
         }
 
         static void AegisProceduralBuildabilityRejectsBlockersCliffsResources()
@@ -1610,6 +1750,16 @@ namespace ProjectAegisRTS.Tests
             var result = GenerateAegisMap(AegisMapGenerationPreset.Large, 905);
             Assert(result.Success, "Expected large generated map success.");
             Assert(result.Buildability.BuildSpots.Count >= result.Document.PlayerStarts.Count * 6, "Expected large map buildability pads.");
+        }
+
+        static void AegisProceduralProfilesAdjustRegenerationSettings()
+        {
+            var balanced = GenerateAegisMap(AegisMapGenerationPreset.Small, 909, AegisMapIntensity.Medium, AegisMapIntensity.Low, AegisMapIntensity.Low, 2, AegisMapGameplayProfile.Balanced);
+            var scarce = GenerateAegisMap(AegisMapGenerationPreset.Small, 909, AegisMapIntensity.Medium, AegisMapIntensity.Low, AegisMapIntensity.Low, 2, AegisMapGameplayProfile.Scarce);
+            var rich = GenerateAegisMap(AegisMapGenerationPreset.Small, 909, AegisMapIntensity.Medium, AegisMapIntensity.Low, AegisMapIntensity.Low, 2, AegisMapGameplayProfile.ResourceRich);
+            Assert(balanced.Success && scarce.Success && rich.Success, "Expected regeneration profile maps to generate.");
+            Assert(scarce.Document.Resources[0].RegenerationDelayTicks > balanced.Document.Resources[0].RegenerationDelayTicks, "Expected scarce maps to delay regeneration longer.");
+            Assert(rich.Document.Resources[0].RegenerationRatePerTick > balanced.Document.Resources[0].RegenerationRatePerTick, "Expected rich maps to regenerate faster.");
         }
 
         static void AegisResourceSimulationHarvestReducesAmount()
@@ -1657,6 +1807,18 @@ namespace ProjectAegisRTS.Tests
             Assert(sim.GetField("ore_1").Amount == 12, "Expected regeneration to cap at max.");
         }
 
+        static void AegisResourceSimulationUsesPerFieldRegenerationRules()
+        {
+            var sim = new AegisResourceSimulation(new ResourceRegenerationRules(20, 1));
+            sim.AddField(new ResourceFieldState("ore_fast", new Int2(4, 4), "ore", 10, 20, 4, 2, 0));
+            sim.Harvest("ore_fast", 10);
+            sim.Tick();
+            Assert(sim.GetField("ore_fast").Amount == 0, "Expected no regeneration before per-field delay.");
+            sim.Tick();
+            Assert(sim.GetField("ore_fast").Amount == 4, "Expected per-field regeneration rate to override global rule.");
+            Assert(sim.GetField("ore_fast").TicksSinceLastHarvest(sim.TickNumber) == 2, "Expected ticks since harvest to be observable.");
+        }
+
         static void AegisResourceSimulationIsDeterministic()
         {
             var a = RunResourceSimulationSignature();
@@ -1676,6 +1838,22 @@ namespace ProjectAegisRTS.Tests
                 var text = File.ReadAllText(file);
                 Assert(!text.Contains("UnityEngine"), "Rts.Core must remain UnityEngine-free. Found reference in " + file);
                 Assert(!text.Contains("UnityEditor"), "Rts.Core must remain UnityEditor-free. Found reference in " + file);
+            }
+        }
+
+        static void RtsCoreDoesNotReferenceOpenRaOrProtectedIdentifiers()
+        {
+            var forbidden = new[] { "OpenRA", "Command & Conquer", "Red Alert", "CnC", "GDI", "Nod", "Soviet", "Allied", "Westwood" };
+            var coreRoot = Path.Combine(RepoRoot(), "src", "Rts.Core");
+            foreach (var file in Directory.GetFiles(coreRoot, "*.cs", SearchOption.AllDirectories))
+            {
+                var normalized = file.Replace('\\', '/');
+                if (normalized.Contains("/obj/") || normalized.Contains("/bin/"))
+                    continue;
+
+                var text = File.ReadAllText(file);
+                for (var i = 0; i < forbidden.Length; i++)
+                    Assert(!ContainsIdentifier(text, forbidden[i]), "Rts.Core must not reference protected/reference identifier " + forbidden[i] + " in " + file);
             }
         }
 
@@ -2315,21 +2493,32 @@ namespace ProjectAegisRTS.Tests
 
         static AegisMapGenerationResult GenerateAegisMap(AegisMapGenerationPreset preset, int seed, AegisMapIntensity resourceDensity, AegisMapIntensity cliffDensity, AegisMapIntensity rockiness)
         {
+            var playerCount = preset == AegisMapGenerationPreset.Large ? 4 : 2;
+            return GenerateAegisMap(preset, seed, resourceDensity, cliffDensity, rockiness, playerCount, AegisMapGameplayProfile.Balanced);
+        }
+
+        static AegisMapGenerationResult GenerateAegisMap(AegisMapGenerationPreset preset, int seed, AegisMapIntensity resourceDensity, AegisMapIntensity cliffDensity, AegisMapIntensity rockiness, int playerCount, AegisMapGameplayProfile gameplayProfile)
+        {
             var request = AegisMapGenerationRequest.CreateDefault();
             request.SizePreset = preset;
             request.Seed = seed;
             request.HasExplicitSeed = true;
-            request.PlayerCount = preset == AegisMapGenerationPreset.Large ? 4 : 2;
+            request.PlayerCount = playerCount;
             request.ResourceDensity = resourceDensity;
             request.CliffDensity = cliffDensity;
             request.Rockiness = rockiness;
             request.WaterAmount = AegisMapWaterAmount.Low;
             request.Symmetry = AegisMapSymmetryMode.Horizontal;
-            request.GameplayProfile = AegisMapGameplayProfile.Balanced;
+            request.GameplayProfile = gameplayProfile;
             request.OreRegenerationEnabled = true;
             request.OreRegenerationRatePerTick = 2;
             request.OreRegenerationDelayTicks = 30;
             return new ProjectAegisRTS.Maps.Generation.AegisMapGenerator().Generate(request);
+        }
+
+        static AegisMapGenerationResult GenerateAegisMapWithPlayers(int playerCount)
+        {
+            return GenerateAegisMap(AegisMapGenerationPreset.Medium, 700 + playerCount, AegisMapIntensity.Medium, AegisMapIntensity.Low, AegisMapIntensity.Low, playerCount, AegisMapGameplayProfile.Balanced);
         }
 
         static string AegisMapDocumentSignature(AegisMapDocument document)
@@ -2354,6 +2543,39 @@ namespace ProjectAegisRTS.Tests
                 if (document.Blockers[i].Reason == reason)
                     count++;
             return count;
+        }
+
+        static int TotalResourceAmount(AegisMapDocument document)
+        {
+            var total = 0;
+            for (var i = 0; i < document.Resources.Count; i++)
+                total += document.Resources[i].Amount;
+            return total;
+        }
+
+        static bool ContainsIdentifier(string text, string identifier)
+        {
+            var index = 0;
+            while (!string.IsNullOrEmpty(text) && index < text.Length)
+            {
+                index = text.IndexOf(identifier, index, StringComparison.Ordinal);
+                if (index < 0)
+                    return false;
+
+                var beforeOk = index == 0 || !IsIdentifierChar(text[index - 1]);
+                var afterIndex = index + identifier.Length;
+                var afterOk = afterIndex >= text.Length || !IsIdentifierChar(text[afterIndex]);
+                if (beforeOk && afterOk)
+                    return true;
+                index += identifier.Length;
+            }
+
+            return false;
+        }
+
+        static bool IsIdentifierChar(char value)
+        {
+            return char.IsLetterOrDigit(value) || value == '_';
         }
 
         static AegisResourceSimulation OreSimulation(int amount, int maxAmount, int rate, int delay)

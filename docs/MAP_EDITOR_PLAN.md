@@ -13,9 +13,28 @@
 - Core validator: `src/Rts.Core/Maps/AegisMapDocumentValidator.cs`
 - Runtime world factory: `src/Rts.Core/Maps/AegisMapDocumentWorldFactory.cs`
 - Tiled importer/exporter: `src/Rts.Core/Maps/Tiled`
-- Procedural prompt generator: `src/Rts.Core/Maps/Generation`
+- Procedural prompt generator, parser, buildability analyzer, resource planner, and balance analyzer: `src/Rts.Core/Maps/Generation`
 - Unity editor menus: `unity/Assets/Rts/Scripts/MapEditor/Editor`
 - Unity runtime helper paths/templates: `unity/Assets/Rts/Scripts/MapEditor/Runtime`
+
+## Procedural Generator Status
+
+Implemented in `Rts.Core`:
+
+- Prompt phrases for size, player count, resources, cliffs, rockiness, water, biome, symmetry, profile, seed, and ore regeneration.
+- Deterministic 100x100 through 400x400 generation for 2/4/6/8 players.
+- Buildability checks for rectangular 1x1 through 5x5 footprints, optional padding, and generated build-pad regions.
+- Pathability/fairness metrics for connected start pairs, unreachable starts, path distance spread, and nearby resources by player.
+- Ore depletion/regeneration metadata for generated resource fields.
+
+Implemented in Unity:
+
+- `Project Aegis > Map Editor > Open Map Editor` opens an editor window with procedural controls, prompt text, seed controls, validation, save/export buttons, prompt examples, and a generated summary panel.
+- The Unity window writes a compatible `.aegismap.json` shell without calling external AI services.
+
+Future bridge:
+
+- Wire the Unity editor directly to the `Rts.Core` generator assembly or a command-line bridge so Unity previews exactly match core procedural output.
 
 ## Unity Menu Items
 

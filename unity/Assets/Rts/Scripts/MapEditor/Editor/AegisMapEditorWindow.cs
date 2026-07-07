@@ -34,8 +34,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         int gameplayProfile = 1;
         bool oreRegenerationEnabled = true;
         int oreRegenerationRate = 2;
+        int oreRegenerationDelay = 60;
         string lastGeneratedJson = string.Empty;
         string status = string.Empty;
+        string summary = string.Empty;
         Vector2 scroll;
 
         public static void Open()
@@ -67,6 +69,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             gameplayProfile = EditorGUILayout.Popup("Profile", gameplayProfile, GameplayProfiles);
             oreRegenerationEnabled = EditorGUILayout.Toggle("Ore Regeneration", oreRegenerationEnabled);
             oreRegenerationRate = EditorGUILayout.IntSlider("Ore Regen Rate", oreRegenerationRate, 0, 20);
+            oreRegenerationDelay = EditorGUILayout.IntSlider("Ore Regen Delay", oreRegenerationDelay, 0, 600);
 
             EditorGUILayout.Space(8);
             EditorGUILayout.BeginHorizontal();
@@ -90,6 +93,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (!string.IsNullOrEmpty(status))
                 EditorGUILayout.HelpBox(status, status.StartsWith("Error", StringComparison.Ordinal) ? MessageType.Error : MessageType.Info);
 
+            EditorGUILayout.LabelField("Generated Map Summary", EditorStyles.boldLabel);
+            EditorGUILayout.TextArea(summary, GUILayout.MinHeight(84));
+
             EditorGUILayout.LabelField("Preview", EditorStyles.boldLabel);
             EditorGUILayout.TextArea(string.IsNullOrEmpty(lastGeneratedJson) ? string.Empty : lastGeneratedJson, GUILayout.MinHeight(160));
             EditorGUILayout.EndScrollView();
@@ -97,7 +103,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         void GeneratePreview()
         {
+            if (!ValidateDimensions())
+                return;
+
             lastGeneratedJson = BuildCurrentJson();
+            summary = BuildSummary();
             status = "Generated deterministic preview for seed " + seed + ".";
         }
 
@@ -105,14 +115,24 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             var width = ResolveWidth();
             var height = ResolveHeight();
-            if (width < 100 || height < 100 || width > 400 || height > 400)
-            {
-                status = "Error: map dimensions must be between 100 and 400.";
+            if (!ValidateDimensions())
                 return;
-            }
             if (string.IsNullOrEmpty(lastGeneratedJson))
                 lastGeneratedJson = BuildCurrentJson();
+            summary = BuildSummary();
             status = "Map settings validated for " + width + "x" + height + ".";
+        }
+
+        bool ValidateDimensions()
+        {
+            var width = ResolveWidth();
+            var height = ResolveHeight();
+            if (width >= 100 && height >= 100 && width <= 400 && height <= 400)
+                return true;
+
+            status = "Error: map dimensions must be between 100 and 400.";
+            summary = string.Empty;
+            return false;
         }
 
         void SaveAegisMap()
@@ -185,7 +205,44 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 seed,
                 GameplayProfiles[gameplayProfile],
                 oreRegenerationEnabled,
-                oreRegenerationRate);
+                oreRegenerationRate,
+                oreRegenerationDelay);
+        }
+
+        string BuildSummary()
+        {
+            if (string.IsNullOrEmpty(lastGeneratedJson))
+                return string.Empty;
+
+            var resources = CountOccurrences(lastGeneratedJson, "\"resourceKind\"");
+            var blockers = CountOccurrences(lastGeneratedJson, "\"blocksGround\"");
+            var starts = CountOccurrences(lastGeneratedJson, "\"playerId\"");
+            return "Size: " + ResolveWidth() + "x" + ResolveHeight() + "\n" +
+                "Seed: " + seed + "\n" +
+                "Players: " + starts + "\n" +
+                "Biome: " + Biomes[biome] + "\n" +
+                "Resources: " + ResourceDensities[resourceDensity] + " (" + resources + " cells)\n" +
+                "Cliffs: " + CliffDensities[cliffDensity] + " (" + blockers + " blocker cells)\n" +
+                "Rockiness: " + RockinessValues[rockiness] + "\n" +
+                "Water: " + WaterAmounts[waterAmount] + "\n" +
+                "Symmetry: " + Symmetries[symmetry] + "\n" +
+                "Profile: " + GameplayProfiles[gameplayProfile] + "\n" +
+                "Ore regen: " + (oreRegenerationEnabled ? oreRegenerationRate + " per tick after " + oreRegenerationDelay + " ticks" : "disabled");
+        }
+
+        static int CountOccurrences(string text, string value)
+        {
+            var count = 0;
+            var index = 0;
+            while (!string.IsNullOrEmpty(text) && index < text.Length)
+            {
+                index = text.IndexOf(value, index, StringComparison.Ordinal);
+                if (index < 0)
+                    break;
+                count++;
+                index += value.Length;
+            }
+            return count;
         }
 
         int ResolveWidth()

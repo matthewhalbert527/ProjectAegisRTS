@@ -29,7 +29,7 @@ namespace ProjectAegisRTS.Maps.Generation
             if (string.IsNullOrEmpty(normalized))
                 warnings.Add("PromptEmpty:Using default balanced small map settings.");
 
-            ParseSize(normalized, request);
+            ParseSize(normalized, request, warnings);
             ParsePlayerCount(normalized, request);
             ParseBiome(normalized, request);
             ParseDensities(normalized, request);
@@ -46,8 +46,18 @@ namespace ProjectAegisRTS.Maps.Generation
             return new AegisMapNaturalLanguageParseResult(request, warnings);
         }
 
-        static void ParseSize(string text, AegisMapGenerationRequest request)
+        static void ParseSize(string text, AegisMapGenerationRequest request, List<string> warnings)
         {
+            if (Contains(text, "tiny"))
+            {
+                request.SizePreset = AegisMapGenerationPreset.Small;
+                warnings.Add("MapSizeTinyUnsupported:Using small 100x100 map size.");
+            }
+            if (Contains(text, "huge"))
+            {
+                request.SizePreset = AegisMapGenerationPreset.Large;
+                warnings.Add("MapSizeHugeClamped:Using large 400x400 map size.");
+            }
             if (Contains(text, "small"))
                 request.SizePreset = AegisMapGenerationPreset.Small;
             if (Contains(text, "medium"))
@@ -69,6 +79,8 @@ namespace ProjectAegisRTS.Maps.Generation
             var match = Regex.Match(text, @"\b(?<count>[2468])\s*(player|players)\b");
             if (match.Success)
                 request.PlayerCount = int.Parse(match.Groups["count"].Value);
+            else if (Contains(text, "two player") || Contains(text, "two players") || Contains(text, "2p"))
+                request.PlayerCount = 2;
             else if (Contains(text, "four player") || Contains(text, "4p"))
                 request.PlayerCount = 4;
             else if (Contains(text, "six player") || Contains(text, "6p"))
@@ -99,14 +111,39 @@ namespace ProjectAegisRTS.Maps.Generation
         {
             request.ResourceDensity = ParseIntensityNear(text, "resource", request.ResourceDensity);
             request.ResourceDensity = ParseIntensityNear(text, "ore", request.ResourceDensity);
-            if (Contains(text, "lots of ore") || Contains(text, "rich ore") || Contains(text, "many resources"))
+            if (Contains(text, "lots of ore") || Contains(text, "a lot of ore") || Contains(text, "rich ore") ||
+                Contains(text, "high ore") || Contains(text, "high resources") || Contains(text, "resource rich") ||
+                Contains(text, "resource-rich") || Contains(text, "many resources"))
                 request.ResourceDensity = AegisMapIntensity.High;
-            if (Contains(text, "low resources") || Contains(text, "scarce resources"))
+            if (Contains(text, "very low resources"))
+                request.ResourceDensity = AegisMapIntensity.VeryLow;
+            else if (Contains(text, "low resources") || Contains(text, "scarce resources") || Contains(text, "scarce ore"))
                 request.ResourceDensity = AegisMapIntensity.Low;
+            else if (Contains(text, "medium resources") || Contains(text, "balanced resources"))
+                request.ResourceDensity = AegisMapIntensity.Medium;
 
             request.CliffDensity = ParseIntensityNear(text, "cliff", request.CliffDensity);
+            if (Contains(text, "no cliffs"))
+                request.CliffDensity = AegisMapIntensity.None;
+            else if (Contains(text, "few cliffs"))
+                request.CliffDensity = AegisMapIntensity.Low;
+            else if (Contains(text, "lots of cliffs") || Contains(text, "cliffy"))
+                request.CliffDensity = AegisMapIntensity.VeryHigh;
+            else if (Contains(text, "extreme cliffs"))
+                request.CliffDensity = AegisMapIntensity.Extreme;
+
             request.Rockiness = ParseIntensityNear(text, "rockiness", request.Rockiness);
             request.Rockiness = ParseIntensityNear(text, "rocky", request.Rockiness);
+            request.Rockiness = ParseIntensityNear(text, "rocks", request.Rockiness);
+            if (Contains(text, "flat") || Contains(text, "not rocky"))
+                request.Rockiness = AegisMapIntensity.None;
+            else if (Contains(text, "lots of rocks") || Contains(text, "very rocky") || Contains(text, "high rockiness"))
+                request.Rockiness = AegisMapIntensity.High;
+            else if (Contains(text, "extreme rockiness"))
+                request.Rockiness = AegisMapIntensity.Extreme;
+            else if (Contains(text, "rocky"))
+                request.Rockiness = AegisMapIntensity.High;
+
             if (Contains(text, "many choke"))
                 request.CliffDensity = AegisMapIntensity.High;
         }
@@ -117,31 +154,33 @@ namespace ProjectAegisRTS.Maps.Generation
                 request.WaterAmount = AegisMapWaterAmount.None;
             else if (Contains(text, "low water") || Contains(text, "little water"))
                 request.WaterAmount = AegisMapWaterAmount.Low;
-            else if (Contains(text, "medium water"))
+            else if (Contains(text, "medium water") || Contains(text, "some water"))
                 request.WaterAmount = AegisMapWaterAmount.Medium;
-            else if (Contains(text, "high water") || Contains(text, "islands"))
+            else if (Contains(text, "high water") || Contains(text, "lots of water") || Contains(text, "islands"))
                 request.WaterAmount = AegisMapWaterAmount.High;
         }
 
         static void ParseSymmetry(string text, AegisMapGenerationRequest request)
         {
-            if (Contains(text, "no symmetry") || Contains(text, "asymmetric"))
+            if (Contains(text, "no symmetry") || Contains(text, "asymmetric") || Contains(text, "symmetry none"))
                 request.Symmetry = AegisMapSymmetryMode.None;
-            else if (Contains(text, "vertical symmetry"))
+            else if (Contains(text, "vertical symmetry") || Contains(text, "vertical mirror") || Contains(text, "mirrored vertical"))
                 request.Symmetry = AegisMapSymmetryMode.Vertical;
             else if (Contains(text, "rotational"))
                 request.Symmetry = AegisMapSymmetryMode.Rotational;
             else if (Contains(text, "radial"))
                 request.Symmetry = AegisMapSymmetryMode.Radial;
-            else if (Contains(text, "horizontal") || Contains(text, "balanced"))
+            else if (Contains(text, "horizontal") || Contains(text, "mirrored") || Contains(text, "symmetric") || Contains(text, "balanced"))
                 request.Symmetry = AegisMapSymmetryMode.Horizontal;
         }
 
         static void ParseGameplayProfile(string text, AegisMapGenerationRequest request)
         {
-            if (Contains(text, "open"))
+            if (Contains(text, "wide open") || Contains(text, "open"))
                 request.GameplayProfile = AegisMapGameplayProfile.Open;
-            if (Contains(text, "choke"))
+            if (Contains(text, "balanced"))
+                request.GameplayProfile = AegisMapGameplayProfile.Balanced;
+            if (Contains(text, "choke") || Contains(text, "chokepoint"))
                 request.GameplayProfile = AegisMapGameplayProfile.Chokepoint;
             if (Contains(text, "defensive"))
                 request.GameplayProfile = AegisMapGameplayProfile.Defensive;
@@ -216,8 +255,11 @@ namespace ProjectAegisRTS.Maps.Generation
         static bool ContainsKnownMapWord(string text)
         {
             return Contains(text, "map") || Contains(text, "small") || Contains(text, "medium") || Contains(text, "large") ||
+                Contains(text, "tiny") || Contains(text, "huge") || Contains(text, "water") || Contains(text, "symmetry") ||
                 Contains(text, "ore") || Contains(text, "resource") || Contains(text, "cliff") || Contains(text, "rock") ||
-                Contains(text, "forest") || Contains(text, "desert") || Contains(text, "player") || Contains(text, "seed");
+                Contains(text, "forest") || Contains(text, "desert") || Contains(text, "tundra") || Contains(text, "volcanic") ||
+                Contains(text, "wasteland") || Contains(text, "player") || Contains(text, "seed") || Contains(text, "tournament") ||
+                Contains(text, "choke") || Contains(text, "balanced") || Contains(text, "open");
         }
 
         static string Normalize(string text)

@@ -110,11 +110,12 @@ namespace ProjectAegisRTS.UnityClient.MapEditor
             int seed,
             string gameplayProfile,
             bool oreRegenerationEnabled,
-            int oreRegenerationRate)
+            int oreRegenerationRate,
+            int oreRegenerationDelay)
         {
             var safeMapId = string.IsNullOrEmpty(mapId) ? "procedural_aegis_map" : mapId;
             var starts = BuildPlayerStarts(width, height, playerCount);
-            var resources = BuildProceduralResources(width, height, starts, resourceDensity, oreRegenerationEnabled, oreRegenerationRate);
+            var resources = BuildProceduralResources(width, height, starts, resourceDensity, oreRegenerationEnabled, oreRegenerationRate, oreRegenerationDelay);
             var terrain = BuildProceduralTerrain(width, height, biome, cliffDensity, rockiness, waterAmount, seed);
             var blockers = BuildProceduralBlockers(width, height, terrain);
             RemoveProtectedCells(width, height, starts, terrain, blockers, resources);
@@ -148,6 +149,9 @@ namespace ProjectAegisRTS.UnityClient.MapEditor
             json.Append("    \"waterAmount\": \"").Append(EscapeJson(waterAmount)).Append("\",\n");
             json.Append("    \"symmetry\": \"").Append(EscapeJson(symmetry)).Append("\",\n");
             json.Append("    \"gameplayProfile\": \"").Append(EscapeJson(gameplayProfile)).Append("\",\n");
+            json.Append("    \"oreRegenerationEnabled\": \"").Append(oreRegenerationEnabled ? "true" : "false").Append("\",\n");
+            json.Append("    \"oreRegenerationRatePerTick\": \"").Append(oreRegenerationRate).Append("\",\n");
+            json.Append("    \"oreRegenerationDelayTicks\": \"").Append(oreRegenerationDelay).Append("\",\n");
             json.Append("    \"generationSeed\": \"").Append(seed).Append("\"\n");
             json.Append("  }\n");
             json.Append("}\n");
@@ -160,6 +164,8 @@ namespace ProjectAegisRTS.UnityClient.MapEditor
                 "- small rocky map with lots of ore and high cliffs\n" +
                 "- medium 4 player desert map, medium resources, low cliffs\n" +
                 "- 200 by 200 forest map with high rockiness and regenerating ore\n" +
+                "- tiny two player grassland map with scarce resources and no water\n" +
+                "- huge eight player tournament symmetric tundra map with high resources\n" +
                 "- large rocky battlefield with high resources, many choke points, cliffs, and regenerating ore fields\n";
         }
 
@@ -220,7 +226,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor
             return starts;
         }
 
-        static List<ProceduralResource> BuildProceduralResources(int width, int height, List<ProceduralStart> starts, string density, bool regenerates, int regenerationRate)
+        static List<ProceduralResource> BuildProceduralResources(int width, int height, List<ProceduralStart> starts, string density, bool regenerates, int regenerationRate, int regenerationDelay)
         {
             var resources = new List<ProceduralResource>();
             var clusters = density == "very high" ? 4 : density == "high" ? 3 : density == "low" || density == "very low" ? 1 : 2;
@@ -239,7 +245,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor
                         {
                             if (Math.Abs(x) + Math.Abs(y) > 3)
                                 continue;
-                            resources.Add(new ProceduralResource(centerX + x, centerY + y, amount, regenerates, regenerationRate));
+                            resources.Add(new ProceduralResource(centerX + x, centerY + y, amount, regenerates, regenerationRate, regenerationDelay));
                         }
                 }
             }
@@ -339,7 +345,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor
                 var r = resources[i];
                 if (i != 0)
                     json.Append(",\n");
-                json.Append("    { \"fieldId\": \"unity_ore_").Append(i + 1).Append("\", \"x\": ").Append(r.X).Append(", \"y\": ").Append(r.Y).Append(", \"resourceKind\": \"ore\", \"amount\": ").Append(r.Amount).Append(", \"maxAmount\": ").Append(r.Amount).Append(", \"regenerates\": ").Append(r.Regenerates ? "true" : "false").Append(", \"regenerationRatePerTick\": ").Append(r.RegenerationRate).Append(", \"regenerationDelayTicks\": 60 }");
+                json.Append("    { \"fieldId\": \"unity_ore_").Append(i + 1).Append("\", \"x\": ").Append(r.X).Append(", \"y\": ").Append(r.Y).Append(", \"resourceKind\": \"ore\", \"amount\": ").Append(r.Amount).Append(", \"maxAmount\": ").Append(r.Amount).Append(", \"regenerates\": ").Append(r.Regenerates ? "true" : "false").Append(", \"regenerationRatePerTick\": ").Append(r.RegenerationRate).Append(", \"regenerationDelayTicks\": ").Append(r.RegenerationDelay).Append(" }");
             }
             json.Append("\n  ]").Append(comma ? "," : string.Empty).Append("\n");
         }
@@ -403,14 +409,16 @@ namespace ProjectAegisRTS.UnityClient.MapEditor
             public int Amount;
             public bool Regenerates;
             public int RegenerationRate;
+            public int RegenerationDelay;
 
-            public ProceduralResource(int x, int y, int amount, bool regenerates, int regenerationRate)
+            public ProceduralResource(int x, int y, int amount, bool regenerates, int regenerationRate, int regenerationDelay)
             {
                 X = x;
                 Y = y;
                 Amount = amount;
                 Regenerates = regenerates;
                 RegenerationRate = regenerationRate;
+                RegenerationDelay = regenerationDelay < 0 ? 0 : regenerationDelay;
             }
         }
     }

@@ -33,18 +33,30 @@ namespace ProjectAegisRTS.Maps.Generation
     {
         public bool CanPlace(AegisMapDocument document, AegisBuildingFootprint footprint, int topLeftX, int topLeftY)
         {
+            return CanPlace(document, footprint, topLeftX, topLeftY, 0);
+        }
+
+        public bool CanPlace(AegisMapDocument document, AegisBuildingFootprint footprint, int topLeftX, int topLeftY, int paddingCells)
+        {
             if (document == null || footprint == null)
                 return false;
 
             if (topLeftX < 0 || topLeftY < 0 || topLeftX + footprint.Width > document.Width || topLeftY + footprint.Height > document.Height)
                 return false;
 
+            if (paddingCells < 0)
+                paddingCells = 0;
+            if (topLeftX - paddingCells < 0 || topLeftY - paddingCells < 0 ||
+                topLeftX + footprint.Width + paddingCells > document.Width ||
+                topLeftY + footprint.Height + paddingCells > document.Height)
+                return false;
+
             var blockers = BuildBlockerSet(document);
             var resources = BuildResourceSet(document);
             var terrain = BuildTerrainMap(document);
 
-            for (var y = 0; y < footprint.Height; y++)
-                for (var x = 0; x < footprint.Width; x++)
+            for (var y = -paddingCells; y < footprint.Height + paddingCells; y++)
+                for (var x = -paddingCells; x < footprint.Width + paddingCells; x++)
                 {
                     var cellX = topLeftX + x;
                     var cellY = topLeftY + y;

@@ -128,7 +128,10 @@ namespace ProjectAegisRTS.Maps.Generation
         public string ResourceKind { get; private set; }
         public int Amount { get; set; }
         public int MaxAmount { get; private set; }
+        public int RegenerationRatePerTick { get; private set; }
+        public int RegenerationDelayTicks { get; private set; }
         public int LastHarvestTick { get; set; }
+        public int OwnerPlayerId { get; private set; }
         public bool Visible { get; set; }
 
         public bool IsDepleted
@@ -137,14 +140,28 @@ namespace ProjectAegisRTS.Maps.Generation
         }
 
         public ResourceFieldState(string fieldId, Int2 cell, string resourceKind, int amount, int maxAmount)
+            : this(fieldId, cell, resourceKind, amount, maxAmount, 0, 0, 0)
+        {
+        }
+
+        public ResourceFieldState(string fieldId, Int2 cell, string resourceKind, int amount, int maxAmount, int regenerationRatePerTick, int regenerationDelayTicks, int ownerPlayerId)
         {
             FieldId = fieldId ?? string.Empty;
             Cell = cell;
             ResourceKind = string.IsNullOrEmpty(resourceKind) ? "ore" : resourceKind;
             Amount = amount < 0 ? 0 : amount;
             MaxAmount = maxAmount < Amount ? Amount : maxAmount;
+            RegenerationRatePerTick = regenerationRatePerTick < 0 ? 0 : regenerationRatePerTick;
+            RegenerationDelayTicks = regenerationDelayTicks < 0 ? 0 : regenerationDelayTicks;
             LastHarvestTick = 0;
-            Visible = true;
+            OwnerPlayerId = ownerPlayerId;
+            Visible = Amount > 0;
+        }
+
+        public int TicksSinceLastHarvest(int currentTick)
+        {
+            var ticks = currentTick - LastHarvestTick;
+            return ticks < 0 ? 0 : ticks;
         }
     }
 
@@ -218,12 +235,14 @@ namespace ProjectAegisRTS.Maps.Generation
             TickNumber++;
             foreach (var field in fields.Values)
             {
-                if (rules.RatePerTick <= 0 || field.Amount >= field.MaxAmount)
+                var rate = field.RegenerationRatePerTick > 0 ? field.RegenerationRatePerTick : rules.RatePerTick;
+                var delay = field.RegenerationDelayTicks > 0 ? field.RegenerationDelayTicks : rules.DelayTicks;
+                if (rate <= 0 || field.Amount >= field.MaxAmount)
                     continue;
-                if (TickNumber - field.LastHarvestTick < rules.DelayTicks)
+                if (field.TicksSinceLastHarvest(TickNumber) < delay)
                     continue;
 
-                field.Amount += rules.RatePerTick;
+                field.Amount += rate;
                 if (field.Amount > field.MaxAmount)
                     field.Amount = field.MaxAmount;
                 field.Visible = field.Amount > 0;
