@@ -42,7 +42,13 @@ namespace ProjectAegisRTS.Maps
                 for (var i = 0; i < document.Resources.Count; i++)
                 {
                     var resource = document.Resources[i];
-                    world.AddResourceCell(new Int2(resource.X, resource.Y), ParseResourceKind(resource.ResourceKind), resource.Amount);
+                    world.AddResourceCell(
+                        new Int2(resource.X, resource.Y),
+                        ParseResourceKind(resource.ResourceKind),
+                        resource.Amount,
+                        resource.MaxAmount <= 0 ? resource.Amount : resource.MaxAmount,
+                        resource.Regenerates ? resource.RegenerationRatePerTick : 0,
+                        resource.Regenerates ? resource.RegenerationDelayTicks : 0);
                 }
 
             if (document.ActorPlacements != null)
@@ -126,6 +132,12 @@ namespace ProjectAegisRTS.Maps
         {
             if (string.Equals(resourceKind, "ore", StringComparison.OrdinalIgnoreCase))
                 return ResourceKind.Ore;
+            if (string.Equals(resourceKind, "crystal", StringComparison.OrdinalIgnoreCase))
+                return ResourceKind.Crystal;
+            if (string.Equals(resourceKind, "salvage", StringComparison.OrdinalIgnoreCase))
+                return ResourceKind.Salvage;
+            if (string.Equals(resourceKind, "energy", StringComparison.OrdinalIgnoreCase))
+                return ResourceKind.Energy;
 
             return ResourceKind.Ore;
         }

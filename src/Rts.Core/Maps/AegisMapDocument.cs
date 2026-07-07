@@ -121,23 +121,38 @@ namespace ProjectAegisRTS.Maps
 
     public sealed class AegisResourcePlacement
     {
+        public string FieldId { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
         public string ResourceKind { get; set; }
         public int Amount { get; set; }
+        public int MaxAmount { get; set; }
+        public bool Regenerates { get; set; }
+        public int RegenerationRatePerTick { get; set; }
+        public int RegenerationDelayTicks { get; set; }
 
         public AegisResourcePlacement()
         {
+            FieldId = string.Empty;
             ResourceKind = "ore";
             Amount = 500;
+            MaxAmount = 500;
+            Regenerates = false;
+            RegenerationRatePerTick = 0;
+            RegenerationDelayTicks = 0;
         }
 
         public AegisResourcePlacement(int x, int y, string resourceKind, int amount)
         {
+            FieldId = string.Empty;
             X = x;
             Y = y;
             ResourceKind = string.IsNullOrEmpty(resourceKind) ? "ore" : resourceKind;
             Amount = amount;
+            MaxAmount = amount;
+            Regenerates = false;
+            RegenerationRatePerTick = 0;
+            RegenerationDelayTicks = 0;
         }
     }
 

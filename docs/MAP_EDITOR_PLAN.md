@@ -13,6 +13,7 @@
 - Core validator: `src/Rts.Core/Maps/AegisMapDocumentValidator.cs`
 - Runtime world factory: `src/Rts.Core/Maps/AegisMapDocumentWorldFactory.cs`
 - Tiled importer/exporter: `src/Rts.Core/Maps/Tiled`
+- Procedural prompt generator: `src/Rts.Core/Maps/Generation`
 - Unity editor menus: `unity/Assets/Rts/Scripts/MapEditor/Editor`
 - Unity runtime helper paths/templates: `unity/Assets/Rts/Scripts/MapEditor/Runtime`
 
@@ -27,6 +28,7 @@
 
 ## Next Useful Work
 
+- Add a direct Unity-to-`Rts.Core` assembly reference or command-line bridge for editor generation parity.
 - Add a dedicated command-line converter for batch import/export.
 - Add Unity preview rendering from `.aegismap.json` once Unity compile validation is available.
 - Expand Tiled tileset metadata if more terrain or resource types are added.

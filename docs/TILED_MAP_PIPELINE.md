@@ -50,6 +50,12 @@ Object layers are used for player starts, resource fields, actor placements, reg
 
 Tiled JSON is not loaded as the authoritative runtime map format.
 
+## Generated Maps
+
+The procedural prompt generator also outputs `AegisMapDocument`. Generated maps can be saved directly as `.aegismap.json` and exported with `AegisTiledMapExporter` when an author needs to inspect or edit the result in Tiled.
+
+Resource regeneration metadata remains an Aegis runtime concern. Tiled export preserves practical layer/object data, but `.aegismap.json` remains authoritative for gameplay validation.
+
 ## Samples
 
 - `unity/Assets/Rts/Maps/Tiled/sample_small_100.tmx`

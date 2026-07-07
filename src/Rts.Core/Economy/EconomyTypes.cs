@@ -5,7 +5,10 @@ namespace ProjectAegisRTS.Economy
     public enum ResourceKind
     {
         None,
-        Ore
+        Ore,
+        Crystal,
+        Salvage,
+        Energy
     }
 
     public enum HarvesterWorkState
@@ -40,13 +43,24 @@ namespace ProjectAegisRTS.Economy
         public ResourceKind Kind { get; private set; }
         public int Amount { get; set; }
         public int MaxAmount { get; private set; }
+        public int RegenerationRatePerTick { get; set; }
+        public int RegenerationDelayTicks { get; set; }
+        public int LastHarvestTick { get; set; }
 
         public ResourceCellState(Int2 cell, ResourceKind kind, int amount)
+            : this(cell, kind, amount, amount)
+        {
+        }
+
+        public ResourceCellState(Int2 cell, ResourceKind kind, int amount, int maxAmount)
         {
             Cell = cell;
             Kind = kind;
             Amount = amount;
-            MaxAmount = amount;
+            MaxAmount = maxAmount < amount ? amount : maxAmount;
+            RegenerationRatePerTick = 0;
+            RegenerationDelayTicks = 0;
+            LastHarvestTick = 0;
         }
 
         public bool IsDepleted

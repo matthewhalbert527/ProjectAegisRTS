@@ -108,6 +108,12 @@ namespace ProjectAegisRTS.Maps
                     errors.Add("ResourceKindMissing:" + i);
                 if (resource.Amount <= 0)
                     errors.Add("ResourceAmountInvalid:" + i + ":Amount must be greater than zero.");
+                if (resource.MaxAmount < resource.Amount)
+                    errors.Add("ResourceMaxAmountInvalid:" + i + ":MaxAmount must be greater than or equal to Amount.");
+                if (resource.RegenerationRatePerTick < 0)
+                    errors.Add("ResourceRegenerationRateInvalid:" + i + ":RegenerationRatePerTick must not be negative.");
+                if (resource.RegenerationDelayTicks < 0)
+                    errors.Add("ResourceRegenerationDelayInvalid:" + i + ":RegenerationDelayTicks must not be negative.");
             }
         }
 

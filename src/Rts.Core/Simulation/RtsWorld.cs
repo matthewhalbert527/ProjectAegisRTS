@@ -212,10 +212,18 @@ namespace ProjectAegisRTS.Simulation
 
         public void AddResourceCell(Int2 cell, ResourceKind kind, int amount)
         {
+            AddResourceCell(cell, kind, amount, amount, 0, 0);
+        }
+
+        public void AddResourceCell(Int2 cell, ResourceKind kind, int amount, int maxAmount, int regenerationRatePerTick, int regenerationDelayTicks)
+        {
             if (!Map.Contains(cell))
                 throw new InvalidOperationException("Resource cell outside map: " + cell);
 
-            resourceCells[cell] = new ResourceCellState(cell, kind, amount);
+            var state = new ResourceCellState(cell, kind, amount, maxAmount);
+            state.RegenerationRatePerTick = regenerationRatePerTick < 0 ? 0 : regenerationRatePerTick;
+            state.RegenerationDelayTicks = regenerationDelayTicks < 0 ? 0 : regenerationDelayTicks;
+            resourceCells[cell] = state;
             if (Map.GetTerrainKind(cell) == TerrainKind.Clear)
                 Map.SetTerrainKind(cell, TerrainKind.OreField);
         }
@@ -467,6 +475,7 @@ namespace ProjectAegisRTS.Simulation
             TickEngineerAndTransportActions();
             TickAircraftStates();
             TickHarvesting();
+            TickResourceRegeneration();
             TickCombat();
             TickProjectiles();
             UpdatePowerAndActorFlags();
@@ -3695,6 +3704,7 @@ namespace ProjectAegisRTS.Simulation
 
                     var harvestAmount = Min(10, Min(capacityRemaining, resource.Amount));
                     resource.Amount -= harvestAmount;
+                    resource.LastHarvestTick = TickNumber;
                     harvester.CargoAmount += harvestAmount;
                     harvester.CarriedResourceKind = resource.Kind;
                     harvester.HarvestProgressTicks++;
@@ -3780,6 +3790,20 @@ namespace ProjectAegisRTS.Simulation
                             ClearHarvestState(actor);
                     }
                 }
+            }
+        }
+
+        void TickResourceRegeneration()
+        {
+            foreach (var resource in SortedResources())
+            {
+                if (resource.RegenerationRatePerTick <= 0 || resource.Amount >= resource.MaxAmount)
+                    continue;
+
+                if (TickNumber - resource.LastHarvestTick < resource.RegenerationDelayTicks)
+                    continue;
+
+                resource.Amount = Min(resource.MaxAmount, resource.Amount + resource.RegenerationRatePerTick);
             }
         }
 

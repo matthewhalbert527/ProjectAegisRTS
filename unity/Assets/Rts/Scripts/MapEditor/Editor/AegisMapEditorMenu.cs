@@ -12,8 +12,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public static void OpenMapEditor()
         {
             EnsureFolders();
+            AegisMapEditorWindow.Open();
             UnityEditor.Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(AegisMapEditorPaths.MapEditorRoot);
-            EditorUtility.DisplayDialog("Project Aegis Map Editor", "Map-editor folders and samples are ready under Assets/Rts/MapEditor.", "OK");
         }
 
         [MenuItem("Project Aegis/Map Editor/Import Tiled JSON as Aegis Map")]
