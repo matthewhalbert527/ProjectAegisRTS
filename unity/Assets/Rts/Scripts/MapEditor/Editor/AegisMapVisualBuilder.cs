@@ -65,6 +65,76 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             Debug.Log("Aegis map visual builder sample validation passed.");
         }
 
+        public static void RenderSamplePreviewForBatch()
+        {
+            var samplePath = AegisMapEditorPaths.SamplesFolder + "/sample_ai_medium_rocky_4p_chokepoint.aegismap.json";
+            var document = AegisVisualMapDocument.Load(samplePath);
+            if (document == null)
+                throw new InvalidOperationException("Visual builder render could not load " + samplePath + ".");
+
+            var root = BuildScene(document, samplePath, false);
+            var light = new GameObject("Aegis Visual Preview Sun");
+            var lightComponent = light.AddComponent<Light>();
+            lightComponent.type = LightType.Directional;
+            lightComponent.intensity = 1.25f;
+            light.transform.rotation = Quaternion.Euler(50f, -35f, 0f);
+
+            var cameraObject = new GameObject("Aegis Visual Preview Camera");
+            var camera = cameraObject.AddComponent<Camera>();
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(0.06f, 0.08f, 0.07f, 1f);
+            camera.orthographic = true;
+            camera.orthographicSize = Mathf.Max(document.width, document.height) * 0.42f;
+            camera.transform.position = new Vector3(document.width * 0.5f, 105f, -document.height * 0.12f);
+            camera.transform.rotation = Quaternion.Euler(64f, 0f, 0f);
+
+            var renderTexture = new RenderTexture(1400, 1000, 24, RenderTextureFormat.ARGB32);
+            var previous = RenderTexture.active;
+            camera.targetTexture = renderTexture;
+            camera.Render();
+            RenderTexture.active = renderTexture;
+
+            var image = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBA32, false);
+            image.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+            image.Apply(false, false);
+            EnsurePreviewIsNonBlank(image);
+
+            var outputDir = Path.Combine(Path.GetTempPath(), "ProjectAegisRTS");
+            Directory.CreateDirectory(outputDir);
+            var outputPath = Path.Combine(outputDir, "aegis_visual_builder_sample.png");
+            File.WriteAllBytes(outputPath, image.EncodeToPNG());
+            Debug.Log("Aegis map visual builder rendered preview: " + outputPath);
+
+            RenderTexture.active = previous;
+            camera.targetTexture = null;
+            UnityEngine.Object.DestroyImmediate(image);
+            UnityEngine.Object.DestroyImmediate(renderTexture);
+            UnityEngine.Object.DestroyImmediate(cameraObject);
+            UnityEngine.Object.DestroyImmediate(light);
+            UnityEngine.Object.DestroyImmediate(root);
+        }
+
+        static void EnsurePreviewIsNonBlank(Texture2D image)
+        {
+            var pixels = image.GetPixels32();
+            if (pixels.Length == 0)
+                throw new InvalidOperationException("Visual builder render produced an empty image.");
+
+            var first = pixels[0];
+            var varied = 0;
+            var step = Math.Max(1, pixels.Length / 4096);
+            for (var i = 0; i < pixels.Length; i += step)
+            {
+                var p = pixels[i];
+                if (Math.Abs(p.r - first.r) + Math.Abs(p.g - first.g) + Math.Abs(p.b - first.b) > 12)
+                    varied++;
+                if (varied > 48)
+                    return;
+            }
+
+            throw new InvalidOperationException("Visual builder render looked blank or single-color.");
+        }
+
         static void RequireChild(Transform root, string childName)
         {
             if (root.Find(childName) == null)
@@ -329,9 +399,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static void CreateCrater(Transform parent, int cellX, int cellY, Material material)
         {
-            var crater = CreateQuad("Crater Decal", 2.3f, 2.3f, material);
+            var crater = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            crater.name = "Crater Decal";
             crater.transform.SetParent(parent, false);
             crater.transform.position = CellCenter(cellX, cellY, 0.045f);
+            crater.transform.localScale = new Vector3(1.35f, 0.015f, 1.35f);
+            AssignMaterialAndStripCollider(crater, material);
         }
 
         static GameObject CreateQuad(string name, float width, float height, Material material)
