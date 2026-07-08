@@ -88,7 +88,7 @@ Production terrain transitions now use transparent blend roles (`terrain.blend_g
 
 Cliff edges now receive deterministic talus dressing in production preview: transparent rubble decals at exposed cliff feet plus occasional imported pebble-cluster meshes selected from the art pack. Battlefield crater and rubble scatter use textured decals or crater meshes instead of color-only generated primitives, keeping damaged/rocky areas from reading as flat gray blocks.
 
-Road rendering uses layered deterministic visual-only overlays: soft dust sits under a narrower textured road core, and tire ruts/worn edges sit above the core. Bridge crossings remain production-proxy geometry, but the preview uses a textured organic deck, raised side beams, deck seams, posts, and approach dust instead of one flat rectangular road slab.
+Road rendering uses layered deterministic visual-only overlays: soft dust sits under a narrower textured road core, and tire ruts/worn edges sit above the core. Non-water road runs now render as gently curved ribbon meshes with deterministic centerline drift and variable width, so long generated roads no longer read as perfect straight rectangular bands. Bridge crossings remain production-proxy geometry, but the preview uses a textured organic deck, raised side beams, deck seams, posts, and approach dust instead of one flat rectangular road slab.
 
 ## Water Rendering
 

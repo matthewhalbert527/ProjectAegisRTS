@@ -6,7 +6,7 @@
 - Debug outlines in production preview: the visual compiler had UI overlay toggles, but they were not real compile settings and defaulted on in the window. This pass adds `ProductionPreview`, `DebugOverlay`, and `Hybrid` render modes with production as the default and debug overlays off by default.
 - Cell-stepped river borders: `AegisWaterAndShorelineCompiler` emitted one water quad and edge quad per water cell. This pass hides production water cells from the base terrain layer, converts water rows into smoothed ribbon meshes, keeps water-strip metrics for validation, and uses continuous bank/cap shoreline meshes instead of horizontal/vertical shoreline rectangles. Shorelines now have a narrower wet core plus a lighter feather, and both use transparent river decal textures instead of opaque muddy terrain strips.
 - Road segments crossing water without bridges/fords: `AegisRoadVisualCompiler` rendered each segment as a single road body over every terrain type. This pass splits road segments by sampled water crossings and emits dedicated bridge deck, raised side-beam, seam, post, approach-dust, and soft-shadow pieces over water without the earlier scorch-shadow quad that produced black block artifacts.
-- Road slabs at close zoom: production terrain now naturalizes road-adjacent dirt base cells back into grass so the road compiler owns the visible path. The road compiler uses a narrower organic road body above softer dust, dimension-scaled road/dust UVs, and irregular worn-edge, rut, and mud-track meshes instead of opaque rectangular strips.
+- Road slabs at close zoom: production terrain now naturalizes road-adjacent dirt base cells back into grass so the road compiler owns the visible path. The road compiler uses gently curved ribbon meshes with deterministic centerline drift, narrower organic road bodies above softer dust, dimension-scaled road/dust UVs, variable ribbon width, and irregular worn-edge, rut, and mud-track meshes instead of opaque rectangular strips.
 - Flat gray base pads: `AegisBasePadVisualCompiler` could quietly fall back to flat quads. This pass keeps the v2 `base_pad_14x14.glb` path, uses textured concrete panel/trim roles, and reports a warning if the pad mesh or concrete texture path is missing.
 - Noisy ore sparkle: `AegisResourceFieldVisualCompiler` allowed many small chunks and glints per field. This pass reduces chunk count, increases chunk scale, always emits field dust, caps glints to four per field, and uses depletion-aware density.
 - Cliffs/rocks reading as gray blobs: `AegisCliffTopologyCompiler` could emit raw blocker core cubes inside cliff regions. This pass hides blocker fill in production, reserves `debug_cliff_blocker_core_*` for debug or hybrid overlays, and adds textured talus dust plus imported pebble clusters along exposed cliff edges.
@@ -33,7 +33,7 @@
 - Exposed cliff edges receive deterministic textured talus/rubble decals and imported pebble clusters.
 - Production terrain detail decals add denser grass mottling, road-adjacent dust, gravel speckles, wet bank marks, and water highlights.
 - Production terrain detail decals use deterministic organic mesh silhouettes instead of plain rectangular quads.
-- Roads layer softer dust below narrower organic body meshes with dimension-scaled road/dust UVs plus worn edge, tire-rut, and mud-track decal roles.
+- Roads layer softer dust below narrower deterministic curved ribbon meshes with dimension-scaled road/dust UVs plus worn edge, tire-rut, and mud-track decal roles.
 - Base pads use transparent panel/trim decals, grime, cracks, and construction-wear decals.
 - Resource fields use transparent ore-dust decals and capped glint decals.
 - Crater and rubble scatter roles use art-pack transparent decals/meshes instead of color-only primitive placeholders.
@@ -46,6 +46,6 @@
 - Replace soft transition decals with real shader splat/blend weights once a terrain-layer renderer exists.
 - Replace prototype bridge deck/rail geometry with original authored bridge/fording assets and tuned shadow/occlusion materials.
 - Replace deterministic close-up decals with authored terrain blend masks once the final terrain renderer exists.
-- Add authored road/river spline metadata to `.aegismap.json` when the core map format needs it.
+- Add authored road/river spline metadata to `.aegismap.json` when the core map format needs it. Current roads are deterministic visual ribbons derived from generated path segments, not authored gameplay splines.
 - Add final sculpted cliffs, vegetation, ore, and base-pad prefabs with LODs and tuned materials.
 - Add automated screenshot comparison once visual targets stabilize.

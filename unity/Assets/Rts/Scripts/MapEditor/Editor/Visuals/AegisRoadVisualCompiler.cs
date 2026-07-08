@@ -72,22 +72,19 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (length <= 0.3f)
                 return;
 
-            var center = Vector2.Lerp(run.A, run.B, 0.5f);
-            var angle = AegisVisualCompilerPrimitives.DirectionAngle(run.A, run.B);
-            var direction = (run.B - run.A).normalized;
-            var normal = new Vector2(-direction.y, direction.x);
             var width = Mathf.Clamp(run.Width * 0.62f, 1.14f, 1.92f);
             var dustWidth = Mathf.Clamp(run.Width * 0.88f, 1.62f, 2.85f);
+            var path = BuildRoadPath(context, segmentIndex, runIndex, run, length);
 
-            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, center, length * 0.96f, dustWidth, 0.052f, dustMaterial, angle, context, segmentIndex, runIndex, 7310, dustWidth * 0.28f, 48f);
-            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_body_" + segmentIndex + "_" + runIndex, center, length * 0.98f, width, 0.070f, roadMaterial, angle, context, segmentIndex, runIndex, 7300, width * 0.24f, 40f);
-            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, center + normal * (width * 0.58f), length * 0.86f, 0.30f, 0.084f, edgeMaterial, angle, context, segmentIndex, runIndex, 7200, 0.07f);
-            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, center - normal * (width * 0.58f), length * 0.86f, 0.30f, 0.084f, edgeMaterial, angle + 180f, context, segmentIndex, runIndex, 7210, 0.07f);
+            CreateRoadRibbonMesh(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, path, dustWidth, 0f, 0.052f, dustMaterial, context, segmentIndex, runIndex, 7310, 0.16f, 48f);
+            CreateRoadRibbonMesh(layer, "road_body_" + segmentIndex + "_" + runIndex, path, width, 0f, 0.070f, roadMaterial, context, segmentIndex, runIndex, 7300, 0.10f, 40f);
+            CreateRoadRibbonMesh(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, path, 0.30f, width * 0.58f, 0.084f, edgeMaterial, context, segmentIndex, runIndex, 7200, 0.18f, 16f);
+            CreateRoadRibbonMesh(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, path, 0.30f, -width * 0.58f, 0.084f, edgeMaterial, context, segmentIndex, runIndex, 7210, 0.18f, 16f);
             summary.RoadDetailDecalCount += 4;
             if (length > 5f)
             {
-                AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_tire_rut_left_" + segmentIndex + "_" + runIndex, center + normal * (width * 0.26f), length * 0.72f, 0.13f, 0.093f, leftRutMaterial, angle, context, segmentIndex, runIndex, 7220, 0.035f);
-                AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_tire_rut_right_" + segmentIndex + "_" + runIndex, center - normal * (width * 0.26f), length * 0.72f, 0.13f, 0.093f, rightRutMaterial, angle, context, segmentIndex, runIndex, 7230, 0.035f);
+                CreateRoadRibbonMesh(layer, "road_tire_rut_left_" + segmentIndex + "_" + runIndex, path, 0.13f, width * 0.26f, 0.093f, leftRutMaterial, context, segmentIndex, runIndex, 7220, 0.08f, 12f);
+                CreateRoadRibbonMesh(layer, "road_tire_rut_right_" + segmentIndex + "_" + runIndex, path, 0.13f, -width * 0.26f, 0.093f, rightRutMaterial, context, segmentIndex, runIndex, 7230, 0.08f, 12f);
                 summary.RoadDetailDecalCount += 2;
             }
 
@@ -97,14 +94,140 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 for (var i = 0; i < count; i++)
                 {
                     var t = (i + 1f) / (count + 1f);
-                    var p = Vector2.Lerp(run.A, run.B, t) + normal * Mathf.Lerp(-0.35f, 0.35f, context.Hash01(segmentIndex, runIndex, 7100 + i));
+                    var sample = SampleRoadPath(path, t);
+                    var p = sample.Center + sample.Normal * Mathf.Lerp(-0.35f, 0.35f, context.Hash01(segmentIndex, runIndex, 7100 + i));
                     var patchLength = Mathf.Lerp(1.4f, 3.6f, context.Hash01(segmentIndex, runIndex, 7110 + i));
-                    AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_mud_track_" + segmentIndex + "_" + runIndex + "_" + i, p, patchLength, width * 0.62f, 0.096f, mudTrackMaterial, angle + Mathf.Lerp(-8f, 8f, context.Hash01(segmentIndex, runIndex, 7120 + i)), context, segmentIndex, runIndex, 7240 + i, 0.12f);
+                    var patchAngle = Mathf.Atan2(sample.Direction.y, sample.Direction.x) * Mathf.Rad2Deg + Mathf.Lerp(-8f, 8f, context.Hash01(segmentIndex, runIndex, 7120 + i));
+                    AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_mud_track_" + segmentIndex + "_" + runIndex + "_" + i, p, patchLength, width * 0.62f, 0.096f, mudTrackMaterial, patchAngle, context, segmentIndex, runIndex, 7240 + i, 0.12f);
                     summary.RoadDetailDecalCount++;
                 }
             }
 
             summary.RoadSegments++;
+        }
+
+        static RoadPath BuildRoadPath(AegisMapVisualCompileContext context, int segmentIndex, int runIndex, RoadRun run, float length)
+        {
+            var sections = Mathf.Clamp(Mathf.CeilToInt(length / 2.15f), 3, 32);
+            var points = new Vector2[sections + 1];
+            var distances = new float[sections + 1];
+            var baseDirection = (run.B - run.A).normalized;
+            var baseNormal = new Vector2(-baseDirection.y, baseDirection.x);
+            var amplitude = Mathf.Clamp((length - 4f) * 0.028f, 0f, 0.46f);
+            var phaseA = context.Hash01(segmentIndex, runIndex, 7800) * Mathf.PI * 2f;
+            var phaseB = context.Hash01(segmentIndex, runIndex, 7810) * Mathf.PI * 2f;
+
+            for (var i = 0; i <= sections; i++)
+            {
+                var t = i / (float)sections;
+                var basePoint = Vector2.Lerp(run.A, run.B, t);
+                var envelope = Mathf.Sin(t * Mathf.PI);
+                var wave = Mathf.Sin(t * Mathf.PI * 2f + phaseA) * 0.62f + Mathf.Sin(t * Mathf.PI * 4f + phaseB) * 0.25f;
+                var jitter = (context.Hash01(segmentIndex + i, runIndex, 7820) - 0.5f) * 0.18f;
+                var candidate = basePoint + baseNormal * ((wave + jitter) * amplitude * envelope);
+                points[i] = IsWaterAt(context, candidate) && !IsWaterAt(context, basePoint) ? basePoint : candidate;
+                if (i > 0)
+                    distances[i] = distances[i - 1] + Vector2.Distance(points[i - 1], points[i]);
+            }
+
+            return new RoadPath(points, distances, distances[sections]);
+        }
+
+        static void CreateRoadRibbonMesh(Transform parent, string name, RoadPath path, float width, float lateralOffset, float elevation, Material material, AegisMapVisualCompileContext context, int segmentIndex, int runIndex, int salt, float widthJitter, float uvWorldScale)
+        {
+            if (path.Points == null || path.Points.Length < 2)
+                return;
+
+            var count = path.Points.Length;
+            var vertices = new Vector3[count * 2];
+            var uvs = new Vector2[count * 2];
+            for (var i = 0; i < count; i++)
+            {
+                var direction = RoadDirection(path, i);
+                var normal = new Vector2(-direction.y, direction.x);
+                var sectionWidth = Mathf.Max(0.04f, width * Mathf.Lerp(1f - widthJitter, 1f + widthJitter, context.Hash01(segmentIndex + i, runIndex, salt + 31)));
+                var center = path.Points[i] + normal * lateralOffset;
+                var halfWidth = sectionWidth * 0.5f;
+                vertices[i * 2] = new Vector3(center.x - normal.x * halfWidth, elevation, center.y - normal.y * halfWidth);
+                vertices[i * 2 + 1] = new Vector3(center.x + normal.x * halfWidth, elevation, center.y + normal.y * halfWidth);
+                var v = path.Distances[i] / Mathf.Max(0.001f, uvWorldScale);
+                uvs[i * 2] = new Vector2(0f, v);
+                uvs[i * 2 + 1] = new Vector2(1f, v);
+            }
+
+            var triangles = new int[(count - 1) * 6];
+            var triangle = 0;
+            for (var i = 0; i < count - 1; i++)
+            {
+                var a = i * 2;
+                var b = a + 1;
+                var c = (i + 1) * 2;
+                var d = c + 1;
+                triangles[triangle++] = a;
+                triangles[triangle++] = b;
+                triangles[triangle++] = c;
+                triangles[triangle++] = b;
+                triangles[triangle++] = d;
+                triangles[triangle++] = c;
+            }
+
+            var mesh = new Mesh();
+            mesh.name = name + "_ribbon_mesh";
+            mesh.vertices = vertices;
+            mesh.uv = uvs;
+            mesh.triangles = triangles;
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var filter = go.AddComponent<MeshFilter>();
+            filter.sharedMesh = mesh;
+            var renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+        }
+
+        static RoadSample SampleRoadPath(RoadPath path, float t)
+        {
+            if (path.Points == null || path.Points.Length == 0)
+                return new RoadSample(Vector2.zero, Vector2.right, Vector2.up);
+
+            var target = Mathf.Clamp01(t) * path.TotalLength;
+            for (var i = 1; i < path.Distances.Length; i++)
+            {
+                if (path.Distances[i] < target)
+                    continue;
+
+                var distance = Mathf.Max(0.001f, path.Distances[i] - path.Distances[i - 1]);
+                var localT = Mathf.Clamp01((target - path.Distances[i - 1]) / distance);
+                var center = Vector2.Lerp(path.Points[i - 1], path.Points[i], localT);
+                var direction = (path.Points[i] - path.Points[i - 1]).normalized;
+                if (direction.sqrMagnitude < 0.0001f)
+                    direction = RoadDirection(path, i);
+                var normal = new Vector2(-direction.y, direction.x);
+                return new RoadSample(center, direction, normal);
+            }
+
+            var endDirection = RoadDirection(path, path.Points.Length - 1);
+            return new RoadSample(path.Points[path.Points.Length - 1], endDirection, new Vector2(-endDirection.y, endDirection.x));
+        }
+
+        static Vector2 RoadDirection(RoadPath path, int index)
+        {
+            if (path.Points.Length == 1)
+                return Vector2.right;
+
+            if (index <= 0)
+                return SafeDirection(path.Points[1] - path.Points[0]);
+            if (index >= path.Points.Length - 1)
+                return SafeDirection(path.Points[path.Points.Length - 1] - path.Points[path.Points.Length - 2]);
+
+            return SafeDirection(path.Points[index + 1] - path.Points[index - 1]);
+        }
+
+        static Vector2 SafeDirection(Vector2 direction)
+        {
+            return direction.sqrMagnitude < 0.0001f ? Vector2.right : direction.normalized;
         }
 
         static void EmitBridgeRun(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, Material deckMaterial, Material railMaterial, Material detailMaterial, Material shadowMaterial)
@@ -173,6 +296,34 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var x = Mathf.Clamp(Mathf.FloorToInt(point.x), 0, context.Width - 1);
             var y = Mathf.Clamp(Mathf.FloorToInt(point.y), 0, context.Height - 1);
             return context.IsWater(x, y);
+        }
+
+        struct RoadPath
+        {
+            public readonly Vector2[] Points;
+            public readonly float[] Distances;
+            public readonly float TotalLength;
+
+            public RoadPath(Vector2[] points, float[] distances, float totalLength)
+            {
+                Points = points;
+                Distances = distances;
+                TotalLength = totalLength;
+            }
+        }
+
+        struct RoadSample
+        {
+            public readonly Vector2 Center;
+            public readonly Vector2 Direction;
+            public readonly Vector2 Normal;
+
+            public RoadSample(Vector2 center, Vector2 direction, Vector2 normal)
+            {
+                Center = center;
+                Direction = direction;
+                Normal = normal;
+            }
         }
 
         struct RoadRun
