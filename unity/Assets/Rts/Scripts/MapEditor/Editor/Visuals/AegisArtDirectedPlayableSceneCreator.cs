@@ -222,7 +222,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             {
                 controller.preserveConfiguredTransform = true;
                 controller.orthographicSize = 55f;
+                controller.minOrthographicSize = 10f;
+                controller.maxOrthographicSize = 68f;
                 controller.maxHeight = 92f;
+                controller.panSpeed = Mathf.Max(controller.panSpeed, 42f);
+                controller.enableWasdPan = false;
+                controller.enableArrowPan = true;
+                controller.enableEdgePan = true;
+                controller.enableMouseDragPan = true;
                 EditorUtility.SetDirty(controller);
             }
 

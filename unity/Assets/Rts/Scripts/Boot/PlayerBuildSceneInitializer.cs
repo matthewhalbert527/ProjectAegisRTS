@@ -91,7 +91,14 @@ namespace ProjectAegisRTS.UnityClient.Boot
             {
                 cameraController.preserveConfiguredTransform = true;
                 cameraController.orthographicSize = cameraOrthographicSize;
+                cameraController.minOrthographicSize = 10f;
+                cameraController.maxOrthographicSize = 68f;
                 cameraController.maxHeight = cameraPosition.y;
+                cameraController.panSpeed = Mathf.Max(cameraController.panSpeed, 36f);
+                cameraController.enableWasdPan = false;
+                cameraController.enableArrowPan = true;
+                cameraController.enableEdgePan = true;
+                cameraController.enableMouseDragPan = true;
             }
 
             if (FindAnyObjectByType<AudioListener>() == null)

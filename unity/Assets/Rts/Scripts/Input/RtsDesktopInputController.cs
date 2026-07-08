@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Core;
+using ProjectAegisRTS.UnityClient.CameraControls;
 using ProjectAegisRTS.UnityClient.CoreBridge;
 using ProjectAegisRTS.UnityClient.UI;
 using ProjectAegisRTS.UnityClient.UI.Common;
@@ -82,6 +83,12 @@ namespace ProjectAegisRTS.UnityClient.InputControls
 
         void HandleMouse()
         {
+            if (RtsCameraController.IsCameraPanModifierHeld())
+            {
+                leftMouseDownValid = false;
+                return;
+            }
+
             if (Input.GetMouseButtonDown(0))
             {
                 leftMouseDownPosition = Input.mousePosition;

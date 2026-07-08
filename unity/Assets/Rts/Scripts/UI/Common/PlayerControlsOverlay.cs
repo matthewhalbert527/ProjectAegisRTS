@@ -35,6 +35,8 @@ namespace ProjectAegisRTS.UnityClient.UI.Common
             GUILayout.Label("Controls");
             GUILayout.Label("Left click selects units and buildings.");
             GUILayout.Label("Right click moves selected units or attacks an enemy under the cursor.");
+            GUILayout.Label("Move camera with arrow keys, screen-edge scroll, middle-mouse drag, or Alt + mouse drag.");
+            GUILayout.Label("Mouse wheel zooms. Hold Shift while panning for faster camera movement.");
             GUILayout.Label("Use the right sidebar to queue buildings and units.");
             GUILayout.Label("Build a refinery near ore, keep power positive, produce combat units, then attack the enemy base.");
             GUILayout.Space(8f);
