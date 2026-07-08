@@ -6,8 +6,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 {
     sealed class AegisTerrainDetailOverlayCompiler : IAegisVisualLayerCompiler
     {
-        const int SampleStride = 4;
-        const int MaxDetailDecals = 1000;
+        const int SampleStride = 3;
+        const int MaxDetailDecals = 1700;
 
         public AegisVisualLayerSummary Compile(AegisMapVisualCompileContext context)
         {
@@ -67,23 +67,23 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     }
 
                     var role = context.TerrainRoleAt(x, y);
-                    if ((role == "terrain.grass" || role == "terrain.dark_grass") && context.Hash01(x, y, 2350) < 0.24f)
+                    if ((role == "terrain.grass" || role == "terrain.dark_grass") && context.Hash01(x, y, 2350) < 0.34f)
                     {
-                        EmitDecal(layer, context, summary, "grass_mottle", x, y, grassMottle, 1.8f, 4.6f, 0.52f, 1.0f, 0.073f, 2351);
+                        EmitDecal(layer, context, summary, "grass_mottle", x, y, grassMottle, 1.4f, 3.8f, 0.46f, 1.0f, 0.073f, 2351);
                         placed++;
                         continue;
                     }
 
-                    if ((role == "terrain.dirt" || role == "terrain.mud") && context.Hash01(x, y, 2360) < 0.34f)
+                    if ((role == "terrain.dirt" || role == "terrain.mud") && context.Hash01(x, y, 2360) < 0.40f)
                     {
-                        EmitDecal(layer, context, summary, "dirt_mottle", x, y, dirtMottle, 2.2f, 6.2f, 0.42f, 1.0f, 0.074f, 2361);
+                        EmitDecal(layer, context, summary, "dirt_mottle", x, y, dirtMottle, 1.8f, 5.2f, 0.42f, 1.0f, 0.074f, 2361);
                         placed++;
                         continue;
                     }
 
-                    if ((role == "terrain.gravel" || role == "terrain.cliff_ground") && context.Hash01(x, y, 2370) < 0.28f)
+                    if ((role == "terrain.gravel" || role == "terrain.cliff_ground") && context.Hash01(x, y, 2370) < 0.34f)
                     {
-                        EmitDecal(layer, context, summary, "gravel_mottle", x, y, gravelMottle, 1.8f, 4.6f, 0.56f, 1.0f, 0.075f, 2371);
+                        EmitDecal(layer, context, summary, "gravel_mottle", x, y, gravelMottle, 1.5f, 4.2f, 0.50f, 1.0f, 0.075f, 2371);
                         placed++;
                     }
                 }

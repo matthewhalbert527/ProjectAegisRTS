@@ -14,11 +14,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var shoreLayer = AegisVisualCompilerPrimitives.CreateLayer(context, "Shoreline Mud And Wetness");
             var waterMaterial = AegisVisualCompilerPrimitives.Material(context, "river.water");
             var shoreMaterial = AegisVisualCompilerPrimitives.Material(context, "river.shoreline");
+            var shoreFeatherMaterial = AegisVisualCompilerPrimitives.Material(context, "river.shoreline_feather");
             var riverPropMaterial = AegisVisualCompilerPrimitives.Material(context, "vegetation.grass");
 
             var ribbons = CollectWaterRibbons(context, summary);
             EmitWaterRibbonMeshes(context, summary, waterLayer, waterMaterial, ribbons);
-            EmitMergedShoreline(context, summary, shoreLayer, shoreMaterial, riverPropMaterial, ribbons);
+            EmitMergedShoreline(context, summary, shoreLayer, shoreMaterial, shoreFeatherMaterial, riverPropMaterial, ribbons);
             return summary;
         }
 
@@ -174,20 +175,24 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return left ? span.Left : span.Right;
         }
 
-        static void EmitMergedShoreline(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform shoreLayer, Material shoreMaterial, Material riverPropMaterial, List<List<RowSpan>> ribbons)
+        static void EmitMergedShoreline(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform shoreLayer, Material shoreMaterial, Material shoreFeatherMaterial, Material riverPropMaterial, List<List<RowSpan>> ribbons)
         {
             for (var i = 0; i < ribbons.Count; i++)
             {
                 var spans = ribbons[i];
-                EmitBankMesh(context, shoreLayer, shoreMaterial, summary, spans, i, true);
-                EmitBankMesh(context, shoreLayer, shoreMaterial, summary, spans, i, false);
-                EmitCapMesh(context, shoreLayer, shoreMaterial, summary, spans, i, true);
-                EmitCapMesh(context, shoreLayer, shoreMaterial, summary, spans, i, false);
+                EmitBankMesh(context, shoreLayer, shoreMaterial, summary, spans, i, true, 0.30f, 0.046f, "core");
+                EmitBankMesh(context, shoreLayer, shoreMaterial, summary, spans, i, false, 0.30f, 0.046f, "core");
+                EmitBankFeatherMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, true);
+                EmitBankFeatherMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, false);
+                EmitCapMesh(context, shoreLayer, shoreMaterial, summary, spans, i, true, 0.32f, "core");
+                EmitCapMesh(context, shoreLayer, shoreMaterial, summary, spans, i, false, 0.32f, "core");
+                EmitCapMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, true, 0.90f, "feather");
+                EmitCapMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, false, 0.90f, "feather");
                 EmitRiverBankProps(context, shoreLayer, summary, riverPropMaterial, spans);
             }
         }
 
-        static void EmitBankMesh(AegisMapVisualCompileContext context, Transform shoreLayer, Material shoreMaterial, AegisVisualLayerSummary summary, List<RowSpan> spans, int ribbonIndex, bool leftBank)
+        static void EmitBankMesh(AegisMapVisualCompileContext context, Transform shoreLayer, Material shoreMaterial, AegisVisualLayerSummary summary, List<RowSpan> spans, int ribbonIndex, bool leftBank, float widthScale, float elevation, string suffix)
         {
             if (spans.Count == 0)
                 return;
@@ -200,22 +205,51 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 var z = spans[0].Y + i;
                 var rowForNoise = Mathf.Clamp(spans[0].Y + i, 0, context.Height - 1);
                 var inner = SmoothEdge(context, spans, i, leftBank, rowForNoise) + (leftBank ? -0.08f : 0.08f);
-                var outer = inner + (leftBank ? -BankWidth(context, rowForNoise, 6100) : BankWidth(context, rowForNoise, 6200));
+                var outer = inner + (leftBank ? -BankWidth(context, rowForNoise, 6100) * widthScale : BankWidth(context, rowForNoise, 6200) * widthScale);
                 var low = Mathf.Min(inner, outer);
                 var high = Mathf.Max(inner, outer);
                 var insetNoise = (context.Hash01(rowForNoise, leftBank ? 6110 : 6210, 6115) - 0.5f) * 0.10f;
-                vertices[i * 2] = new Vector3(low + insetNoise, 0.046f, z);
-                vertices[i * 2 + 1] = new Vector3(high + insetNoise, 0.046f, z);
+                vertices[i * 2] = new Vector3(low + insetNoise, elevation, z);
+                vertices[i * 2 + 1] = new Vector3(high + insetNoise, elevation, z);
                 uvs[i * 2] = new Vector2(0f, i * 0.31f);
                 uvs[i * 2 + 1] = new Vector2(1f, i * 0.31f);
             }
 
-            CreateRibbonMesh(shoreLayer, shoreMaterial, "shoreline_bank_mesh_" + ribbonIndex + "_" + (leftBank ? "left" : "right"), vertices, uvs);
+            CreateRibbonMesh(shoreLayer, shoreMaterial, "shoreline_bank_mesh_" + suffix + "_" + ribbonIndex + "_" + (leftBank ? "left" : "right"), vertices, uvs);
             summary.ShorelineEdges += spans.Count;
             summary.ShorelineMeshes++;
         }
 
-        static void EmitCapMesh(AegisMapVisualCompileContext context, Transform shoreLayer, Material shoreMaterial, AegisVisualLayerSummary summary, List<RowSpan> spans, int ribbonIndex, bool south)
+        static void EmitBankFeatherMesh(AegisMapVisualCompileContext context, Transform shoreLayer, Material shoreMaterial, AegisVisualLayerSummary summary, List<RowSpan> spans, int ribbonIndex, bool leftBank)
+        {
+            if (spans.Count == 0)
+                return;
+
+            var sectionCount = spans.Count + 1;
+            var vertices = new Vector3[sectionCount * 2];
+            var uvs = new Vector2[sectionCount * 2];
+            for (var i = 0; i < sectionCount; i++)
+            {
+                var z = spans[0].Y + i;
+                var rowForNoise = Mathf.Clamp(spans[0].Y + i, 0, context.Height - 1);
+                var edge = SmoothEdge(context, spans, i, leftBank, rowForNoise) + (leftBank ? -0.08f : 0.08f);
+                var coreOuter = edge + (leftBank ? -BankWidth(context, rowForNoise, 6500) * 0.26f : BankWidth(context, rowForNoise, 6600) * 0.26f);
+                var featherOuter = edge + (leftBank ? -BankWidth(context, rowForNoise, 6510) * 0.96f : BankWidth(context, rowForNoise, 6610) * 0.96f);
+                var low = Mathf.Min(coreOuter, featherOuter);
+                var high = Mathf.Max(coreOuter, featherOuter);
+                var noise = (context.Hash01(rowForNoise, leftBank ? 6520 : 6620, 6525) - 0.5f) * 0.18f;
+                vertices[i * 2] = new Vector3(low + noise, 0.044f, z);
+                vertices[i * 2 + 1] = new Vector3(high + noise, 0.044f, z);
+                uvs[i * 2] = new Vector2(0f, i * 0.22f);
+                uvs[i * 2 + 1] = new Vector2(1f, i * 0.22f);
+            }
+
+            CreateRibbonMesh(shoreLayer, shoreMaterial, "shoreline_bank_mesh_feather_" + ribbonIndex + "_" + (leftBank ? "left" : "right"), vertices, uvs);
+            summary.ShorelineEdges += spans.Count;
+            summary.ShorelineMeshes++;
+        }
+
+        static void EmitCapMesh(AegisMapVisualCompileContext context, Transform shoreLayer, Material shoreMaterial, AegisVisualLayerSummary summary, List<RowSpan> spans, int ribbonIndex, bool south, float widthScale, string suffix)
         {
             if (spans.Count == 0)
                 return;
@@ -224,7 +258,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var rowForNoise = Mathf.Clamp(south ? spans[0].Y : spans[spans.Count - 1].Y, 0, context.Height - 1);
             var edgeZ = south ? spans[0].Y : spans[0].Y + spans.Count;
             var innerZ = edgeZ + (south ? 0.04f : -0.04f);
-            var outerZ = edgeZ + (south ? -BankWidth(context, rowForNoise, 6300) : BankWidth(context, rowForNoise, 6400));
+            var outerZ = edgeZ + (south ? -BankWidth(context, rowForNoise, 6300) * widthScale : BankWidth(context, rowForNoise, 6400) * widthScale);
             var zLow = Mathf.Min(innerZ, outerZ);
             var zHigh = Mathf.Max(innerZ, outerZ);
             var left = SmoothEdge(context, spans, sectionIndex, true, rowForNoise) - 0.52f;
@@ -232,10 +266,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var shoulder = 0.22f + context.Hash01(rowForNoise, south ? 6310 : 6410, 6320) * 0.22f;
             var vertices = new[]
             {
-                new Vector3(left - shoulder, 0.045f, zLow),
-                new Vector3(right + shoulder, 0.045f, zLow),
-                new Vector3(left, 0.045f, zHigh),
-                new Vector3(right, 0.045f, zHigh)
+                new Vector3(left - shoulder, suffix == "feather" ? 0.043f : 0.045f, zLow),
+                new Vector3(right + shoulder, suffix == "feather" ? 0.043f : 0.045f, zLow),
+                new Vector3(left, suffix == "feather" ? 0.043f : 0.045f, zHigh),
+                new Vector3(right, suffix == "feather" ? 0.043f : 0.045f, zHigh)
             };
             var uvs = new[]
             {
@@ -245,7 +279,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 new Vector2(1f, 1f)
             };
 
-            CreateRibbonMesh(shoreLayer, shoreMaterial, "shoreline_cap_mesh_" + ribbonIndex + "_" + (south ? "south" : "north"), vertices, uvs);
+            CreateRibbonMesh(shoreLayer, shoreMaterial, "shoreline_cap_mesh_" + suffix + "_" + ribbonIndex + "_" + (south ? "south" : "north"), vertices, uvs);
             summary.ShorelineEdges++;
             summary.ShorelineMeshes++;
         }
