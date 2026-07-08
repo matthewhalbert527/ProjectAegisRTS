@@ -23,6 +23,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var bridgeRailMaterial = AegisVisualCompilerPrimitives.Material(context, "bridge.rail");
             var bridgeDetailMaterial = AegisVisualCompilerPrimitives.Material(context, "bridge.grime");
             var bridgeShadowMaterial = AegisVisualCompilerPrimitives.Material(context, "decal.scorch");
+            var bridgePebbleMaterial = AegisVisualCompilerPrimitives.Material(context, "river.bank_pebbles");
+            var bridgeRubbleMaterial = AegisVisualCompilerPrimitives.Material(context, "decal.rubble");
+            var bridgeGrassMaterial = AegisVisualCompilerPrimitives.Material(context, "road.edge_grass");
+            var bridgeRockMaterial = AegisVisualCompilerPrimitives.Material(context, "blocker.rock");
 
             for (var i = 0; i < context.RoadSegments.Count; i++)
             {
@@ -32,7 +36,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 {
                     var run = runs[runIndex];
                     if (run.IsWater)
-                        EmitBridgeRun(context, layer, summary, i, runIndex, run, bridgeDeckMaterial, bridgeRailMaterial, bridgeDetailMaterial, bridgeShadowMaterial, roadMaterial, roadDustMaterial, roadEdgeMaterial);
+                        EmitBridgeRun(context, layer, summary, i, runIndex, run, bridgeDeckMaterial, bridgeRailMaterial, bridgeDetailMaterial, bridgeShadowMaterial, roadMaterial, roadDustMaterial, roadEdgeMaterial, bridgePebbleMaterial, bridgeRubbleMaterial, bridgeGrassMaterial, bridgeRockMaterial);
                     else
                         EmitRoadRun(context, layer, summary, i, runIndex, run, roadMaterial, roadDustMaterial, roadEdgeMaterial, leftRutMaterial, rightRutMaterial, mudTrackMaterial, edgeGrassMaterial, pebbleBreakupMaterial);
                 }
@@ -285,7 +289,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return direction.sqrMagnitude < 0.0001f ? Vector2.right : direction.normalized;
         }
 
-        static void EmitBridgeRun(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, Material deckMaterial, Material railMaterial, Material detailMaterial, Material shadowMaterial, Material roadMaterial, Material roadDustMaterial, Material roadEdgeMaterial)
+        static void EmitBridgeRun(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, Material deckMaterial, Material railMaterial, Material detailMaterial, Material shadowMaterial, Material roadMaterial, Material roadDustMaterial, Material roadEdgeMaterial, Material pebbleMaterial, Material rubbleMaterial, Material grassMaterial, Material rockMaterial)
         {
             var length = AegisVisualCompilerPrimitives.SegmentLength(run.A, run.B);
             if (length <= 0.3f)
@@ -304,6 +308,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             EmitBridgeSideRails(context, layer, segmentIndex, runIndex, run, length, deckWidth, normal, angle, railMaterial);
             EmitBridgeApproachDust(context, layer, summary, segmentIndex, runIndex, run, deckWidth, normal, angle, shadowMaterial);
             EmitBridgeDeckDetails(context, layer, summary, segmentIndex, runIndex, run, length, deckWidth, normal, angle, detailMaterial, railMaterial);
+            EmitBridgeContactDressing(context, layer, summary, segmentIndex, runIndex, run, length, deckWidth, direction, normal, angle, roadDustMaterial, detailMaterial, pebbleMaterial, rubbleMaterial, grassMaterial, rockMaterial);
             summary.BridgeCrossings++;
         }
 
@@ -472,6 +477,53 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 AegisVisualCompilerPrimitives.CreateCube(layer, "bridge_post_left_" + segmentIndex + "_" + runIndex + "_" + i, new Vector3(left.x, 0.34f, left.y), new Vector3(0.16f, 0.34f, 0.16f), rotation, railMaterial);
                 AegisVisualCompilerPrimitives.CreateCube(layer, "bridge_post_right_" + segmentIndex + "_" + runIndex + "_" + i, new Vector3(right.x, 0.34f, right.y), new Vector3(0.16f, 0.34f, 0.16f), rotation, railMaterial);
             }
+        }
+
+        static void EmitBridgeContactDressing(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, float length, float deckWidth, Vector2 direction, Vector2 normal, float angle, Material dustMaterial, Material grimeMaterial, Material pebbleMaterial, Material rubbleMaterial, Material grassMaterial, Material rockMaterial)
+        {
+            var center = Vector2.Lerp(run.A, run.B, 0.5f);
+            var centerDustWidth = Mathf.Max(0.38f, deckWidth * 0.46f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_deck_tracked_dust_" + segmentIndex + "_" + runIndex, center, length * 0.88f, centerDustWidth, 0.213f, dustMaterial, angle, context, segmentIndex, runIndex, 7580, 0.10f, 8f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_deck_wet_grime_" + segmentIndex + "_" + runIndex, center - direction * (length * 0.18f), length * 0.36f, deckWidth * 0.60f, 0.216f, grimeMaterial, angle, context, segmentIndex, runIndex, 7586, 0.08f, 6f);
+            summary.RoadDetailDecalCount += 2;
+
+            EmitBridgeContactEnd(context, layer, summary, segmentIndex, runIndex, run.A, -direction, normal, deckWidth, angle, pebbleMaterial, rubbleMaterial, grassMaterial, rockMaterial, "entry", 7590);
+            EmitBridgeContactEnd(context, layer, summary, segmentIndex, runIndex, run.B, direction, normal, deckWidth, angle, pebbleMaterial, rubbleMaterial, grassMaterial, rockMaterial, "exit", 7620);
+        }
+
+        static void EmitBridgeContactEnd(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, Vector2 bridgeEnd, Vector2 awayFromBridge, Vector2 normal, float deckWidth, float angle, Material pebbleMaterial, Material rubbleMaterial, Material grassMaterial, Material rockMaterial, string suffix, int salt)
+        {
+            var bankCenter = bridgeEnd + awayFromBridge * 0.45f;
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_bank_pebble_fan_" + suffix + "_" + segmentIndex + "_" + runIndex, bankCenter, deckWidth * 1.22f, 1.15f, 0.131f, pebbleMaterial, angle, context, segmentIndex, runIndex, salt, 0.20f, 4.0f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_bank_rubble_shadow_" + suffix + "_" + segmentIndex + "_" + runIndex, bankCenter + awayFromBridge * 0.28f, deckWidth * 1.05f, 0.72f, 0.134f, rubbleMaterial, angle, context, segmentIndex, runIndex, salt + 1, 0.16f, 4.0f);
+            summary.RoadDetailDecalCount += 2;
+
+            for (var sideIndex = 0; sideIndex < 2; sideIndex++)
+            {
+                var side = sideIndex == 0 ? -1f : 1f;
+                var sideCenter = bridgeEnd + awayFromBridge * Mathf.Lerp(0.25f, 0.92f, context.Hash01(segmentIndex + sideIndex, runIndex, salt + 2)) + normal * side * Mathf.Lerp(deckWidth * 0.52f, deckWidth * 0.90f, context.Hash01(segmentIndex + sideIndex, runIndex, salt + 3));
+                var grassWidth = Mathf.Lerp(0.38f, 0.82f, context.Hash01(segmentIndex + sideIndex, runIndex, salt + 4));
+                var grassLength = Mathf.Lerp(0.75f, 1.85f, context.Hash01(segmentIndex + sideIndex, runIndex, salt + 5));
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_bank_grass_clump_" + suffix + "_" + segmentIndex + "_" + runIndex + "_" + sideIndex, sideCenter, grassWidth, grassLength, 0.136f, grassMaterial, angle + Mathf.Lerp(-28f, 28f, context.Hash01(segmentIndex + sideIndex, runIndex, salt + 6)), context, segmentIndex + sideIndex, runIndex, salt + 7, 0.18f, 3.5f);
+                summary.RoadDetailDecalCount++;
+
+                EmitBridgeContactProp(context, layer, summary, segmentIndex + sideIndex, runIndex, sideCenter + normal * side * 0.22f, AegisMapArtPack.PebbleMeshes, rockMaterial, suffix + "_bank_" + sideIndex, salt + 10 + sideIndex);
+            }
+        }
+
+        static void EmitBridgeContactProp(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int x, int y, Vector2 center, string[] meshCandidates, Material fallbackMaterial, string nameSuffix, int salt)
+        {
+            if (context.Hash01(x, y, salt) > 0.86f)
+                return;
+
+            var prefab = AegisMapArtPack.Pick(meshCandidates, context.Seed, x + salt, y);
+            var position = new Vector3(center.x + Mathf.Lerp(-0.18f, 0.18f, context.Hash01(x, y, salt + 1)), 0.115f, center.y + Mathf.Lerp(-0.18f, 0.18f, context.Hash01(x, y, salt + 2)));
+            var rotation = Quaternion.Euler(0f, context.Hash01(x, y, salt + 3) * 360f, 0f);
+            var scale = Vector3.one * Mathf.Lerp(0.28f, 0.54f, context.Hash01(x, y, salt + 4));
+            if (AegisMapArtPack.TryInstantiatePrefab(layer, "bridge_contact_prop_" + nameSuffix + "_" + x + "_" + y, prefab, position, rotation, scale, fallbackMaterial))
+                summary.ScatterCount++;
+            else
+                summary.SkippedPlacementCount++;
         }
 
         static bool IsWaterAt(AegisMapVisualCompileContext context, Vector2 point)

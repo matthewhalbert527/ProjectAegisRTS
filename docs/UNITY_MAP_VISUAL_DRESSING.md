@@ -70,7 +70,7 @@ Use:
 
 `Project Aegis > Map Editor > Validate Visual Quality Gate`
 
-to verify production-preview defaults, texture-role bindings, denser terrain detail decals, organic terrain-transition feather meshes, merged water strips, production water ribbon meshes, muddy water-surface detail, shoreline bank meshes plus water-edge and eroded-bank detail patches, weathered bridge texture bindings, bridge/fording handling for road-water crossings, road edge-breakup coverage, road/base-pad detail decals, capped resource glints, and non-fallback sample output.
+to verify production-preview defaults, texture-role bindings, denser terrain detail decals, organic terrain-transition feather meshes, merged water strips, production water ribbon meshes, muddy water-surface detail, shoreline bank meshes plus water-edge and eroded-bank detail patches, weathered bridge texture bindings, bridge/fording handling for road-water crossings, bridge contact dressing, road edge-breakup coverage, road/base-pad detail decals, capped resource glints, and non-fallback sample output.
 
 The compiler reads art-pack textures and prefabs without rewriting texture importer metadata during validation. Existing embedded GLB materials are preserved when present; fallback materials are only assigned to missing material slots.
 
@@ -80,7 +80,7 @@ The logical map does not store Unity-only road meshes. The visual builder derive
 
 Base pads are also visual-only dressing on top of player start metadata. Each generated pad uses the imported `base_pad_14x14.glb` when available, then receives concrete panels, transparent panel/trim markings, thin seam decals, hairline cracks, a dusty approach apron facing the map center, construction-wear decals, and deterministic grime marks so start areas read less like flat placeholder slabs. Missing pad mesh or missing concrete texture paths produce validation warnings.
 
-Bridge crossings are still production-proxy visuals, but they now use original weathered deck and rail texture sets instead of the older concrete placeholder material. Crossings are split into deck spans, segmented side rails, posts, abutment blocks, under-shadows, edge-wear decals, and wet approach grime so close-up previews read as built crossings rather than single flat slabs.
+Bridge crossings are still production-proxy visuals, but they now use original weathered deck and rail texture sets instead of the older concrete placeholder material. Crossings are split into deck spans, segmented side rails, posts, abutment blocks, under-shadows, edge-wear decals, tracked deck dust, wet deck grime, and pebble/rubble/grass contact dressing at the banks so close-up previews read as built crossings tied into the terrain rather than single flat slabs.
 
 ## Terrain Detail Decals
 
@@ -94,7 +94,7 @@ The detail overlay now has two scales: low-alpha macro terrain variation patches
 
 Cliff edges now receive deterministic talus dressing in production preview: transparent rubble decals at exposed cliff feet plus occasional imported pebble-cluster meshes selected from the art pack. Battlefield crater and rubble scatter use textured decals or crater meshes instead of color-only generated primitives, keeping damaged/rocky areas from reading as flat gray blocks.
 
-Road rendering uses layered deterministic visual-only overlays: soft dust sits under a narrower textured road core, and tire ruts/worn edges sit above the core. Non-water road runs now render as gently curved ribbon meshes with deterministic centerline drift and variable width, so long generated roads no longer read as perfect straight rectangular bands. The road core uses a dedicated `road_compacted` albedo/normal/roughness set with lower road-specific UV tiling, then adds irregular grass encroachment along the margins and small pebble/bare-soil breakup patches through the lane. This keeps close-up road surfaces closer to granular compacted soil and avoids the over-repeated plank-like read from broader dirt textures. Bridge crossings remain production-proxy geometry, but the preview uses a weathered deck material, segmented rails, abutments, deck seams, posts, tapered approach-dust/road-wear ribbons, edge-wear patches, and wet-road bank smears instead of one flat rectangular road slab.
+Road rendering uses layered deterministic visual-only overlays: soft dust sits under a narrower textured road core, and tire ruts/worn edges sit above the core. Non-water road runs now render as gently curved ribbon meshes with deterministic centerline drift and variable width, so long generated roads no longer read as perfect straight rectangular bands. The road core uses a dedicated `road_compacted` albedo/normal/roughness set with lower road-specific UV tiling, then adds irregular grass encroachment along the margins and small pebble/bare-soil breakup patches through the lane. This keeps close-up road surfaces closer to granular compacted soil and avoids the over-repeated plank-like read from broader dirt textures. Bridge crossings remain production-proxy geometry, but the preview uses a weathered deck material, segmented rails, abutments, deck seams, posts, tapered approach-dust/road-wear ribbons, edge-wear patches, tracked deck dust, wet deck grime, pebble fans, grass clumps, and riverbank prop dressing instead of one flat rectangular road slab.
 
 ## Water Rendering
 

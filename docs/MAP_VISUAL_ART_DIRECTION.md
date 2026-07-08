@@ -18,7 +18,7 @@ Terrain detail decals remain a secondary layer. They add small deterministic gra
 - Resources must read as fields with density and depletion state, not isolated sparkly rocks.
 - Cliffs must read as continuous height/blocker edges with straight pieces, corners, and endcaps.
 - Roads must guide movement without becoming noisy brown fog; close-up roads should include worn shoulders, rutting, grass encroachment, and exposed pebble/bare-soil breakup rather than clean opaque strips.
-- Rivers must show a merged muddy water body, internal silt/deep-pool/ripple variation, shoreline wetness, eroded bank undercuts, sparse wet pebble scatter, broken water-edge depth/ripple details, and readable weathered bridge or shallow ford hints where gameplay allows crossing.
+- Rivers must show a merged muddy water body, internal silt/deep-pool/ripple variation, shoreline wetness, eroded bank undercuts, sparse wet pebble scatter, broken water-edge depth/ripple details, and readable weathered bridge or shallow ford hints with bank contact props where gameplay allows crossing.
 - Scatter must support biome and topology: trees on suitable terrain, rocks near cliffs, rubble near craters, and no clutter in start/build zones.
 
 ## Biomes
@@ -34,7 +34,7 @@ Future themes should keep the same semantic roles and only change asset/material
 ## Current Limits
 
 - The compiler now has chunk/layer semantics, but terrain rendering is still a prototype scene-object implementation rather than a final shader-layer terrain.
-- Production preview now hides debug overlays by default and uses smaller/mixed terrain chunks, slower world-continuous terrain UVs, macro and micro terrain detail overlays, strip-merged water with patch-based edge detail, weathered bridge prototypes with segmented rails and abutments, road-edge breakup overlays, capped resource glints, procedural terrain textures, layered surface detail, and clustered scatter.
+- Production preview now hides debug overlays by default and uses smaller/mixed terrain chunks, slower world-continuous terrain UVs, macro and micro terrain detail overlays, strip-merged water with patch-based edge detail, weathered bridge prototypes with segmented rails, abutments, deck dust, bank contact dressing, road-edge breakup overlays, capped resource glints, procedural terrain textures, layered surface detail, and clustered scatter.
 - The installed v2 art pack provides semantic terrain textures, decals, and GLB meshes, but it is still production-proxy content rather than final hand-authored shipping art.
 - Cliff, river, and resource assets need final sculpted/prefab variants.
 - Camera capture is functional QA, not final promotional rendering.

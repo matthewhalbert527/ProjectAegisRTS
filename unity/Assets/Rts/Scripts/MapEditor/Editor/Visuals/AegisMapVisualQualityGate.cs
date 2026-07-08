@@ -236,6 +236,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     errors.Add("Synthetic bridge sample reported road-water conflicts.");
                 if (road.BridgeCrossings <= 0)
                     errors.Add("Synthetic bridge sample did not produce a bridge crossing.");
+                if (road.BridgeCrossings > 0 && road.ScatterCount < road.BridgeCrossings * 2)
+                    errors.Add("Synthetic bridge sample did not produce bridge contact prop dressing.");
             }
             finally
             {

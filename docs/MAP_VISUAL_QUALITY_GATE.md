@@ -32,6 +32,7 @@ Run from batch mode:
 - Water cells compile at least one production shoreline bank mesh.
 - Water cells compile water-edge depth/shallow/ripple details and eroded-bank decal coverage so the production preview does not fall back to a hard unadorned water cutout.
 - Road-water conflicts are zero because water crossings become bridge prototype pieces.
+- Synthetic bridge crossings produce contact prop dressing at the bank instead of floating above bare terrain.
 - Road detail decals are present when roads are present.
 - Road edge-grass and pebble breakup coverage is present above the minimum production-preview threshold.
 - Base pads produce layered panel, trim, crack, grime, and construction-wear decals.
@@ -40,7 +41,7 @@ Run from batch mode:
 
 ## Limitations
 
-This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, missing muddy water-surface details, missing shoreline bank meshes, missing eroded-bank or water-edge details, missing bridge texture bindings, missing macro terrain bindings, fallback-only visuals, missing layered terrain detail decals, missing road/pad detail decals, missing road edge-breakup coverage, missing required art-pack texture paths, or unchecked road-water conflicts.
+This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, missing muddy water-surface details, missing shoreline bank meshes, missing eroded-bank or water-edge details, missing bridge texture bindings, missing bridge-bank contact dressing, missing macro terrain bindings, fallback-only visuals, missing layered terrain detail decals, missing road/pad detail decals, missing road edge-breakup coverage, missing required art-pack texture paths, or unchecked road-water conflicts.
 
 ## Required Hygiene
 
