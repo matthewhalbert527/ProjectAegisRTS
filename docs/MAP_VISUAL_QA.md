@@ -1,0 +1,82 @@
+# Map Visual QA
+
+## Why The Previous Screenshot Failed
+
+The previous preview communicated that the map generator worked, but close-up quality suffered because terrain, roads, ore staining, and riverbanks were mostly flattened into a single surface treatment with stamps placed on top. The result was readable from far away but weak at tactical zoom.
+
+## Readable RTS Map Criteria
+
+- Bases are clear and construction zones are not cluttered.
+- Roads guide movement and connect meaningful areas.
+- Resources read as gatherable fields with visible density.
+- Cliffs and rocks clearly communicate blocked terrain.
+- Rivers show body, shore, and ford/crossing intent.
+- Scatter supports biome identity without hiding gameplay information.
+
+## Terrain Blending QA
+
+- Check whether terrain chunks have coherent biome identity.
+- Check whether transition masks appear at semantic boundaries.
+- Grass-to-road, grass-to-water, road-to-mud, base-pad-to-dirt, and cliff-to-ground transitions should be visible without noisy repetition.
+- Block merge if terrain roles are indistinguishable or if debug-like grid artifacts dominate.
+
+## Cliff QA
+
+- Cliff pieces should align with exposed blocker/high-ground edges.
+- Straight pieces should follow long edges.
+- Corners should appear at turns.
+- Endcaps should appear where cliff segments terminate.
+- Block merge if cliffs are random piles unrelated to map topology.
+
+## Base Pad QA
+
+- Each player start should have one modular pad.
+- Panels, trims, corners, seams, grime, and approach wear should be visible.
+- Pads should not be hidden under resources or scatter.
+- Block merge if starts are hard to identify or build zones are cluttered.
+
+## Resource QA
+
+- Resources should render as fields, not independent random blobs.
+- Field density should scale with amount/fill.
+- Depleted fields should not show full visual richness.
+- Resources should avoid base pads and start cleanup zones.
+- Block merge if resource ownership, density, or depletion state is unreadable.
+
+## Roads And Rivers QA
+
+- Roads should have a body, direction, and tire tracks.
+- Road scuffs should be sparse and aligned to route direction.
+- Rivers should have water body and shoreline wetness.
+- Fords should be shallow/crossing hints only.
+- Block merge if roads/rivers look like uniform soft stains with no structure.
+
+## Canonical Preview Captures
+
+Suggested scenarios:
+
+- `forest_river_cliffs`
+- `base_pad_ore`
+- `road_crater_scatter`
+- `tournament_4p`
+- `rocky_chokepoint`
+
+Run the compiler window:
+
+`Project Aegis > Map Editor > Visual Compiler`
+
+Or use batch capture methods through Unity batchmode. Preview captures should write to a local ignored temp folder such as:
+
+`%TEMP%\ProjectAegisRTS\VisualCompilerPreviews\`
+
+Do not stage broad screenshot output.
+
+## Merge Blockers
+
+- `src/Rts.Core` references Unity APIs.
+- Visual compiler changes make `.aegismap.json` no longer authoritative.
+- Tiled export validation fails.
+- Unity batch compile fails.
+- Protected IP names/assets/code are introduced.
+- Preview layers compile without summaries or warnings/errors.
+- Topology-driven cliffs, resource fields, or modular base pads regress into random stamp placement.

@@ -33,8 +33,11 @@ Implemented in Unity:
 - `Project Aegis > Map Editor > Open Map Editor` opens an editor window with procedural controls, prompt text, seed controls, validation, save/export buttons, prompt examples, overlay toggles, warnings/errors, and a generated summary panel.
 - The Unity window calls the deterministic `Rts.Core` bridge through `AegisUnityMapGenerationBridge` when the Unity plugin DLL is current.
 - If the bridge is unavailable, Unity writes a compatible `.aegismap.json` shell and displays a warning instead of failing silently.
-- `Project Aegis > Map Editor > Build Visual Terrain From Aegis Map` reads the selected `.aegismap.json` and builds a deterministic visual terrain scene with blended terrain texture, soft dirt routes, generated watercourses, muddy water banks, shore scatter, faceted cliff rock chains, ore clusters, scatter props, and detailed concrete base pads.
+- `Project Aegis > Map Editor > Build Visual Terrain From Aegis Map` reads the selected `.aegismap.json` and builds a deterministic visual scene through the visual compiler.
+- `Project Aegis > Map Editor > Visual Compiler` opens the new production-oriented visual compiler window. The compatibility visual-builder menu now routes through `AegisMapVisualCompiler`.
+- The compiler creates explicit Unity-side layers for base terrain chunks, transition masks, water, shorelines, road bodies/tire tracks, topology-driven cliffs, resource fields, modular base pads, and rule-based scatter. Each layer returns summary counts and warnings.
 - `ProjectAegis_MapVisualArtPack_v1` is imported under `unity/Assets/Rts/MapEditor/ArtPack/` and wired into the visual builder. The builder uses the pack's original PNG textures/decals directly and instantiates its GLB meshes through Unity glTFast.
+- `ProjectAegis_MapVisualArtPack_v1` is treated as prototype-only unless an art review promotes specific assets.
 
 Future bridge:
 
@@ -49,12 +52,13 @@ Future bridge:
 - `Project Aegis > Map Editor > Create Tiled Starter Tileset`
 - `Project Aegis > Map Editor > Build Proxy Materials and Prefabs`
 - `Project Aegis > Map Editor > Build Visual Terrain From Aegis Map`
+- `Project Aegis > Map Editor > Visual Compiler`
 - `Project Aegis > Map Editor > Export Unity AI Asset Prompts`
 
 ## Next Useful Work
 
 - Add a dedicated command-line converter for batch import/export/generation.
-- Add scene-view overlays for buildability/fairness diagnostics on top of the visual terrain.
-- Add higher-fidelity modular cliff, water, vegetation, ore, crater, and base-pad asset variants once final art direction is approved.
+- Replace prototype visual compiler renderers with final terrain shaders, spline water/roads, authored prefab variants, and QA image comparisons once final art direction is approved.
+- Add scene-view overlays for buildability/fairness diagnostics on top of the visual compiler output.
 - Expand Tiled tileset metadata if more terrain or resource types are added.
 - Add optional SuperTiled2Unity documentation for visual-only workflows.

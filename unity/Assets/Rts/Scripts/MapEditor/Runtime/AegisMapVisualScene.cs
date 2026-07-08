@@ -10,5 +10,9 @@ namespace ProjectAegisRTS.UnityClient.MapEditor
         public int Height;
         public int Seed;
         public string Biome;
+        public string VisualCompilerVersion;
+        public string VisualThemeId;
+        [TextArea(3, 12)]
+        public string VisualCompilerSummary;
     }
 }
