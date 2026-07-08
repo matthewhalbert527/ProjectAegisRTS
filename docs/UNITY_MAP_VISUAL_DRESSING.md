@@ -86,14 +86,14 @@ Base pads are also visual-only dressing on top of player start metadata. Each ge
 
 ## Water Rendering
 
-The logical map still stores water as deterministic terrain cells. In production preview, the base terrain layer does not draw separate water cell quads; the water compiler owns the visible water surface. It converts contiguous water rows into smoothed ribbon meshes and retains strip metrics for validation. Shoreline mud/wetness remains topology-derived and lightly transparent so the current preview is less grid-bound while still matching the deterministic cell map. Roads crossing water are split and represented with neutral `bridge_prototype_*` deck/rail/shadow pieces until final bridge or ford art exists.
+The logical map still stores water as deterministic terrain cells. In production preview, the base terrain layer does not draw separate water cell quads; the water compiler owns the visible water surface. It converts contiguous water rows into smoothed ribbon meshes and retains strip metrics for validation. Shoreline mud/wetness is now emitted as deterministic left/right bank meshes plus end caps that follow the smoothed water span. Production terrain also remaps rough/cliff river shoulders to lighter dirt so the dark wet-bank mesh reads as edge detail instead of a huge square mud slab. Roads crossing water are split and represented with neutral `bridge_prototype_*` deck/rail pieces until final bridge or ford art exists.
 
 ## Current Limits
 
 - The compiler now has layer contracts and summaries, but terrain chunks are still prototype quads rather than a final shader/material-layer terrain.
 - Terrain detail decals improve the current preview, but true realism still needs a shader-driven terrain blend, height/normal-aware terrain layers, or authored terrain meshes.
 - Roads are generated as deterministic routes between player starts and the map center. A later pass should read explicit road/region/path metadata when map documents include it.
-- Water is now rendered from smoothed water-cell ribbon meshes with shoreline masks. A later pass can replace this with authored river splines, animated water materials, reeds, foam, and hand-tuned shoreline decals.
+- Water is now rendered from smoothed water-cell ribbon meshes with shoreline bank meshes. A later pass can replace this with authored river splines, animated water materials, reeds, foam, and hand-tuned shoreline decals.
 - Ore, cliff, vegetation, crater, river-edge, and base-pad props use imported production-proxy art-pack assets when available. A later art pass can add higher-poly sculpted meshes, LODs, collision-free prefab variants, and tuned material overrides.
 
 ## Asset Rules

@@ -16,23 +16,22 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var shoreMaterial = AegisVisualCompilerPrimitives.Material(context, "river.shoreline");
             var riverPropMaterial = AegisVisualCompilerPrimitives.Material(context, "vegetation.grass");
 
-            EmitWaterRibbonMeshes(context, summary, waterLayer, waterMaterial);
-            EmitMergedShoreline(context, summary, shoreLayer, shoreMaterial, riverPropMaterial);
+            var ribbons = CollectWaterRibbons(context, summary);
+            EmitWaterRibbonMeshes(context, summary, waterLayer, waterMaterial, ribbons);
+            EmitMergedShoreline(context, summary, shoreLayer, shoreMaterial, riverPropMaterial, ribbons);
             return summary;
         }
 
-        static void EmitWaterRibbonMeshes(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform waterLayer, Material waterMaterial)
+        static List<List<RowSpan>> CollectWaterRibbons(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary)
         {
+            var ribbons = new List<List<RowSpan>>();
             var current = new List<RowSpan>();
-            var ribbonIndex = 0;
             for (var y = 0; y < context.Height; y++)
             {
                 RowSpan span;
                 if (!TryFindDominantWaterSpan(context, y, summary, out span))
                 {
-                    FlushRibbon(context, waterLayer, waterMaterial, summary, current, ribbonIndex);
-                    if (current.Count > 0)
-                        ribbonIndex++;
+                    AddRibbon(ribbons, current);
                     current.Clear();
                     continue;
                 }
@@ -40,7 +39,22 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 current.Add(span);
             }
 
-            FlushRibbon(context, waterLayer, waterMaterial, summary, current, ribbonIndex);
+            AddRibbon(ribbons, current);
+            return ribbons;
+        }
+
+        static void AddRibbon(List<List<RowSpan>> ribbons, List<RowSpan> current)
+        {
+            if (current.Count <= 0)
+                return;
+
+            ribbons.Add(new List<RowSpan>(current));
+        }
+
+        static void EmitWaterRibbonMeshes(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform waterLayer, Material waterMaterial, List<List<RowSpan>> ribbons)
+        {
+            for (var i = 0; i < ribbons.Count; i++)
+                FlushRibbon(context, waterLayer, waterMaterial, summary, ribbons[i], i);
         }
 
         static bool TryFindDominantWaterSpan(AegisMapVisualCompileContext context, int y, AegisVisualLayerSummary summary, out RowSpan span)
@@ -85,15 +99,6 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             if (spans.Count == 0)
                 return;
-
-            if (spans.Count == 1)
-            {
-                var only = spans[0];
-                var center = new Vector2((only.Left + only.Right) * 0.5f, only.Y + 0.5f);
-                AegisVisualCompilerPrimitives.CreateQuad(waterLayer, "water_strip_" + only.Left + "_" + only.Y + "_" + (only.Right - only.Left), center, only.Right - only.Left + 0.34f, 1.34f, 0.034f, waterMaterial, 0f);
-                summary.WaterStrips++;
-                return;
-            }
 
             var sectionCount = spans.Count + 1;
             var vertices = new Vector3[sectionCount * 2];
@@ -169,94 +174,149 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return left ? span.Left : span.Right;
         }
 
-        static void EmitMergedShoreline(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform shoreLayer, Material shoreMaterial, Material riverPropMaterial)
+        static void EmitMergedShoreline(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform shoreLayer, Material shoreMaterial, Material riverPropMaterial, List<List<RowSpan>> ribbons)
         {
-            EmitHorizontalShoreline(context, summary, shoreLayer, shoreMaterial, riverPropMaterial, true);
-            EmitHorizontalShoreline(context, summary, shoreLayer, shoreMaterial, riverPropMaterial, false);
-            EmitVerticalShoreline(context, summary, shoreLayer, shoreMaterial, riverPropMaterial, true);
-            EmitVerticalShoreline(context, summary, shoreLayer, shoreMaterial, riverPropMaterial, false);
-        }
-
-        static void EmitHorizontalShoreline(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform shoreLayer, Material shoreMaterial, Material riverPropMaterial, bool north)
-        {
-            for (var y = 0; y < context.Height; y++)
+            for (var i = 0; i < ribbons.Count; i++)
             {
-                var x = 0;
-                while (x < context.Width)
-                {
-                    if (!IsHorizontalShore(context, x, y, north))
-                    {
-                        x++;
-                        continue;
-                    }
-
-                    var startX = x;
-                    while (x < context.Width && IsHorizontalShore(context, x, y, north))
-                        x++;
-
-                    var width = x - startX;
-                    var centerY = north ? y + 1.03f : y - 0.03f;
-                    var center = new Vector2(startX + width * 0.5f, centerY);
-                    AegisVisualCompilerPrimitives.CreateQuad(shoreLayer, "shoreline_h_" + startX + "_" + y + "_" + north, center, width + 1.1f, 0.86f, 0.044f, shoreMaterial, 0f);
-                    summary.ShorelineEdges++;
-                    MaybeEmitRiverProp(context, shoreLayer, summary, riverPropMaterial, Mathf.RoundToInt(center.x), y, center);
-                }
+                var spans = ribbons[i];
+                EmitBankMesh(context, shoreLayer, shoreMaterial, summary, spans, i, true);
+                EmitBankMesh(context, shoreLayer, shoreMaterial, summary, spans, i, false);
+                EmitCapMesh(context, shoreLayer, shoreMaterial, summary, spans, i, true);
+                EmitCapMesh(context, shoreLayer, shoreMaterial, summary, spans, i, false);
+                EmitRiverBankProps(context, shoreLayer, summary, riverPropMaterial, spans);
             }
         }
 
-        static void EmitVerticalShoreline(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform shoreLayer, Material shoreMaterial, Material riverPropMaterial, bool east)
+        static void EmitBankMesh(AegisMapVisualCompileContext context, Transform shoreLayer, Material shoreMaterial, AegisVisualLayerSummary summary, List<RowSpan> spans, int ribbonIndex, bool leftBank)
         {
-            for (var x = 0; x < context.Width; x++)
+            if (spans.Count == 0)
+                return;
+
+            var sectionCount = spans.Count + 1;
+            var vertices = new Vector3[sectionCount * 2];
+            var uvs = new Vector2[sectionCount * 2];
+            for (var i = 0; i < sectionCount; i++)
             {
-                var y = 0;
-                while (y < context.Height)
-                {
-                    if (!IsVerticalShore(context, x, y, east))
-                    {
-                        y++;
-                        continue;
-                    }
+                var z = spans[0].Y + i;
+                var rowForNoise = Mathf.Clamp(spans[0].Y + i, 0, context.Height - 1);
+                var inner = SmoothEdge(context, spans, i, leftBank, rowForNoise) + (leftBank ? -0.08f : 0.08f);
+                var outer = inner + (leftBank ? -BankWidth(context, rowForNoise, 6100) : BankWidth(context, rowForNoise, 6200));
+                var low = Mathf.Min(inner, outer);
+                var high = Mathf.Max(inner, outer);
+                var insetNoise = (context.Hash01(rowForNoise, leftBank ? 6110 : 6210, 6115) - 0.5f) * 0.10f;
+                vertices[i * 2] = new Vector3(low + insetNoise, 0.046f, z);
+                vertices[i * 2 + 1] = new Vector3(high + insetNoise, 0.046f, z);
+                uvs[i * 2] = new Vector2(0f, i * 0.31f);
+                uvs[i * 2 + 1] = new Vector2(1f, i * 0.31f);
+            }
 
-                    var startY = y;
-                    while (y < context.Height && IsVerticalShore(context, x, y, east))
-                        y++;
+            CreateRibbonMesh(shoreLayer, shoreMaterial, "shoreline_bank_mesh_" + ribbonIndex + "_" + (leftBank ? "left" : "right"), vertices, uvs);
+            summary.ShorelineEdges += spans.Count;
+            summary.ShorelineMeshes++;
+        }
 
-                    var height = y - startY;
-                    var centerX = east ? x + 1.03f : x - 0.03f;
-                    var center = new Vector2(centerX, startY + height * 0.5f);
-                    AegisVisualCompilerPrimitives.CreateQuad(shoreLayer, "shoreline_v_" + x + "_" + startY + "_" + east, center, 0.86f, height + 1.1f, 0.045f, shoreMaterial, 0f);
-                    summary.ShorelineEdges++;
-                    MaybeEmitRiverProp(context, shoreLayer, summary, riverPropMaterial, x, Mathf.RoundToInt(center.y), center);
-                }
+        static void EmitCapMesh(AegisMapVisualCompileContext context, Transform shoreLayer, Material shoreMaterial, AegisVisualLayerSummary summary, List<RowSpan> spans, int ribbonIndex, bool south)
+        {
+            if (spans.Count == 0)
+                return;
+
+            var sectionIndex = south ? 0 : spans.Count;
+            var rowForNoise = Mathf.Clamp(south ? spans[0].Y : spans[spans.Count - 1].Y, 0, context.Height - 1);
+            var edgeZ = south ? spans[0].Y : spans[0].Y + spans.Count;
+            var innerZ = edgeZ + (south ? 0.04f : -0.04f);
+            var outerZ = edgeZ + (south ? -BankWidth(context, rowForNoise, 6300) : BankWidth(context, rowForNoise, 6400));
+            var zLow = Mathf.Min(innerZ, outerZ);
+            var zHigh = Mathf.Max(innerZ, outerZ);
+            var left = SmoothEdge(context, spans, sectionIndex, true, rowForNoise) - 0.52f;
+            var right = SmoothEdge(context, spans, sectionIndex, false, rowForNoise) + 0.52f;
+            var shoulder = 0.22f + context.Hash01(rowForNoise, south ? 6310 : 6410, 6320) * 0.22f;
+            var vertices = new[]
+            {
+                new Vector3(left - shoulder, 0.045f, zLow),
+                new Vector3(right + shoulder, 0.045f, zLow),
+                new Vector3(left, 0.045f, zHigh),
+                new Vector3(right, 0.045f, zHigh)
+            };
+            var uvs = new[]
+            {
+                new Vector2(0f, 0f),
+                new Vector2(1f, 0f),
+                new Vector2(0f, 1f),
+                new Vector2(1f, 1f)
+            };
+
+            CreateRibbonMesh(shoreLayer, shoreMaterial, "shoreline_cap_mesh_" + ribbonIndex + "_" + (south ? "south" : "north"), vertices, uvs);
+            summary.ShorelineEdges++;
+            summary.ShorelineMeshes++;
+        }
+
+        static void EmitRiverBankProps(AegisMapVisualCompileContext context, Transform shoreLayer, AegisVisualLayerSummary summary, Material riverPropMaterial, List<RowSpan> spans)
+        {
+            if (spans.Count == 0)
+                return;
+
+            var stride = Mathf.Max(4, Mathf.RoundToInt(spans.Count / 10f));
+            for (var i = 1; i < spans.Count; i += stride)
+            {
+                var span = spans[i];
+                var left = SmoothEdge(context, spans, i, true, span.Y) - 0.72f;
+                var right = SmoothEdge(context, spans, i, false, span.Y) + 0.72f;
+                var y = span.Y + 0.5f;
+                MaybeEmitRiverProp(context, shoreLayer, summary, riverPropMaterial, Mathf.RoundToInt(left), span.Y, new Vector2(left, y), "left");
+                MaybeEmitRiverProp(context, shoreLayer, summary, riverPropMaterial, Mathf.RoundToInt(right), span.Y, new Vector2(right, y), "right");
             }
         }
 
-        static bool IsHorizontalShore(AegisMapVisualCompileContext context, int x, int y, bool north)
+        static float BankWidth(AegisMapVisualCompileContext context, int row, int salt)
         {
-            if (!context.IsWater(x, y))
-                return false;
-            var ny = north ? y + 1 : y - 1;
-            return !context.InBounds(x, ny) || !context.IsWater(x, ny);
+            return 0.62f + context.Hash01(row, salt, salt + 7) * 0.50f;
         }
 
-        static bool IsVerticalShore(AegisMapVisualCompileContext context, int x, int y, bool east)
+        static void CreateRibbonMesh(Transform parent, Material material, string name, Vector3[] vertices, Vector2[] uvs)
         {
-            if (!context.IsWater(x, y))
-                return false;
-            var nx = east ? x + 1 : x - 1;
-            return !context.InBounds(nx, y) || !context.IsWater(nx, y);
+            var sectionCount = vertices.Length / 2;
+            var triangles = new int[(sectionCount - 1) * 6];
+            var t = 0;
+            for (var i = 0; i < sectionCount - 1; i++)
+            {
+                var a = i * 2;
+                var b = a + 1;
+                var c = (i + 1) * 2;
+                var d = c + 1;
+                triangles[t++] = a;
+                triangles[t++] = c;
+                triangles[t++] = b;
+                triangles[t++] = b;
+                triangles[t++] = c;
+                triangles[t++] = d;
+            }
+
+            var mesh = new Mesh();
+            mesh.name = "aegis_" + name;
+            mesh.vertices = vertices;
+            mesh.triangles = triangles;
+            mesh.uv = uvs;
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var filter = go.AddComponent<MeshFilter>();
+            filter.sharedMesh = mesh;
+            var renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
         }
 
-        static void MaybeEmitRiverProp(AegisMapVisualCompileContext context, Transform shoreLayer, AegisVisualLayerSummary summary, Material riverPropMaterial, int x, int y, Vector2 center)
+        static void MaybeEmitRiverProp(AegisMapVisualCompileContext context, Transform shoreLayer, AegisVisualLayerSummary summary, Material riverPropMaterial, int x, int y, Vector2 center, string suffix)
         {
-            if (context.Hash01(x, y, 4010) >= 0.12f)
+            if (context.Hash01(x, y, 4010) >= 0.28f)
                 return;
 
             var propPosition = new Vector3(center.x, 0.08f, center.y);
             var rotation = Quaternion.Euler(0f, context.Hash01(x, y, 4020) * 360f, 0f);
             var scale = Vector3.one * Mathf.Lerp(0.55f, 1.0f, context.Hash01(x, y, 4030));
             var prefabPath = AegisMapArtPack.Pick(AegisMapArtPack.RiverMeshes, context.Seed, x, y);
-            if (AegisMapArtPack.TryInstantiatePrefab(shoreLayer, "river_bank_prop_" + x + "_" + y, prefabPath, propPosition, rotation, scale, riverPropMaterial))
+            if (AegisMapArtPack.TryInstantiatePrefab(shoreLayer, "river_bank_prop_" + suffix + "_" + x + "_" + y, prefabPath, propPosition, rotation, scale, riverPropMaterial))
                 summary.ScatterCount++;
             else
                 summary.SkippedPlacementCount++;

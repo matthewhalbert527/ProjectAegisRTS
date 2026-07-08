@@ -19,7 +19,6 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var mudTrackMaterial = AegisVisualCompilerPrimitives.Material(context, "road.mud_track");
             var bridgeDeckMaterial = AegisVisualCompilerPrimitives.Material(context, "basepad.panel");
             var bridgeRailMaterial = AegisVisualCompilerPrimitives.Material(context, "basepad.trim");
-            var bridgeShadowMaterial = AegisVisualCompilerPrimitives.Material(context, "decal.scorch");
 
             for (var i = 0; i < context.RoadSegments.Count; i++)
             {
@@ -29,7 +28,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 {
                     var run = runs[runIndex];
                     if (run.IsWater)
-                        EmitBridgeRun(context, layer, summary, i, runIndex, run, bridgeDeckMaterial, bridgeRailMaterial, bridgeShadowMaterial);
+                        EmitBridgeRun(context, layer, summary, i, runIndex, run, bridgeDeckMaterial, bridgeRailMaterial);
                     else
                         EmitRoadRun(context, layer, summary, i, runIndex, run, roadMaterial, roadDustMaterial, roadEdgeMaterial, leftRutMaterial, rightRutMaterial, mudTrackMaterial);
                 }
@@ -105,7 +104,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             summary.RoadSegments++;
         }
 
-        static void EmitBridgeRun(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, Material deckMaterial, Material railMaterial, Material shadowMaterial)
+        static void EmitBridgeRun(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, Material deckMaterial, Material railMaterial)
         {
             var length = AegisVisualCompilerPrimitives.SegmentLength(run.A, run.B);
             if (length <= 0.3f)
@@ -117,7 +116,6 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var normal = new Vector2(-direction.y, direction.x);
             var deckWidth = Mathf.Clamp(run.Width + 0.62f, 2.5f, 4.2f);
 
-            AegisVisualCompilerPrimitives.CreateQuad(layer, "bridge_prototype_shadow_" + segmentIndex + "_" + runIndex, center, length + 1.2f, deckWidth + 0.8f, 0.081f, shadowMaterial, angle);
             AegisVisualCompilerPrimitives.CreateQuad(layer, "bridge_prototype_deck_" + segmentIndex + "_" + runIndex, center, length + 0.55f, deckWidth, 0.18f, deckMaterial, angle);
             AegisVisualCompilerPrimitives.CreateQuad(layer, "bridge_prototype_rail_left_" + segmentIndex + "_" + runIndex, center + normal * (deckWidth * 0.48f), length + 0.48f, 0.18f, 0.31f, railMaterial, angle);
             AegisVisualCompilerPrimitives.CreateQuad(layer, "bridge_prototype_rail_right_" + segmentIndex + "_" + runIndex, center - normal * (deckWidth * 0.48f), length + 0.48f, 0.18f, 0.31f, railMaterial, angle);

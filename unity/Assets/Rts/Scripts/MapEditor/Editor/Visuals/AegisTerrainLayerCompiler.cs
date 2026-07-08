@@ -52,13 +52,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 return;
             }
 
-            var material = AegisVisualCompilerPrimitives.Material(context, role);
+            var surfaceRole = context.IsDebugOverlay ? role : ProductionSurfaceRole(context, startX, startY, width, height, role);
+            var material = AegisVisualCompilerPrimitives.Material(context, surfaceRole);
             var center = new Vector2(startX + width * 0.5f, startY + height * 0.5f);
             var elevation = role == "terrain.shallow_water" || role == "terrain.deep_water" ? 0.015f : 0f;
             var overlap = context.IsDebugOverlay ? 1f : 1.035f;
             var chunk = AegisVisualCompilerPrimitives.CreateQuad(
                 layer,
-                prefix + "_" + startX + "_" + startY + "_" + role.Replace('.', '_'),
+                prefix + "_" + startX + "_" + startY + "_" + surfaceRole.Replace('.', '_'),
                 center,
                 width * overlap,
                 height * overlap,
@@ -67,6 +68,51 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 0f);
             chunk.isStatic = true;
             summary.TerrainChunks++;
+        }
+
+        static string ProductionSurfaceRole(AegisMapVisualCompileContext context, int startX, int startY, int width, int height, string role)
+        {
+            if (role == "terrain.gravel")
+            {
+                if (PatchNearWater(context, startX, startY, width, height, 2))
+                    return "terrain.dirt";
+                if (PatchNearRoad(context, startX, startY, width, height))
+                    return "terrain.dirt";
+                return role;
+            }
+
+            if (role != "terrain.cliff_ground")
+                return role;
+
+            if (PatchNearWater(context, startX, startY, width, height, 2))
+                return "terrain.dirt";
+
+            if (PatchNearRoad(context, startX, startY, width, height))
+                return "terrain.gravel";
+
+            return context.Hash01(startX, startY, 7310) < 0.58f ? "terrain.gravel" : "terrain.dirt";
+        }
+
+        static bool PatchNearWater(AegisMapVisualCompileContext context, int startX, int startY, int width, int height, int radius)
+        {
+            for (var y = startY - radius; y < startY + height + radius; y++)
+                for (var x = startX - radius; x < startX + width + radius; x++)
+                    if (context.IsWater(x, y))
+                        return true;
+            return false;
+        }
+
+        static bool PatchNearRoad(AegisMapVisualCompileContext context, int startX, int startY, int width, int height)
+        {
+            var center = new Vector2(startX + width * 0.5f, startY + height * 0.5f);
+            for (var i = 0; i < context.RoadSegments.Count; i++)
+            {
+                var segment = context.RoadSegments[i];
+                if (AegisVisualCompilerPrimitives.DistanceToSegment(center, segment.A, segment.B) <= Mathf.Max(width, height) + 2.2f)
+                    return true;
+            }
+
+            return false;
         }
 
         static bool IsWaterRole(string role)
