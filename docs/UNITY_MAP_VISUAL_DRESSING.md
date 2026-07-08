@@ -84,7 +84,7 @@ Base pads are also visual-only dressing on top of player start metadata. Each ge
 
 `Production Terrain Detail Decals` is a deterministic visual-only layer placed above the logical terrain surface. It adds low-density grass mottling, roadside dust, wet mud near water, gravel/rubble speckles, and subtle water highlights. These decals are intentionally sparse and soft; they reduce the top-down checkerboard feel without pretending to replace final terrain blending.
 
-Production terrain transitions now use transparent blend roles (`terrain.blend_grass`, `terrain.blend_dirt`, `terrain.blend_gravel`, and `terrain.blend_mud`) with deterministic offset and width variation. Debug mode still shows literal terrain-role transitions. Production preview also suppresses isolated rough cells surrounded by softer terrain so mixed terrain samples read less like checkerboards at close zoom.
+Production terrain transitions now use transparent blend roles (`terrain.blend_grass`, `terrain.blend_dirt`, `terrain.blend_gravel`, and `terrain.blend_mud`) with deterministic offset and width variation. Debug mode still shows literal terrain-role transitions. Production preview naturalizes rough/cliff terrain to softer grass/dirt base surfaces and uses a single softened base role for mixed chunks, so roughness reads through rubble speckles, rocks, wet banks, and cliff props rather than checkerboard terrain cells at close zoom.
 
 ## Water Rendering
 

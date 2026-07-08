@@ -25,7 +25,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     if (!context.IsDebugOverlay && IsMixed(context, x, y, width, height))
                     {
                         summary.MixedTerrainChunks++;
-                        EmitMixedChunk(context, layer, summary, x, y, width, height);
+                        EmitProductionMixedChunk(context, layer, summary, x, y, width, height);
                     }
                     else
                     {
@@ -37,11 +37,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return summary;
         }
 
-        static void EmitMixedChunk(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int startX, int startY, int width, int height)
+        static void EmitProductionMixedChunk(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int startX, int startY, int width, int height)
         {
-            for (var y = startY; y < startY + height; y++)
-                for (var x = startX; x < startX + width; x++)
-                    EmitPatch(context, layer, summary, x, y, 1, 1, context.TerrainRoleAt(x, y), "terrain_cell");
+            var role = DominantProductionRole(context, startX, startY, width, height);
+            EmitPatch(context, layer, summary, startX, startY, width, height, role, "terrain_mixed_chunk");
         }
 
         static void EmitPatch(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int startX, int startY, int width, int height, string role, string prefix)
@@ -75,27 +74,37 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (role == "terrain.gravel")
             {
                 if (PatchNearWater(context, startX, startY, width, height, 2))
-                    return "terrain.dirt";
+                    return "terrain.grass";
                 if (PatchNearRoad(context, startX, startY, width, height))
                     return "terrain.dirt";
                 if (IsSparseRoughCell(context, startX, startY, width, height))
                     return context.Hash01(startX, startY, 7320) < 0.35f ? "terrain.dark_grass" : "terrain.grass";
-                return role;
+                return NaturalizedRoughSurface(context, startX, startY, 7340);
             }
 
             if (role != "terrain.cliff_ground")
                 return role;
 
             if (PatchNearWater(context, startX, startY, width, height, 2))
-                return "terrain.dirt";
+                return "terrain.grass";
 
             if (PatchNearRoad(context, startX, startY, width, height))
                 return "terrain.gravel";
 
             if (IsSparseRoughCell(context, startX, startY, width, height))
-                return context.Hash01(startX, startY, 7330) < 0.50f ? "terrain.gravel" : "terrain.dirt";
+                return context.Hash01(startX, startY, 7330) < 0.50f ? "terrain.dark_grass" : "terrain.dirt";
 
-            return context.Hash01(startX, startY, 7310) < 0.58f ? "terrain.gravel" : "terrain.dirt";
+            return NaturalizedRoughSurface(context, startX, startY, 7350);
+        }
+
+        static string NaturalizedRoughSurface(AegisMapVisualCompileContext context, int startX, int startY, int salt)
+        {
+            var roll = context.Hash01(startX, startY, salt);
+            if (roll < 0.18f)
+                return "terrain.dirt";
+            if (roll < 0.52f)
+                return "terrain.dark_grass";
+            return "terrain.grass";
         }
 
         static bool IsSparseRoughCell(AegisMapVisualCompileContext context, int startX, int startY, int width, int height)
@@ -184,6 +193,81 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             }
 
             return bestRole;
+        }
+
+        static string DominantProductionRole(AegisMapVisualCompileContext context, int startX, int startY, int width, int height)
+        {
+            var softRole = DominantOriginalSoftRole(context, startX, startY, width, height);
+            if (!string.IsNullOrEmpty(softRole))
+                return softRole;
+
+            var counts = new Dictionary<string, int>();
+            for (var y = startY; y < startY + height; y++)
+            {
+                for (var x = startX; x < startX + width; x++)
+                {
+                    var role = context.TerrainRoleAt(x, y);
+                    if (IsWaterRole(role))
+                        continue;
+
+                    var surfaceRole = ProductionSurfaceRole(context, x, y, 1, 1, role);
+                    int count;
+                    counts.TryGetValue(surfaceRole, out count);
+                    counts[surfaceRole] = count + 1;
+                }
+            }
+
+            var bestRole = "terrain.grass";
+            var bestCount = -1;
+            foreach (var pair in counts)
+            {
+                if (pair.Value > bestCount)
+                {
+                    bestRole = pair.Key;
+                    bestCount = pair.Value;
+                }
+            }
+
+            return bestRole;
+        }
+
+        static string DominantOriginalSoftRole(AegisMapVisualCompileContext context, int startX, int startY, int width, int height)
+        {
+            var counts = new Dictionary<string, int>();
+            for (var y = startY; y < startY + height; y++)
+            {
+                for (var x = startX; x < startX + width; x++)
+                {
+                    var role = context.TerrainRoleAt(x, y);
+                    if (!IsSoftProductionBaseRole(role))
+                        continue;
+
+                    int count;
+                    counts.TryGetValue(role, out count);
+                    counts[role] = count + 1;
+                }
+            }
+
+            var bestRole = (string)null;
+            var bestCount = -1;
+            foreach (var pair in counts)
+            {
+                if (pair.Value > bestCount)
+                {
+                    bestRole = pair.Key;
+                    bestCount = pair.Value;
+                }
+            }
+
+            return bestRole;
+        }
+
+        static bool IsSoftProductionBaseRole(string role)
+        {
+            return role == "terrain.grass" ||
+                role == "terrain.dark_grass" ||
+                role == "terrain.dirt" ||
+                role == "terrain.mud";
         }
     }
 }
