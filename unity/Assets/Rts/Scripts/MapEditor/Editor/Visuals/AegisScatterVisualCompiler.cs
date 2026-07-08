@@ -7,6 +7,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
     sealed class AegisScatterVisualCompiler : IAegisVisualLayerCompiler
     {
         const int MaxScatter = 900;
+        const int MaxGroundLitter = 850;
 
         public AegisVisualLayerSummary Compile(AegisMapVisualCompileContext context)
         {
@@ -18,6 +19,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var rockMaterial = AegisVisualCompilerPrimitives.Material(context, "blocker.rock");
             var craterMaterial = AegisVisualCompilerPrimitives.Material(context, "decal.crater");
             var rubbleMaterial = AegisVisualCompilerPrimitives.Material(context, "decal.rubble");
+            var grassMicroMaterial = AegisVisualCompilerPrimitives.Material(context, "terrain.grass_micro_mottle");
+            var pebbleMaterial = AegisVisualCompilerPrimitives.Material(context, "road.pebble_breakup");
             var placed = 0;
 
             for (var y = 2; y < context.Height - 2; y += 4)
@@ -91,7 +94,106 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (placed >= MaxScatter)
                 summary.AddWarning("Scatter compiler reached the deterministic placement cap.");
 
+            EmitGroundLitter(layer, context, summary, grassMaterial, grassMicroMaterial, rockMaterial, pebbleMaterial, rubbleMaterial);
             return summary;
+        }
+
+        static void EmitGroundLitter(Transform layer, AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Material grassMaterial, Material grassMicroMaterial, Material rockMaterial, Material pebbleMaterial, Material rubbleMaterial)
+        {
+            var placed = 0;
+            for (var y = 3; y < context.Height - 3; y += 3)
+            {
+                var rowOffset = (y & 1);
+                for (var x = 3 + rowOffset; x < context.Width - 3; x += 3)
+                {
+                    if (placed >= MaxGroundLitter)
+                    {
+                        summary.SkippedPlacementCount++;
+                        continue;
+                    }
+
+                    if (!CanPlaceGroundLitter(context, x, y))
+                    {
+                        summary.SkippedPlacementCount++;
+                        continue;
+                    }
+
+                    var role = context.TerrainRoleAt(x, y);
+                    if (role == "terrain.grass" || role == "terrain.dark_grass")
+                    {
+                        if (context.Hash01(x, y, 1710) < (role == "terrain.dark_grass" ? 0.22f : 0.15f))
+                        {
+                            EmitGrassLitter(layer, context, summary, x, y, grassMaterial, grassMicroMaterial);
+                            placed++;
+                        }
+                        continue;
+                    }
+
+                    if ((role == "terrain.dirt" || role == "terrain.gravel" || role == "terrain.cliff_ground") && context.Hash01(x, y, 1720) < 0.18f)
+                    {
+                        EmitPebbleLitter(layer, context, summary, x, y, rockMaterial, pebbleMaterial, rubbleMaterial);
+                        placed++;
+                    }
+                }
+            }
+
+            if (placed >= MaxGroundLitter)
+                summary.AddWarning("Ground litter scatter reached the deterministic placement cap.");
+        }
+
+        static bool CanPlaceGroundLitter(AegisMapVisualCompileContext context, int x, int y)
+        {
+            return !context.IsStartProtected(x, y) &&
+                !context.IsWater(x, y) &&
+                !context.IsBlocked(x, y) &&
+                !context.HasResource(x, y) &&
+                !AegisVisualCompilerPrimitives.IsRoadNear(context, x, y, 1.15f);
+        }
+
+        static void EmitGrassLitter(Transform layer, AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, int x, int y, Material grassMaterial, Material grassMicroMaterial)
+        {
+            var center = new Vector2(x + 0.5f + Mathf.Lerp(-0.72f, 0.72f, context.Hash01(x, y, 1711)), y + 0.5f + Mathf.Lerp(-0.72f, 0.72f, context.Hash01(x, y, 1712)));
+            var width = Mathf.Lerp(0.45f, 1.15f, context.Hash01(x, y, 1713));
+            var length = Mathf.Lerp(0.25f, 0.72f, context.Hash01(x, y, 1714));
+            var angle = context.Hash01(x, y, 1715) * 180f;
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "grass_litter_shadow_" + x + "_" + y, center, width, length, 0.096f, grassMicroMaterial, angle, context, x, y, 1716, Mathf.Min(width, length) * 0.20f, 3.0f);
+            summary.ScatterCount++;
+            summary.GrassCount++;
+
+            if (context.Hash01(x, y, 1717) > 0.48f)
+                return;
+
+            var prefab = AegisMapArtPack.Pick(new[] { "Meshes/Vegetation/grass_tuft_01.glb", "Meshes/Vegetation/grass_tuft_02.glb" }, context.Seed, x, y);
+            var position = new Vector3(center.x + Mathf.Lerp(-0.20f, 0.20f, context.Hash01(x, y, 1718)), 0.055f, center.y + Mathf.Lerp(-0.20f, 0.20f, context.Hash01(x, y, 1719)));
+            var rotation = Quaternion.Euler(0f, context.Hash01(x, y, 1721) * 360f, 0f);
+            var scale = Vector3.one * Mathf.Lerp(0.22f, 0.46f, context.Hash01(x, y, 1722));
+            if (AegisMapArtPack.TryInstantiatePrefab(layer, "grass_litter_mesh_" + x + "_" + y, prefab, position, rotation, scale, grassMaterial))
+                summary.ScatterCount++;
+            else
+                summary.SkippedPlacementCount++;
+        }
+
+        static void EmitPebbleLitter(Transform layer, AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, int x, int y, Material rockMaterial, Material pebbleMaterial, Material rubbleMaterial)
+        {
+            var center = new Vector2(x + 0.5f + Mathf.Lerp(-0.70f, 0.70f, context.Hash01(x, y, 1731)), y + 0.5f + Mathf.Lerp(-0.70f, 0.70f, context.Hash01(x, y, 1732)));
+            var width = Mathf.Lerp(0.55f, 1.45f, context.Hash01(x, y, 1733));
+            var length = Mathf.Lerp(0.32f, 0.95f, context.Hash01(x, y, 1734));
+            var angle = context.Hash01(x, y, 1735) * 180f;
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "pebble_litter_decal_" + x + "_" + y, center, width, length, 0.098f, context.Hash01(x, y, 1736) < 0.55f ? pebbleMaterial : rubbleMaterial, angle, context, x, y, 1737, Mathf.Min(width, length) * 0.16f, 3.5f);
+            summary.ScatterCount++;
+            summary.RockCount++;
+
+            if (context.Hash01(x, y, 1738) > 0.42f)
+                return;
+
+            var prefab = AegisMapArtPack.Pick(AegisMapArtPack.PebbleMeshes, context.Seed, x, y);
+            var position = new Vector3(center.x + Mathf.Lerp(-0.22f, 0.22f, context.Hash01(x, y, 1739)), 0.075f, center.y + Mathf.Lerp(-0.22f, 0.22f, context.Hash01(x, y, 1740)));
+            var rotation = Quaternion.Euler(0f, context.Hash01(x, y, 1741) * 360f, 0f);
+            var scale = Vector3.one * Mathf.Lerp(0.20f, 0.48f, context.Hash01(x, y, 1742));
+            if (AegisMapArtPack.TryInstantiatePrefab(layer, "pebble_litter_mesh_" + x + "_" + y, prefab, position, rotation, scale, rockMaterial))
+                summary.ScatterCount++;
+            else
+                summary.SkippedPlacementCount++;
         }
 
         static bool IsNearCliff(AegisMapVisualCompileContext context, int x, int y)

@@ -179,6 +179,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (resources != null && resources.ResourceGlintCount > resources.ResourceFields * 4)
                 errors.Add("Resource glint count exceeds the production cap.");
 
+            var scatter = FindLayer(result, "Rule Based Scatter");
+            if (scatter == null)
+                errors.Add("Rule-based scatter layer missing.");
+            else if (scatter.ScatterCount < 240)
+                errors.Add("Rule-based scatter produced too little ground litter and natural clutter for production preview.");
+
             var basePads = FindLayer(result, "Modular Base Pads");
             if (basePads != null && basePads.Warnings.Count > 0)
                 warnings.AddRange(basePads.Warnings);

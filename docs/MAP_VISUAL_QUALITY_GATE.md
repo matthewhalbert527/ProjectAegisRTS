@@ -35,13 +35,14 @@ Run from batch mode:
 - Synthetic bridge crossings produce contact prop dressing at the bank instead of floating above bare terrain.
 - Road detail decals are present when roads are present.
 - Road edge-grass and pebble breakup coverage is present above the minimum production-preview threshold.
+- Rule-based scatter produces enough low-profile grass/pebble ground litter to break up open fields.
 - Base pads produce layered panel, trim, crack, grime, and construction-wear decals.
 - Resource glints stay capped relative to field count.
 - The sample instantiates imported v2 art-pack prefabs and is not fallback-only.
 
 ## Limitations
 
-This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, missing muddy water-surface details, missing shoreline bank meshes, missing eroded-bank or water-edge details, missing bridge texture bindings, missing bridge-bank contact dressing, missing macro terrain bindings, fallback-only visuals, missing layered terrain detail decals, missing road/pad detail decals, missing road edge-breakup coverage, missing required art-pack texture paths, or unchecked road-water conflicts.
+This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, missing muddy water-surface details, missing shoreline bank meshes, missing eroded-bank or water-edge details, missing bridge texture bindings, missing bridge-bank contact dressing, missing macro terrain bindings, fallback-only visuals, missing layered terrain detail decals, missing low-profile ground litter, missing road/pad detail decals, missing road edge-breakup coverage, missing required art-pack texture paths, or unchecked road-water conflicts.
 
 ## Required Hygiene
 
