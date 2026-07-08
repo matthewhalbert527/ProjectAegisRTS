@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System;
+using System.IO;
 using ProjectAegisRTS.UnityClient.Boot;
 using ProjectAegisRTS.UnityClient.Bootstrap;
 using ProjectAegisRTS.UnityClient.CoreBridge;
@@ -8,6 +9,7 @@ using ProjectAegisRTS.UnityClient.MapEditor.Visuals;
 using ProjectAegisRTS.UnityClient.Rendering;
 using ProjectAegisRTS.UnityClient.Scenario;
 using UnityEditor;
+using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -17,6 +19,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
     {
         public const string ScenePath = "Assets/Rts/Scenes/Stage16_ArtDirectedPlayableMap.unity";
         const string MapPath = "Assets/Rts/MapEditor/Samples/sample_art_directed_forest_river_2p.aegismap.json";
+        const string BuildPathArgument = "-aegisArtDirectedWindowsPlayerPath";
+        const string DefaultWindowsPlayerPath = "../../build/windows-player-art-directed-map/ProjectAegisRTS_NewMap.exe";
 
         [MenuItem("Project Aegis/Map Editor/Open Playable Art-Directed Map")]
         public static void OpenPlayableArtDirectedMapMenu()
@@ -36,6 +40,47 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             try
             {
                 CreateOrUpdatePlayableScene(false);
+                if (Application.isBatchMode)
+                    EditorApplication.Exit(0);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                if (Application.isBatchMode)
+                    EditorApplication.Exit(1);
+                throw;
+            }
+        }
+
+        public static void BuildWindowsPlayerBatch()
+        {
+            try
+            {
+                CreateOrUpdatePlayableScene(false);
+
+                var outputPath = GetCommandLineArgument(BuildPathArgument);
+                if (string.IsNullOrWhiteSpace(outputPath))
+                    outputPath = Path.GetFullPath(Path.Combine(Application.dataPath, DefaultWindowsPlayerPath));
+                outputPath = Path.GetFullPath(outputPath);
+
+                var outputDirectory = Path.GetDirectoryName(outputPath);
+                if (string.IsNullOrWhiteSpace(outputDirectory))
+                    throw new InvalidOperationException("Art-directed Windows player output path must include a directory.");
+                Directory.CreateDirectory(outputDirectory);
+
+                var options = new BuildPlayerOptions
+                {
+                    scenes = new[] { ScenePath },
+                    locationPathName = outputPath,
+                    target = BuildTarget.StandaloneWindows64,
+                    options = BuildOptions.None
+                };
+
+                var report = BuildPipeline.BuildPlayer(options);
+                if (report.summary.result != BuildResult.Succeeded)
+                    throw new InvalidOperationException("Playable art-directed map Windows player build failed with result " + report.summary.result + ".");
+
+                Debug.Log("Playable art-directed map Windows player build succeeded: " + outputPath + " (" + report.summary.totalSize + " bytes).");
                 if (Application.isBatchMode)
                     EditorApplication.Exit(0);
             }
@@ -182,6 +227,18 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             }
 
             EditorUtility.SetDirty(camera);
+        }
+
+        static string GetCommandLineArgument(string name)
+        {
+            var args = Environment.GetCommandLineArgs();
+            for (var i = 0; i < args.Length - 1; i++)
+            {
+                if (string.Equals(args[i], name, StringComparison.OrdinalIgnoreCase))
+                    return args[i + 1];
+            }
+
+            return null;
         }
     }
 }
