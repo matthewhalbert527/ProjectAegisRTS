@@ -76,10 +76,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var angle = AegisVisualCompilerPrimitives.DirectionAngle(run.A, run.B);
             var direction = (run.B - run.A).normalized;
             var normal = new Vector2(-direction.y, direction.x);
-            var width = Mathf.Clamp(run.Width, 1.75f, 2.82f);
+            var width = Mathf.Clamp(run.Width * 0.74f, 1.42f, 2.28f);
 
-            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_body_" + segmentIndex + "_" + runIndex, center, length, width, 0.055f, roadMaterial, angle, context, segmentIndex, runIndex, 7300, width * 0.14f);
-            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, center, length * 0.94f, width * 1.26f, 0.071f, dustMaterial, angle, context, segmentIndex, runIndex, 7310, width * 0.22f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_body_" + segmentIndex + "_" + runIndex, center, length, width, 0.055f, roadMaterial, angle, context, segmentIndex, runIndex, 7300, width * 0.24f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, center, length * 0.94f, width * 1.36f, 0.071f, dustMaterial, angle, context, segmentIndex, runIndex, 7310, width * 0.30f);
             AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, center + normal * (width * 0.48f), length * 0.88f, 0.38f, 0.082f, edgeMaterial, angle, context, segmentIndex, runIndex, 7200, 0.08f);
             AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, center - normal * (width * 0.48f), length * 0.88f, 0.38f, 0.082f, edgeMaterial, angle + 180f, context, segmentIndex, runIndex, 7210, 0.08f);
             summary.RoadDetailDecalCount += 3;
