@@ -50,6 +50,15 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         continue;
                     }
 
+                    var roadNear = AegisVisualCompilerPrimitives.IsRoadNear(context, x, y, 4.5f);
+                    if (roadNear && IsNearWater(context, x, y, 3) && context.Hash01(x, y, 2380) < 0.62f)
+                    {
+                        EmitDecal(layer, context, summary, "wet_road_bank_smear", x, y, wetMud, 3.0f, 7.2f, 0.24f, 0.68f, 0.081f, 2381);
+                        summary.ShorelineDetailDecalCount++;
+                        placed++;
+                        continue;
+                    }
+
                     if (IsNearWater(context, x, y, 2) && context.Hash01(x, y, 2330) < 0.48f)
                     {
                         EmitDecal(layer, context, summary, "wet_bank_mottle", x, y, wetMud, 2.2f, 5.8f, 0.42f, 1.0f, 0.079f, 2331);
@@ -58,7 +67,6 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         continue;
                     }
 
-                    var roadNear = AegisVisualCompilerPrimitives.IsRoadNear(context, x, y, 4.5f);
                     if (roadNear && context.Hash01(x, y, 2340) < 0.22f)
                     {
                         EmitDecal(layer, context, summary, "roadside_dust_mottle", x, y, dirtMottle, 2.4f, 6.5f, 0.38f, 1.0f, 0.078f, 2341);

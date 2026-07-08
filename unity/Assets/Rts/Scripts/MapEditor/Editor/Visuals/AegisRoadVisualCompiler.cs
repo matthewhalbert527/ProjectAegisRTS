@@ -30,7 +30,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 {
                     var run = runs[runIndex];
                     if (run.IsWater)
-                        EmitBridgeRun(context, layer, summary, i, runIndex, run, bridgeDeckMaterial, bridgeRailMaterial, bridgeDetailMaterial, bridgeShadowMaterial);
+                        EmitBridgeRun(context, layer, summary, i, runIndex, run, bridgeDeckMaterial, bridgeRailMaterial, bridgeDetailMaterial, bridgeShadowMaterial, roadMaterial, roadDustMaterial, roadEdgeMaterial);
                     else
                         EmitRoadRun(context, layer, summary, i, runIndex, run, roadMaterial, roadDustMaterial, roadEdgeMaterial, leftRutMaterial, rightRutMaterial, mudTrackMaterial);
                 }
@@ -230,7 +230,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return direction.sqrMagnitude < 0.0001f ? Vector2.right : direction.normalized;
         }
 
-        static void EmitBridgeRun(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, Material deckMaterial, Material railMaterial, Material detailMaterial, Material shadowMaterial)
+        static void EmitBridgeRun(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, Material deckMaterial, Material railMaterial, Material detailMaterial, Material shadowMaterial, Material roadMaterial, Material roadDustMaterial, Material roadEdgeMaterial)
         {
             var length = AegisVisualCompilerPrimitives.SegmentLength(run.A, run.B);
             if (length <= 0.3f)
@@ -243,12 +243,95 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var deckWidth = Mathf.Clamp(run.Width + 0.22f, 2.15f, 3.25f);
 
             AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_shadow_" + segmentIndex + "_" + runIndex, center, length + 0.85f, deckWidth + 0.72f, 0.112f, shadowMaterial, angle, context, segmentIndex, runIndex, 7410, 0.08f);
+            EmitBridgeApproachRoadBlend(context, layer, summary, segmentIndex, runIndex, run, length, deckWidth, direction, normal, angle, roadMaterial, roadDustMaterial, roadEdgeMaterial);
             AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_deck_" + segmentIndex + "_" + runIndex, center, length + 0.48f, deckWidth, 0.18f, deckMaterial, angle, context, segmentIndex, runIndex, 7420, 0.035f, 14f);
             AegisVisualCompilerPrimitives.CreateCube(layer, "bridge_rail_beam_left_" + segmentIndex + "_" + runIndex, new Vector3(center.x + normal.x * (deckWidth * 0.53f), 0.29f, center.y + normal.y * (deckWidth * 0.53f)), new Vector3(length + 0.52f, 0.15f, 0.16f), Quaternion.Euler(0f, angle, 0f), railMaterial);
             AegisVisualCompilerPrimitives.CreateCube(layer, "bridge_rail_beam_right_" + segmentIndex + "_" + runIndex, new Vector3(center.x - normal.x * (deckWidth * 0.53f), 0.29f, center.y - normal.y * (deckWidth * 0.53f)), new Vector3(length + 0.52f, 0.15f, 0.16f), Quaternion.Euler(0f, angle, 0f), railMaterial);
             EmitBridgeApproachDust(context, layer, summary, segmentIndex, runIndex, run, deckWidth, normal, angle, shadowMaterial);
             EmitBridgeDeckDetails(context, layer, summary, segmentIndex, runIndex, run, length, deckWidth, normal, angle, detailMaterial, railMaterial);
             summary.BridgeCrossings++;
+        }
+
+        static void EmitBridgeApproachRoadBlend(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, float bridgeLength, float deckWidth, Vector2 direction, Vector2 normal, float angle, Material roadMaterial, Material dustMaterial, Material edgeMaterial)
+        {
+            var heavyApron = bridgeLength >= 5.5f;
+            EmitBridgeApproachRoadBlendEnd(context, layer, summary, segmentIndex, runIndex, run.A - direction * 2.25f, run.A + direction * 0.16f, deckWidth, direction, roadMaterial, dustMaterial, edgeMaterial, true, heavyApron);
+            EmitBridgeApproachRoadBlendEnd(context, layer, summary, segmentIndex, runIndex, run.B + direction * 2.25f, run.B - direction * 0.16f, deckWidth, -direction, roadMaterial, dustMaterial, edgeMaterial, false, heavyApron);
+        }
+
+        static void EmitBridgeApproachRoadBlendEnd(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, Vector2 landPoint, Vector2 bridgePoint, float deckWidth, Vector2 directionToBridge, Material roadMaterial, Material dustMaterial, Material edgeMaterial, bool entry, bool heavyApron)
+        {
+            var nameSuffix = entry ? "entry" : "exit";
+            var salt = entry ? 7480 : 7490;
+            var roadWidth = deckWidth * Mathf.Lerp(0.56f, 0.74f, context.Hash01(segmentIndex, runIndex, salt + 1));
+            var dustWidth = deckWidth * Mathf.Lerp(0.84f, 1.04f, context.Hash01(segmentIndex, runIndex, salt + 2));
+            var bridgeWidth = deckWidth * (heavyApron ? 0.70f : 0.46f);
+            var dustBridgeWidth = deckWidth * (heavyApron ? 0.98f : 0.74f);
+
+            CreateTaperedApproachRibbon(layer, "bridge_road_dust_" + nameSuffix + "_" + segmentIndex + "_" + runIndex, landPoint, bridgePoint, directionToBridge, dustWidth, dustBridgeWidth, 0.107f, dustMaterial, context, segmentIndex, runIndex, salt + 3, 0.16f, 30f);
+            if (heavyApron)
+                CreateTaperedApproachRibbon(layer, "bridge_road_apron_" + nameSuffix + "_" + segmentIndex + "_" + runIndex, landPoint, bridgePoint, directionToBridge, roadWidth, bridgeWidth, 0.116f, roadMaterial, context, segmentIndex, runIndex, salt + 4, 0.12f, 26f);
+            CreateTaperedApproachRibbon(layer, "bridge_road_edge_left_" + nameSuffix + "_" + segmentIndex + "_" + runIndex, landPoint, bridgePoint, directionToBridge, 0.18f, 0.22f, 0.125f, edgeMaterial, context, segmentIndex, runIndex, salt + 5, 0.08f, 12f, roadWidth * 0.42f);
+            CreateTaperedApproachRibbon(layer, "bridge_road_edge_right_" + nameSuffix + "_" + segmentIndex + "_" + runIndex, landPoint, bridgePoint, directionToBridge, 0.18f, 0.22f, 0.125f, edgeMaterial, context, segmentIndex, runIndex, salt + 6, 0.08f, 12f, -roadWidth * 0.42f);
+            summary.RoadDetailDecalCount += heavyApron ? 4 : 3;
+        }
+
+        static void CreateTaperedApproachRibbon(Transform parent, string name, Vector2 landPoint, Vector2 bridgePoint, Vector2 directionToBridge, float landWidth, float bridgeWidth, float elevation, Material material, AegisMapVisualCompileContext context, int segmentIndex, int runIndex, int salt, float widthJitter, float uvWorldScale, float lateralOffset = 0f)
+        {
+            var direction = SafeDirection(directionToBridge);
+            var normal = new Vector2(-direction.y, direction.x);
+            const int sections = 4;
+            var vertices = new Vector3[(sections + 1) * 2];
+            var uvs = new Vector2[(sections + 1) * 2];
+            var totalLength = Vector2.Distance(landPoint, bridgePoint);
+
+            for (var i = 0; i <= sections; i++)
+            {
+                var t = i / (float)sections;
+                var center = Vector2.Lerp(landPoint, bridgePoint, t);
+                var fade = Mathf.SmoothStep(0f, 1f, t);
+                var width = Mathf.Lerp(landWidth, bridgeWidth, fade);
+                width *= Mathf.Lerp(1f - widthJitter, 1f + widthJitter, context.Hash01(segmentIndex + i, runIndex, salt + 21));
+                var centerOffset = normal * (lateralOffset * Mathf.Lerp(1f, 0.72f, fade));
+                center += centerOffset;
+                var side = normal * (width * 0.5f);
+                vertices[i * 2] = new Vector3(center.x - side.x, elevation, center.y - side.y);
+                vertices[i * 2 + 1] = new Vector3(center.x + side.x, elevation, center.y + side.y);
+                var v = totalLength * t / Mathf.Max(0.001f, uvWorldScale);
+                uvs[i * 2] = new Vector2(0f, v);
+                uvs[i * 2 + 1] = new Vector2(1f, v);
+            }
+
+            var triangles = new int[sections * 6];
+            var triangle = 0;
+            for (var i = 0; i < sections; i++)
+            {
+                var a = i * 2;
+                var b = a + 1;
+                var c = (i + 1) * 2;
+                var d = c + 1;
+                triangles[triangle++] = a;
+                triangles[triangle++] = b;
+                triangles[triangle++] = c;
+                triangles[triangle++] = b;
+                triangles[triangle++] = d;
+                triangles[triangle++] = c;
+            }
+
+            var mesh = new Mesh();
+            mesh.name = name + "_tapered_mesh";
+            mesh.vertices = vertices;
+            mesh.uv = uvs;
+            mesh.triangles = triangles;
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var filter = go.AddComponent<MeshFilter>();
+            filter.sharedMesh = mesh;
+            var renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
         }
 
         static void EmitBridgeApproachDust(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, float deckWidth, Vector2 normal, float angle, Material material)
