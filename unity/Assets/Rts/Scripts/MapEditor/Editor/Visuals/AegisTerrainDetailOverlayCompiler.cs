@@ -7,7 +7,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
     sealed class AegisTerrainDetailOverlayCompiler : IAegisVisualLayerCompiler
     {
         const int SampleStride = 2;
+        const int MacroSampleStride = 8;
         const int MaxDetailDecals = 4200;
+        const int MaxMacroDetailDecals = 720;
         const float ExpectedPlacementPressure = 0.78f;
 
         public AegisVisualLayerSummary Compile(AegisMapVisualCompileContext context)
@@ -26,6 +28,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var gravelMottle = AegisVisualCompilerPrimitives.Material(context, "terrain.gravel_mottle");
             var wetMud = AegisVisualCompilerPrimitives.Material(context, "terrain.wet_mud_detail");
             var waterHighlight = AegisVisualCompilerPrimitives.Material(context, "water.highlight");
+            var macroGrass = AegisVisualCompilerPrimitives.Material(context, "terrain.macro_grass_variation");
+            var macroDryGrass = AegisVisualCompilerPrimitives.Material(context, "terrain.macro_dry_grass");
+            var macroShadow = AegisVisualCompilerPrimitives.Material(context, "terrain.macro_shadow");
+            var macroDirt = AegisVisualCompilerPrimitives.Material(context, "terrain.macro_dirt_variation");
+            var macroWet = AegisVisualCompilerPrimitives.Material(context, "terrain.macro_wet_lowland");
+
+            EmitMacroTerrainVariation(context, layer, summary, macroGrass, macroDryGrass, macroShadow, macroDirt, macroWet);
 
             var densityScale = DetailDensityScale(context);
             var placed = 0;
@@ -117,6 +126,82 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return summary;
         }
 
+        static void EmitMacroTerrainVariation(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, Material grassMottle, Material dryGrassMottle, Material surfaceShadowMottle, Material dirtMottle, Material wetMud)
+        {
+            var placed = 0;
+            for (var y = 4; y < context.Height - 4; y += MacroSampleStride)
+            {
+                var rowOffset = ((y / MacroSampleStride) & 1) * (MacroSampleStride / 2);
+                for (var x = 4 + rowOffset; x < context.Width - 4; x += MacroSampleStride)
+                {
+                    if (placed >= MaxMacroDetailDecals)
+                    {
+                        summary.SkippedPlacementCount++;
+                        continue;
+                    }
+
+                    if (!CanReceiveMacroPatch(context, x, y))
+                    {
+                        summary.SkippedPlacementCount++;
+                        continue;
+                    }
+
+                    var role = context.TerrainRoleAt(x, y);
+                    var roadNear = AegisVisualCompilerPrimitives.IsRoadNear(context, x, y, 5.5f);
+                    var nearWater = IsNearWater(context, x, y, 4);
+                    var chance = roadNear ? 0.28f : nearWater ? 0.44f : 0.36f;
+                    if (context.Hash01(x, y, 2430) >= chance)
+                        continue;
+
+                    var roll = context.Hash01(x, y, 2431);
+                    var material = grassMottle;
+                    var prefix = "macro_grass_variation";
+                    var minWidth = 4.4f;
+                    var maxWidth = 10.8f;
+                    var minAspect = 0.36f;
+                    var maxAspect = 0.92f;
+                    var elevation = 0.064f;
+
+                    if (role == "terrain.dirt" || role == "terrain.mud" || roadNear)
+                    {
+                        material = nearWater ? wetMud : dirtMottle;
+                        prefix = nearWater ? "macro_wet_lowland" : "macro_dirt_variation";
+                        minWidth = 3.8f;
+                        maxWidth = 8.6f;
+                        minAspect = 0.34f;
+                        maxAspect = 0.78f;
+                        elevation = 0.066f;
+                    }
+                    else if (nearWater && roll < 0.52f)
+                    {
+                        material = wetMud;
+                        prefix = "macro_wet_lowland";
+                        minWidth = 4.0f;
+                        maxWidth = 9.2f;
+                        minAspect = 0.38f;
+                        maxAspect = 0.82f;
+                        elevation = 0.065f;
+                    }
+                    else if (roll < 0.32f)
+                    {
+                        material = surfaceShadowMottle;
+                        prefix = "macro_grass_shadow";
+                    }
+                    else if (roll > 0.72f)
+                    {
+                        material = dryGrassMottle;
+                        prefix = "macro_dry_grass";
+                    }
+
+                    EmitDecal(layer, context, summary, prefix, x, y, material, minWidth, maxWidth, minAspect, maxAspect, elevation, 2432);
+                    placed++;
+                }
+            }
+
+            if (placed >= MaxMacroDetailDecals)
+                summary.AddWarning("Terrain macro variation compiler reached its deterministic placement cap.");
+        }
+
         static int TryEmitDecal(Transform layer, AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, string prefix, int x, int y, Material material, float minWidth, float maxWidth, float minAspect, float maxAspect, float elevation, int salt, int alreadyPlaced)
         {
             if (alreadyPlaced >= MaxDetailDecals)
@@ -157,6 +242,15 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         static bool IsGrassRole(string role)
         {
             return role == "terrain.grass" || role == "terrain.dark_grass";
+        }
+
+        static bool CanReceiveMacroPatch(AegisMapVisualCompileContext context, int x, int y)
+        {
+            if (context.IsWater(x, y) || context.IsBlocked(x, y) || context.IsStartProtected(x, y) || context.HasResource(x, y))
+                return false;
+
+            var role = context.TerrainRoleAt(x, y);
+            return IsGrassRole(role) || role == "terrain.dirt" || role == "terrain.mud";
         }
 
         static bool IsNearWater(AegisMapVisualCompileContext context, int x, int y, int radius)

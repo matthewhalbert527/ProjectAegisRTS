@@ -618,8 +618,16 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 tiling = new Vector2(1.15f, 1.65f);
             else if (role == "road.gravel")
                 tiling = new Vector2(1.35f, 1.75f);
+            else if (role == "terrain.grass" || role == "terrain.dark_grass")
+                tiling = new Vector2(1.35f, 1.35f);
+            else if (role == "terrain.dirt" || role == "terrain.mud")
+                tiling = new Vector2(1.18f, 1.18f);
+            else if (role == "terrain.gravel" || role == "terrain.cliff_ground" || role == "blocker.rock")
+                tiling = new Vector2(1.35f, 1.35f);
+            else if (role == "river.water" || role == "terrain.shallow_water" || role == "terrain.deep_water")
+                tiling = new Vector2(1.02f, 1.18f);
             else if (IsTileableSurfaceRole(role))
-                tiling = new Vector2(3.5f, 3.5f);
+                tiling = new Vector2(1.12f, 1.12f);
 
             material.mainTextureScale = tiling;
             if (material.HasProperty("_BaseMap"))

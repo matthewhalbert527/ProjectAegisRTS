@@ -67,6 +67,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             RequireTexturedRole(theme, "terrain.dry_grass_mottle", errors);
             RequireTexturedRole(theme, "terrain.surface_shadow_mottle", errors);
             RequireTexturedRole(theme, "terrain.dirt_pebble_mottle", errors);
+            RequireTexturedRole(theme, "terrain.macro_grass_variation", errors);
+            RequireTexturedRole(theme, "terrain.macro_dry_grass", errors);
+            RequireTexturedRole(theme, "terrain.macro_shadow", errors);
+            RequireTexturedRole(theme, "terrain.macro_dirt_variation", errors);
+            RequireTexturedRole(theme, "terrain.macro_wet_lowland", errors);
             RequireTexturedRole(theme, "road.soft_dust", errors);
             RequireTexturedRole(theme, "basepad.panel_decal", errors);
             RequireTexturedRole(theme, "resource.ore_dust", errors);

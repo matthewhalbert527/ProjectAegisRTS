@@ -26,6 +26,7 @@ Run from batch mode:
 - Production output contains no debug-named overlay layer.
 - Terrain transition masks are present and produce blend edges.
 - Production terrain detail decals are present at the stricter layered-surface threshold.
+- Terrain macro variation roles are texture-bound so broad grass/dirt areas do not fall back to flat repeated tiles.
 - Water cells compile into merged water strips plus at least one production water ribbon mesh.
 - Water cells compile muddy deep-pool, silt-flow, or midstream ripple details.
 - Water cells compile at least one production shoreline bank mesh.
@@ -38,7 +39,7 @@ Run from batch mode:
 
 ## Limitations
 
-This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, missing muddy water-surface details, missing shoreline bank meshes or water-edge details, missing bridge texture bindings, fallback-only visuals, missing layered terrain detail decals, missing road/pad detail decals, missing required art-pack texture paths, or unchecked road-water conflicts.
+This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, missing muddy water-surface details, missing shoreline bank meshes or water-edge details, missing bridge texture bindings, missing macro terrain bindings, fallback-only visuals, missing layered terrain detail decals, missing road/pad detail decals, missing required art-pack texture paths, or unchecked road-water conflicts.
 
 ## Required Hygiene
 

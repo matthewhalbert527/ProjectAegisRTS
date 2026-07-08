@@ -9,7 +9,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
     {
         public const int ProductionChunkSize = 4;
         const int DebugChunkSize = 16;
-        const float ProductionUvWorldScale = 3f;
+        const float ProductionUvWorldScale = 6.5f;
 
         public AegisVisualLayerSummary Compile(AegisMapVisualCompileContext context)
         {
