@@ -47,9 +47,9 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("vegetation.tree", new Color(0.10f, 0.24f, 0.09f, 1f))
                 .Add("vegetation.bush", new Color(0.15f, 0.31f, 0.13f, 1f))
                 .Add("vegetation.grass", new Color(0.21f, 0.40f, 0.16f, 1f))
-                .Add("decal.crater", new Color(0.06f, 0.05f, 0.04f, 0.82f), transparent: true)
+                .Add("decal.crater", new Color(0.06f, 0.05f, 0.04f, 0.68f), transparent: true, albedo: "Decals/Battlefield/crater_medium_01.png")
                 .Add("decal.scorch", new Color(0.04f, 0.035f, 0.025f, 0.50f), transparent: true, albedo: "Decals/Battlefield/scorch_mark_01.png")
-                .Add("decal.rubble", new Color(0.28f, 0.27f, 0.25f, 0.76f), transparent: true)
+                .Add("decal.rubble", new Color(0.28f, 0.27f, 0.25f, 0.52f), transparent: true, albedo: "Decals/Battlefield/rubble_scatter_01.png")
                 .Add("basepad.panel", new Color(0.84f, 0.86f, 0.82f, 1f))
                 .Add("basepad.trim", new Color(0.70f, 0.63f, 0.42f, 1f))
                 .Add("basepad.corner", new Color(0.78f, 0.80f, 0.76f, 1f))
@@ -71,7 +71,10 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("basepad.panel_decal", new Color(0.82f, 0.84f, 0.80f, 0.62f), transparent: true, albedo: "Decals/BasePads/base_pad_panel_center.png")
                 .Add("basepad.trim_decal", new Color(0.70f, 0.62f, 0.38f, 0.66f), transparent: true, albedo: "Decals/BasePads/base_pad_trim_straight.png")
                 .Add("basepad.crack", new Color(0.08f, 0.075f, 0.065f, 0.52f), transparent: true, albedo: "Decals/BasePads/concrete_crack_01.png")
-                .Add("basepad.construction_wear", new Color(0.22f, 0.17f, 0.12f, 0.42f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png");
+                .Add("basepad.construction_wear", new Color(0.22f, 0.17f, 0.12f, 0.42f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png")
+                .Add("bridge.deck", new Color(0.52f, 0.53f, 0.49f, 1f), albedo: "Terrain/concrete_panel_albedo.png", normal: "Terrain/concrete_panel_normal.png", mask: "Terrain/concrete_panel_roughness_ao.png")
+                .Add("bridge.rail", new Color(0.47f, 0.44f, 0.34f, 1f), albedo: "Terrain/concrete_trim_albedo.png", normal: "Terrain/concrete_trim_normal.png", mask: "Terrain/concrete_trim_roughness_ao.png")
+                .Add("bridge.grime", new Color(0.12f, 0.095f, 0.065f, 0.38f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png");
             ApplyProductionProxyTexturePaths(theme);
             return theme;
         }
@@ -118,9 +121,9 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("vegetation.tree", new Color(0.25f, 0.30f, 0.13f, 1f))
                 .Add("vegetation.bush", new Color(0.28f, 0.34f, 0.16f, 1f))
                 .Add("vegetation.grass", new Color(0.36f, 0.40f, 0.19f, 1f))
-                .Add("decal.crater", new Color(0.08f, 0.06f, 0.04f, 0.82f), transparent: true)
+                .Add("decal.crater", new Color(0.08f, 0.06f, 0.04f, 0.68f), transparent: true, albedo: "Decals/Battlefield/crater_medium_01.png")
                 .Add("decal.scorch", new Color(0.05f, 0.04f, 0.025f, 0.50f), transparent: true, albedo: "Decals/Battlefield/scorch_mark_01.png")
-                .Add("decal.rubble", new Color(0.34f, 0.31f, 0.25f, 0.76f), transparent: true)
+                .Add("decal.rubble", new Color(0.34f, 0.31f, 0.25f, 0.54f), transparent: true, albedo: "Decals/Battlefield/rubble_scatter_01.png")
                 .Add("basepad.panel", new Color(0.84f, 0.83f, 0.78f, 1f))
                 .Add("basepad.trim", new Color(0.70f, 0.60f, 0.39f, 1f))
                 .Add("basepad.corner", new Color(0.78f, 0.77f, 0.72f, 1f))
@@ -142,7 +145,10 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("basepad.panel_decal", new Color(0.82f, 0.81f, 0.75f, 0.62f), transparent: true, albedo: "Decals/BasePads/base_pad_panel_center.png")
                 .Add("basepad.trim_decal", new Color(0.70f, 0.58f, 0.36f, 0.66f), transparent: true, albedo: "Decals/BasePads/base_pad_trim_straight.png")
                 .Add("basepad.crack", new Color(0.08f, 0.07f, 0.055f, 0.52f), transparent: true, albedo: "Decals/BasePads/concrete_crack_01.png")
-                .Add("basepad.construction_wear", new Color(0.25f, 0.17f, 0.10f, 0.42f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png");
+                .Add("basepad.construction_wear", new Color(0.25f, 0.17f, 0.10f, 0.42f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png")
+                .Add("bridge.deck", new Color(0.56f, 0.53f, 0.45f, 1f), albedo: "Terrain/concrete_panel_albedo.png", normal: "Terrain/concrete_panel_normal.png", mask: "Terrain/concrete_panel_roughness_ao.png")
+                .Add("bridge.rail", new Color(0.50f, 0.43f, 0.30f, 1f), albedo: "Terrain/concrete_trim_albedo.png", normal: "Terrain/concrete_trim_normal.png", mask: "Terrain/concrete_trim_roughness_ao.png")
+                .Add("bridge.grime", new Color(0.15f, 0.095f, 0.055f, 0.38f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png");
             ApplyProductionProxyTexturePaths(theme);
             return theme;
         }

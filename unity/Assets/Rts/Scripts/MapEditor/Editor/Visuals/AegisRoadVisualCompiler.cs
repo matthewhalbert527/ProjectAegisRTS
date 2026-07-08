@@ -17,9 +17,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var leftRutMaterial = AegisVisualCompilerPrimitives.Material(context, "road.tire_left");
             var rightRutMaterial = AegisVisualCompilerPrimitives.Material(context, "road.tire_right");
             var mudTrackMaterial = AegisVisualCompilerPrimitives.Material(context, "road.mud_track");
-            var bridgeDeckMaterial = AegisVisualCompilerPrimitives.Material(context, "basepad.panel");
-            var bridgeRailMaterial = AegisVisualCompilerPrimitives.Material(context, "basepad.trim");
-            var bridgeDetailMaterial = AegisVisualCompilerPrimitives.Material(context, "basepad.trim_decal");
+            var bridgeDeckMaterial = AegisVisualCompilerPrimitives.Material(context, "bridge.deck");
+            var bridgeRailMaterial = AegisVisualCompilerPrimitives.Material(context, "bridge.rail");
+            var bridgeDetailMaterial = AegisVisualCompilerPrimitives.Material(context, "bridge.grime");
             var bridgeShadowMaterial = AegisVisualCompilerPrimitives.Material(context, "decal.scorch");
 
             for (var i = 0; i < context.RoadSegments.Count; i++)
@@ -76,17 +76,18 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var angle = AegisVisualCompilerPrimitives.DirectionAngle(run.A, run.B);
             var direction = (run.B - run.A).normalized;
             var normal = new Vector2(-direction.y, direction.x);
-            var width = Mathf.Clamp(run.Width * 0.74f, 1.42f, 2.28f);
+            var width = Mathf.Clamp(run.Width * 0.62f, 1.14f, 1.92f);
+            var dustWidth = Mathf.Clamp(run.Width * 0.88f, 1.62f, 2.85f);
 
-            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_body_" + segmentIndex + "_" + runIndex, center, length, width, 0.055f, roadMaterial, angle, context, segmentIndex, runIndex, 7300, width * 0.24f, 36f);
-            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, center, length * 0.94f, width * 1.36f, 0.071f, dustMaterial, angle, context, segmentIndex, runIndex, 7310, width * 0.30f, 42f);
-            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, center + normal * (width * 0.48f), length * 0.88f, 0.38f, 0.082f, edgeMaterial, angle, context, segmentIndex, runIndex, 7200, 0.08f);
-            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, center - normal * (width * 0.48f), length * 0.88f, 0.38f, 0.082f, edgeMaterial, angle + 180f, context, segmentIndex, runIndex, 7210, 0.08f);
-            summary.RoadDetailDecalCount += 3;
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, center, length * 0.96f, dustWidth, 0.052f, dustMaterial, angle, context, segmentIndex, runIndex, 7310, dustWidth * 0.28f, 48f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_body_" + segmentIndex + "_" + runIndex, center, length * 0.98f, width, 0.070f, roadMaterial, angle, context, segmentIndex, runIndex, 7300, width * 0.24f, 40f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, center + normal * (width * 0.58f), length * 0.86f, 0.30f, 0.084f, edgeMaterial, angle, context, segmentIndex, runIndex, 7200, 0.07f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, center - normal * (width * 0.58f), length * 0.86f, 0.30f, 0.084f, edgeMaterial, angle + 180f, context, segmentIndex, runIndex, 7210, 0.07f);
+            summary.RoadDetailDecalCount += 4;
             if (length > 5f)
             {
-                AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_tire_rut_left_" + segmentIndex + "_" + runIndex, center + normal * 0.48f, length * 0.74f, 0.16f, 0.091f, leftRutMaterial, angle, context, segmentIndex, runIndex, 7220, 0.04f);
-                AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_tire_rut_right_" + segmentIndex + "_" + runIndex, center - normal * 0.48f, length * 0.74f, 0.16f, 0.091f, rightRutMaterial, angle, context, segmentIndex, runIndex, 7230, 0.04f);
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_tire_rut_left_" + segmentIndex + "_" + runIndex, center + normal * (width * 0.26f), length * 0.72f, 0.13f, 0.093f, leftRutMaterial, angle, context, segmentIndex, runIndex, 7220, 0.035f);
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_tire_rut_right_" + segmentIndex + "_" + runIndex, center - normal * (width * 0.26f), length * 0.72f, 0.13f, 0.093f, rightRutMaterial, angle, context, segmentIndex, runIndex, 7230, 0.035f);
                 summary.RoadDetailDecalCount += 2;
             }
 
@@ -98,7 +99,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     var t = (i + 1f) / (count + 1f);
                     var p = Vector2.Lerp(run.A, run.B, t) + normal * Mathf.Lerp(-0.35f, 0.35f, context.Hash01(segmentIndex, runIndex, 7100 + i));
                     var patchLength = Mathf.Lerp(1.4f, 3.6f, context.Hash01(segmentIndex, runIndex, 7110 + i));
-                    AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_mud_track_" + segmentIndex + "_" + runIndex + "_" + i, p, patchLength, width * 0.72f, 0.096f, mudTrackMaterial, angle + Mathf.Lerp(-8f, 8f, context.Hash01(segmentIndex, runIndex, 7120 + i)), context, segmentIndex, runIndex, 7240 + i, 0.12f);
+                    AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_mud_track_" + segmentIndex + "_" + runIndex + "_" + i, p, patchLength, width * 0.62f, 0.096f, mudTrackMaterial, angle + Mathf.Lerp(-8f, 8f, context.Hash01(segmentIndex, runIndex, 7120 + i)), context, segmentIndex, runIndex, 7240 + i, 0.12f);
                     summary.RoadDetailDecalCount++;
                 }
             }
@@ -116,18 +117,35 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var angle = AegisVisualCompilerPrimitives.DirectionAngle(run.A, run.B);
             var direction = (run.B - run.A).normalized;
             var normal = new Vector2(-direction.y, direction.x);
-            var deckWidth = Mathf.Clamp(run.Width + 0.62f, 2.5f, 4.2f);
+            var deckWidth = Mathf.Clamp(run.Width + 0.22f, 2.15f, 3.25f);
 
             AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_shadow_" + segmentIndex + "_" + runIndex, center, length + 0.85f, deckWidth + 0.72f, 0.112f, shadowMaterial, angle, context, segmentIndex, runIndex, 7410, 0.08f);
-            AegisVisualCompilerPrimitives.CreateQuad(layer, "bridge_prototype_deck_" + segmentIndex + "_" + runIndex, center, length + 0.55f, deckWidth, 0.18f, deckMaterial, angle);
-            AegisVisualCompilerPrimitives.CreateQuad(layer, "bridge_prototype_rail_left_" + segmentIndex + "_" + runIndex, center + normal * (deckWidth * 0.48f), length + 0.48f, 0.18f, 0.31f, railMaterial, angle);
-            AegisVisualCompilerPrimitives.CreateQuad(layer, "bridge_prototype_rail_right_" + segmentIndex + "_" + runIndex, center - normal * (deckWidth * 0.48f), length + 0.48f, 0.18f, 0.31f, railMaterial, angle);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_deck_" + segmentIndex + "_" + runIndex, center, length + 0.48f, deckWidth, 0.18f, deckMaterial, angle, context, segmentIndex, runIndex, 7420, 0.035f, 14f);
+            AegisVisualCompilerPrimitives.CreateCube(layer, "bridge_rail_beam_left_" + segmentIndex + "_" + runIndex, new Vector3(center.x + normal.x * (deckWidth * 0.53f), 0.29f, center.y + normal.y * (deckWidth * 0.53f)), new Vector3(length + 0.52f, 0.15f, 0.16f), Quaternion.Euler(0f, angle, 0f), railMaterial);
+            AegisVisualCompilerPrimitives.CreateCube(layer, "bridge_rail_beam_right_" + segmentIndex + "_" + runIndex, new Vector3(center.x - normal.x * (deckWidth * 0.53f), 0.29f, center.y - normal.y * (deckWidth * 0.53f)), new Vector3(length + 0.52f, 0.15f, 0.16f), Quaternion.Euler(0f, angle, 0f), railMaterial);
+            EmitBridgeApproachDust(context, layer, summary, segmentIndex, runIndex, run, deckWidth, normal, angle, shadowMaterial);
             EmitBridgeDeckDetails(context, layer, summary, segmentIndex, runIndex, run, length, deckWidth, normal, angle, detailMaterial, railMaterial);
             summary.BridgeCrossings++;
         }
 
+        static void EmitBridgeApproachDust(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, float deckWidth, Vector2 normal, float angle, Material material)
+        {
+            var direction = (run.B - run.A).normalized;
+            var offset = Mathf.Min(1.25f, AegisVisualCompilerPrimitives.SegmentLength(run.A, run.B) * 0.18f);
+            var a = run.A - direction * offset;
+            var b = run.B + direction * offset;
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_approach_shadow_a_" + segmentIndex + "_" + runIndex, a, 2.1f, deckWidth + 0.55f, 0.106f, material, angle, context, segmentIndex, runIndex, 7440, 0.16f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_approach_shadow_b_" + segmentIndex + "_" + runIndex, b, 2.1f, deckWidth + 0.55f, 0.106f, material, angle, context, segmentIndex, runIndex, 7450, 0.16f);
+            summary.RoadDetailDecalCount += 2;
+        }
+
         static void EmitBridgeDeckDetails(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, float length, float deckWidth, Vector2 normal, float angle, Material detailMaterial, Material railMaterial)
         {
+            var center = Vector2.Lerp(run.A, run.B, 0.5f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_deck_grime_left_" + segmentIndex + "_" + runIndex, center + normal * (deckWidth * 0.20f), length * 0.82f, 0.22f, 0.207f, detailMaterial, angle, context, segmentIndex, runIndex, 7460, 0.07f, 18f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_deck_grime_right_" + segmentIndex + "_" + runIndex, center - normal * (deckWidth * 0.20f), length * 0.82f, 0.22f, 0.207f, detailMaterial, angle, context, segmentIndex, runIndex, 7470, 0.07f, 18f);
+            summary.RoadDetailDecalCount += 2;
+
             var seamCount = Mathf.Clamp(Mathf.FloorToInt(length / 2.6f), 1, 12);
             for (var i = 0; i < seamCount; i++)
             {

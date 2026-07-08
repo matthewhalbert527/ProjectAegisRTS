@@ -37,7 +37,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             "Decals/River/muddy_shoreline_02.png",
             "Decals/Resources/ore_dust_soft_01.png",
             "Decals/BasePads/concrete_grime_01.png",
+            "Decals/BasePads/construction_wear_01.png",
             "Decals/Battlefield/scorch_mark_01.png",
+            "Decals/Battlefield/rubble_scatter_01.png",
+            "Decals/Battlefield/crater_medium_01.png",
             "Decals/Battlefield/crater_large_01.png",
             "Meshes/BasePads/base_pad_14x14.glb",
             "Meshes/BasePads/base_pad_trim_corner.glb",
@@ -68,7 +71,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             "blocker.rock",
             "basepad.panel",
             "basepad.trim",
-            "basepad.corner"
+            "basepad.corner",
+            "bridge.deck",
+            "bridge.rail",
+            "bridge.grime"
         };
 
         [MenuItem("Project Aegis/Map Editor/Validate Visual Art Pack")]

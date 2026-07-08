@@ -60,6 +60,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             RequireTexturedRole(theme, "road.soft_dust", errors);
             RequireTexturedRole(theme, "basepad.panel_decal", errors);
             RequireTexturedRole(theme, "resource.ore_dust", errors);
+            RequireTexturedRole(theme, "bridge.deck", errors);
+            RequireTexturedRole(theme, "bridge.rail", errors);
+            RequireTexturedRole(theme, "bridge.grime", errors);
+            RequireTexturedRole(theme, "decal.crater", errors);
+            RequireTexturedRole(theme, "decal.rubble", errors);
             RequireTexturedRole(theme, "decal.scorch", errors);
 
             if (AegisTerrainLayerCompiler.ProductionChunkSize >= 16)

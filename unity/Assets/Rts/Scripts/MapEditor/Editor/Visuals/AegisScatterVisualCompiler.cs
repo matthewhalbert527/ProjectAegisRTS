@@ -40,9 +40,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     {
                         if (context.Hash01(x, y, 1501) < 0.025f)
                         {
-                            CreateScatterCube(layer, context, x, y, "road_edge_rubble", rubbleMaterial, 0.18f, 0.42f, 1502);
+                            EmitGroundDecal(layer, context, summary, x, y, "road_edge_rubble", rubbleMaterial, 0.85f, 1.9f, 0.28f, 0.72f, 1502);
                             placed++;
-                            summary.ScatterCount++;
                         }
                         else
                         {
@@ -83,9 +82,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
                     if ((role == "terrain.dirt" || role == "terrain.gravel") && context.Hash01(x, y, 1540) < 0.012f)
                     {
-                        AegisVisualCompilerPrimitives.CreateCylinder(layer, "crater_" + x + "_" + y, context.CellCenter(x, y, 0.045f), new Vector3(1.25f, 0.018f, 1.25f), craterMaterial);
+                        EmitCrater(layer, context, summary, x, y, craterMaterial);
                         placed++;
-                        summary.ScatterCount++;
                     }
                 }
             }
@@ -154,6 +152,30 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var scale = Mathf.Lerp(minScale, maxScale, context.Hash01(x, y, salt));
             var offset = new Vector3(context.Hash01(x, y, salt + 1) - 0.5f, 0f, context.Hash01(x, y, salt + 2) - 0.5f) * 0.55f;
             AegisVisualCompilerPrimitives.CreateCube(layer, prefix + "_" + x + "_" + y, context.CellCenter(x, y, scale * 0.18f) + offset, new Vector3(scale, scale * 0.36f, scale), Quaternion.Euler(0f, context.Hash01(x, y, salt + 3) * 360f, 0f), material);
+        }
+
+        static void EmitCrater(Transform layer, AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, int x, int y, Material material)
+        {
+            var center = new Vector2(x + 0.5f + (context.Hash01(x, y, 1550) - 0.5f) * 1.1f, y + 0.5f + (context.Hash01(x, y, 1551) - 0.5f) * 1.1f);
+            var scale = Mathf.Lerp(0.68f, 1.18f, context.Hash01(x, y, 1552));
+            var prefab = AegisMapArtPack.Pick(AegisMapArtPack.CraterMeshes, context.Seed, x, y);
+            if (AegisMapArtPack.TryInstantiatePrefab(layer, "crater_mesh_" + x + "_" + y, prefab, new Vector3(center.x, 0.052f, center.y), Quaternion.Euler(0f, context.Hash01(x, y, 1553) * 360f, 0f), Vector3.one * scale, material))
+            {
+                summary.ScatterCount++;
+                return;
+            }
+
+            EmitGroundDecal(layer, context, summary, x, y, "crater_decal", material, 1.15f, 2.25f, 0.72f, 1.12f, 1554);
+        }
+
+        static void EmitGroundDecal(Transform layer, AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, int x, int y, string prefix, Material material, float minWidth, float maxWidth, float minAspect, float maxAspect, int salt)
+        {
+            var width = Mathf.Lerp(minWidth, maxWidth, context.Hash01(x, y, salt));
+            var aspect = Mathf.Lerp(minAspect, maxAspect, context.Hash01(x, y, salt + 1));
+            var center = new Vector2(x + 0.5f + (context.Hash01(x, y, salt + 2) - 0.5f) * 1.1f, y + 0.5f + (context.Hash01(x, y, salt + 3) - 0.5f) * 1.1f);
+            var angle = context.Hash01(x, y, salt + 4) * 180f;
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, prefix + "_" + x + "_" + y, center, width, width * aspect, 0.087f, material, angle, context, x, y, salt + 17, Mathf.Min(width, width * aspect) * 0.16f);
+            summary.ScatterCount++;
         }
     }
 }

@@ -21,6 +21,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var outerMaterial = AegisVisualCompilerPrimitives.Material(context, "cliff.edge.corner_outer");
             var endcapMaterial = AegisVisualCompilerPrimitives.Material(context, "cliff.edge.endcap");
             var blockerMaterial = AegisVisualCompilerPrimitives.Material(context, "blocker.rock");
+            var rubbleMaterial = AegisVisualCompilerPrimitives.Material(context, "decal.rubble");
             var placed = 0;
 
             for (var y = 0; y < context.Height; y++)
@@ -61,6 +62,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                             AegisVisualCompilerPrimitives.CreateCube(layer, "cliff_straight_" + x + "_" + y + "_" + d, center, new Vector3(0.88f, 1.08f, 0.30f), rotation, straightMaterial);
                         summary.CliffStraightSegments++;
                         placed++;
+
+                        if (!context.IsDebugOverlay && context.Hash01(x + d * 7, y, 1810) < 0.42f)
+                            EmitTalusDetail(context, layer, summary, rubbleMaterial, blockerMaterial, x, y, d);
                     }
 
                     if (placed >= MaxCliffPieces)
@@ -101,6 +105,33 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 summary.AddWarning("Cliff compiler hit the deterministic piece cap; remaining cliff cells were summarized but not all rendered.");
 
             return summary;
+        }
+
+        static void EmitTalusDetail(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, Material rubbleMaterial, Material rockMaterial, int x, int y, int direction)
+        {
+            var outward = new Vector2(DirX[direction], DirY[direction]);
+            var side = new Vector2(-outward.y, outward.x);
+            var baseCenter = new Vector2(x + 0.5f, y + 0.5f) + outward * Mathf.Lerp(0.48f, 0.86f, context.Hash01(x, y + direction, 1820));
+            var lateral = (context.Hash01(x, y, 1821 + direction) - 0.5f) * 0.56f;
+            var center = baseCenter + side * lateral;
+            var width = Mathf.Lerp(0.72f, 1.55f, context.Hash01(x, y, 1822 + direction));
+            var height = Mathf.Lerp(0.36f, 0.86f, context.Hash01(x, y, 1823 + direction));
+            var angle = DirAngle[direction] + Mathf.Lerp(-18f, 18f, context.Hash01(x, y, 1824 + direction));
+
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "cliff_talus_dust_" + x + "_" + y + "_" + direction, center, width, height, 0.089f, rubbleMaterial, angle, context, x, y, 1825 + direction, Mathf.Min(width, height) * 0.14f);
+            summary.ScatterCount++;
+
+            if (context.Hash01(x, y, 1830 + direction) < 0.36f)
+            {
+                var pebblePath = AegisMapArtPack.Pick(AegisMapArtPack.PebbleMeshes, context.Seed, x + direction * 13, y);
+                var pebblePosition = new Vector3(center.x + side.x * 0.18f, 0.075f, center.y + side.y * 0.18f);
+                var scale = Vector3.one * Mathf.Lerp(0.38f, 0.72f, context.Hash01(x, y, 1831 + direction));
+                if (AegisMapArtPack.TryInstantiatePrefab(layer, "cliff_talus_pebbles_" + x + "_" + y + "_" + direction, pebblePath, pebblePosition, Quaternion.Euler(0f, context.Hash01(x, y, 1832 + direction) * 360f, 0f), scale, rockMaterial))
+                {
+                    summary.ScatterCount++;
+                    summary.RockCount++;
+                }
+            }
         }
 
         static int FirstDirection(int mask)

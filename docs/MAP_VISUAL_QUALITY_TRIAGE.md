@@ -5,11 +5,11 @@
 - Visible chunk blocks: `AegisTerrainLayerCompiler` used 16x16 dominant-role quads, so mixed terrain areas became large square patches. This pass changes production terrain to 4-cell chunks, uses one naturalized base role for mixed production chunks, suppresses literal rough/cliff base fills in production preview, uses world-continuous UVs on production terrain chunks, and uses soft transition blend overlays instead of opaque transition strips.
 - Debug outlines in production preview: the visual compiler had UI overlay toggles, but they were not real compile settings and defaulted on in the window. This pass adds `ProductionPreview`, `DebugOverlay`, and `Hybrid` render modes with production as the default and debug overlays off by default.
 - Cell-stepped river borders: `AegisWaterAndShorelineCompiler` emitted one water quad and edge quad per water cell. This pass hides production water cells from the base terrain layer, converts water rows into smoothed ribbon meshes, keeps water-strip metrics for validation, and uses continuous bank/cap shoreline meshes instead of horizontal/vertical shoreline rectangles. Shorelines now have a narrower wet core plus a lighter feather, and both use transparent river decal textures instead of opaque muddy terrain strips.
-- Road segments crossing water without bridges/fords: `AegisRoadVisualCompiler` rendered each segment as a single road body over every terrain type. This pass splits road segments by sampled water crossings and emits named `bridge_prototype_*` deck and rail pieces over water without the earlier scorch-shadow quad that produced black block artifacts. Bridge previews now include deterministic deck seams, side posts, and a soft under-shadow.
-- Road slabs at close zoom: production terrain now naturalizes road-adjacent dirt base cells back into grass so the road compiler owns the visible path. The road compiler uses a narrower, lighter organic road body with stronger edge jitter, dimension-scaled road/dust UVs, and irregular worn-edge, rut, and mud-track meshes instead of opaque rectangular strips.
+- Road segments crossing water without bridges/fords: `AegisRoadVisualCompiler` rendered each segment as a single road body over every terrain type. This pass splits road segments by sampled water crossings and emits dedicated bridge deck, raised side-beam, seam, post, approach-dust, and soft-shadow pieces over water without the earlier scorch-shadow quad that produced black block artifacts.
+- Road slabs at close zoom: production terrain now naturalizes road-adjacent dirt base cells back into grass so the road compiler owns the visible path. The road compiler uses a narrower organic road body above softer dust, dimension-scaled road/dust UVs, and irregular worn-edge, rut, and mud-track meshes instead of opaque rectangular strips.
 - Flat gray base pads: `AegisBasePadVisualCompiler` could quietly fall back to flat quads. This pass keeps the v2 `base_pad_14x14.glb` path, uses textured concrete panel/trim roles, and reports a warning if the pad mesh or concrete texture path is missing.
 - Noisy ore sparkle: `AegisResourceFieldVisualCompiler` allowed many small chunks and glints per field. This pass reduces chunk count, increases chunk scale, always emits field dust, caps glints to four per field, and uses depletion-aware density.
-- Cliffs/rocks reading as gray blobs: `AegisCliffTopologyCompiler` could emit raw blocker core cubes inside cliff regions. This pass hides blocker fill in production and reserves `debug_cliff_blocker_core_*` for debug or hybrid overlays.
+- Cliffs/rocks reading as gray blobs: `AegisCliffTopologyCompiler` could emit raw blocker core cubes inside cliff regions. This pass hides blocker fill in production, reserves `debug_cliff_blocker_core_*` for debug or hybrid overlays, and adds textured talus dust plus imported pebble clusters along exposed cliff edges.
 - Terrain texture repetition: production terrain now uses smaller semantic patches and material tiling rather than stretching one large debug-like dominant role over 16 cells. Production preview also naturalizes cliff/rough terrain to grass/dirt base surfaces so imported cliff pieces, rubble speckles, wet-bank meshes, and blend overlays carry the edge detail instead of flat gray masks.
 - Sparse zoom-in detail: the first production preview still read too clean at close range. The current pass adds denser deterministic production terrain detail decals, road dust/rut/wear decals, ore-dust/glint decals, and layered base-pad crack/grime/construction-wear decals. Terrain transition and terrain detail decals now use irregular mesh silhouettes in production so close-up blends have softer, less rectangular edges.
 
@@ -27,14 +27,16 @@
 - Shoreline wetness compiles to deterministic bank and end-cap meshes that follow the smoothed river span.
 - Shoreline wetness uses a two-stage core/feather mesh so the river edge is softer in production preview.
 - Shoreline core and feather meshes use transparent art-pack river decals rather than tiled terrain albedo.
-- Road-water crossings are represented by bridge prototype deck, rail, seam, post, and soft-shadow pieces.
+- Road-water crossings are represented by bridge deck, raised side-beam, seam, post, approach-dust, and soft-shadow pieces using dedicated textured bridge roles.
 - Resource glints are capped and field density scales with amount.
 - Raw blocker fill is hidden in production.
+- Exposed cliff edges receive deterministic textured talus/rubble decals and imported pebble clusters.
 - Production terrain detail decals add denser grass mottling, road-adjacent dust, gravel speckles, wet bank marks, and water highlights.
 - Production terrain detail decals use deterministic organic mesh silhouettes instead of plain rectangular quads.
-- Roads use narrower organic body meshes with dimension-scaled road/dust UVs plus worn edge, tire-rut, and mud-track decal roles.
+- Roads layer softer dust below narrower organic body meshes with dimension-scaled road/dust UVs plus worn edge, tire-rut, and mud-track decal roles.
 - Base pads use transparent panel/trim decals, grime, cracks, and construction-wear decals.
 - Resource fields use transparent ore-dust decals and capped glint decals.
+- Crater and rubble scatter roles use art-pack transparent decals/meshes instead of color-only primitive placeholders.
 - The visual compiler reads art-pack textures without rewriting texture importer metadata during validation.
 - `Project Aegis > Map Editor > Validate Visual Quality Gate` validates key production-preview invariants.
 
