@@ -56,15 +56,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var center = new Vector2(startX + width * 0.5f, startY + height * 0.5f);
             var elevation = role == "terrain.shallow_water" || role == "terrain.deep_water" ? 0.015f : 0f;
             var overlap = context.IsDebugOverlay ? 1f : 1.035f;
-            var chunk = AegisVisualCompilerPrimitives.CreateQuad(
-                layer,
-                prefix + "_" + startX + "_" + startY + "_" + surfaceRole.Replace('.', '_'),
-                center,
-                width * overlap,
-                height * overlap,
-                elevation,
-                material,
-                0f);
+            var name = prefix + "_" + startX + "_" + startY + "_" + surfaceRole.Replace('.', '_');
+            var chunk = context.IsDebugOverlay
+                ? AegisVisualCompilerPrimitives.CreateQuad(layer, name, center, width * overlap, height * overlap, elevation, material, 0f)
+                : AegisVisualCompilerPrimitives.CreateWorldUvQuad(layer, name, center, width * overlap, height * overlap, elevation, material, startX, startY, width, height, 4f);
             chunk.isStatic = true;
             summary.TerrainChunks++;
         }

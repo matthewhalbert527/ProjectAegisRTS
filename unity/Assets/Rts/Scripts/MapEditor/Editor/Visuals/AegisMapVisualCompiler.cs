@@ -350,7 +350,56 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return go;
         }
 
-        public static GameObject CreateOrganicQuad(Transform parent, string name, Vector2 center, float width, float height, float elevation, Material material, float angleDegrees, AegisMapVisualCompileContext context, int x, int y, int salt, float edgeJitter)
+        public static GameObject CreateWorldUvQuad(Transform parent, string name, Vector2 center, float width, float height, float elevation, Material material, float startX, float startY, float logicalWidth, float logicalHeight, float uvWorldScale)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            go.transform.position = new Vector3(center.x, elevation, center.y);
+
+            var halfWidth = width * 0.5f;
+            var halfHeight = height * 0.5f;
+            var bleedX = Mathf.Max(0f, (width - logicalWidth) * 0.5f);
+            var bleedY = Mathf.Max(0f, (height - logicalHeight) * 0.5f);
+            var safeUvScale = Mathf.Max(0.001f, uvWorldScale);
+            var u0 = (startX - bleedX) / safeUvScale;
+            var v0 = (startY - bleedY) / safeUvScale;
+            var u1 = (startX + logicalWidth + bleedX) / safeUvScale;
+            var v1 = (startY + logicalHeight + bleedY) / safeUvScale;
+
+            var mesh = new Mesh();
+            mesh.name = name + "_world_uv_mesh";
+            mesh.vertices = new[]
+            {
+                new Vector3(-halfWidth, 0f, -halfHeight),
+                new Vector3(halfWidth, 0f, -halfHeight),
+                new Vector3(-halfWidth, 0f, halfHeight),
+                new Vector3(halfWidth, 0f, halfHeight)
+            };
+            mesh.normals = new[]
+            {
+                Vector3.up,
+                Vector3.up,
+                Vector3.up,
+                Vector3.up
+            };
+            mesh.uv = new[]
+            {
+                new Vector2(u0, v0),
+                new Vector2(u1, v0),
+                new Vector2(u0, v1),
+                new Vector2(u1, v1)
+            };
+            mesh.triangles = new[] { 0, 2, 1, 1, 2, 3 };
+            mesh.RecalculateBounds();
+
+            var filter = go.AddComponent<MeshFilter>();
+            filter.sharedMesh = mesh;
+            var renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            return go;
+        }
+
+        public static GameObject CreateOrganicQuad(Transform parent, string name, Vector2 center, float width, float height, float elevation, Material material, float angleDegrees, AegisMapVisualCompileContext context, int x, int y, int salt, float edgeJitter, float uvWorldScale = 0f)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
@@ -408,7 +457,15 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
                     vertices[index] = new Vector3(localX, 0f, localZ);
                     normals[index] = Vector3.up;
-                    uvs[index] = new Vector2(u, v);
+                    if (uvWorldScale > 0f)
+                    {
+                        var safeUvScale = Mathf.Max(0.001f, uvWorldScale);
+                        uvs[index] = new Vector2((u - 0.5f) * safeWidth / safeUvScale, (v - 0.5f) * safeHeight / safeUvScale);
+                    }
+                    else
+                    {
+                        uvs[index] = new Vector2(u, v);
+                    }
                 }
             }
 
