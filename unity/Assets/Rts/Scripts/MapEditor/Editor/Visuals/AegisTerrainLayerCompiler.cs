@@ -78,6 +78,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     return "terrain.dirt";
                 if (PatchNearRoad(context, startX, startY, width, height))
                     return "terrain.dirt";
+                if (IsSparseRoughCell(context, startX, startY, width, height))
+                    return context.Hash01(startX, startY, 7320) < 0.35f ? "terrain.dark_grass" : "terrain.grass";
                 return role;
             }
 
@@ -90,7 +92,35 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (PatchNearRoad(context, startX, startY, width, height))
                 return "terrain.gravel";
 
+            if (IsSparseRoughCell(context, startX, startY, width, height))
+                return context.Hash01(startX, startY, 7330) < 0.50f ? "terrain.gravel" : "terrain.dirt";
+
             return context.Hash01(startX, startY, 7310) < 0.58f ? "terrain.gravel" : "terrain.dirt";
+        }
+
+        static bool IsSparseRoughCell(AegisMapVisualCompileContext context, int startX, int startY, int width, int height)
+        {
+            if (width != 1 || height != 1)
+                return false;
+
+            var softNeighbors = 0;
+            var roughNeighbors = 0;
+            for (var dy = -1; dy <= 1; dy++)
+            {
+                for (var dx = -1; dx <= 1; dx++)
+                {
+                    if (dx == 0 && dy == 0)
+                        continue;
+
+                    var role = context.TerrainRoleAt(startX + dx, startY + dy);
+                    if (role == "terrain.grass" || role == "terrain.dark_grass" || role == "terrain.dirt")
+                        softNeighbors++;
+                    if (role == "terrain.gravel" || role == "terrain.cliff_ground")
+                        roughNeighbors++;
+                }
+            }
+
+            return softNeighbors >= 4 && roughNeighbors <= 3;
         }
 
         static bool PatchNearWater(AegisMapVisualCompileContext context, int startX, int startY, int width, int height, int radius)

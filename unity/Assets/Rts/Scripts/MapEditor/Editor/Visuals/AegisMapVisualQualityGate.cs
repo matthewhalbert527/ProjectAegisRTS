@@ -116,6 +116,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             else if (terrainDetails.TerrainDetailDecalCount < 80)
                 errors.Add("Production terrain detail decal layer produced too few detail decals.");
 
+            var transitions = FindLayer(result, "Terrain Transition Masks");
+            if (transitions == null)
+                errors.Add("Terrain transition layer missing.");
+            else if (transitions.TransitionEdges <= 0)
+                errors.Add("Terrain transition layer produced no blend edges.");
+
             var water = FindLayer(result, "Water And Shoreline");
             if (water != null && water.WaterCells > 0 && water.WaterStrips <= 0)
                 errors.Add("Water cells were present but no merged water strips were produced.");

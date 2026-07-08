@@ -84,6 +84,8 @@ Base pads are also visual-only dressing on top of player start metadata. Each ge
 
 `Production Terrain Detail Decals` is a deterministic visual-only layer placed above the logical terrain surface. It adds low-density grass mottling, roadside dust, wet mud near water, gravel/rubble speckles, and subtle water highlights. These decals are intentionally sparse and soft; they reduce the top-down checkerboard feel without pretending to replace final terrain blending.
 
+Production terrain transitions now use transparent blend roles (`terrain.blend_grass`, `terrain.blend_dirt`, `terrain.blend_gravel`, and `terrain.blend_mud`) with deterministic offset and width variation. Debug mode still shows literal terrain-role transitions. Production preview also suppresses isolated rough cells surrounded by softer terrain so mixed terrain samples read less like checkerboards at close zoom.
+
 ## Water Rendering
 
 The logical map still stores water as deterministic terrain cells. In production preview, the base terrain layer does not draw separate water cell quads; the water compiler owns the visible water surface. It converts contiguous water rows into smoothed ribbon meshes and retains strip metrics for validation. Shoreline mud/wetness is now emitted as deterministic left/right bank meshes plus end caps that follow the smoothed water span. Production terrain also remaps rough/cliff river shoulders to lighter dirt so the dark wet-bank mesh reads as edge detail instead of a huge square mud slab. Roads crossing water are split and represented with neutral `bridge_prototype_*` deck/rail pieces until final bridge or ford art exists.
@@ -91,7 +93,7 @@ The logical map still stores water as deterministic terrain cells. In production
 ## Current Limits
 
 - The compiler now has layer contracts and summaries, but terrain chunks are still prototype quads rather than a final shader/material-layer terrain.
-- Terrain detail decals improve the current preview, but true realism still needs a shader-driven terrain blend, height/normal-aware terrain layers, or authored terrain meshes.
+- Terrain detail decals and transparent transition blends improve the current preview, but true realism still needs a shader-driven terrain blend, height/normal-aware terrain layers, or authored terrain meshes.
 - Roads are generated as deterministic routes between player starts and the map center. A later pass should read explicit road/region/path metadata when map documents include it.
 - Water is now rendered from smoothed water-cell ribbon meshes with shoreline bank meshes. A later pass can replace this with authored river splines, animated water materials, reeds, foam, and hand-tuned shoreline decals.
 - Ore, cliff, vegetation, crater, river-edge, and base-pad props use imported production-proxy art-pack assets when available. A later art pass can add higher-poly sculpted meshes, LODs, collision-free prefab variants, and tuned material overrides.

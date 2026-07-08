@@ -24,6 +24,7 @@ Run from batch mode:
 - Production terrain chunk size is below the old 16x16 dominant-role path.
 - The showcase sample compiles a production preview root.
 - Production output contains no debug-named overlay layer.
+- Terrain transition masks are present and produce blend edges.
 - Production terrain detail decals are present.
 - Water cells compile into merged water strips plus at least one production water ribbon mesh.
 - Water cells compile at least one production shoreline bank mesh.
