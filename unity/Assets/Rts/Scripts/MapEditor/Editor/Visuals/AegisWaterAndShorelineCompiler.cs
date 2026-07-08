@@ -20,13 +20,15 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var depthEdgeMaterial = AegisVisualCompilerPrimitives.Material(context, "river.depth_edge");
             var shallowEdgeMaterial = AegisVisualCompilerPrimitives.Material(context, "river.shallow_edge");
             var rippleMaterial = AegisVisualCompilerPrimitives.Material(context, "river.ripple");
+            var bankErosionMaterial = AegisVisualCompilerPrimitives.Material(context, "river.bank_erosion");
+            var bankPebbleMaterial = AegisVisualCompilerPrimitives.Material(context, "river.bank_pebbles");
             var riverPropMaterial = AegisVisualCompilerPrimitives.Material(context, "vegetation.grass");
 
             var ribbons = CollectWaterRibbons(context, summary);
             EmitWaterRibbonMeshes(context, summary, waterLayer, waterMaterial, ribbons);
             EmitWaterSurfaceDetails(context, summary, waterLayer, deepPoolMaterial, siltFlowMaterial, rippleMaterial, ribbons);
             EmitWaterEdgeDetails(context, summary, waterLayer, depthEdgeMaterial, shallowEdgeMaterial, rippleMaterial, ribbons);
-            EmitMergedShoreline(context, summary, shoreLayer, shoreMaterial, shoreFeatherMaterial, riverPropMaterial, ribbons);
+            EmitMergedShoreline(context, summary, shoreLayer, shoreMaterial, shoreFeatherMaterial, riverPropMaterial, bankErosionMaterial, bankPebbleMaterial, ribbons);
             return summary;
         }
 
@@ -354,7 +356,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return left ? span.Left : span.Right;
         }
 
-        static void EmitMergedShoreline(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform shoreLayer, Material shoreMaterial, Material shoreFeatherMaterial, Material riverPropMaterial, List<List<RowSpan>> ribbons)
+        static void EmitMergedShoreline(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform shoreLayer, Material shoreMaterial, Material shoreFeatherMaterial, Material riverPropMaterial, Material bankErosionMaterial, Material bankPebbleMaterial, List<List<RowSpan>> ribbons)
         {
             for (var i = 0; i < ribbons.Count; i++)
             {
@@ -367,7 +369,55 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 EmitCapMesh(context, shoreLayer, shoreMaterial, summary, spans, i, false, 0.50f, "core");
                 EmitCapMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, true, 1.25f, "feather");
                 EmitCapMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, false, 1.25f, "feather");
+                EmitErodedBankDetails(context, shoreLayer, summary, bankErosionMaterial, bankPebbleMaterial, spans, i);
                 EmitRiverBankProps(context, shoreLayer, summary, riverPropMaterial, spans);
+            }
+        }
+
+        static void EmitErodedBankDetails(AegisMapVisualCompileContext context, Transform shoreLayer, AegisVisualLayerSummary summary, Material bankErosionMaterial, Material bankPebbleMaterial, List<RowSpan> spans, int ribbonIndex)
+        {
+            if (spans.Count == 0)
+                return;
+
+            var stride = Mathf.Max(1, Mathf.RoundToInt(spans.Count / 32f));
+            for (var i = 1; i < spans.Count - 1; i += stride)
+            {
+                EmitErodedBankSide(context, shoreLayer, summary, bankErosionMaterial, bankPebbleMaterial, spans, ribbonIndex, i, true);
+                EmitErodedBankSide(context, shoreLayer, summary, bankErosionMaterial, bankPebbleMaterial, spans, ribbonIndex, i, false);
+            }
+        }
+
+        static void EmitErodedBankSide(AegisMapVisualCompileContext context, Transform shoreLayer, AegisVisualLayerSummary summary, Material bankErosionMaterial, Material bankPebbleMaterial, List<RowSpan> spans, int ribbonIndex, int spanIndex, bool leftBank)
+        {
+            var span = spans[spanIndex];
+            if (span.Right - span.Left < 2)
+                return;
+
+            var salt = leftBank ? 6120 : 6220;
+            var edge = SmoothEdge(context, spans, spanIndex, leftBank, span.Y);
+            var side = leftBank ? -1f : 1f;
+            var centerY = span.Y + 0.5f + Mathf.Lerp(-0.42f, 0.42f, context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 1));
+
+            if (context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 2) < 0.92f)
+            {
+                var width = Mathf.Lerp(0.46f, 1.24f, context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 3));
+                var length = Mathf.Lerp(2.15f, 6.85f, context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 4));
+                var offset = Mathf.Lerp(0.20f, 0.56f, context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 5));
+                var angle = 90f + Mathf.Lerp(-13f, 13f, context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 6));
+                var center = new Vector2(edge + side * offset, centerY);
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(shoreLayer, "shoreline_erosion_cut_" + ribbonIndex + "_" + (leftBank ? "left" : "right") + "_" + span.Y, center, width, length, 0.086f, bankErosionMaterial, angle, context, ribbonIndex + spanIndex, span.Y, salt + 7, Mathf.Min(width, length) * 0.20f, 4.0f);
+                summary.ShorelineDetailDecalCount++;
+            }
+
+            if (context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 20) < 0.64f)
+            {
+                var width = Mathf.Lerp(0.55f, 1.45f, context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 21));
+                var length = Mathf.Lerp(0.95f, 2.95f, context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 22));
+                var offset = Mathf.Lerp(0.82f, 1.54f, context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 23));
+                var angle = context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 24) * 180f;
+                var center = new Vector2(edge + side * offset, centerY + Mathf.Lerp(-0.18f, 0.18f, context.Hash01(ribbonIndex + spanIndex, span.Y, salt + 25)));
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(shoreLayer, "shoreline_wet_pebbles_" + ribbonIndex + "_" + (leftBank ? "left" : "right") + "_" + span.Y, center, width, length, 0.088f, bankPebbleMaterial, angle, context, ribbonIndex + spanIndex, span.Y, salt + 26, Mathf.Min(width, length) * 0.18f);
+                summary.ShorelineDetailDecalCount++;
             }
         }
 

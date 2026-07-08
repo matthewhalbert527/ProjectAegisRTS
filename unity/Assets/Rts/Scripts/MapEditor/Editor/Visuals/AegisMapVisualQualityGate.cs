@@ -61,6 +61,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             RequireTexturedRole(theme, "river.depth_edge", errors);
             RequireTexturedRole(theme, "river.shallow_edge", errors);
             RequireTexturedRole(theme, "river.ripple", errors);
+            RequireTexturedRole(theme, "river.bank_erosion", errors);
+            RequireTexturedRole(theme, "river.bank_pebbles", errors);
             RequireTexturedRole(theme, "basepad.panel", errors);
             RequireTexturedRole(theme, "terrain.grass_mottle", errors);
             RequireTexturedRole(theme, "terrain.grass_micro_mottle", errors);
@@ -157,7 +159,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (water != null && water.WaterCells > 0 && water.WaterSurfaceDetailDecalCount <= 0)
                 errors.Add("Water cells were present but no muddy deep-pool, silt-flow, or midstream ripple details were produced.");
             if (water != null && water.WaterCells > 0 && water.ShorelineDetailDecalCount <= 0)
-                errors.Add("Water cells were present but no water-edge depth, shallow, or ripple details were produced.");
+                errors.Add("Water cells were present but no water-edge depth, shallow, ripple, or eroded-bank details were produced.");
+            if (water != null && water.WaterCells > 0 && water.ShorelineDetailDecalCount < 16)
+                errors.Add("Water cells were present but shoreline detail coverage is below the production-preview threshold.");
 
             var road = FindLayer(result, "Roads And Tire Tracks");
             if (road != null && road.RoadWaterConflicts > 0)

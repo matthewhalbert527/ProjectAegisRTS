@@ -18,7 +18,7 @@ Terrain detail decals remain a secondary layer. They add small deterministic gra
 - Resources must read as fields with density and depletion state, not isolated sparkly rocks.
 - Cliffs must read as continuous height/blocker edges with straight pieces, corners, and endcaps.
 - Roads must guide movement without becoming noisy brown fog.
-- Rivers must show a merged muddy water body, internal silt/deep-pool/ripple variation, shoreline wetness, broken water-edge depth/ripple details, and readable weathered bridge or shallow ford hints where gameplay allows crossing.
+- Rivers must show a merged muddy water body, internal silt/deep-pool/ripple variation, shoreline wetness, eroded bank undercuts, sparse wet pebble scatter, broken water-edge depth/ripple details, and readable weathered bridge or shallow ford hints where gameplay allows crossing.
 - Scatter must support biome and topology: trees on suitable terrain, rocks near cliffs, rubble near craters, and no clutter in start/build zones.
 
 ## Biomes
