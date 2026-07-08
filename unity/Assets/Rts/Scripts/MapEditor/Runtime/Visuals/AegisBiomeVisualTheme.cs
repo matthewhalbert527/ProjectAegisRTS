@@ -162,8 +162,8 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
             SetTerrainTexture(theme, "road.dirt", "dirt_path");
             SetTerrainTexture(theme, "road.gravel", "gravel_path");
             SetTerrainTexture(theme, "river.water", "shallow_water");
-            SetTerrainTexture(theme, "river.shoreline", "muddy_bank");
-            SetTerrainTexture(theme, "river.shoreline_feather", "muddy_bank");
+            SetDecalTexture(theme, "river.shoreline", "Decals/River/muddy_shoreline_01.png");
+            SetDecalTexture(theme, "river.shoreline_feather", "Decals/River/muddy_shoreline_02.png");
             SetTerrainTexture(theme, "cliff.edge.straight", "cliff_ground");
             SetTerrainTexture(theme, "cliff.edge.corner_inner", "cliff_ground");
             SetTerrainTexture(theme, "cliff.edge.corner_outer", "cliff_ground");
@@ -183,6 +183,17 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
             rule.AlbedoPath = "Terrain/" + textureBaseName + "_albedo.png";
             rule.NormalPath = "Terrain/" + textureBaseName + "_normal.png";
             rule.MaskPath = "Terrain/" + textureBaseName + "_roughness_ao.png";
+        }
+
+        static void SetDecalTexture(AegisMapVisualTheme theme, string role, string texturePath)
+        {
+            var rule = theme.RuleFor(role);
+            if (rule == null)
+                return;
+
+            rule.AlbedoPath = texturePath;
+            rule.NormalPath = null;
+            rule.MaskPath = null;
         }
 
         static AegisMapVisualTheme BaseTheme(string id, string displayName, string biome)

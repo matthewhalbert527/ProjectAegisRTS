@@ -34,8 +34,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             "Decals/Roads/tire_rut_left.png",
             "Decals/Roads/tire_rut_right.png",
             "Decals/River/muddy_shoreline_01.png",
+            "Decals/River/muddy_shoreline_02.png",
             "Decals/Resources/ore_dust_soft_01.png",
             "Decals/BasePads/concrete_grime_01.png",
+            "Decals/Battlefield/scorch_mark_01.png",
             "Decals/Battlefield/crater_large_01.png",
             "Meshes/BasePads/base_pad_14x14.glb",
             "Meshes/BasePads/base_pad_trim_corner.glb",
@@ -58,6 +60,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             "road.gravel",
             "river.water",
             "river.shoreline",
+            "river.shoreline_feather",
             "cliff.edge.straight",
             "cliff.edge.corner_inner",
             "cliff.edge.corner_outer",
@@ -180,16 +183,41 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     continue;
                 }
 
-                if (string.IsNullOrEmpty(rule.AlbedoPath) || string.IsNullOrEmpty(rule.NormalPath) || string.IsNullOrEmpty(rule.MaskPath))
+                if (string.IsNullOrEmpty(rule.AlbedoPath))
                 {
                     errors.Add("Theme " + themeName + " role lacks texture paths: " + role);
                     continue;
                 }
 
                 RequireFile(rule.AlbedoPath, errors);
+
+                if (AllowsAlbedoOnly(rule))
+                    continue;
+
+                if (string.IsNullOrEmpty(rule.NormalPath) || string.IsNullOrEmpty(rule.MaskPath))
+                {
+                    errors.Add("Theme " + themeName + " role lacks texture paths: " + role);
+                    continue;
+                }
+
                 RequireFile(rule.NormalPath, errors);
                 RequireFile(rule.MaskPath, errors);
             }
+        }
+
+        static bool AllowsAlbedoOnly(AegisVisualSemanticRule rule)
+        {
+            if (rule == null || string.IsNullOrEmpty(rule.SemanticRole))
+                return false;
+
+            var role = rule.SemanticRole;
+            return rule.Transparent ||
+                role.StartsWith("river.", StringComparison.OrdinalIgnoreCase) ||
+                role.StartsWith("road.", StringComparison.OrdinalIgnoreCase) ||
+                role.StartsWith("decal.", StringComparison.OrdinalIgnoreCase) ||
+                role.StartsWith("terrain.blend_", StringComparison.OrdinalIgnoreCase) ||
+                role.EndsWith("_mottle", StringComparison.OrdinalIgnoreCase) ||
+                role.EndsWith("_detail", StringComparison.OrdinalIgnoreCase);
         }
 
         static void RequireMeshes(string[] relativePaths, List<string> errors)

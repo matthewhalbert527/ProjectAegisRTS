@@ -53,12 +53,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             RequireTexturedRole(theme, "terrain.dirt", errors);
             RequireTexturedRole(theme, "terrain.shallow_water", errors);
             RequireTexturedRole(theme, "river.water", errors);
+            RequireTexturedRole(theme, "river.shoreline", errors);
             RequireTexturedRole(theme, "river.shoreline_feather", errors);
             RequireTexturedRole(theme, "basepad.panel", errors);
             RequireTexturedRole(theme, "terrain.grass_mottle", errors);
             RequireTexturedRole(theme, "road.soft_dust", errors);
             RequireTexturedRole(theme, "basepad.panel_decal", errors);
             RequireTexturedRole(theme, "resource.ore_dust", errors);
+            RequireTexturedRole(theme, "decal.scorch", errors);
 
             if (AegisTerrainLayerCompiler.ProductionChunkSize >= 16)
                 errors.Add("Production terrain chunk size still uses old 16x16 behavior.");

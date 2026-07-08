@@ -4,7 +4,7 @@
 
 - Visible chunk blocks: `AegisTerrainLayerCompiler` used 16x16 dominant-role quads, so mixed terrain areas became large square patches. This pass changes production terrain to 4-cell chunks, uses one naturalized base role for mixed production chunks, suppresses literal rough/cliff base fills in production preview, and uses soft transition blend overlays instead of opaque transition strips.
 - Debug outlines in production preview: the visual compiler had UI overlay toggles, but they were not real compile settings and defaulted on in the window. This pass adds `ProductionPreview`, `DebugOverlay`, and `Hybrid` render modes with production as the default and debug overlays off by default.
-- Cell-stepped river borders: `AegisWaterAndShorelineCompiler` emitted one water quad and edge quad per water cell. This pass hides production water cells from the base terrain layer, converts water rows into smoothed ribbon meshes, keeps water-strip metrics for validation, and uses continuous bank/cap shoreline meshes instead of horizontal/vertical shoreline rectangles. Shorelines now have a narrower dark wet core plus a lighter feather so banks read less like a hard trench.
+- Cell-stepped river borders: `AegisWaterAndShorelineCompiler` emitted one water quad and edge quad per water cell. This pass hides production water cells from the base terrain layer, converts water rows into smoothed ribbon meshes, keeps water-strip metrics for validation, and uses continuous bank/cap shoreline meshes instead of horizontal/vertical shoreline rectangles. Shorelines now have a narrower wet core plus a lighter feather, and both use transparent river decal textures instead of opaque muddy terrain strips.
 - Road segments crossing water without bridges/fords: `AegisRoadVisualCompiler` rendered each segment as a single road body over every terrain type. This pass splits road segments by sampled water crossings and emits named `bridge_prototype_*` deck and rail pieces over water without the earlier scorch-shadow quad that produced black block artifacts. Bridge previews now include deterministic deck seams, side posts, and a soft under-shadow.
 - Road slabs at close zoom: production terrain now naturalizes road-adjacent dirt base cells back into grass so the road compiler owns the visible path. The road compiler uses continuous organic road body meshes and irregular dust, worn-edge, rut, and mud-track meshes instead of plain rectangular strips.
 - Flat gray base pads: `AegisBasePadVisualCompiler` could quietly fall back to flat quads. This pass keeps the v2 `base_pad_14x14.glb` path, uses textured concrete panel/trim roles, and reports a warning if the pad mesh or concrete texture path is missing.
@@ -25,6 +25,7 @@
 - Water bodies compile to smoothed production ribbon meshes, with strip counts retained for validation.
 - Shoreline wetness compiles to deterministic bank and end-cap meshes that follow the smoothed river span.
 - Shoreline wetness uses a two-stage core/feather mesh so the river edge is softer in production preview.
+- Shoreline core and feather meshes use transparent art-pack river decals rather than tiled terrain albedo.
 - Road-water crossings are represented by bridge prototype deck, rail, seam, post, and soft-shadow pieces.
 - Resource glints are capped and field density scales with amount.
 - Raw blocker fill is hidden in production.
