@@ -57,13 +57,16 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var root = BuildScene(document, samplePath, false);
             if (root.GetComponent<AegisMapVisualScene>() == null)
                 throw new InvalidOperationException("Visual builder validation did not add an AegisMapVisualScene marker.");
-            RequireChild(root.transform, "Blended Terrain Surface");
-            RequireChild(root.transform, "Base Pads");
-            RequireChild(root.transform, "Cliff Rock Chains");
-            RequireChild(root.transform, "Ore Clusters");
-            RequireChild(root.transform, "Deterministic Detail Scatter");
+            RequireChild(root.transform, "Base Terrain Surface");
+            RequireChild(root.transform, "Terrain Transition Masks");
+            RequireChild(root.transform, "Water Surface");
+            RequireChild(root.transform, "Roads And Tire Tracks");
+            RequireChild(root.transform, "Topology Driven Cliffs");
+            RequireChild(root.transform, "Resource Field Visuals");
+            RequireChild(root.transform, "Modular Base Pads");
+            RequireChild(root.transform, "Rule Based Scatter");
             UnityEngine.Object.DestroyImmediate(root);
-            Debug.Log("Aegis map visual builder sample validation passed.");
+            Debug.Log("Aegis map visual compiler sample validation passed.");
         }
 
         public static void RenderSamplePreviewForBatch()
@@ -162,33 +165,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static GameObject BuildScene(AegisVisualMapDocument document, string sourcePath, bool persistAssets)
         {
-            document.Normalize();
-            var safeMapId = Sanitize(document.mapId);
-            var seed = document.ReadSeed();
-            var profile = AegisVisualBiomeProfile.ForDocument(document);
-
-            var root = new GameObject("Aegis Visual Map - " + safeMapId);
-            root.transform.position = Vector3.zero;
-            var marker = root.AddComponent<AegisMapVisualScene>();
-            marker.MapId = document.mapId;
-            marker.SourceAssetPath = sourcePath;
-            marker.Width = document.width;
-            marker.Height = document.height;
-            marker.Seed = seed;
-            marker.Biome = profile.Name;
-
-            var lookup = new AegisVisualMapLookup(document);
-            var paths = BuildGameplayPathSegments(document, seed);
-            var rivers = BuildVisualRiverSegments(document, lookup);
-            var materials = AegisVisualMaterialSet.LoadOrCreate(profile, persistAssets);
-            BuildTerrainPlane(root.transform, document, lookup, paths, rivers, profile, materials, safeMapId, seed, persistAssets);
-            BuildRiverDressing(root.transform, rivers, materials, seed);
-            BuildRoadWear(root.transform, paths, materials, seed);
-            BuildBasePads(root.transform, document, materials, seed);
-            BuildCliffRidges(root.transform, document, lookup, materials, seed);
-            BuildOreClusters(root.transform, document, materials, seed);
-            BuildScatter(root.transform, document, lookup, paths, materials, seed);
-            return root;
+            var result = AegisMapVisualCompiler.CompileDocument(document, sourcePath, persistAssets);
+            return result.Root;
         }
 
         static void BuildTerrainPlane(Transform root, AegisVisualMapDocument document, AegisVisualMapLookup lookup, List<AegisPathSegment> paths, List<AegisRiverSegment> rivers, AegisVisualBiomeProfile profile, AegisVisualMaterialSet materials, string safeMapId, int seed, bool persistAssets)

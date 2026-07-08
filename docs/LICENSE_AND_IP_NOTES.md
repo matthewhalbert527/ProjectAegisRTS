@@ -18,6 +18,8 @@ Concept art and future production assets should remain under `art/` or a separat
 
 The Unity visual builder uses this pack as editor-side visual mapping for `.aegismap.json` terrain, resources, blockers, roads, craters, base pads, and biome decoration. The pack does not make Unity or Tiled the runtime source of truth.
 
+For current map-visual compiler work, treat `ProjectAegis_MapVisualArtPack_v1` as prototype-only unless individual assets are explicitly promoted by art review. The semantic compiler contract is the durable integration point; prototype asset paths can be replaced without changing deterministic gameplay data.
+
 ## Tiled Map Editor Integration
 
 The Stage 0 Tiled map-editor integration is original Project Aegis code. Tiled is used as an external authoring/interchange tool, and `.aegismap.json` is the Project Aegis runtime map format.
