@@ -244,12 +244,55 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_shadow_" + segmentIndex + "_" + runIndex, center, length + 0.85f, deckWidth + 0.72f, 0.112f, shadowMaterial, angle, context, segmentIndex, runIndex, 7410, 0.08f);
             EmitBridgeApproachRoadBlend(context, layer, summary, segmentIndex, runIndex, run, length, deckWidth, direction, normal, angle, roadMaterial, roadDustMaterial, roadEdgeMaterial);
+            EmitBridgeAbutments(context, layer, summary, segmentIndex, runIndex, run, deckWidth, direction, normal, angle, railMaterial, shadowMaterial);
             AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_deck_" + segmentIndex + "_" + runIndex, center, length + 0.48f, deckWidth, 0.18f, deckMaterial, angle, context, segmentIndex, runIndex, 7420, 0.035f, 14f);
-            AegisVisualCompilerPrimitives.CreateCube(layer, "bridge_rail_beam_left_" + segmentIndex + "_" + runIndex, new Vector3(center.x + normal.x * (deckWidth * 0.53f), 0.29f, center.y + normal.y * (deckWidth * 0.53f)), new Vector3(length + 0.52f, 0.15f, 0.16f), Quaternion.Euler(0f, angle, 0f), railMaterial);
-            AegisVisualCompilerPrimitives.CreateCube(layer, "bridge_rail_beam_right_" + segmentIndex + "_" + runIndex, new Vector3(center.x - normal.x * (deckWidth * 0.53f), 0.29f, center.y - normal.y * (deckWidth * 0.53f)), new Vector3(length + 0.52f, 0.15f, 0.16f), Quaternion.Euler(0f, angle, 0f), railMaterial);
+            EmitBridgeSideRails(context, layer, segmentIndex, runIndex, run, length, deckWidth, normal, angle, railMaterial);
             EmitBridgeApproachDust(context, layer, summary, segmentIndex, runIndex, run, deckWidth, normal, angle, shadowMaterial);
             EmitBridgeDeckDetails(context, layer, summary, segmentIndex, runIndex, run, length, deckWidth, normal, angle, detailMaterial, railMaterial);
             summary.BridgeCrossings++;
+        }
+
+        static void EmitBridgeAbutments(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, float deckWidth, Vector2 direction, Vector2 normal, float angle, Material abutmentMaterial, Material shadowMaterial)
+        {
+            var rotation = Quaternion.Euler(0f, angle, 0f);
+            EmitBridgeAbutmentEnd(context, layer, summary, segmentIndex, runIndex, run.A - direction * 0.16f, direction, normal, deckWidth, angle, rotation, abutmentMaterial, shadowMaterial, "entry", 7520);
+            EmitBridgeAbutmentEnd(context, layer, summary, segmentIndex, runIndex, run.B + direction * 0.16f, -direction, normal, deckWidth, angle, rotation, abutmentMaterial, shadowMaterial, "exit", 7530);
+        }
+
+        static void EmitBridgeAbutmentEnd(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, Vector2 center, Vector2 awayFromBridge, Vector2 normal, float deckWidth, float angle, Quaternion rotation, Material abutmentMaterial, Material shadowMaterial, string suffix, int salt)
+        {
+            var padWidth = deckWidth + Mathf.Lerp(0.72f, 1.18f, context.Hash01(segmentIndex, runIndex, salt + 1));
+            var padLength = Mathf.Lerp(0.56f, 0.88f, context.Hash01(segmentIndex, runIndex, salt + 2));
+            var blockCenter = center + awayFromBridge * 0.18f;
+            AegisVisualCompilerPrimitives.CreateCube(layer, "bridge_abutment_" + suffix + "_" + segmentIndex + "_" + runIndex, new Vector3(blockCenter.x, 0.155f, blockCenter.y), new Vector3(padLength, 0.22f, padWidth), rotation, abutmentMaterial);
+
+            var apronCenter = center + awayFromBridge * 0.62f;
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_abutment_wet_shadow_" + suffix + "_" + segmentIndex + "_" + runIndex, apronCenter, padLength * 1.85f, padWidth + 0.46f, 0.108f, shadowMaterial, angle, context, segmentIndex, runIndex, salt + 3, 0.10f);
+            var left = center + normal * (padWidth * 0.48f) + awayFromBridge * 0.36f;
+            var right = center - normal * (padWidth * 0.48f) + awayFromBridge * 0.36f;
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_abutment_side_wear_left_" + suffix + "_" + segmentIndex + "_" + runIndex, left, padLength * 1.28f, 0.32f, 0.119f, shadowMaterial, angle, context, segmentIndex, runIndex, salt + 4, 0.10f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_abutment_side_wear_right_" + suffix + "_" + segmentIndex + "_" + runIndex, right, padLength * 1.28f, 0.32f, 0.119f, shadowMaterial, angle, context, segmentIndex, runIndex, salt + 5, 0.10f);
+            summary.RoadDetailDecalCount += 3;
+        }
+
+        static void EmitBridgeSideRails(AegisMapVisualCompileContext context, Transform layer, int segmentIndex, int runIndex, RoadRun run, float length, float deckWidth, Vector2 normal, float angle, Material railMaterial)
+        {
+            var rotation = Quaternion.Euler(0f, angle, 0f);
+            var segmentCount = Mathf.Clamp(Mathf.CeilToInt(length / 2.75f), 1, 12);
+            var step = length / segmentCount;
+            var railLength = Mathf.Max(0.72f, step * 0.68f);
+            for (var i = 0; i < segmentCount; i++)
+            {
+                var t = (i + 0.5f) / segmentCount;
+                var point = Vector2.Lerp(run.A, run.B, t);
+                var stagger = (context.Hash01(segmentIndex + i, runIndex, 7540) - 0.5f) * 0.08f;
+                var railHeight = Mathf.Lerp(0.105f, 0.150f, context.Hash01(segmentIndex + i, runIndex, 7541));
+                var railThickness = Mathf.Lerp(0.105f, 0.150f, context.Hash01(segmentIndex + i, runIndex, 7542));
+                var left = point + normal * (deckWidth * 0.53f + stagger);
+                var right = point - normal * (deckWidth * 0.53f + stagger);
+                AegisVisualCompilerPrimitives.CreateCube(layer, "bridge_rail_section_left_" + segmentIndex + "_" + runIndex + "_" + i, new Vector3(left.x, 0.285f, left.y), new Vector3(railLength, railHeight, railThickness), rotation, railMaterial);
+                AegisVisualCompilerPrimitives.CreateCube(layer, "bridge_rail_section_right_" + segmentIndex + "_" + runIndex + "_" + i, new Vector3(right.x, 0.285f, right.y), new Vector3(railLength, railHeight, railThickness), rotation, railMaterial);
+            }
         }
 
         static void EmitBridgeApproachRoadBlend(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, float bridgeLength, float deckWidth, Vector2 direction, Vector2 normal, float angle, Material roadMaterial, Material dustMaterial, Material edgeMaterial)
@@ -350,7 +393,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var center = Vector2.Lerp(run.A, run.B, 0.5f);
             AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_deck_grime_left_" + segmentIndex + "_" + runIndex, center + normal * (deckWidth * 0.20f), length * 0.82f, 0.22f, 0.207f, detailMaterial, angle, context, segmentIndex, runIndex, 7460, 0.07f, 18f);
             AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_deck_grime_right_" + segmentIndex + "_" + runIndex, center - normal * (deckWidth * 0.20f), length * 0.82f, 0.22f, 0.207f, detailMaterial, angle, context, segmentIndex, runIndex, 7470, 0.07f, 18f);
-            summary.RoadDetailDecalCount += 2;
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_deck_edge_wear_left_" + segmentIndex + "_" + runIndex, center + normal * (deckWidth * 0.42f), length * 0.88f, 0.18f, 0.209f, detailMaterial, angle, context, segmentIndex, runIndex, 7475, 0.06f, 12f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "bridge_deck_edge_wear_right_" + segmentIndex + "_" + runIndex, center - normal * (deckWidth * 0.42f), length * 0.88f, 0.18f, 0.209f, detailMaterial, angle, context, segmentIndex, runIndex, 7476, 0.06f, 12f);
+            summary.RoadDetailDecalCount += 4;
 
             var seamCount = Mathf.Clamp(Mathf.FloorToInt(length / 2.6f), 1, 12);
             for (var i = 0; i < seamCount; i++)

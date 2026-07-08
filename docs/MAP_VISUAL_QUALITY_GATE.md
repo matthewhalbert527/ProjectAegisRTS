@@ -20,7 +20,7 @@ Run from batch mode:
 - Debug overlays are disabled by default.
 - Temporary `sample_small_100.local-export.tiled.json` is absent.
 - Art-pack manifest and `Materials/semantic_materials.json` exist.
-- Core terrain, water, river, muddy-water, base-pad, resource-dust, road-dust, compacted-road, bridge, battlefield decal, and layered terrain-detail roles have texture paths.
+- Core terrain, water, river, muddy-water, base-pad, resource-dust, road-dust, compacted-road, weathered bridge, battlefield decal, and layered terrain-detail roles have texture paths.
 - Production terrain chunk size is below the old 16x16 dominant-role path.
 - The showcase sample compiles a production preview root.
 - Production output contains no debug-named overlay layer.
@@ -38,7 +38,7 @@ Run from batch mode:
 
 ## Limitations
 
-This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, missing muddy water-surface details, missing shoreline bank meshes or water-edge details, fallback-only visuals, missing layered terrain detail decals, missing road/pad detail decals, missing required art-pack texture paths, or unchecked road-water conflicts.
+This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, missing muddy water-surface details, missing shoreline bank meshes or water-edge details, missing bridge texture bindings, fallback-only visuals, missing layered terrain detail decals, missing road/pad detail decals, missing required art-pack texture paths, or unchecked road-water conflicts.
 
 ## Required Hygiene
 

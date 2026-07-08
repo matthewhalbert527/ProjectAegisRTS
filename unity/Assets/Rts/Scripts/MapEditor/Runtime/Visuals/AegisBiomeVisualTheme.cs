@@ -81,9 +81,9 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("basepad.trim_decal", new Color(0.70f, 0.62f, 0.38f, 0.66f), transparent: true, albedo: "Decals/BasePads/base_pad_trim_straight.png")
                 .Add("basepad.crack", new Color(0.08f, 0.075f, 0.065f, 0.52f), transparent: true, albedo: "Decals/BasePads/concrete_crack_01.png")
                 .Add("basepad.construction_wear", new Color(0.22f, 0.17f, 0.12f, 0.42f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png")
-                .Add("bridge.deck", new Color(0.52f, 0.53f, 0.49f, 1f), albedo: "Terrain/concrete_panel_albedo.png", normal: "Terrain/concrete_panel_normal.png", mask: "Terrain/concrete_panel_roughness_ao.png")
-                .Add("bridge.rail", new Color(0.47f, 0.44f, 0.34f, 1f), albedo: "Terrain/concrete_trim_albedo.png", normal: "Terrain/concrete_trim_normal.png", mask: "Terrain/concrete_trim_roughness_ao.png")
-                .Add("bridge.grime", new Color(0.12f, 0.095f, 0.065f, 0.38f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png");
+                .Add("bridge.deck", new Color(0.58f, 0.60f, 0.55f, 1f), albedo: "Terrain/bridge_weathered_deck_albedo.png", normal: "Terrain/bridge_weathered_deck_normal.png", mask: "Terrain/bridge_weathered_deck_roughness_ao.png")
+                .Add("bridge.rail", new Color(0.55f, 0.52f, 0.43f, 1f), albedo: "Terrain/bridge_weathered_rail_albedo.png", normal: "Terrain/bridge_weathered_rail_normal.png", mask: "Terrain/bridge_weathered_rail_roughness_ao.png")
+                .Add("bridge.grime", new Color(0.10f, 0.085f, 0.060f, 0.46f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png");
             ApplyProductionProxyTexturePaths(theme);
             return theme;
         }
@@ -164,9 +164,9 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("basepad.trim_decal", new Color(0.70f, 0.58f, 0.36f, 0.66f), transparent: true, albedo: "Decals/BasePads/base_pad_trim_straight.png")
                 .Add("basepad.crack", new Color(0.08f, 0.07f, 0.055f, 0.52f), transparent: true, albedo: "Decals/BasePads/concrete_crack_01.png")
                 .Add("basepad.construction_wear", new Color(0.25f, 0.17f, 0.10f, 0.42f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png")
-                .Add("bridge.deck", new Color(0.56f, 0.53f, 0.45f, 1f), albedo: "Terrain/concrete_panel_albedo.png", normal: "Terrain/concrete_panel_normal.png", mask: "Terrain/concrete_panel_roughness_ao.png")
-                .Add("bridge.rail", new Color(0.50f, 0.43f, 0.30f, 1f), albedo: "Terrain/concrete_trim_albedo.png", normal: "Terrain/concrete_trim_normal.png", mask: "Terrain/concrete_trim_roughness_ao.png")
-                .Add("bridge.grime", new Color(0.15f, 0.095f, 0.055f, 0.38f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png");
+                .Add("bridge.deck", new Color(0.68f, 0.62f, 0.50f, 1f), albedo: "Terrain/bridge_weathered_deck_albedo.png", normal: "Terrain/bridge_weathered_deck_normal.png", mask: "Terrain/bridge_weathered_deck_roughness_ao.png")
+                .Add("bridge.rail", new Color(0.58f, 0.50f, 0.38f, 1f), albedo: "Terrain/bridge_weathered_rail_albedo.png", normal: "Terrain/bridge_weathered_rail_normal.png", mask: "Terrain/bridge_weathered_rail_roughness_ao.png")
+                .Add("bridge.grime", new Color(0.15f, 0.095f, 0.055f, 0.46f), transparent: true, albedo: "Decals/BasePads/construction_wear_01.png");
             ApplyProductionProxyTexturePaths(theme);
             return theme;
         }
