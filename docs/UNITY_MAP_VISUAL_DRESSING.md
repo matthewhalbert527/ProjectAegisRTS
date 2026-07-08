@@ -21,7 +21,7 @@ Workflow:
 1. Select a `.aegismap.json` asset in Unity.
 2. Run the compatibility build menu item, or open the visual compiler window and click `Compile Preview`.
 3. Unity creates an `Aegis Visual Map - <mapId>` scene object with `AegisMapVisualScene` summary metadata.
-4. The generated scene includes compiler layers for base terrain chunks, terrain transition masks, water surfaces, shoreline mud/wetness, roads and tire tracks, topology-driven cliffs, resource fields, modular base pads, and rule-based scatter.
+4. The generated scene includes compiler layers for base terrain chunks, terrain transition masks, production terrain detail decals, water surfaces, shoreline mud/wetness, roads and tire tracks, topology-driven cliffs, resource fields, modular base pads, and rule-based scatter.
 5. The compiler window can capture a local screenshot to `%TEMP%\ProjectAegisRTS\VisualCompilerPreviews\`.
 
 Production preview is the default visual mode. Debug overlays are available through `DebugOverlay` or `Hybrid` mode, but they are not production output.
@@ -35,6 +35,8 @@ The art-pack showcase sample is:
 `unity/Assets/Rts/MapEditor/Samples/sample_art_pack_showcase_160_forest_river.aegismap.json`
 
 It is a 160x160 forest river composition intended to exercise the imported art pack in one place: concrete base pads, soft roads, river bends, muddy banks, cliff and rock ridges, ore clusters, craters, vegetation, and navigation/region metadata. The batch screenshot method is `ProjectAegisRTS.UnityClient.EditorTools.AegisMapVisualBuilder.RenderArtPackShowcaseForBatch`, which writes `C:\Users\matth\AppData\Local\Temp\ProjectAegisRTS\aegis_art_pack_showcase.png`.
+
+For close-up inspection, `ProjectAegisRTS.UnityClient.EditorTools.AegisMapVisualBuilder.RenderProductionDetailPreviewForBatch` writes `C:\Users\matth\AppData\Local\Temp\ProjectAegisRTS\aegis_visual_quality_detail.png`. Use this capture when judging zoomed-in pad, bridge, resource, road, and shoreline fidelity.
 
 ## Biome Profiles
 
@@ -68,13 +70,19 @@ Use:
 
 `Project Aegis > Map Editor > Validate Visual Quality Gate`
 
-to verify production-preview defaults, texture-role bindings, merged water strips, bridge/fording handling for road-water crossings, capped resource glints, and non-fallback sample output.
+to verify production-preview defaults, texture-role bindings, terrain detail decals, merged water strips, bridge/fording handling for road-water crossings, road/base-pad detail decals, capped resource glints, and non-fallback sample output.
+
+The compiler reads art-pack textures and prefabs without rewriting texture importer metadata during validation. Existing embedded GLB materials are preserved when present; fallback materials are only assigned to missing material slots.
 
 ## Roads And Base Pads
 
-The logical map does not store Unity-only road meshes. The visual builder derives deterministic soft road decals from the same generated start-to-center route segments used for the terrain path texture. These overlays add dust, paired rut strips, and occasional gravel scuffs without changing pathability.
+The logical map does not store Unity-only road meshes. The visual builder derives deterministic soft road decals from the same generated start-to-center route segments used for the terrain path texture. These overlays add dust, worn shoulders, paired rut decals, and occasional mud-track scuffs without changing pathability.
 
-Base pads are also visual-only dressing on top of player start metadata. Each generated pad uses the imported `base_pad_14x14.glb` when available, then receives concrete panels, thin seam decals, trim strips, a dusty approach apron facing the map center, and deterministic grime marks so start areas read less like flat placeholder slabs. Missing pad mesh or missing concrete texture paths produce validation warnings.
+Base pads are also visual-only dressing on top of player start metadata. Each generated pad uses the imported `base_pad_14x14.glb` when available, then receives concrete panels, transparent panel/trim markings, thin seam decals, hairline cracks, a dusty approach apron facing the map center, construction-wear decals, and deterministic grime marks so start areas read less like flat placeholder slabs. Missing pad mesh or missing concrete texture paths produce validation warnings.
+
+## Terrain Detail Decals
+
+`Production Terrain Detail Decals` is a deterministic visual-only layer placed above the logical terrain surface. It adds low-density grass mottling, roadside dust, wet mud near water, gravel/rubble speckles, and subtle water highlights. These decals are intentionally sparse and soft; they reduce the top-down checkerboard feel without pretending to replace final terrain blending.
 
 ## Water Rendering
 
@@ -83,6 +91,7 @@ The logical map still stores water as deterministic terrain cells. The visual co
 ## Current Limits
 
 - The compiler now has layer contracts and summaries, but terrain chunks are still prototype quads rather than a final shader/material-layer terrain.
+- Terrain detail decals improve the current preview, but true realism still needs a shader-driven terrain blend, height/normal-aware terrain layers, or authored terrain meshes.
 - Roads are generated as deterministic routes between player starts and the map center. A later pass should read explicit road/region/path metadata when map documents include it.
 - Water is rendered from water-cell topology with shoreline masks. A later pass can replace this with spline meshes, animated water materials, reeds, foam, and authored shoreline decals.
 - Ore, cliff, vegetation, crater, river-edge, and base-pad props use imported production-proxy art-pack assets when available. A later art pass can add higher-poly sculpted meshes, LODs, collision-free prefab variants, and tuned material overrides.

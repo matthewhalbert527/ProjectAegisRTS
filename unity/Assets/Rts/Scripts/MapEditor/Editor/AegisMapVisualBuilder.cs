@@ -89,6 +89,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             RenderPreviewForBatch(samplePath, "aegis_visual_quality_debug.png", 0.24f, 0.50f, 0.50f, 1600, 1100, AegisMapVisualCompileSettings.DebugDefault());
         }
 
+        public static void RenderProductionDetailPreviewForBatch()
+        {
+            var samplePath = AegisMapEditorPaths.SamplesFolder + "/sample_art_pack_showcase_160_forest_river.aegismap.json";
+            RenderPreviewForBatch(samplePath, "aegis_visual_quality_detail.png", 0.105f, 0.50f, 0.49f, 1600, 1100, AegisMapVisualCompileSettings.ProductionDefault());
+        }
+
         static void RenderPreviewForBatch(string samplePath, string outputFileName, float orthographicScale, float centerXScale, float centerZScale, int outputWidth, int outputHeight, AegisMapVisualCompileSettings settings)
         {
             var document = AegisVisualMapDocument.Load(samplePath);

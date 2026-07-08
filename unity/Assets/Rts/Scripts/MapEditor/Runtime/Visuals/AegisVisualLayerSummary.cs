@@ -17,10 +17,13 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
         public int BridgeCrossings;
         public int FordCrossings;
         public int RoadWaterConflicts;
+        public int RoadDetailDecalCount;
         public int CliffStraightSegments;
         public int CliffCorners;
         public int CliffEndcaps;
         public int HiddenDebugFillCount;
+        public int TerrainDetailDecalCount;
+        public int ShorelineDetailDecalCount;
         public int ResourceFields;
         public int ResourceVisualInstances;
         public int ResourceGlintCount;
@@ -28,6 +31,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
         public int ResourceDepletedCount;
         public int ResourceRegeneratingCount;
         public int BasePadCount;
+        public int BasePadDetailDecalCount;
         public int TreeCount;
         public int BushCount;
         public int GrassCount;
@@ -73,10 +77,13 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
             AppendMetric(builder, "bridges", BridgeCrossings);
             AppendMetric(builder, "fords", FordCrossings);
             AppendMetric(builder, "road-water conflicts", RoadWaterConflicts);
+            AppendMetric(builder, "road detail decals", RoadDetailDecalCount);
             AppendMetric(builder, "cliff straights", CliffStraightSegments);
             AppendMetric(builder, "cliff corners", CliffCorners);
             AppendMetric(builder, "cliff endcaps", CliffEndcaps);
             AppendMetric(builder, "hidden debug fill", HiddenDebugFillCount);
+            AppendMetric(builder, "terrain detail decals", TerrainDetailDecalCount);
+            AppendMetric(builder, "shoreline detail decals", ShorelineDetailDecalCount);
             AppendMetric(builder, "resource fields", ResourceFields);
             AppendMetric(builder, "resource visuals", ResourceVisualInstances);
             AppendMetric(builder, "resource glints", ResourceGlintCount);
@@ -84,6 +91,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
             AppendMetric(builder, "depleted fields", ResourceDepletedCount);
             AppendMetric(builder, "regenerating fields", ResourceRegeneratingCount);
             AppendMetric(builder, "base pads", BasePadCount);
+            AppendMetric(builder, "base pad decals", BasePadDetailDecalCount);
             AppendMetric(builder, "trees", TreeCount);
             AppendMetric(builder, "bushes", BushCount);
             AppendMetric(builder, "grass", GrassCount);

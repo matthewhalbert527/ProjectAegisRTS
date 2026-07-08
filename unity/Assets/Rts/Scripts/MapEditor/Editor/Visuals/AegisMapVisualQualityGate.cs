@@ -54,7 +54,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             RequireTexturedRole(theme, "terrain.shallow_water", errors);
             RequireTexturedRole(theme, "river.water", errors);
             RequireTexturedRole(theme, "basepad.panel", errors);
-            RequireTexturedRole(theme, "resource.ore", warnings);
+            RequireTexturedRole(theme, "terrain.grass_mottle", errors);
+            RequireTexturedRole(theme, "road.soft_dust", errors);
+            RequireTexturedRole(theme, "basepad.panel_decal", errors);
+            RequireTexturedRole(theme, "resource.ore_dust", errors);
 
             if (AegisTerrainLayerCompiler.ProductionChunkSize >= 16)
                 errors.Add("Production terrain chunk size still uses old 16x16 behavior.");
@@ -107,6 +110,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             else if (terrain.TerrainChunks <= 0)
                 errors.Add("Production terrain layer produced no chunks.");
 
+            var terrainDetails = FindLayer(result, "Production Terrain Detail Decals");
+            if (terrainDetails == null)
+                errors.Add("Production terrain detail decal layer missing.");
+            else if (terrainDetails.TerrainDetailDecalCount < 80)
+                errors.Add("Production terrain detail decal layer produced too few detail decals.");
+
             var water = FindLayer(result, "Water And Shoreline");
             if (water != null && water.WaterCells > 0 && water.WaterStrips <= 0)
                 errors.Add("Water cells were present but no merged water strips were produced.");
@@ -114,6 +123,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var road = FindLayer(result, "Roads And Tire Tracks");
             if (road != null && road.RoadWaterConflicts > 0)
                 errors.Add("Road-water conflicts were reported in production preview.");
+            if (road != null && road.RoadSegments > 0 && road.RoadDetailDecalCount <= 0)
+                errors.Add("Roads were present but no road detail decals were produced.");
             if (road != null && road.BridgeCrossings == 0 && water != null && water.WaterCells > 0)
                 warnings.Add("Sample has water but no bridge crossing was needed; bridge rule remains covered by compiler logic, not this sample layout.");
 
@@ -124,6 +135,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var basePads = FindLayer(result, "Modular Base Pads");
             if (basePads != null && basePads.Warnings.Count > 0)
                 warnings.AddRange(basePads.Warnings);
+            if (basePads != null && basePads.BasePadCount > 0 && basePads.BasePadDetailDecalCount <= basePads.BasePadCount * 4)
+                errors.Add("Base pads produced too few detail decals for production preview.");
         }
 
         static void ValidateBridgeCrossingRule(AegisMapVisualTheme theme, AegisMapVisualCompileSettings settings, List<string> errors)

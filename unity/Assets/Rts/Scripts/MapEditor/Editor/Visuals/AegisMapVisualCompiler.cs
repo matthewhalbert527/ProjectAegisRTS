@@ -16,6 +16,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             new AegisTerrainLayerCompiler(),
             new AegisTerrainTransitionCompiler(),
+            new AegisTerrainDetailOverlayCompiler(),
             new AegisWaterAndShorelineCompiler(),
             new AegisRoadVisualCompiler(),
             new AegisCliffTopologyCompiler(),
@@ -442,7 +443,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 return;
 
             var tiling = Vector2.one;
-            if (!string.IsNullOrEmpty(role) && (role.StartsWith("terrain.", StringComparison.OrdinalIgnoreCase) || role.StartsWith("road.", StringComparison.OrdinalIgnoreCase) || role.StartsWith("river.", StringComparison.OrdinalIgnoreCase)))
+            if (IsTileableSurfaceRole(role))
                 tiling = new Vector2(3.5f, 3.5f);
 
             material.mainTextureScale = tiling;
@@ -450,6 +451,35 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 material.SetTextureScale("_BaseMap", tiling);
             if (material.HasProperty("_MainTex"))
                 material.SetTextureScale("_MainTex", tiling);
+        }
+
+        static bool IsTileableSurfaceRole(string role)
+        {
+            if (string.IsNullOrEmpty(role))
+                return false;
+
+            return role == "terrain.grass" ||
+                role == "terrain.dark_grass" ||
+                role == "terrain.dirt" ||
+                role == "terrain.gravel" ||
+                role == "terrain.mud" ||
+                role == "terrain.shallow_water" ||
+                role == "terrain.deep_water" ||
+                role == "terrain.cliff_ground" ||
+                role == "terrain.ore_stained_soil" ||
+                role == "terrain.concrete_base_pad" ||
+                role == "road.dirt" ||
+                role == "road.gravel" ||
+                role == "river.water" ||
+                role == "river.shoreline" ||
+                role == "cliff.edge.straight" ||
+                role == "cliff.edge.corner_inner" ||
+                role == "cliff.edge.corner_outer" ||
+                role == "cliff.edge.endcap" ||
+                role == "blocker.rock" ||
+                role == "basepad.panel" ||
+                role == "basepad.trim" ||
+                role == "basepad.corner";
         }
     }
 }

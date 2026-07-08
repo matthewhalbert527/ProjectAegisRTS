@@ -14,8 +14,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         {
             var summary = new AegisVisualLayerSummary("Resource Field Visuals");
             var layer = AegisVisualCompilerPrimitives.CreateLayer(context, "Resource Field Visuals");
-            var dustMaterial = AegisVisualCompilerPrimitives.Material(context, "terrain.ore_stained_soil");
-            var glintMaterial = AegisVisualCompilerPrimitives.Material(context, "resource.energy");
+            var dustMaterial = AegisVisualCompilerPrimitives.Material(context, "resource.ore_dust");
+            var glintMaterial = AegisVisualCompilerPrimitives.Material(context, "resource.glint");
 
             for (var i = 0; i < context.ResourceFields.Count; i++)
             {
@@ -29,7 +29,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
                 var center = field.Center;
                 var radius = Mathf.Clamp(Mathf.Sqrt(field.Cells.Count) * 0.72f + 1.4f, 1.8f, 7.5f);
-                AegisVisualCompilerPrimitives.CreateCylinder(layer, "resource_field_dust_" + field.FieldId, new Vector3(center.x, 0.045f, center.y), new Vector3(radius, 0.018f, radius), dustMaterial);
+                AegisVisualCompilerPrimitives.CreateQuad(layer, "resource_field_dust_" + field.FieldId, center, radius * 2.35f, radius * 1.72f, 0.092f, dustMaterial, context.Hash01(i, field.Cells.Count, 990) * 180f);
                 summary.ResourceDustDecalCount++;
 
                 if (field.CurrentAmount <= 0)

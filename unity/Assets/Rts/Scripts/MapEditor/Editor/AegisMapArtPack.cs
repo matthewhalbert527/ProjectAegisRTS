@@ -185,31 +185,6 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 return null;
 
             var path = Root + "/" + relativePath.Replace('\\', '/');
-            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-            if (importer != null)
-            {
-                var dirty = false;
-                if (normalMap && importer.textureType != TextureImporterType.NormalMap)
-                {
-                    importer.textureType = TextureImporterType.NormalMap;
-                    dirty = true;
-                }
-                else if (!normalMap && importer.textureType == TextureImporterType.NormalMap)
-                {
-                    importer.textureType = TextureImporterType.Default;
-                    dirty = true;
-                }
-
-                if (transparent && !importer.alphaIsTransparency)
-                {
-                    importer.alphaIsTransparency = true;
-                    dirty = true;
-                }
-
-                if (dirty)
-                    importer.SaveAndReimport();
-            }
-
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
 
@@ -249,7 +224,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 }
 
                 for (var j = 0; j < materials.Length; j++)
-                    materials[j] = fallbackMaterial;
+                    if (materials[j] == null)
+                        materials[j] = fallbackMaterial;
                 renderers[i].sharedMaterials = materials;
             }
         }

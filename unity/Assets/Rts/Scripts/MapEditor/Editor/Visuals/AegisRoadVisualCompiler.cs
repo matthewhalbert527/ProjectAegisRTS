@@ -12,7 +12,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var summary = new AegisVisualLayerSummary("Roads And Tire Tracks");
             var layer = AegisVisualCompilerPrimitives.CreateLayer(context, "Roads And Tire Tracks");
             var roadMaterial = AegisVisualCompilerPrimitives.Material(context, "road.dirt");
-            var rutMaterial = AegisVisualCompilerPrimitives.Material(context, "road.gravel");
+            var roadDustMaterial = AegisVisualCompilerPrimitives.Material(context, "road.soft_dust");
+            var roadEdgeMaterial = AegisVisualCompilerPrimitives.Material(context, "road.worn_edge");
+            var leftRutMaterial = AegisVisualCompilerPrimitives.Material(context, "road.tire_left");
+            var rightRutMaterial = AegisVisualCompilerPrimitives.Material(context, "road.tire_right");
+            var mudTrackMaterial = AegisVisualCompilerPrimitives.Material(context, "road.mud_track");
             var bridgeDeckMaterial = AegisVisualCompilerPrimitives.Material(context, "basepad.panel");
             var bridgeRailMaterial = AegisVisualCompilerPrimitives.Material(context, "basepad.trim");
             var bridgeShadowMaterial = AegisVisualCompilerPrimitives.Material(context, "decal.scorch");
@@ -27,7 +31,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     if (run.IsWater)
                         EmitBridgeRun(context, layer, summary, i, runIndex, run, bridgeDeckMaterial, bridgeRailMaterial, bridgeShadowMaterial);
                     else
-                        EmitRoadRun(context, layer, summary, i, runIndex, run, roadMaterial, rutMaterial);
+                        EmitRoadRun(context, layer, summary, i, runIndex, run, roadMaterial, roadDustMaterial, roadEdgeMaterial, leftRutMaterial, rightRutMaterial, mudTrackMaterial);
                 }
             }
 
@@ -61,7 +65,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return runs;
         }
 
-        static void EmitRoadRun(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, Material roadMaterial, Material rutMaterial)
+        static void EmitRoadRun(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, Material roadMaterial, Material dustMaterial, Material edgeMaterial, Material leftRutMaterial, Material rightRutMaterial, Material mudTrackMaterial)
         {
             var length = AegisVisualCompilerPrimitives.SegmentLength(run.A, run.B);
             if (length <= 0.3f)
@@ -74,12 +78,28 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var width = Mathf.Clamp(run.Width, 1.85f, 3.35f);
 
             AegisVisualCompilerPrimitives.CreateQuad(layer, "road_body_" + segmentIndex + "_" + runIndex, center, length, width, 0.055f, roadMaterial, angle);
-            AegisVisualCompilerPrimitives.CreateQuad(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, center + normal * (width * 0.42f), length * 0.92f, 0.26f, 0.064f, rutMaterial, angle);
-            AegisVisualCompilerPrimitives.CreateQuad(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, center - normal * (width * 0.42f), length * 0.92f, 0.26f, 0.064f, rutMaterial, angle);
+            AegisVisualCompilerPrimitives.CreateQuad(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, center, length * 0.96f, width * 1.22f, 0.071f, dustMaterial, angle);
+            AegisVisualCompilerPrimitives.CreateQuad(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, center + normal * (width * 0.48f), length * 0.94f, 0.42f, 0.082f, edgeMaterial, angle);
+            AegisVisualCompilerPrimitives.CreateQuad(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, center - normal * (width * 0.48f), length * 0.94f, 0.42f, 0.082f, edgeMaterial, angle + 180f);
+            summary.RoadDetailDecalCount += 3;
             if (length > 5f)
             {
-                AegisVisualCompilerPrimitives.CreateQuad(layer, "road_tire_rut_left_" + segmentIndex + "_" + runIndex, center + normal * 0.48f, length * 0.76f, 0.11f, 0.071f, rutMaterial, angle);
-                AegisVisualCompilerPrimitives.CreateQuad(layer, "road_tire_rut_right_" + segmentIndex + "_" + runIndex, center - normal * 0.48f, length * 0.76f, 0.11f, 0.071f, rutMaterial, angle);
+                AegisVisualCompilerPrimitives.CreateQuad(layer, "road_tire_rut_left_" + segmentIndex + "_" + runIndex, center + normal * 0.48f, length * 0.78f, 0.18f, 0.091f, leftRutMaterial, angle);
+                AegisVisualCompilerPrimitives.CreateQuad(layer, "road_tire_rut_right_" + segmentIndex + "_" + runIndex, center - normal * 0.48f, length * 0.78f, 0.18f, 0.091f, rightRutMaterial, angle);
+                summary.RoadDetailDecalCount += 2;
+            }
+
+            if (length > 8f)
+            {
+                var count = Mathf.Clamp(Mathf.FloorToInt(length / 14f), 1, 4);
+                for (var i = 0; i < count; i++)
+                {
+                    var t = (i + 1f) / (count + 1f);
+                    var p = Vector2.Lerp(run.A, run.B, t) + normal * Mathf.Lerp(-0.35f, 0.35f, context.Hash01(segmentIndex, runIndex, 7100 + i));
+                    var patchLength = Mathf.Lerp(1.4f, 3.6f, context.Hash01(segmentIndex, runIndex, 7110 + i));
+                    AegisVisualCompilerPrimitives.CreateQuad(layer, "road_mud_track_" + segmentIndex + "_" + runIndex + "_" + i, p, patchLength, width * 0.72f, 0.096f, mudTrackMaterial, angle + Mathf.Lerp(-8f, 8f, context.Hash01(segmentIndex, runIndex, 7120 + i)));
+                    summary.RoadDetailDecalCount++;
+                }
             }
 
             summary.RoadSegments++;

@@ -20,18 +20,21 @@ Run from batch mode:
 - Debug overlays are disabled by default.
 - Temporary `sample_small_100.local-export.tiled.json` is absent.
 - Art-pack manifest and `Materials/semantic_materials.json` exist.
-- Core terrain, water, river, and base-pad roles have texture paths.
+- Core terrain, water, river, base-pad, resource-dust, road-dust, and terrain-detail roles have texture paths.
 - Production terrain chunk size is below the old 16x16 dominant-role path.
 - The showcase sample compiles a production preview root.
 - Production output contains no debug-named overlay layer.
+- Production terrain detail decals are present.
 - Water cells compile into merged water strips.
 - Road-water conflicts are zero because water crossings become bridge prototype pieces.
+- Road detail decals are present when roads are present.
+- Base pads produce layered panel, trim, crack, grime, and construction-wear decals.
 - Resource glints stay capped relative to field count.
 - The sample instantiates imported v2 art-pack prefabs and is not fallback-only.
 
 ## Limitations
 
-This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, fallback-only visuals, or unchecked road-water conflicts.
+This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, fallback-only visuals, missing terrain detail decals, missing road/pad detail decals, or unchecked road-water conflicts.
 
 ## Required Hygiene
 

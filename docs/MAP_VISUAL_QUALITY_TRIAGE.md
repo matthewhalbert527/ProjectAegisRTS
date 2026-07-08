@@ -10,6 +10,7 @@
 - Noisy ore sparkle: `AegisResourceFieldVisualCompiler` allowed many small chunks and glints per field. This pass reduces chunk count, increases chunk scale, always emits field dust, caps glints to four per field, and uses depletion-aware density.
 - Cliffs/rocks reading as gray blobs: `AegisCliffTopologyCompiler` could emit raw blocker core cubes inside cliff regions. This pass hides blocker fill in production and reserves `debug_cliff_blocker_core_*` for debug or hybrid overlays.
 - Terrain texture repetition: production terrain now uses smaller semantic patches and material tiling rather than stretching one large debug-like dominant role over 16 cells. Final shader-layer terrain remains future art/renderer work.
+- Sparse zoom-in detail: the first production preview still read too clean at close range. The current pass adds deterministic production terrain detail decals, road dust/rut/wear decals, ore-dust/glint decals, and layered base-pad crack/grime/construction-wear decals.
 
 ## Implemented Now
 
@@ -21,12 +22,18 @@
 - Road-water crossings are represented by bridge prototype deck, rail, and shadow pieces.
 - Resource glints are capped and field density scales with amount.
 - Raw blocker fill is hidden in production.
+- Production terrain detail decals add grass mottling, road-adjacent dust, gravel speckles, wet bank marks, and water highlights.
+- Roads use dust, worn edge, tire-rut, and mud-track decal roles.
+- Base pads use transparent panel/trim decals, grime, cracks, and construction-wear decals.
+- Resource fields use transparent ore-dust decals and capped glint decals.
+- The visual compiler reads art-pack textures without rewriting texture importer metadata during validation.
 - `Project Aegis > Map Editor > Validate Visual Quality Gate` validates key production-preview invariants.
 
 ## Future Art Polish
 
 - Replace quad terrain patches with a shader-driven terrain mesh or terrain-layer system.
 - Replace prototype bridge deck/rail geometry with original authored bridge/fording assets.
+- Replace deterministic close-up decals with authored terrain blend masks once the final terrain renderer exists.
 - Add authored road/river spline metadata to `.aegismap.json` when the core map format needs it.
 - Add final sculpted cliffs, vegetation, ore, and base-pad prefabs with LODs and tuned materials.
 - Add automated screenshot comparison once visual targets stabilize.
