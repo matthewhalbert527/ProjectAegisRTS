@@ -28,6 +28,9 @@ namespace ProjectAegisRTS.UnityClient.Rendering
         GameObject leftTrackMarker;
         GameObject rightTrackMarker;
         TankVisualRigController tankRig;
+        ProjectAegisTankTeamColorRig tankTeamColorRig;
+        ProjectAegisLightTankVisualRig lightTankVisualRig;
+        ProjectAegisHarvesterVisualRig harvesterVisualRig;
         Vector3 previousSnapshotPosition;
         Vector3 targetSnapshotPosition;
         bool hasPosition;
@@ -214,9 +217,11 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             prefabInstance = Instantiate(resolvedPrefab);
             prefabInstance.name = "Stage8 Visual " + definition.TypeId;
             prefabInstance.transform.SetParent(transform, false);
-            prefabInstance.transform.localPosition = Vector3.zero;
+            var visualScale = ActiveVisualDefinition == null ? 1f : Mathf.Max(0.05f, ActiveVisualDefinition.visualScale);
+            var heightOffset = ActiveVisualDefinition == null ? 0f : ActiveVisualDefinition.prefabHeightOffset;
+            prefabInstance.transform.localPosition = Vector3.up * heightOffset;
             prefabInstance.transform.localRotation = Quaternion.identity;
-            prefabInstance.transform.localScale = Vector3.one;
+            prefabInstance.transform.localScale = Vector3.one * visualScale;
 
             ActivePrefabDescriptor = prefabInstance.GetComponentInChildren<ActorPrefabDescriptor>(true);
             body = SocketGameObject(ActorPrefabSocketKind.VisualRoot);
@@ -238,6 +243,9 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             if (rightTrackMarker == null)
                 rightTrackMarker = SocketGameObject(ActorPrefabSocketKind.WheelRight);
             tankRig = prefabInstance.GetComponentInChildren<TankVisualRigController>(true);
+            tankTeamColorRig = prefabInstance.GetComponentInChildren<ProjectAegisTankTeamColorRig>(true);
+            lightTankVisualRig = prefabInstance.GetComponentInChildren<ProjectAegisLightTankVisualRig>(true);
+            harvesterVisualRig = prefabInstance.GetComponentInChildren<ProjectAegisHarvesterVisualRig>(true);
         }
 
         void UpdateTankVisualRig(ActorSnapshot snapshot, BoardCoordinateMapper mapper)
@@ -411,6 +419,31 @@ namespace ProjectAegisRTS.UnityClient.Rendering
 
             if (definition is BuildingDefinition)
                 SetMaterial(body, snapshot.LightsActive && snapshot.MachineryActive ? materials.Building : materials.BuildingLowPower);
+
+            var teamColor = TeamColorForOwner(snapshot.OwnerId);
+            if (tankTeamColorRig != null)
+                tankTeamColorRig.ApplyTeamColor(teamColor);
+            if (lightTankVisualRig != null)
+                lightTankVisualRig.ApplyTeamColor(teamColor);
+            if (harvesterVisualRig != null)
+                harvesterVisualRig.ApplyTeamColor(teamColor);
+        }
+
+        static Color TeamColorForOwner(int ownerId)
+        {
+            switch (ownerId)
+            {
+                case 1:
+                    return new Color(0.12f, 0.70f, 0.88f, 1f);
+                case 2:
+                    return new Color(0.88f, 0.20f, 0.16f, 1f);
+                case 3:
+                    return new Color(0.30f, 0.82f, 0.30f, 1f);
+                case 4:
+                    return new Color(0.86f, 0.70f, 0.18f, 1f);
+                default:
+                    return Color.white;
+            }
         }
 
         void UpdateHealth(ActorDefinition definition, ActorSnapshot snapshot)
@@ -488,6 +521,9 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             leftTrackMarker = null;
             rightTrackMarker = null;
             tankRig = null;
+            tankTeamColorRig = null;
+            lightTankVisualRig = null;
+            harvesterVisualRig = null;
             lastTankWeaponCooldownRemaining = -1;
             lastTankWeaponId = string.Empty;
             if (BuildingVisual != null)

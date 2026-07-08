@@ -25,8 +25,8 @@ MonoBehaviour:
   preferredPrefabMode: 1
   motionProfileId: wheeled_heavy
   buildingProfileId:
-  selectionRadius: 0.6
-  selectionHeight: 0.1
+  selectionRadius: 2.8
+  selectionHeight: 3.45
   footprintWidth: 1
   footprintHeight: 1
   visualScale: 1
@@ -37,10 +37,8 @@ MonoBehaviour:
   useAircraftMotionController: 0
   useTurretVisualController: 0
   requiredSockets: 00000000010000000200000003000000040000000c0000000d000000110000001700000018000000
-  notes: 'Keep role, redesign harvesting apparatus distinctly.
-
-    Load state, docking,
-    suspension, harvesting tool deployment.
+  notes: 'Production visual uses the ProjectAegis harvester Defense MG Unity asset
+    packet. Rts.Core gameplay remains unchanged.
 
     Stage 20: MVP first-pass production
     proxy is assigned as the preferred prefab.

@@ -20,25 +20,29 @@ MonoBehaviour:
   conceptReference: {fileID: 11400000, guid: db3f754cd0b531344aa1dc6451d931ef, type: 2}
   icon: {fileID: 21300000, guid: 3d44a5303abcf1d4e9c60ef6ba98c4ee, type: 3}
   generatedBlockoutPrefab: {fileID: 3601469172071875844, guid: 34ffab87eddab624c92fc5377f1dfcf0, type: 3}
-  productionPrefab: {fileID: 4241666179252988042, guid: 86be7eacebb894642811022978f466fa, type: 3}
+  productionPrefab: {fileID: 8641562566250910075, guid: 3dc665b68e74db54392115b460f6d281, type: 3}
   fallbackPrefab: {fileID: 3966635111560821715, guid: ec6f2d15a53c9f84385566110bd3dcee, type: 3}
   preferredPrefabMode: 1
   motionProfileId: tracked_heavy
   buildingProfileId:
-  selectionRadius: 1.1609999
-  selectionHeight: 0.08
+  selectionRadius: 2.75
+  selectionHeight: 4.2
   footprintWidth: 6
   footprintHeight: 5
-  visualScale: 1
+  visualScale: 0.38
   prefabHeightOffset: 0
   useBuildingVisualController: 0
   useVehicleMotionController: 1
   useInfantryMotionController: 0
   useAircraftMotionController: 0
   useTurretVisualController: 1
-  requiredSockets: 0000000001000000020000000300000004000000050000000800000009000000060000000c0000000d0000001700000018000000
-  notes: Production visual now uses Unity AI/Codex generated textured tank prefab.
-    Stage33 source prefab remains fallback.
+  requiredSockets: 0000000002000000010000000300000004000000050000000600000008000000090000000c0000000d000000170000001800000007000000
+  notes: Production visual uses the ProjectAegis Heavy Tank Unity asset packet. Hull-attached
+    team-color panels are runtime recolorable. Rts.Core gameplay values are preserved
+    from DemoRules. Heavy tank Unity assembly has twin visible barrels and a larger
+    silhouette. Blocky Mammoth replacement includes a rear missile rack with eight
+    helper muzzle transforms, a boxy armored launcher case without the circular pod
+    base, and extra hull/turret detail meshes.
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Heavy Tank
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_29

@@ -61,7 +61,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var scene = EditorSceneManager.GetActiveScene();
             var game = RequireObject("RtsGame");
             ConfigureCamera(Camera.main != null ? Camera.main : UnityEngine.Object.FindFirstObjectByType<Camera>());
-            ConfigurePlayerFacingPrefabResolver();
+            ConfigurePlayerFacingUnitVisuals(game);
 
             var driver = GetOrAdd<RtsSimulationDriver>(game);
             driver.UseVerticalSliceDemoWorld = true;
@@ -196,13 +196,25 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             Debug.Log("Created Stage 16 scene at " + ScenePath);
         }
 
-        static void ConfigurePlayerFacingPrefabResolver()
+        static void ConfigurePlayerFacingUnitVisuals(GameObject game)
         {
-            var prefabResolver = UnityEngine.Object.FindFirstObjectByType<ActorVisualPrefabResolver>();
-            if (prefabResolver == null)
-                return;
+            var visualLibrary = GetOrAdd<ActorVisualDefinitionLibrary>(game);
+            visualLibrary.definitions = Stage8SceneCreator.LoadDefinitions();
+            visualLibrary.RebuildLookup();
+
+            var prefabResolver = GetOrAdd<ActorVisualPrefabResolver>(game);
+            prefabResolver.definitionLibrary = visualLibrary;
 
             prefabResolver.preferFallbackPrefabForBudgetValidation = false;
+            var actorRenderer = UnityEngine.Object.FindFirstObjectByType<ActorRenderSystem>();
+            if (actorRenderer != null)
+            {
+                actorRenderer.actorVisualDefinitionLibrary = visualLibrary;
+                actorRenderer.actorVisualPrefabResolver = prefabResolver;
+                EditorUtility.SetDirty(actorRenderer);
+            }
+
+            EditorUtility.SetDirty(visualLibrary);
             EditorUtility.SetDirty(prefabResolver);
         }
 

@@ -18,7 +18,9 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
         public Transform[] wheelRight;
         public Renderer[] trackRenderers;
         public Transform muzzleFlashRoot;
+        public Transform[] muzzleFlashRoots;
         public Light muzzleFlashLight;
+        public Light[] muzzleFlashLights;
 
         [Header("Visual Tuning")]
         public float turretTurnDegreesPerSecond = 180f;
@@ -45,6 +47,7 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
         private bool _hasLastPosition;
         private Vector3 _barrelInitialLocalPosition;
         private bool _hasBarrelInitialPosition;
+        private MaterialPropertyBlock _trackPropertyBlock;
 
         private void OnEnable()
         {
@@ -170,15 +173,18 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
                 if (r == null)
                     continue;
 
-                Material m = r.material;
+                Material m = r.sharedMaterial;
                 if (m == null)
                     continue;
 
                 var offset = new Vector2(0f, i == 0 ? -trackPhaseLeft : trackPhaseRight);
+                _trackPropertyBlock ??= new MaterialPropertyBlock();
+                r.GetPropertyBlock(_trackPropertyBlock);
                 if (m.HasProperty("_BaseMap"))
-                    m.SetTextureOffset("_BaseMap", offset);
+                    _trackPropertyBlock.SetVector("_BaseMap_ST", new Vector4(1f, 1f, offset.x, offset.y));
                 if (m.HasProperty("_MainTex"))
-                    m.SetTextureOffset("_MainTex", offset);
+                    _trackPropertyBlock.SetVector("_MainTex_ST", new Vector4(1f, 1f, offset.x, offset.y));
+                r.SetPropertyBlock(_trackPropertyBlock);
             }
         }
 
@@ -188,23 +194,43 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
                 muzzleFlashTimer = Mathf.Max(0f, muzzleFlashTimer - Mathf.Max(0f, deltaTime));
 
             bool active = muzzleFlashTimer > 0f;
-            if (muzzleFlashRoot != null)
+            UpdateMuzzleFlashRoot(muzzleFlashRoot, active, deltaTime);
+            if (muzzleFlashRoots != null)
             {
-                if (muzzleFlashRoot.gameObject.activeSelf != active)
-                    muzzleFlashRoot.gameObject.SetActive(active);
-                if (active)
-                {
-                    float t = muzzleFlashDuration <= 0.0001f ? 1f : muzzleFlashTimer / muzzleFlashDuration;
-                    muzzleFlashRoot.localScale = Vector3.one * Mathf.Lerp(0.35f, 1.0f, t);
-                    muzzleFlashRoot.Rotate(Vector3.forward, muzzleFlashSpinDegreesPerSecond * Mathf.Max(0f, deltaTime), Space.Self);
-                }
+                for (int i = 0; i < muzzleFlashRoots.Length; i++)
+                    UpdateMuzzleFlashRoot(muzzleFlashRoots[i], active, deltaTime);
             }
 
-            if (muzzleFlashLight != null)
+            UpdateMuzzleFlashLight(muzzleFlashLight, active);
+            if (muzzleFlashLights != null)
             {
-                muzzleFlashLight.enabled = active;
-                muzzleFlashLight.intensity = active ? Mathf.Lerp(0.5f, 3.0f, muzzleFlashTimer / Mathf.Max(0.0001f, muzzleFlashDuration)) : 0f;
+                for (int i = 0; i < muzzleFlashLights.Length; i++)
+                    UpdateMuzzleFlashLight(muzzleFlashLights[i], active);
             }
+        }
+
+        private void UpdateMuzzleFlashRoot(Transform flashRoot, bool active, float deltaTime)
+        {
+            if (flashRoot == null)
+                return;
+
+            if (flashRoot.gameObject.activeSelf != active)
+                flashRoot.gameObject.SetActive(active);
+            if (!active)
+                return;
+
+            float t = muzzleFlashDuration <= 0.0001f ? 1f : muzzleFlashTimer / muzzleFlashDuration;
+            flashRoot.localScale = Vector3.one * Mathf.Lerp(0.35f, 1.0f, t);
+            flashRoot.Rotate(Vector3.forward, muzzleFlashSpinDegreesPerSecond * Mathf.Max(0f, deltaTime), Space.Self);
+        }
+
+        private void UpdateMuzzleFlashLight(Light flashLight, bool active)
+        {
+            if (flashLight == null)
+                return;
+
+            flashLight.enabled = active;
+            flashLight.intensity = active ? Mathf.Lerp(0.5f, 3.0f, muzzleFlashTimer / Mathf.Max(0.0001f, muzzleFlashDuration)) : 0f;
         }
     }
 }

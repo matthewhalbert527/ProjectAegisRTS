@@ -18,14 +18,13 @@ MonoBehaviour:
   sizeClass: 6
   footprintFineWidth: 4
   footprintFineHeight: 4
-  prefab: {fileID: 2771482311332433252, guid: 99eb875e6b2c4784c8d8cd498f995837, type: 3}
+  prefab: {fileID: 5285081260137973883, guid: 2bb47d4b91c7b2c4689bde2f4cac18fc, type: 3}
   materialProfileId: resource_ground
   passabilityVisualHint: Passable unless core terrain says otherwise.
   buildableVisualHint: No-build visual hint near resources.
   supportsRotation: 1
-  supportsTint: 0
+  supportsTint: 1
   isGameplayBlockingVisualOnly: 0
-  notes: Uses Unity Terrain Sample Asset Pack terrain layer textures and foliage/detail
-    prefabs for the player-facing ground tile replacement. Visual only; gameplay
-    authority remains in Rts.Core.
-  questBudgetTag: QuestSafeTerrainSample
+  notes: Harvest-field base tint. Visual metadata only; Rts.Core terrain remains
+    authoritative.
+  questBudgetTag: QuestSafeLow

@@ -18,14 +18,12 @@ MonoBehaviour:
   sizeClass: 6
   footprintFineWidth: 4
   footprintFineHeight: 3
-  prefab: {fileID: 4417018906452344811, guid: 752405f91e8d290449191dbd939d68ce, type: 3}
+  prefab: {fileID: 3133695409514406751, guid: 51b2485662e0b044aad3b5f99beb2712, type: 3}
   materialProfileId: grass_dirt
   passabilityVisualHint: Passable visual ground.
   buildableVisualHint: Buildable hint; stays below fine grid.
   supportsRotation: 1
-  supportsTint: 0
+  supportsTint: 1
   isGameplayBlockingVisualOnly: 0
-  notes: Uses Unity Terrain Sample Asset Pack terrain layer textures and foliage/detail
-    prefabs for the player-facing ground tile replacement. Visual only; gameplay
-    authority remains in Rts.Core.
-  questBudgetTag: QuestSafeTerrainSample
+  notes: Grass/dirt variation. Visual metadata only; Rts.Core terrain remains authoritative.
+  questBudgetTag: QuestSafeLow

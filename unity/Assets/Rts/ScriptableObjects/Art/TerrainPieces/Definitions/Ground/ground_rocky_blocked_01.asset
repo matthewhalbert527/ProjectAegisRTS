@@ -18,14 +18,14 @@ MonoBehaviour:
   sizeClass: 2
   footprintFineWidth: 3
   footprintFineHeight: 3
-  prefab: {fileID: 9091227542416769298, guid: adbf102f5e8f5004aba1de83a9b47d00, type: 3}
+  prefab: {fileID: 5428873304326837953, guid: 8e15bcf845c25af48a16c2bfa9d7ccb1, type: 3}
   materialProfileId: rock
   passabilityVisualHint: Blocked visual hint only.
   buildableVisualHint: No-build visual hint.
   supportsRotation: 1
   supportsTint: 0
   isGameplayBlockingVisualOnly: 1
-  notes: Uses Unity Terrain Sample Asset Pack terrain layer textures and foliage/detail
-    prefabs for the player-facing ground tile replacement. Visual only; gameplay
-    authority remains in Rts.Core.
-  questBudgetTag: QuestSafeTerrainSample
+  notes: Stage32.6 runtime terrain assembly mapped from rock_blocker_01. Reference
+    sheets are art direction only; this prefab is visual-only and never gameplay
+    authority.
+  questBudgetTag: QuestSafeLow

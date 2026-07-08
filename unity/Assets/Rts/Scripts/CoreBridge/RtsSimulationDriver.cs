@@ -1,15 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using ProjectAegisRTS.Ai;
 using ProjectAegisRTS.Actors;
 using ProjectAegisRTS.Core;
 using ProjectAegisRTS.Data;
 using ProjectAegisRTS.Demo;
+using ProjectAegisRTS.Maps;
 using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Simulation;
 using ProjectAegisRTS.Snapshots;
 using ProjectAegisRTS.Support;
 using ProjectAegisRTS.UnityClient.Feedback;
+using ProjectAegisRTS.UnityClient.MapEditor;
 using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.CoreBridge
@@ -28,9 +31,13 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         [SerializeField] bool useMapTerrainDemoWorld;
         [SerializeField] bool useVerticalSliceDemoWorld;
         [SerializeField] bool useGeneratedSkirmishWorld;
+        [SerializeField] bool useAegisMapDocumentWorld;
         [SerializeField] bool usePlayerPerspectiveSnapshot;
         [SerializeField] string skirmishDifficultyId = "normal";
         [SerializeField] int generatedSkirmishSeed = 34034;
+        [SerializeField] TextAsset aegisMapDocumentAsset;
+        [SerializeField] string aegisMapDocumentPath = string.Empty;
+        [SerializeField] bool configureAegisMapAiOpponent = true;
         public FeedbackEventBus feedbackEventBus;
 
         readonly List<int> selectedActorIds = new List<int>();
@@ -63,7 +70,11 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public bool UseMapTerrainDemoWorld { get { return useMapTerrainDemoWorld; } set { useMapTerrainDemoWorld = value; } }
         public bool UseVerticalSliceDemoWorld { get { return useVerticalSliceDemoWorld; } set { useVerticalSliceDemoWorld = value; } }
         public bool UseGeneratedSkirmishWorld { get { return useGeneratedSkirmishWorld; } set { useGeneratedSkirmishWorld = value; } }
+        public bool UseAegisMapDocumentWorld { get { return useAegisMapDocumentWorld; } set { useAegisMapDocumentWorld = value; } }
         public bool UsePlayerPerspectiveSnapshot { get { return usePlayerPerspectiveSnapshot; } set { usePlayerPerspectiveSnapshot = value; } }
+        public TextAsset AegisMapDocumentAsset { get { return aegisMapDocumentAsset; } set { aegisMapDocumentAsset = value; } }
+        public string AegisMapDocumentPath { get { return aegisMapDocumentPath; } set { aegisMapDocumentPath = value ?? string.Empty; } }
+        public bool ConfigureAegisMapAiOpponent { get { return configureAegisMapAiOpponent; } set { configureAegisMapAiOpponent = value; } }
         public string SkirmishDifficultyId { get { return skirmishDifficultyId; } }
         public string SkirmishDifficultyLabel { get { return GetSkirmishDifficultyLabel(skirmishDifficultyId); } }
         public int GeneratedSkirmishSeed { get { return generatedSkirmishSeed; } }
@@ -125,7 +136,12 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         {
             ResolveGeneratedSkirmishPreferences();
 
-            if (useGeneratedSkirmishWorld)
+            if (useAegisMapDocumentWorld)
+            {
+                usePlayerPerspectiveSnapshot = true;
+                world = CreateAegisMapDocumentWorld();
+            }
+            else if (useGeneratedSkirmishWorld)
             {
                 usePlayerPerspectiveSnapshot = true;
                 world = DemoWorldFactory.CreateGeneratedSkirmishWorld(generatedSkirmishSeed, ResolveSkirmishDifficulty());
@@ -167,6 +183,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
         public RtsCommandResult SetGeneratedSkirmishEnabled(bool enabled, bool resetWorld)
         {
             useGeneratedSkirmishWorld = enabled;
+            if (enabled)
+                useAegisMapDocumentWorld = false;
             PlayerPrefs.SetInt(GeneratedSkirmishEnabledPlayerPrefsKey, useGeneratedSkirmishWorld ? 1 : 0);
             PlayerPrefs.Save();
 
@@ -196,6 +214,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult TryCreateCombatDemoWorld()
         {
+            useAegisMapDocumentWorld = false;
             useCombatDemoWorld = true;
             useEconomyDemoWorld = false;
             useFogRadarDemoWorld = false;
@@ -209,6 +228,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult TryCreateEconomyDemoWorld()
         {
+            useAegisMapDocumentWorld = false;
             useEconomyDemoWorld = true;
             useCombatDemoWorld = false;
             useFogRadarDemoWorld = false;
@@ -222,6 +242,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult TryCreateFogRadarDemoWorld()
         {
+            useAegisMapDocumentWorld = false;
             useFogRadarDemoWorld = true;
             useEconomyDemoWorld = false;
             useCombatDemoWorld = false;
@@ -236,6 +257,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult TryCreateAiSkirmishDemoWorld()
         {
+            useAegisMapDocumentWorld = false;
             useAiSkirmishDemoWorld = true;
             useFogRadarDemoWorld = false;
             useEconomyDemoWorld = false;
@@ -250,6 +272,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult TryCreateMapTerrainDemoWorld()
         {
+            useAegisMapDocumentWorld = false;
             useMapTerrainDemoWorld = true;
             useAiSkirmishDemoWorld = false;
             useFogRadarDemoWorld = false;
@@ -264,6 +287,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult TryCreateVerticalSliceWorld()
         {
+            useAegisMapDocumentWorld = false;
             useVerticalSliceDemoWorld = true;
             useMapTerrainDemoWorld = false;
             useAiSkirmishDemoWorld = false;
@@ -278,6 +302,7 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         public RtsCommandResult TryCreateGeneratedSkirmishWorld()
         {
+            useAegisMapDocumentWorld = false;
             useGeneratedSkirmishWorld = true;
             useVerticalSliceDemoWorld = false;
             useMapTerrainDemoWorld = false;
@@ -288,6 +313,29 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             usePlayerPerspectiveSnapshot = true;
             SaveGeneratedSkirmishEnabledPreference();
             return ResetDemoWorld();
+        }
+
+        public RtsCommandResult TryCreateAegisMapDocumentWorld(TextAsset mapAsset, string mapPath, bool configureAiOpponent)
+        {
+            ConfigureAegisMapDocumentWorld(mapAsset, mapPath, configureAiOpponent);
+            SaveGeneratedSkirmishEnabledPreference();
+            return ResetDemoWorld();
+        }
+
+        public void ConfigureAegisMapDocumentWorld(TextAsset mapAsset, string mapPath, bool configureAiOpponent)
+        {
+            aegisMapDocumentAsset = mapAsset;
+            aegisMapDocumentPath = mapPath ?? string.Empty;
+            configureAegisMapAiOpponent = configureAiOpponent;
+            useAegisMapDocumentWorld = true;
+            useGeneratedSkirmishWorld = false;
+            useVerticalSliceDemoWorld = false;
+            useMapTerrainDemoWorld = false;
+            useAiSkirmishDemoWorld = false;
+            useFogRadarDemoWorld = false;
+            useEconomyDemoWorld = false;
+            useCombatDemoWorld = false;
+            usePlayerPerspectiveSnapshot = true;
         }
 
         public RtsCommandResult TryStartMatch()
@@ -1638,6 +1686,42 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
             latestSnapshot = world == null ? null : (usePlayerPerspectiveSnapshot ? world.CreateSnapshot(playerId) : world.CreateSnapshot());
         }
 
+        RtsWorld CreateAegisMapDocumentWorld()
+        {
+            var json = ReadAegisMapDocumentJson();
+            var document = AegisRuntimeMapDocumentJson.FromJson(json);
+            var createdWorld = new AegisMapDocumentWorldFactory().CreateWorld(document, DemoRules.CreateDefaultRules());
+
+            if (configureAegisMapAiOpponent && createdWorld.Players.ContainsKey(2))
+                createdWorld.ConfigureAiPlayer(new AiPlayerDefinition(2, ResolveSkirmishDifficulty()));
+
+            return createdWorld;
+        }
+
+        string ReadAegisMapDocumentJson()
+        {
+            if (aegisMapDocumentAsset != null && !string.IsNullOrEmpty(aegisMapDocumentAsset.text))
+                return aegisMapDocumentAsset.text;
+
+            var resolvedPath = ResolveAegisMapDocumentFilePath();
+            if (!string.IsNullOrEmpty(resolvedPath) && File.Exists(resolvedPath))
+                return File.ReadAllText(resolvedPath);
+
+            throw new InvalidOperationException("Aegis map document world is enabled, but no map JSON asset or readable path is assigned.");
+        }
+
+        string ResolveAegisMapDocumentFilePath()
+        {
+            if (string.IsNullOrEmpty(aegisMapDocumentPath))
+                return string.Empty;
+
+            var normalized = aegisMapDocumentPath.Replace('\\', '/');
+            if (normalized.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
+                return Path.GetFullPath(Path.Combine(Application.dataPath, "..", normalized));
+
+            return Path.GetFullPath(aegisMapDocumentPath);
+        }
+
         AiDifficultyDefinition ResolveSkirmishDifficulty()
         {
             var saved = PlayerPrefs.GetString(SkirmishDifficultyPlayerPrefsKey, skirmishDifficultyId);
@@ -1659,6 +1743,8 @@ namespace ProjectAegisRTS.UnityClient.CoreBridge
 
         string ResetWorldMessage()
         {
+            if (useAegisMapDocumentWorld)
+                return "Aegis map document world reset from " + (aegisMapDocumentAsset != null ? aegisMapDocumentAsset.name : aegisMapDocumentPath) + ".";
             if (useGeneratedSkirmishWorld)
                 return "Generated skirmish world reset on " + SkirmishDifficultyLabel + " with seed " + generatedSkirmishSeed + ".";
             if (useVerticalSliceDemoWorld)

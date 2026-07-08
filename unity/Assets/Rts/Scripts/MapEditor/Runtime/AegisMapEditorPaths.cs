@@ -10,6 +10,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor
         public const string MapEditorRoot = "Assets/Rts/MapEditor";
         public const string SamplesFolder = "Assets/Rts/MapEditor/Samples";
         public const string AssetPromptsFolder = "Assets/Rts/MapEditor/AssetPrompts";
+        public const string ArtPackRoot = "Assets/Rts/MapEditor/ArtPack/ProjectAegis_MapVisualArtPack_v1";
         public const string ProxyAssetsFolder = "Assets/Rts/MapEditor/ProxyAssets";
         public const string VisualAssetsFolder = "Assets/Rts/MapEditor/VisualAssets";
         public const string VisualBuildsFolder = "Assets/Rts/MapEditor/VisualBuilds";

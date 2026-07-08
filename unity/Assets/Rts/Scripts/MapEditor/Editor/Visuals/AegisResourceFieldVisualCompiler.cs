@@ -61,7 +61,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     var rotation = Quaternion.Euler(0f, context.Hash01(cellX, cellY, 1003 + j) * 360f, 0f);
                     var prefabPath = PickResourcePrefab(field.ResourceKind, context.Seed, cellX, cellY);
                     if (!AegisMapArtPack.TryInstantiatePrefab(layer, "resource_" + field.FieldId + "_" + j, prefabPath, position, rotation, Vector3.one * scale, material))
+                    {
                         AegisVisualCompilerPrimitives.CreateCube(layer, "resource_" + field.FieldId + "_" + j, position, new Vector3(scale, scale * 0.55f, scale), rotation, material);
+                        summary.GenericFallbackInstanceCount++;
+                    }
                     summary.ResourceVisualInstances++;
 
                     if (field.FillRatio > 0.75f && glints < MaxGlintsPerField && context.Hash01(cellX, cellY, 1004 + j) < 0.028f)

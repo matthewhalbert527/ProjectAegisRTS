@@ -51,11 +51,30 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     result.Layers.Add(summary);
             }
 
+            int importedArtPackMeshes;
+            int artPackDerivedProxies;
+            AegisMapArtPack.CountInstances(context.Root, out importedArtPackMeshes, out artPackDerivedProxies);
+            var artPackTexturedMaterials = AegisMapArtPack.CountArtPackTexturedMaterials(context.Root);
+            var genericFallbackInstances = CountGenericFallbackInstances(result);
+            result.Layers.Add(new AegisVisualLayerSummary("Art Pack Resolution")
+            {
+                ArtPackTexturedMaterialCount = artPackTexturedMaterials,
+                ArtPackMeshInstanceCount = importedArtPackMeshes,
+                ArtPackDerivedProxyInstanceCount = artPackDerivedProxies,
+                GenericFallbackInstanceCount = genericFallbackInstances
+            });
+
             var marker = context.Root.GetComponent<AegisMapVisualScene>();
             if (marker != null)
             {
                 marker.VisualCompilerVersion = "visual-compiler-v1";
                 marker.VisualThemeId = theme.ThemeId;
+                marker.ArtPackRoot = AegisMapArtPack.Root;
+                marker.UsesArtPackTextures = artPackTexturedMaterials > 0;
+                marker.UsesArtPackMeshes = importedArtPackMeshes + artPackDerivedProxies > 0;
+                marker.ArtPackMeshInstanceCount = importedArtPackMeshes;
+                marker.ArtPackDerivedProxyInstanceCount = artPackDerivedProxies;
+                marker.GenericFallbackInstanceCount = genericFallbackInstances;
                 marker.VisualCompilerSummary = result.ToSummaryText();
             }
 
@@ -82,6 +101,18 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public static AegisMapVisualCompileResult CompileDocument(AegisVisualMapDocument document, string sourcePath, bool persistAssets, AegisMapVisualTheme theme, int visualSeed, AegisMapVisualCompileSettings settings)
         {
             return new AegisMapVisualCompiler().Compile(document, sourcePath, persistAssets, theme, visualSeed, settings);
+        }
+
+        static int CountGenericFallbackInstances(AegisMapVisualCompileResult result)
+        {
+            if (result == null)
+                return 0;
+
+            var count = 0;
+            for (var i = 0; i < result.Layers.Count; i++)
+                if (result.Layers[i] != null)
+                    count += result.Layers[i].GenericFallbackInstanceCount;
+            return count;
         }
 
         static AegisMapVisualCompileContext CreateContext(AegisVisualMapDocument document, string sourcePath, bool persistAssets, AegisMapVisualTheme theme, int visualSeed, AegisMapVisualCompileSettings settings)

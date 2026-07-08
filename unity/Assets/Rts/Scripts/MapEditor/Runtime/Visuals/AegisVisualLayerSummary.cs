@@ -46,6 +46,10 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
         public int ScatterCount;
         public int SkippedPlacementCount;
         public int OrganicTransitionMeshCount;
+        public int ArtPackTexturedMaterialCount;
+        public int ArtPackMeshInstanceCount;
+        public int ArtPackDerivedProxyInstanceCount;
+        public int GenericFallbackInstanceCount;
         public readonly List<string> Warnings = new List<string>();
         public readonly List<string> Errors = new List<string>();
 
@@ -114,6 +118,10 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
             AppendMetric(builder, "scatter", ScatterCount);
             AppendMetric(builder, "skipped", SkippedPlacementCount);
             AppendMetric(builder, "organic transition meshes", OrganicTransitionMeshCount);
+            AppendMetric(builder, "art-pack textured materials", ArtPackTexturedMaterialCount);
+            AppendMetric(builder, "art-pack meshes", ArtPackMeshInstanceCount);
+            AppendMetric(builder, "art-pack proxy meshes", ArtPackDerivedProxyInstanceCount);
+            AppendMetric(builder, "generic fallback geometry", GenericFallbackInstanceCount);
             for (var i = 0; i < Warnings.Count; i++)
                 builder.Append("; warning: ").Append(Warnings[i]);
             for (var i = 0; i < Errors.Count; i++)

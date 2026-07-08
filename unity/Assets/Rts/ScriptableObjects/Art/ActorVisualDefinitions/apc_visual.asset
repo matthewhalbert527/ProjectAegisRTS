@@ -14,33 +14,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
   actorTypeId: apc
   displayName: APC
-  safeDisplayName: Apc
+  safeDisplayName: APC
   category: 3
-  productionStatus: 1
+  productionStatus: 6
   conceptReference: {fileID: 11400000, guid: e4a1d59e55d2ed641b08a9d24d19f9cf, type: 2}
   icon: {fileID: 21300000, guid: 69f0bd2b8182e9846ae8518cf12004f5, type: 3}
   generatedBlockoutPrefab: {fileID: 1616241705884954453, guid: dc6d4bd1d7de9a8478ff02fa7582a977, type: 3}
-  productionPrefab: {fileID: 0}
-  fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
+  productionPrefab: {fileID: 8451851107021250218, guid: 2241e697ad563c24ebbc744704a88466, type: 3}
+  fallbackPrefab: {fileID: 1616241705884954453, guid: dc6d4bd1d7de9a8478ff02fa7582a977, type: 3}
+  preferredPrefabMode: 1
   motionProfileId: wheeled_apc
-  buildingProfileId:
-  selectionRadius: 0.6
-  selectionHeight: 0.1
+  buildingProfileId: 
+  selectionRadius: 2.5
+  selectionHeight: 3.5
   footprintWidth: 1
   footprintHeight: 1
-  visualScale: 1
+  visualScale: 0.34
   prefabHeightOffset: 0
   useBuildingVisualController: 0
   useVehicleMotionController: 1
   useInfantryMotionController: 0
   useAircraftMotionController: 0
   useTurretVisualController: 1
-  requiredSockets: 00000000010000000200000003000000040000000600000008000000090000000a0000000b0000001700000018000000
-  notes: 'APC is generic but final design should be uniquely branded.
-
-    Door/hatch,
-    passengers later, wheel/track motion, turret if equipped.'
+  requiredSockets: 0000000002000000010000000300000004000000050000000a0000000b0000000800000009000000060000001600000017000000180000001d0000000e0000000f000000
+  notes: APC imported from Ironclad WheelClearV2 packet. Wheel animation uses individual
+    per-wheel spin pivots under stable WheelLeft/WheelRight sockets.
   ipReviewRequired: 0
   sourceConceptOriginalLabel: APC
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_15_02

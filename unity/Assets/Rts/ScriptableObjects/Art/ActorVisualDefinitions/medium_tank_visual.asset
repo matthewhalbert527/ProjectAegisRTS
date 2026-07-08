@@ -20,25 +20,26 @@ MonoBehaviour:
   conceptReference: {fileID: 11400000, guid: df75ef33c64cdf947986799d0058d4d1, type: 2}
   icon: {fileID: 21300000, guid: d7880e01610a50d41b6214e57061cef5, type: 3}
   generatedBlockoutPrefab: {fileID: 1964749533622958558, guid: b4eed13b5863071469371e6afbd5fc23, type: 3}
-  productionPrefab: {fileID: 6048105893916652192, guid: b7a176ee0206e9d41905196cf9db4a94, type: 3}
+  productionPrefab: {fileID: 3423400425998972034, guid: 365b690a4bace9b40888dfe16be2d812, type: 3}
   fallbackPrefab: {fileID: 2642760595140433487, guid: 7b61e2759cf9c8b47bbda30d2a1e6f3c, type: 3}
   preferredPrefabMode: 1
   motionProfileId: tracked_medium
   buildingProfileId:
-  selectionRadius: 0.95399994
-  selectionHeight: 0.08
+  selectionRadius: 1.95
+  selectionHeight: 2.95
   footprintWidth: 5
   footprintHeight: 4
-  visualScale: 1
+  visualScale: 0.36
   prefabHeightOffset: 0
   useBuildingVisualController: 0
   useVehicleMotionController: 1
   useInfantryMotionController: 0
   useAircraftMotionController: 0
   useTurretVisualController: 1
-  requiredSockets: 0000000001000000020000000300000004000000050000000800000009000000060000000c0000000d0000001700000018000000
-  notes: Production visual now uses Unity AI/Codex generated textured tank prefab.
-    Stage33 source prefab remains fallback.
+  requiredSockets: 0000000002000000010000000300000004000000050000000600000008000000090000000c0000000d0000001700000018000000
+  notes: Production visual uses the ProjectAegis Medium Tank Unity asset packet.
+    Hull-attached team-color panels are runtime recolorable. Rts.Core gameplay values
+    are preserved from DemoRules.
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Medium Tank
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_29

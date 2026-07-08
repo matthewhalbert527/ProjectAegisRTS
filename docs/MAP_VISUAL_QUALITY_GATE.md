@@ -43,6 +43,7 @@ Run from batch mode:
 - Base pads produce layered panel, trim, crack, grime, and construction-wear decals.
 - Resource glints stay capped relative to field count.
 - The sample instantiates imported v2 art-pack prefabs and is not fallback-only.
+- Visual art-pack validation reports imported model-root instances, art-pack-derived proxy instances, generic fallback geometry, and art-pack textured material usage. Imported GLB model roots are preferred; deterministic generated proxy prefabs are allowed only when Unity cannot import a pack mesh as a model root.
 
 ## Art-Directed Benchmark Gate
 

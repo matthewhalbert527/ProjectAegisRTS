@@ -16,31 +16,29 @@ MonoBehaviour:
   displayName: Scout Rover
   safeDisplayName: Scout Rover
   category: 3
-  productionStatus: 1
+  productionStatus: 6
   conceptReference: {fileID: 11400000, guid: 0a7d17557d485164e8edf69c77440dcf, type: 2}
   icon: {fileID: 21300000, guid: 3d7ce3b05fb7dc445ad5d181db7819e9, type: 3}
   generatedBlockoutPrefab: {fileID: 5504013174498678881, guid: 33eff15570e365341b8e2de7c7f455be, type: 3}
-  productionPrefab: {fileID: 0}
-  fallbackPrefab: {fileID: 0}
-  preferredPrefabMode: 0
+  productionPrefab: {fileID: 3300706299316220353, guid: eca68cb2fe544da458471b531abacf02, type: 3}
+  fallbackPrefab: {fileID: 5504013174498678881, guid: 33eff15570e365341b8e2de7c7f455be, type: 3}
+  preferredPrefabMode: 1
   motionProfileId: wheeled_scout
-  buildingProfileId:
-  selectionRadius: 0.6
-  selectionHeight: 0.1
+  buildingProfileId: 
+  selectionRadius: 1.95
+  selectionHeight: 3.35
   footprintWidth: 1
   footprintHeight: 1
-  visualScale: 1
+  visualScale: 0.34
   prefabHeightOffset: 0
   useBuildingVisualController: 0
   useVehicleMotionController: 1
   useInfantryMotionController: 0
   useAircraftMotionController: 0
-  useTurretVisualController: 0
-  requiredSockets: 00000000010000000200000003000000040000000a0000000b0000001700000018000000
-  notes: 'Original rover silhouette; final should showcase suspension.
-
-    Wheel
-    rotation, steering, suspension compression, dust trails.'
+  useTurretVisualController: 1
+  requiredSockets: 0000000002000000010000000300000004000000050000000a0000000b0000000800000009000000060000001600000017000000180000001d000000
+  notes: Scout Rover imported from Ironclad WheelClearV2 packet. Wheel animation
+    uses individual per-wheel spin pivots under stable WheelLeft/WheelRight sockets.
   ipReviewRequired: 0
   sourceConceptOriginalLabel: Scout Rover
   sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_15_02
