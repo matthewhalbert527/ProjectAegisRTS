@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e4b9fec25a026343acd532a6c23bcf0, type: 3}
+  m_Name: stage29_realistic_battlefield_lighting
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.Visuals.LightingProfile
+  profileId: stage29_realistic_battlefield
+  displayName: Stage 29 Realistic Battlefield
+  ambientColor: {r: 0.5, g: 0.54, b: 0.5, a: 1}
+  directionalColor: {r: 1, g: 0.94, b: 0.82, a: 1}
+  cameraBackground: {r: 0.06, g: 0.08, b: 0.08, a: 1}
+  directionalEuler: {x: 52, y: -38, z: 0}
+  directionalIntensity: 1.65
+  fogEnabled: 1
+  fogColor: {r: 0.13, g: 0.16, b: 0.15, a: 1}
+  fogDensity: 0.012
+  notes: Warm directional light plus low-density fog improves proxy silhouettes without
+    hiding the fine placement grid.

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c797ec2fb750ff4eb21d70e73175ba0, type: 3}
+  m_Name: stage30_visual_readability_profile
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.Visuals.Stage30ReadabilityProfile
+  minimumActorTerrainLuminanceDelta: 0.22
+  minimumResourceAccentLuminance: 0.48
+  maximumFineGridDominance: 0.45
+  recommendedPcOrthographicSize: 8.9
+  actorOutlineColor: {r: 0.035, g: 0.045, b: 0.04, a: 1}
+  playerTrimColor: {r: 0.2, g: 0.72, b: 0.68, a: 1}
+  enemyTrimColor: {r: 0.78, g: 0.26, b: 0.18, a: 1}
+  resourceAccentColor: {r: 0.18, g: 0.95, b: 0.74, a: 1}
+  notes: 'Stage 30 visual readability profile: keep terrain readable, actor silhouettes
+    separated from ground, fine-grid guidance visible but subdued, and resource accents
+    visible from the PC camera.'

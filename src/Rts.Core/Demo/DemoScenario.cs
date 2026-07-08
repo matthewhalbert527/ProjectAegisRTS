@@ -14,11 +14,11 @@ namespace ProjectAegisRTS.Demo
             var hub = world.FirstActorOfType("fabrication_hub", 1);
             world.IssueCommand(new BeginProductionCommand(1, hub.Id, "power_plant"));
             RunTicks(world, 20);
-            world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", new Int2(8, 4)));
+            world.IssueCommand(new PlaceBuildingCommand(1, "power_plant", PlacementGridMetrics.CoarseCellToPlacementCell(new Int2(8, 4))));
 
             world.IssueCommand(new BeginProductionCommand(1, hub.Id, "barracks"));
             RunTicks(world, 24);
-            world.IssueCommand(new PlaceBuildingCommand(1, "barracks", new Int2(4, 8)));
+            world.IssueCommand(new PlaceBuildingCommand(1, "barracks", PlacementGridMetrics.CoarseCellToPlacementCell(new Int2(4, 8))));
 
             var barracks = world.FirstActorOfType("barracks", 1);
             world.IssueCommand(new BeginProductionCommand(1, barracks.Id, "rifle_infantry"));

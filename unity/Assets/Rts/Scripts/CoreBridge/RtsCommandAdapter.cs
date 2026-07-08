@@ -1,0 +1,243 @@
+using System.Collections.Generic;
+using ProjectAegisRTS.Actors;
+using ProjectAegisRTS.Commands;
+using ProjectAegisRTS.Core;
+using ProjectAegisRTS.Simulation;
+
+namespace ProjectAegisRTS.UnityClient.CoreBridge
+{
+    public sealed class RtsCommandResult
+    {
+        public bool Success { get; private set; }
+        public string Code { get; private set; }
+        public string Message { get; private set; }
+        public string Details { get; private set; }
+
+        RtsCommandResult(bool success, string code, string message, string details)
+        {
+            Success = success;
+            Code = code;
+            Message = message;
+            Details = details;
+        }
+
+        public static RtsCommandResult FromCore(string action, CommandResult result)
+        {
+            var code = result.Success ? "OK" : result.ErrorCode;
+            var details = result.Details == null ? string.Empty : string.Join("; ", result.Details);
+            return new RtsCommandResult(result.Success, code, action + ": " + result.Message, details);
+        }
+
+        public static RtsCommandResult Ok(string message)
+        {
+            return new RtsCommandResult(true, "OK", message, string.Empty);
+        }
+
+        public static RtsCommandResult Fail(string code, string message)
+        {
+            return new RtsCommandResult(false, code, message, string.Empty);
+        }
+
+        public override string ToString()
+        {
+            if (string.IsNullOrEmpty(Details))
+                return Success ? Message : Code + ": " + Message;
+
+            return (Success ? Message : Code + ": " + Message) + " (" + Details + ")";
+        }
+    }
+
+    public static class RtsCommandAdapter
+    {
+        public static RtsCommandResult SelectActors(RtsWorld world, int playerId, IReadOnlyList<int> actorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Select",
+                world.IssueCommand(new SelectActorsCommand(playerId, ToActorIds(actorIds))));
+        }
+
+        public static RtsCommandResult IssueMoveOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, Int2 destinationCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Move",
+                world.IssueCommand(new IssueMoveOrderCommand(playerId, ToActorIds(actorIds), destinationCell)));
+        }
+
+        public static RtsCommandResult IssueAttackOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, int targetActorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Attack",
+                world.IssueCommand(new IssueAttackOrderCommand(playerId, ToActorIds(actorIds), new ActorId(targetActorId))));
+        }
+
+        public static RtsCommandResult IssueAttackMoveOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, Int2 destinationCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Attack move",
+                world.IssueCommand(new IssueAttackMoveOrderCommand(playerId, ToActorIds(actorIds), destinationCell)));
+        }
+
+        public static RtsCommandResult IssueGuardOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Guard",
+                world.IssueCommand(new IssueGuardOrderCommand(playerId, ToActorIds(actorIds))));
+        }
+
+        public static RtsCommandResult IssuePatrolOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, Int2 destinationCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Patrol",
+                world.IssueCommand(new IssuePatrolOrderCommand(playerId, ToActorIds(actorIds), destinationCell)));
+        }
+
+        public static RtsCommandResult IssueScatterOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Scatter",
+                world.IssueCommand(new IssueScatterOrderCommand(playerId, ToActorIds(actorIds))));
+        }
+
+        public static RtsCommandResult IssueDeployOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Deploy",
+                world.IssueCommand(new IssueDeployOrderCommand(playerId, ToActorIds(actorIds))));
+        }
+
+        public static RtsCommandResult IssueForceAttackCell(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, Int2 targetCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Force attack",
+                world.IssueCommand(new IssueForceAttackCellCommand(playerId, ToActorIds(actorIds), targetCell)));
+        }
+
+        public static RtsCommandResult IssueHarvestOrder(RtsWorld world, int playerId, IReadOnlyList<int> actorIds, Int2 resourceCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Harvest",
+                world.IssueCommand(new IssueHarvestOrderCommand(playerId, ToActorIds(actorIds), resourceCell)));
+        }
+
+        public static RtsCommandResult ReturnToRefinery(RtsWorld world, int playerId, IReadOnlyList<int> actorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Return to refinery",
+                world.IssueCommand(new ReturnToRefineryCommand(playerId, ToActorIds(actorIds))));
+        }
+
+        public static RtsCommandResult AssignHarvesterToRefinery(RtsWorld world, int playerId, int harvesterActorId, int refineryActorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Assign refinery",
+                world.IssueCommand(new AssignHarvesterToRefineryCommand(playerId, new ActorId(harvesterActorId), new ActorId(refineryActorId))));
+        }
+
+        public static RtsCommandResult BeginProduction(RtsWorld world, int playerId, int producerActorId, string typeId)
+        {
+            return RtsCommandResult.FromCore(
+                "Begin production",
+                world.IssueCommand(new BeginProductionCommand(playerId, new ActorId(producerActorId), typeId)));
+        }
+
+        public static RtsCommandResult PlaceBuilding(RtsWorld world, int playerId, string typeId, Int2 topLeftCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Place building",
+                world.IssueCommand(new PlaceBuildingCommand(playerId, typeId, topLeftCell)));
+        }
+
+        public static RtsCommandResult CancelProduction(RtsWorld world, int playerId, int queueItemId)
+        {
+            return RtsCommandResult.FromCore(
+                "Cancel production",
+                world.IssueCommand(new CancelProductionCommand(playerId, queueItemId)));
+        }
+
+        public static RtsCommandResult StopActors(RtsWorld world, int playerId, IReadOnlyList<int> actorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Stop",
+                world.IssueCommand(new StopCommand(playerId, ToActorIds(actorIds))));
+        }
+
+        public static RtsCommandResult BeginRepairBuilding(RtsWorld world, int playerId, int actorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Repair",
+                world.IssueCommand(new BeginRepairBuildingCommand(playerId, new ActorId(actorId))));
+        }
+
+        public static RtsCommandResult CancelRepairBuilding(RtsWorld world, int playerId, int actorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Cancel repair",
+                world.IssueCommand(new CancelRepairBuildingCommand(playerId, new ActorId(actorId))));
+        }
+
+        public static RtsCommandResult SellBuilding(RtsWorld world, int playerId, int actorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Sell",
+                world.IssueCommand(new SellBuildingCommand(playerId, new ActorId(actorId))));
+        }
+
+        public static RtsCommandResult TogglePower(RtsWorld world, int playerId, int actorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Toggle power",
+                world.IssueCommand(new PowerToggleCommand(playerId, new ActorId(actorId))));
+        }
+
+        public static RtsCommandResult SetRallyPoint(RtsWorld world, int playerId, int actorId, Int2 rallyCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Rally point",
+                world.IssueCommand(new SetRallyPointCommand(playerId, new ActorId(actorId), rallyCell)));
+        }
+
+        public static RtsCommandResult ActivateSupportPower(RtsWorld world, int playerId, string powerId, Int2 targetCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Support power",
+                world.IssueCommand(new ActivateSupportPowerCommand(playerId, powerId, targetCell)));
+        }
+
+        public static RtsCommandResult CaptureBuilding(RtsWorld world, int playerId, int engineerActorId, int targetActorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Capture",
+                world.IssueCommand(new CaptureBuildingCommand(playerId, new ActorId(engineerActorId), new ActorId(targetActorId))));
+        }
+
+        public static RtsCommandResult EngineerRepairBuilding(RtsWorld world, int playerId, int engineerActorId, int targetActorId)
+        {
+            return RtsCommandResult.FromCore(
+                "Engineer repair",
+                world.IssueCommand(new EngineerRepairBuildingCommand(playerId, new ActorId(engineerActorId), new ActorId(targetActorId))));
+        }
+
+        public static RtsCommandResult LoadTransport(RtsWorld world, int playerId, int transportActorId, IReadOnlyList<int> passengerActorIds)
+        {
+            return RtsCommandResult.FromCore(
+                "Load transport",
+                world.IssueCommand(new LoadTransportCommand(playerId, new ActorId(transportActorId), ToActorIds(passengerActorIds))));
+        }
+
+        public static RtsCommandResult UnloadTransport(RtsWorld world, int playerId, int transportActorId, Int2 preferredCell)
+        {
+            return RtsCommandResult.FromCore(
+                "Unload transport",
+                world.IssueCommand(new UnloadTransportCommand(playerId, new ActorId(transportActorId), preferredCell)));
+        }
+
+        static IReadOnlyList<ActorId> ToActorIds(IReadOnlyList<int> actorIds)
+        {
+            var converted = new List<ActorId>(actorIds.Count);
+            for (var i = 0; i < actorIds.Count; i++)
+                converted.Add(new ActorId(actorIds[i]));
+
+            return converted;
+        }
+    }
+}

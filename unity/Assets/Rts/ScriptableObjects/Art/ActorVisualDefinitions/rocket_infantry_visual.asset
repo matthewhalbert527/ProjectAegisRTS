@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: rocket_infantry_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: rocket_infantry
+  displayName: Rocket Soldier
+  safeDisplayName: Rocket Infantry
+  category: 2
+  productionStatus: 1
+  conceptReference: {fileID: 11400000, guid: 39f56f66df8c25b4eb85b47990587b15, type: 2}
+  icon: {fileID: 21300000, guid: 308022da50b4dc94494e79326c0696c5, type: 3}
+  generatedBlockoutPrefab: {fileID: 1910620658867539398, guid: 6564ab82cabeef64fab44f75e8ce1d46, type: 3}
+  productionPrefab: {fileID: 0}
+  fallbackPrefab: {fileID: 0}
+  preferredPrefabMode: 0
+  motionProfileId: infantry_heavy
+  buildingProfileId:
+  selectionRadius: 0.6
+  selectionHeight: 0.1
+  footprintWidth: 1
+  footprintHeight: 1
+  visualScale: 1
+  prefabHeightOffset: 0
+  useBuildingVisualController: 0
+  useVehicleMotionController: 0
+  useInfantryMotionController: 1
+  useAircraftMotionController: 0
+  useTurretVisualController: 0
+  requiredSockets: 00000000010000000200000003000000040000001b0000001c0000001d000000
+  notes: 'Original launcher and armor language required for production art.
+
+    Shoulder
+    launcher aim offset, backblast, reload, braced firing.'
+  ipReviewRequired: 0
+  sourceConceptOriginalLabel: Rocket Soldier
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_29
+    PM (6).png

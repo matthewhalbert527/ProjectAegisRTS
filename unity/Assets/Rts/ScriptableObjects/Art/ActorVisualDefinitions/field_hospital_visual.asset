@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: field_hospital_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: field_hospital
+  displayName: Field Hospital
+  safeDisplayName: Field Hospital
+  category: 0
+  productionStatus: 6
+  conceptReference: {fileID: 11400000, guid: 5da2da8e62dc0c44fa4cc18ef3477dda, type: 2}
+  icon: {fileID: 21300000, guid: 0045d2347006bbd48baaf5d19ef98946, type: 3}
+  generatedBlockoutPrefab: {fileID: 7999785282270992744, guid: d819414a2ef1cdf4cade34276091ba75, type: 3}
+  productionPrefab: {fileID: 3561622855719260189, guid: d053fd5a7a1095b4d8341e310adf5069, type: 3}
+  fallbackPrefab: {fileID: 0}
+  preferredPrefabMode: 1
+  motionProfileId: building_static
+  buildingProfileId: field_hospital_building_visual
+  selectionRadius: 1.12
+  selectionHeight: 0.08
+  footprintWidth: 2
+  footprintHeight: 2
+  visualScale: 1
+  prefabHeightOffset: 0
+  useBuildingVisualController: 1
+  useVehicleMotionController: 0
+  useInfantryMotionController: 0
+  useAircraftMotionController: 0
+  useTurretVisualController: 0
+  requiredSockets: 02000000010000000300000004000000050000000e0000000f000000
+  notes: Unity AI building slate production prefab. Textured, socketed, and rigged
+    for powered idle and production movement.
+  ipReviewRequired: 1
+  sourceConceptOriginalLabel: MASH
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_42
+    PM (10).png

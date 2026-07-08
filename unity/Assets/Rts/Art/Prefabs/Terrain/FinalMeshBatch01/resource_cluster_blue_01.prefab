@@ -1,0 +1,238 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2334738159096127611
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4320385742672825305}
+  - component: {fileID: 6440460790549497112}
+  - component: {fileID: 6471981796900086279}
+  - component: {fileID: 3193351154129813347}
+  - component: {fileID: 8157305878789132353}
+  m_Layer: 0
+  m_Name: resource_cluster_blue_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4320385742672825305
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2334738159096127611}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4726571863392756619}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6440460790549497112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2334738159096127611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 660ee68d9c4feb440989d298aaba7d2b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
+  pieceId: resource_cluster_blue_01
+  displayName: Blue Resource Cluster 01
+  category: 4
+  sizeClass: 3
+  footprintFineWidth: 7
+  footprintFineHeight: 7
+  materialProfileId: finalmesh_resource_cluster_blue_01
+  passabilityVisualHint: Final mesh visual metadata passable=False; Rts.Core remains
+    authoritative.
+  buildableVisualHint: Final mesh visual metadata buildable=False; Rts.Core remains
+    authoritative.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 1
+  questBudgetTag: QuestSafeFinalMeshBatch01
+  rendererCount: 1
+  primitiveCount: 1
+  notes: Stage32.6 FinalMeshBatch01 imported OBJ mesh, not a preview PNG/card.
+--- !u!114 &6471981796900086279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2334738159096127611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab5bfe01d1928654484206239c2fb49c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.Stage32_6FinalTerrainMeshTag
+  assetId: resource_cluster_blue_01
+  sourceMeshPath: Assets/Rts/Art/Source/Terrain/FinalMeshBatch01/resource_cluster_blue_01/resource_cluster_blue_01.obj
+  manifestPath: Assets/Rts/Art/Source/Terrain/FinalMeshBatch01/terrain_final_mesh_batch01_manifest.json
+  category: 4
+  worldSizeMeters: {x: 3.3, y: 3.3}
+  fineGridSize: {x: 7, y: 7}
+  passable: 0
+  buildable: 0
+  harvestable: 1
+  playerFacingReplacement: 0
+  previewPngUsedAsRuntimeCard: 0
+  rendererCount: 1
+  materialCount: 5
+  notes: Canonical imported final terrain mesh asset.
+--- !u!114 &3193351154129813347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2334738159096127611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92355fdb168355b4387dfd463027c659, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.Terrain.Stage32TerrainPieceTag
+  terrainId: resource_cluster_blue_01
+  displayName: Blue Resource Cluster 01
+  category: 4
+  fineGridSize: {x: 7, y: 7}
+  blocksMovement: 1
+  buildable: 0
+  road: 0
+  water: 0
+  resourceField: 1
+  decorativeOnly: 0
+  hasBeveledBase: 1
+  hasTopDownReadableShape: 1
+  questSafeProxy: 1
+  estimatedMeshObjectCount: 1
+  estimatedMaterialCount: 5
+  notes: FinalMeshBatch01 metadata mirrors manifest values. Gameplay authority remains
+    in Rts.Core.
+--- !u!205 &8157305878789132353
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2334738159096127611}
+  serializedVersion: 3
+  m_LocalReferencePoint: {x: -0.00000011920929, y: 0.54, z: -0.00000011920929}
+  m_Size: 3.3
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.08
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 5772076912502214413}
+  m_Enabled: 1
+  m_GlobalIlluminationLOD: 0
+--- !u!1001 &5049258026425173088
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4320385742672825305}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.9645202
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.9914643
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.074986644
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.08000001
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.008333287
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7635826562936255635, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value:
+      objectReference: {fileID: 2100000, guid: 857279fc18a15c242b6d77e521c89dcf, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value:
+      objectReference: {fileID: 2100000, guid: 193f0164aa9505d4f9d6bf3626a1120a, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: 'm_Materials.Array.data[2]'
+      value:
+      objectReference: {fileID: 2100000, guid: e9d81ea107509f443a05f257d314ff4a, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: 'm_Materials.Array.data[3]'
+      value:
+      objectReference: {fileID: 2100000, guid: de4156b8f48ccdb4eb10ecf36d440014, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: 'm_Materials.Array.data[4]'
+      value:
+      objectReference: {fileID: 2100000, guid: 59dada42435aebe4bb5ea2da0d901608, type: 2}
+    - target: {fileID: 919132149155446097, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+      propertyPath: m_Name
+      value: SourceMesh_resource_cluster_blue_01
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+--- !u!4 &4726571863392756619 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+  m_PrefabInstance: {fileID: 5049258026425173088}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &5772076912502214413 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7635826562936255635, guid: 779b62261b5f68e498eccabee7f3151b, type: 3}
+  m_PrefabInstance: {fileID: 5049258026425173088}
+  m_PrefabAsset: {fileID: 0}

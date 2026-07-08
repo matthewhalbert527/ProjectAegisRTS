@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ebcf33dc9800a5479f95eb49cf2904a, type: 3}
+  m_Name: stage29_resource_field_profile
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.Visuals.TerrainMaterialProfile
+  terrainKind: ResourceField
+  displayName: Resource Field
+  material: {fileID: 2100000, guid: f163af63f17f4654cb9068d478d53764, type: 2}
+  baseColor: {r: 0.21, g: 0.49, b: 0.4, a: 1}
+  accentColor: {r: 0.75, g: 0.68, b: 0.32, a: 1}
+  blocksGroundMovement: 0
+  supportsResources: 1
+  supportsBasePlacement: 0
+  needsFineGridGuidance: 1
+  readabilityNotes: Resource fields use a distinct mineral tint and shards so harvestable
+    space reads from the PC camera.

@@ -1,0 +1,271 @@
+[CmdletBinding()]
+param()
+
+$ErrorActionPreference = 'Stop'
+
+function Find-UnityEditor {
+    $patterns = @(
+        'E:\Unity\Hub\Editor\*\Editor\Unity.exe',
+        'C:\Program Files\Unity\Hub\Editor\*\Editor\Unity.exe',
+        'C:\Program Files\Unity\Editor\Unity.exe',
+        'C:\Program Files (x86)\Unity\Editor\Unity.exe'
+    )
+
+    $editors = @()
+    foreach ($pattern in $patterns) {
+        $editors += Get-ChildItem -Path $pattern -ErrorAction SilentlyContinue
+    }
+
+    if ($editors.Count -gt 0) {
+        return ($editors | Sort-Object FullName -Descending | Select-Object -First 1).FullName
+    }
+
+    $command = Get-Command Unity -ErrorAction SilentlyContinue
+    if ($command) {
+        return $command.Source
+    }
+
+    return $null
+}
+
+function Get-UnityProcessesForProject {
+    param([string]$ProjectPath)
+
+    $slashPath = $ProjectPath -replace '\\', '/'
+    Get-CimInstance Win32_Process -Filter "name = 'Unity.exe'" |
+        Where-Object {
+            $_.CommandLine -and
+            $_.CommandLine -match '-projectPath' -and
+            ($_.CommandLine.Contains($ProjectPath) -or $_.CommandLine.Contains($slashPath))
+        }
+}
+
+function Invoke-UnityBatch {
+    param(
+        [string]$UnityEditor,
+        [string]$UnityProject,
+        [string]$ExecuteMethod,
+        [string]$LogPath,
+        [string]$SuccessPattern,
+        [int]$TimeoutMinutes = 7
+    )
+
+    if (Test-Path -LiteralPath $LogPath) {
+        Remove-Item -LiteralPath $LogPath -Force
+    }
+
+    $arguments = "-batchmode -quit -projectPath `"$UnityProject`" -executeMethod $ExecuteMethod -logFile `"$LogPath`""
+    Write-Host "Running Unity batch method: $ExecuteMethod"
+    $process = Start-Process -FilePath $UnityEditor -ArgumentList $arguments -WindowStyle Hidden -PassThru
+
+    $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
+    $sawCompletion = $false
+    do {
+        Start-Sleep -Seconds 2
+        if (Test-Path -LiteralPath $LogPath) {
+            $compilerError = Select-String -LiteralPath $LogPath -Pattern 'Scripts have compiler errors', 'error CS', 'Script Compilation Error', 'Exception:' -Quiet
+            if ($compilerError) {
+                break
+            }
+
+            $sawCompletion = Select-String -LiteralPath $LogPath -Pattern $SuccessPattern -Quiet
+            if ($sawCompletion) {
+                break
+            }
+        }
+        if ($process.HasExited) {
+            break
+        }
+    } while ((Get-Date) -lt $deadline)
+
+    if (-not $process.HasExited) {
+        if (-not $process.WaitForExit(120000)) {
+            throw "Unity logged no final exit within the grace period. See $LogPath"
+        }
+    }
+
+    if (-not (Test-Path -LiteralPath $LogPath)) {
+        throw "Unity did not create a log within the timeout. Expected: $LogPath"
+    }
+
+    $compilerErrorAfter = Select-String -LiteralPath $LogPath -Pattern 'Scripts have compiler errors', 'error CS', 'Script Compilation Error', 'Exception:' -Quiet
+    if ($compilerErrorAfter) {
+        throw "Unity logged errors. See $LogPath"
+    }
+
+    if (-not $sawCompletion) {
+        throw "Unity did not log expected success marker '$SuccessPattern'. See $LogPath"
+    }
+
+    if ($process.ExitCode -ne 0) {
+        throw "Unity process exited with code $($process.ExitCode). See $LogPath"
+    }
+}
+
+function Remove-TrailingWhitespace {
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return
+    }
+
+    $resolved = (Resolve-Path -LiteralPath $Path).Path
+    $lines = [System.IO.File]::ReadAllLines($resolved)
+    $changed = $false
+    for ($i = 0; $i -lt $lines.Length; $i++) {
+        $trimmed = $lines[$i].TrimEnd()
+        if ($trimmed.Length -ne $lines[$i].Length) {
+            $changed = $true
+            $lines[$i] = $trimmed
+        }
+    }
+
+    if ($changed) {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding -ArgumentList $false
+        [System.IO.File]::WriteAllLines($resolved, [string[]]$lines, $utf8NoBom)
+    }
+}
+
+function Write-XrStatusFallback {
+    param(
+        [string]$RepoRoot,
+        [string]$UnityProject
+    )
+
+    $docsPath = Join-Path $RepoRoot 'docs'
+    New-Item -ItemType Directory -Force -Path $docsPath | Out-Null
+    $statusPath = Join-Path $docsPath 'STAGE4_XR_INPUT_STATUS.md'
+    $manifestPath = Join-Path $UnityProject 'Packages\manifest.json'
+    $lockPath = Join-Path $UnityProject 'Packages\packages-lock.json'
+    $manifest = if (Test-Path -LiteralPath $manifestPath) { Get-Content -Raw -LiteralPath $manifestPath } else { '' }
+    $lock = if (Test-Path -LiteralPath $lockPath) { Get-Content -Raw -LiteralPath $lockPath } else { '' }
+
+    function Test-Package([string]$PackageId) {
+        return $manifest.Contains("`"$PackageId`"") -or $lock.Contains("`"$PackageId`"")
+    }
+
+    $lines = @(
+        '# Stage 4 XR Input Status',
+        '',
+        'Generated by PowerShell live validation fallback because Unity owned the project lock.',
+        '',
+        '## Current Package Status',
+        "- XR Plug-in Management (`com.unity.xr.management`): $(if (Test-Package 'com.unity.xr.management') { 'present' } else { 'not detected' })",
+        "- OpenXR Plugin (`com.unity.xr.openxr`): $(if (Test-Package 'com.unity.xr.openxr') { 'present' } else { 'not detected' })",
+        "- Input System (`com.unity.inputsystem`): $(if (Test-Package 'com.unity.inputsystem') { 'present' } else { 'not detected' })",
+        "- XR Interaction Toolkit (`com.unity.xr.interaction.toolkit`): $(if (Test-Package 'com.unity.xr.interaction.toolkit') { 'present' } else { 'not detected' })",
+        "- Meta XR Core SDK (`com.meta.xr.sdk.core`): $(if (Test-Package 'com.meta.xr.sdk.core') { 'present' } else { 'not detected' })",
+        "- Meta XR Interaction SDK (`com.meta.xr.sdk.interaction`): $(if (Test-Package 'com.meta.xr.sdk.interaction') { 'present' } else { 'not detected' })",
+        '',
+        '## Adapter Status',
+        '- Stage 4 runtime scripts are package-independent.',
+        '- `DesktopLeftHandInputSource` provides the current automated input path.',
+        '- `XrLeftHandInputAdapter` is compile-safe and ready for future package-backed bindings.',
+        '',
+        '## Manual Follow-Up',
+        '- Close Unity and rerun `.\tools\run-unity-stage4-validation.ps1` for full batch scene creation and smoke validation.',
+        '- Add Meta XR packages manually later from approved sources if Quest controller/hand integration is needed.'
+    )
+    $utf8NoBom = New-Object System.Text.UTF8Encoding -ArgumentList $false
+    [System.IO.File]::WriteAllLines($statusPath, [string[]]$lines, $utf8NoBom)
+    return $statusPath
+}
+
+function Test-Stage4SceneFileLive {
+    param([string]$ScenePath)
+
+    if (-not (Test-Path -LiteralPath $ScenePath)) {
+        throw "Stage 4 scene does not exist and Unity is already open, so it cannot be generated in batchmode: $ScenePath"
+    }
+
+    $lines = Get-Content -LiteralPath $ScenePath
+    $required = @(
+        'm_Name: RtsGame',
+        'm_Name: BoardRoot',
+        'm_Name: Main Camera',
+        'm_Name: Directional Light',
+        'm_Name: EventSystem',
+        'm_Name: Stage4 Canvas',
+        'm_Name: Simulated Left Hand Rig',
+        'm_Name: Left Hand Wrist Canvas',
+        'm_Name: Stage4 Left Hand Controllers',
+        'Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.Desktop.DesktopLeftHandInputSource',
+        'Assembly-CSharp::ProjectAegisRTS.UnityClient.InputControls.XR.XrLeftHandInputAdapter',
+        'Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.XR.LeftHand.LeftHandBuildMenuController',
+        'Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.XR.LeftHand.LeftHandRadialMenuView',
+        'Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.XR.LeftHand.LeftHandPlacementPanel',
+        'Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.XR.LeftHand.LeftHandSelectionPanel',
+        'Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.XR.LeftHand.LeftHandStatusHud',
+        'Assembly-CSharp::ProjectAegisRTS.UnityClient.Selection.LeftHandSelectionController',
+        'Assembly-CSharp::ProjectAegisRTS.UnityClient.Selection.LeftHandLassoSelectionController',
+        'Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.XR.LeftHand.LeftHandCommandRouter',
+        'Assembly-CSharp::ProjectAegisRTS.UnityClient.UI.XR.LeftHand.Stage4ModeCoordinator'
+    )
+
+    foreach ($pattern in $required) {
+        if (-not ($lines | Select-String -Pattern ([regex]::Escape($pattern)) -Quiet)) {
+            throw "Stage 4 scene live validation failed; missing '$pattern'."
+        }
+    }
+}
+
+$repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
+$unityProject = Join-Path $repoRoot 'unity'
+$scenePath = Join-Path $unityProject 'Assets\Rts\Scenes\Stage4_LeftHandBuildSelection.unity'
+$statusPath = Join-Path $repoRoot 'docs\STAGE4_XR_INPUT_STATUS.md'
+$logRoot = Join-Path $repoRoot 'build\unity-logs'
+$reportLog = Join-Path $logRoot 'stage4-xr-input-status.log'
+$createLog = Join-Path $logRoot 'stage4-create.log'
+$validateLog = Join-Path $logRoot 'stage4-validate.log'
+$smokeLog = Join-Path $logRoot 'stage4-playmode-smoke.log'
+$unityEditor = Find-UnityEditor
+
+if (-not $unityEditor) {
+    throw 'Unity Editor was not found.'
+}
+
+New-Item -ItemType Directory -Force -Path $logRoot | Out-Null
+Write-Host "Unity Editor: $unityEditor"
+Write-Host "Stage 4 scene: $scenePath"
+Write-Host "XR input status: $statusPath"
+
+Write-Host 'Building Rts.Core DLL for Unity.'
+& (Join-Path $repoRoot 'tools\build-rts-core-for-unity.ps1')
+if ($LASTEXITCODE -ne 0) {
+    throw "build-rts-core-for-unity.ps1 failed with exit code $LASTEXITCODE."
+}
+
+$openUnity = @(Get-UnityProcessesForProject -ProjectPath $unityProject |
+    Where-Object {
+        $_.CommandLine -notmatch 'AssetImportWorker' -and
+        $_.CommandLine -notmatch '-batchmode'
+    })
+if ($openUnity.Count -gt 0) {
+    Write-Warning 'Unity Editor is already open for this project. Using Stage 4 live scene/log validation fallback; full batch Play Mode automation is skipped because Unity owns the project lock.'
+    $fallbackStatusPath = Write-XrStatusFallback -RepoRoot $repoRoot -UnityProject $unityProject
+    Test-Stage4SceneFileLive -ScenePath $scenePath
+    Remove-TrailingWhitespace -Path $scenePath
+    $editorLog = Join-Path $unityProject 'Logs\Editor.log'
+    if (Test-Path -LiteralPath $editorLog) {
+        $error = Select-String -LiteralPath $editorLog -Pattern 'NullReferenceException', 'MissingMethodException', 'TypeLoadException', 'FileNotFoundException', 'Scripts have compiler errors', 'error CS[0-9]+' -Quiet
+        if ($error) {
+            throw "Unity Editor log contains red-error signatures. See $editorLog"
+        }
+    }
+
+    Write-Host "Stage 4 live validation passed. XR input status: $fallbackStatusPath"
+    return
+}
+
+Invoke-UnityBatch -UnityEditor $unityEditor -UnityProject $unityProject -ExecuteMethod 'ProjectAegisRTS.UnityClient.EditorTools.Stage4XrSetupReporter.ReportBatch' -LogPath $reportLog -SuccessPattern 'Stage 4 XR input status written'
+Invoke-UnityBatch -UnityEditor $unityEditor -UnityProject $unityProject -ExecuteMethod 'ProjectAegisRTS.UnityClient.EditorTools.Stage4SceneCreator.CreateStage4SceneBatch' -LogPath $createLog -SuccessPattern 'Created Stage 4 scene at Assets/Rts/Scenes/Stage4_LeftHandBuildSelection.unity'
+Invoke-UnityBatch -UnityEditor $unityEditor -UnityProject $unityProject -ExecuteMethod 'ProjectAegisRTS.UnityClient.EditorTools.Stage4SceneValidator.ValidateStage4SceneBatch' -LogPath $validateLog -SuccessPattern 'Stage 4 scene validation passed.'
+Invoke-UnityBatch -UnityEditor $unityEditor -UnityProject $unityProject -ExecuteMethod 'ProjectAegisRTS.UnityClient.EditorTools.Stage4PlayModeSmokeValidator.RunStage4PlayModeSmokeBatch' -LogPath $smokeLog -SuccessPattern 'Stage 4 play mode smoke validation passed.' -TimeoutMinutes 10
+
+Remove-TrailingWhitespace -Path $scenePath
+if (Test-Path -LiteralPath "$scenePath.meta") {
+    Remove-TrailingWhitespace -Path "$scenePath.meta"
+}
+
+Write-Host "Stage 4 Unity validation passed. Logs: $reportLog ; $createLog ; $validateLog ; $smokeLog"
+Write-Host "XR input status: $statusPath"

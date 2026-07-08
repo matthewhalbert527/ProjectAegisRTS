@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: repair_bay_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: repair_bay
+  displayName: Repair Bay
+  safeDisplayName: Repair Bay
+  category: 0
+  productionStatus: 6
+  conceptReference: {fileID: 11400000, guid: eafd813ff55e1c8449b558bdfd339720, type: 2}
+  icon: {fileID: 21300000, guid: 3ad4768011507994ea8a5ec7e65c2a6b, type: 3}
+  generatedBlockoutPrefab: {fileID: 4083993597712804397, guid: 1c23cd21f56803a4eb61bbe9d1516048, type: 3}
+  productionPrefab: {fileID: 5306916676986220620, guid: fa358fd21c27d6d4d8888f8a4d366311, type: 3}
+  fallbackPrefab: {fileID: 0}
+  preferredPrefabMode: 1
+  motionProfileId: building_static
+  buildingProfileId: repair_bay_building_visual
+  selectionRadius: 1.6800001
+  selectionHeight: 0.08
+  footprintWidth: 3
+  footprintHeight: 2
+  visualScale: 1
+  prefabHeightOffset: 0
+  useBuildingVisualController: 1
+  useVehicleMotionController: 0
+  useInfantryMotionController: 0
+  useAircraftMotionController: 0
+  useTurretVisualController: 0
+  requiredSockets: 02000000010000000300000004000000050000000e00000012000000
+  notes: Unity AI building slate production prefab. Textured, socketed, and rigged
+    for powered idle and production movement.
+  ipReviewRequired: 0
+  sourceConceptOriginalLabel: Repair Bay
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_42
+    PM (9).png

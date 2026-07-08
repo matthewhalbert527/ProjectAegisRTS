@@ -1,0 +1,203 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1759022310088768847
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3394916567301573069}
+  - component: {fileID: 6217736862988464312}
+  - component: {fileID: 2830800523367572502}
+  - component: {fileID: 8157298248473442215}
+  m_Layer: 0
+  m_Name: prop_barrier_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3394916567301573069
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1759022310088768847}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4738785987580847632}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6217736862988464312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1759022310088768847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 660ee68d9c4feb440989d298aaba7d2b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceValidationTag
+  pieceId: prop_barrier_01
+  displayName: Barrier 01
+  category: 5
+  sizeClass: 5
+  footprintFineWidth: 3
+  footprintFineHeight: 1
+  materialProfileId: metal
+  passabilityVisualHint: Passable visual dressing only; Rts.Core remains authoritative.
+  buildableVisualHint: Buildability visual cue only; Rts.Core remains authoritative.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 0
+  questBudgetTag: QuestSafeStage32_6Runtime
+  rendererCount: 5
+  primitiveCount: 5
+  notes: Stage32.6 runtime terrain mesh/material assembly. No reference-sheet texture
+    or flat image-card runtime usage.
+--- !u!114 &2830800523367572502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1759022310088768847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c93ec1da5a688241a330dcfa6d2add9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.Stage32_6RuntimeTerrainTag
+  runtimeAssetId: fence_barrier_01
+  mappedTerrainPieceId: prop_barrier_01
+  category: 5
+  referenceOnlyPolicyEnforced: 1
+  usesReferenceTexture: 0
+  flatImageCard: 0
+  hasBeveledMesh: 1
+  hasChildGeometry: 1
+  pivotAtOrigin: 1
+  rendererCount: 5
+  materialCount: 4
+  sourceArtPolicy: Batch01 terrain images are art-direction reference only.
+  notes: Created by Stage32.6 terrain art integration correction from modular geometry
+    and shared materials.
+--- !u!205 &8157298248473442215
+LODGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1759022310088768847}
+  serializedVersion: 3
+  m_LocalReferencePoint: {x: 0, y: 0.25294003, z: 0}
+  m_Size: 1.6500001
+  m_FadeMode: 0
+  m_AnimateCrossFading: 0
+  m_LastLODIsBillboard: 0
+  m_LODs:
+  - screenRelativeHeight: 0.08
+    fadeTransitionWidth: 0
+    renderers:
+    - renderer: {fileID: 9118618435434327087}
+    - renderer: {fileID: 7947291403039349128}
+    - renderer: {fileID: 4674127908119919291}
+    - renderer: {fileID: 7280807364351276418}
+    - renderer: {fileID: 1593001340373572029}
+  m_Enabled: 1
+  m_GlobalIlluminationLOD: 0
+--- !u!1001 &7476858395038690069
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3394916567301573069}
+    m_Modifications:
+    - target: {fileID: 2738381705243479301, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2738381705243479301, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2738381705243479301, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2738381705243479301, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2738381705243479301, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2738381705243479301, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2738381705243479301, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2738381705243479301, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2738381705243479301, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2738381705243479301, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3341254829199721170, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+      propertyPath: m_Name
+      value: Stage32_6RuntimeAssembly_fence_barrier_01
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+--- !u!23 &1593001340373572029 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8203404989228233384, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+  m_PrefabInstance: {fileID: 7476858395038690069}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &4674127908119919291 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2818960389802791342, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+  m_PrefabInstance: {fileID: 7476858395038690069}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &4738785987580847632 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2738381705243479301, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+  m_PrefabInstance: {fileID: 7476858395038690069}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &7280807364351276418 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 200899055219973783, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+  m_PrefabInstance: {fileID: 7476858395038690069}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &7947291403039349128 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 687168877506900637, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+  m_PrefabInstance: {fileID: 7476858395038690069}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &9118618435434327087 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1821974601468053306, guid: 99385d60df6fbcb438c9834216007a41, type: 3}
+  m_PrefabInstance: {fileID: 7476858395038690069}
+  m_PrefabAsset: {fileID: 0}

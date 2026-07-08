@@ -1,0 +1,63 @@
+{
+  "version": "1.0",
+  "package": "ProjectAegisRTS_FinalTerrainPieces_Batch01",
+  "intendedUse": "Direct Unity import of final/prototype-final 3D mesh terrain pieces; not gameplay authority.",
+  "units": "Unity meters",
+  "pieces": [
+    {
+      "id": "ground_grass_dirt_01",
+      "displayName": "Grass Dirt Ground 01",
+      "category": "Ground",
+      "sourceMesh": "ground_grass_dirt_01/ground_grass_dirt_01.obj",
+      "materialFile": "ground_grass_dirt_01/ground_grass_dirt_01.mtl",
+      "textures": {
+        "albedo": "ground_grass_dirt_01/textures/ground_grass_dirt_01_albedo.png",
+        "normal": "ground_grass_dirt_01/textures/ground_grass_dirt_01_normal.png",
+        "roughness": "ground_grass_dirt_01/textures/ground_grass_dirt_01_roughness.png",
+        "height": "ground_grass_dirt_01/textures/ground_grass_dirt_01_height.png"
+      },
+      "worldSizeMeters": [
+        4.0,
+        4.0
+      ],
+      "fineGridSize": [
+        8,
+        8
+      ],
+      "pivot": "center_base",
+      "passable": true,
+      "buildable": true,
+      "blocksSight": false,
+      "recommendedCollider": "box_or_mesh_for_visual_only",
+      "notes": "Beveled/bumpy ground tile with surface texture, scattered low-poly rocks, and grass tufts. Good candidate for default grass/dirt terrain."
+    },
+    {
+      "id": "resource_cluster_blue_01",
+      "displayName": "Blue Resource Cluster 01",
+      "category": "Resource",
+      "sourceMesh": "resource_cluster_blue_01/resource_cluster_blue_01.obj",
+      "materialFile": "resource_cluster_blue_01/resource_cluster_blue_01.mtl",
+      "textures": {
+        "groundAlbedo": "resource_cluster_blue_01/textures/resource_cluster_blue_01_ground_albedo.png",
+        "groundNormal": "resource_cluster_blue_01/textures/resource_cluster_blue_01_ground_normal.png",
+        "groundRoughness": "resource_cluster_blue_01/textures/resource_cluster_blue_01_ground_roughness.png"
+      },
+      "worldSizeMeters": [
+        3.3,
+        3.3
+      ],
+      "fineGridSize": [
+        7,
+        7
+      ],
+      "pivot": "center_base",
+      "passable": false,
+      "buildable": false,
+      "harvestable": true,
+      "resourceKind": "blue_crystal",
+      "blocksSight": false,
+      "recommendedCollider": "mesh_or_capsule_cluster",
+      "notes": "Dirt/stone patch with multiple blue/cyan crystal meshes and scattered rocks. Intended to replace flat resource markers."
+    }
+  ]
+}

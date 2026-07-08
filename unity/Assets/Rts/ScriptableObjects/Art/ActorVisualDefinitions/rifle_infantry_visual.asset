@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: rifle_infantry_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: rifle_infantry
+  displayName: Gunner
+  safeDisplayName: Rifle Infantry
+  category: 2
+  productionStatus: 2
+  conceptReference: {fileID: 11400000, guid: 567deb839ffc4204a98d8af218e3238e, type: 2}
+  icon: {fileID: 21300000, guid: c735880137fcdfa4192701e986370ff0, type: 3}
+  generatedBlockoutPrefab: {fileID: 2588382988328978012, guid: 1e87a2c2efd1bbb44b47b9cc22106bcc, type: 3}
+  productionPrefab: {fileID: 2646252413700014525, guid: 43f6e29fd8fb40c49989a354c84b5380, type: 3}
+  fallbackPrefab: {fileID: 2588382988328978012, guid: 1e87a2c2efd1bbb44b47b9cc22106bcc, type: 3}
+  preferredPrefabMode: 1
+  motionProfileId: infantry_basic
+  buildingProfileId:
+  selectionRadius: 0.6
+  selectionHeight: 0.1
+  footprintWidth: 1
+  footprintHeight: 1
+  visualScale: 1
+  prefabHeightOffset: 0
+  useBuildingVisualController: 0
+  useVehicleMotionController: 0
+  useInfantryMotionController: 1
+  useAircraftMotionController: 0
+  useTurretVisualController: 0
+  requiredSockets: 00000000010000000200000003000000040000001b0000001c0000001d000000
+  notes: 'Rename in game-facing text to avoid inherited faction/IP associations.
+
+    Locomotion
+    blend tree, aim offsets, firing recoil, death state later.
+
+    Stage 20: MVP
+    first-pass production proxy is assigned as the preferred prefab.
+
+    Stage 21:
+    proxy is QA-ready for artist model replacement; preserve sockets, pivot, footprint
+    scale, LODGroup, and fallback.'
+  ipReviewRequired: 0
+  sourceConceptOriginalLabel: Gunner
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_29
+    PM (4).png

@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Core;
+using ProjectAegisRTS.Match;
 using ProjectAegisRTS.Power;
+using ProjectAegisRTS.Scenarios;
+using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Snapshots
 {
@@ -9,12 +12,242 @@ namespace ProjectAegisRTS.Snapshots
         public int Tick { get; private set; }
         public IReadOnlyList<PlayerSnapshot> Players { get; private set; }
         public IReadOnlyList<ActorSnapshot> Actors { get; private set; }
+        public IReadOnlyList<TransportSnapshot> Transports { get; private set; }
+        public IReadOnlyList<AircraftSnapshot> Aircraft { get; private set; }
+        public IReadOnlyList<AirfieldSnapshot> Airfields { get; private set; }
+        public IReadOnlyList<ProjectileSnapshot> Projectiles { get; private set; }
+        public IReadOnlyList<CombatEventSnapshot> CombatEvents { get; private set; }
+        public EconomySnapshot Economy { get; private set; }
+        public FogSnapshot Fog { get; private set; }
+        public RadarSnapshot Radar { get; private set; }
+        public MinimapSnapshot Minimap { get; private set; }
+        public AiSnapshot Ai { get; private set; }
+        public MapSnapshot Map { get; private set; }
+        public MatchSnapshot Match { get; private set; }
+        public ScenarioSnapshot Scenario { get; private set; }
 
         public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors)
+            : this(tick, players, actors, new ProjectileSnapshot[0], new CombatEventSnapshot[0], EconomySnapshot.Empty)
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents)
+            : this(tick, players, actors, projectiles, combatEvents, EconomySnapshot.Empty)
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy)
+            : this(tick, players, actors, projectiles, combatEvents, economy, FogSnapshot.Empty, RadarSnapshot.Empty, MinimapSnapshot.Empty)
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap)
+            : this(tick, players, actors, projectiles, combatEvents, economy, fog, radar, minimap, AiSnapshot.Empty)
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai)
+            : this(tick, players, actors, projectiles, combatEvents, economy, fog, radar, minimap, ai, MapSnapshot.Empty)
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai, MapSnapshot map)
+            : this(tick, players, actors, projectiles, combatEvents, economy, fog, radar, minimap, ai, map, MatchSnapshot.Empty, ScenarioSnapshot.Empty)
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai, MapSnapshot map, MatchSnapshot match, ScenarioSnapshot scenario)
+            : this(tick, players, actors, projectiles, combatEvents, economy, fog, radar, minimap, ai, map, match, scenario, new TransportSnapshot[0])
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai, MapSnapshot map, MatchSnapshot match, ScenarioSnapshot scenario, IReadOnlyList<TransportSnapshot> transports)
+            : this(tick, players, actors, projectiles, combatEvents, economy, fog, radar, minimap, ai, map, match, scenario, transports, new AircraftSnapshot[0], new AirfieldSnapshot[0])
+        {
+        }
+
+        public WorldSnapshot(int tick, IReadOnlyList<PlayerSnapshot> players, IReadOnlyList<ActorSnapshot> actors, IReadOnlyList<ProjectileSnapshot> projectiles, IReadOnlyList<CombatEventSnapshot> combatEvents, EconomySnapshot economy, FogSnapshot fog, RadarSnapshot radar, MinimapSnapshot minimap, AiSnapshot ai, MapSnapshot map, MatchSnapshot match, ScenarioSnapshot scenario, IReadOnlyList<TransportSnapshot> transports, IReadOnlyList<AircraftSnapshot> aircraft, IReadOnlyList<AirfieldSnapshot> airfields)
         {
             Tick = tick;
             Players = players;
             Actors = actors;
+            Transports = transports ?? new TransportSnapshot[0];
+            Aircraft = aircraft ?? new AircraftSnapshot[0];
+            Airfields = airfields ?? new AirfieldSnapshot[0];
+            Projectiles = projectiles;
+            CombatEvents = combatEvents;
+            Economy = economy ?? EconomySnapshot.Empty;
+            Fog = fog ?? FogSnapshot.Empty;
+            Radar = radar ?? RadarSnapshot.Empty;
+            Minimap = minimap ?? MinimapSnapshot.Empty;
+            Ai = ai ?? AiSnapshot.Empty;
+            Map = map ?? MapSnapshot.Empty;
+            Match = match ?? MatchSnapshot.Empty;
+            Scenario = scenario ?? ScenarioSnapshot.Empty;
+        }
+    }
+
+    public sealed class MapSnapshot
+    {
+        public static readonly MapSnapshot Empty = new MapSnapshot(0, 0, new TerrainCellSnapshot[0], new PathDebugSnapshot[0], true, new string[0], new string[0]);
+
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public int PlacementGridScale { get; private set; }
+        public int PlacementWidth { get; private set; }
+        public int PlacementHeight { get; private set; }
+        public IReadOnlyList<TerrainCellSnapshot> TerrainCells { get; private set; }
+        public IReadOnlyList<PathDebugSnapshot> RecentPathQueries { get; private set; }
+        public bool IsValid { get; private set; }
+        public IReadOnlyList<string> ValidationErrors { get; private set; }
+        public IReadOnlyList<string> ValidationWarnings { get; private set; }
+
+        public MapSnapshot(int width, int height, IReadOnlyList<TerrainCellSnapshot> terrainCells, IReadOnlyList<PathDebugSnapshot> recentPathQueries, bool isValid, IReadOnlyList<string> validationErrors, IReadOnlyList<string> validationWarnings)
+            : this(width, height, PlacementGridMetrics.PlacementGridScale, width * PlacementGridMetrics.PlacementGridScale, height * PlacementGridMetrics.PlacementGridScale, terrainCells, recentPathQueries, isValid, validationErrors, validationWarnings)
+        {
+        }
+
+        public MapSnapshot(int width, int height, int placementGridScale, int placementWidth, int placementHeight, IReadOnlyList<TerrainCellSnapshot> terrainCells, IReadOnlyList<PathDebugSnapshot> recentPathQueries, bool isValid, IReadOnlyList<string> validationErrors, IReadOnlyList<string> validationWarnings)
+        {
+            Width = width;
+            Height = height;
+            PlacementGridScale = placementGridScale;
+            PlacementWidth = placementWidth;
+            PlacementHeight = placementHeight;
+            TerrainCells = terrainCells ?? new TerrainCellSnapshot[0];
+            RecentPathQueries = recentPathQueries ?? new PathDebugSnapshot[0];
+            IsValid = isValid;
+            ValidationErrors = validationErrors ?? new string[0];
+            ValidationWarnings = validationWarnings ?? new string[0];
+        }
+    }
+
+    public sealed class TerrainCellSnapshot
+    {
+        public Int2 Cell { get; private set; }
+        public string Kind { get; private set; }
+        public int MovementCost { get; private set; }
+        public string Passability { get; private set; }
+        public bool IsBlocked { get; private set; }
+        public bool HasBuilding { get; private set; }
+
+        public TerrainCellSnapshot(Int2 cell, string kind, int movementCost, string passability, bool isBlocked, bool hasBuilding)
+        {
+            Cell = cell;
+            Kind = kind;
+            MovementCost = movementCost;
+            Passability = passability;
+            IsBlocked = isBlocked;
+            HasBuilding = hasBuilding;
+        }
+    }
+
+    public sealed class PathDebugSnapshot
+    {
+        public int QueryId { get; private set; }
+        public int Tick { get; private set; }
+        public int ActorId { get; private set; }
+        public Int2 StartCell { get; private set; }
+        public Int2 GoalCell { get; private set; }
+        public string MovementClass { get; private set; }
+        public bool Success { get; private set; }
+        public int TotalCost { get; private set; }
+        public int VisitedCellCount { get; private set; }
+        public string FailureCode { get; private set; }
+        public IReadOnlyList<Int2> Path { get; private set; }
+
+        public PathDebugSnapshot(int queryId, int tick, int actorId, Int2 startCell, Int2 goalCell, string movementClass, bool success, int totalCost, int visitedCellCount, string failureCode, IReadOnlyList<Int2> path)
+        {
+            QueryId = queryId;
+            Tick = tick;
+            ActorId = actorId;
+            StartCell = startCell;
+            GoalCell = goalCell;
+            MovementClass = movementClass;
+            Success = success;
+            TotalCost = totalCost;
+            VisitedCellCount = visitedCellCount;
+            FailureCode = failureCode ?? string.Empty;
+            Path = path ?? new Int2[0];
+        }
+    }
+
+    public sealed class AiSnapshot
+    {
+        public static readonly AiSnapshot Empty = new AiSnapshot(new AiPlayerSnapshot[0]);
+
+        public IReadOnlyList<AiPlayerSnapshot> Players { get; private set; }
+
+        public AiSnapshot(IReadOnlyList<AiPlayerSnapshot> players)
+        {
+            Players = players;
+        }
+    }
+
+    public sealed class AiPlayerSnapshot
+    {
+        public int PlayerId { get; private set; }
+        public bool Enabled { get; private set; }
+        public string DifficultyId { get; private set; }
+        public int DecisionSequence { get; private set; }
+        public int NextDecisionTick { get; private set; }
+        public int NextAttackWaveTick { get; private set; }
+        public int AttackWaveSequence { get; private set; }
+        public int ConsecutiveInvalidCommands { get; private set; }
+        public string CurrentPlan { get; private set; }
+        public IReadOnlyList<AiIntentSnapshot> RecentIntents { get; private set; }
+
+        public AiPlayerSnapshot(int playerId, bool enabled, string difficultyId, int decisionSequence, int nextDecisionTick, int consecutiveInvalidCommands, string currentPlan, IReadOnlyList<AiIntentSnapshot> recentIntents)
+            : this(playerId, enabled, difficultyId, decisionSequence, nextDecisionTick, nextDecisionTick, 0, consecutiveInvalidCommands, currentPlan, recentIntents)
+        {
+        }
+
+        public AiPlayerSnapshot(int playerId, bool enabled, string difficultyId, int decisionSequence, int nextDecisionTick, int nextAttackWaveTick, int attackWaveSequence, int consecutiveInvalidCommands, string currentPlan, IReadOnlyList<AiIntentSnapshot> recentIntents)
+        {
+            PlayerId = playerId;
+            Enabled = enabled;
+            DifficultyId = difficultyId;
+            DecisionSequence = decisionSequence;
+            NextDecisionTick = nextDecisionTick;
+            NextAttackWaveTick = nextAttackWaveTick;
+            AttackWaveSequence = attackWaveSequence;
+            ConsecutiveInvalidCommands = consecutiveInvalidCommands;
+            CurrentPlan = currentPlan;
+            RecentIntents = recentIntents;
+        }
+    }
+
+    public sealed class AiIntentSnapshot
+    {
+        public int SequenceId { get; private set; }
+        public int Tick { get; private set; }
+        public string Kind { get; private set; }
+        public string IntentId { get; private set; }
+        public string CommandType { get; private set; }
+        public string TargetTypeId { get; private set; }
+        public int SourceActorId { get; private set; }
+        public int TargetActorId { get; private set; }
+        public Int2 TargetCell { get; private set; }
+        public bool WasCommandIssued { get; private set; }
+        public bool CommandSucceeded { get; private set; }
+        public string ResultCode { get; private set; }
+        public string Status { get; private set; }
+
+        public AiIntentSnapshot(int sequenceId, int tick, string kind, string intentId, string commandType, string targetTypeId, int sourceActorId, int targetActorId, Int2 targetCell, bool wasCommandIssued, bool commandSucceeded, string resultCode, string status)
+        {
+            SequenceId = sequenceId;
+            Tick = tick;
+            Kind = kind;
+            IntentId = intentId;
+            CommandType = commandType;
+            TargetTypeId = targetTypeId;
+            SourceActorId = sourceActorId;
+            TargetActorId = targetActorId;
+            TargetCell = targetCell;
+            WasCommandIssued = wasCommandIssued;
+            CommandSucceeded = commandSucceeded;
+            ResultCode = resultCode;
+            Status = status;
         }
     }
 
@@ -25,14 +258,21 @@ namespace ProjectAegisRTS.Snapshots
         public int Credits { get; private set; }
         public PowerSnapshot Power { get; private set; }
         public IReadOnlyList<ProductionSnapshot> Production { get; private set; }
+        public IReadOnlyList<SupportPowerSnapshot> SupportPowers { get; private set; }
 
         public PlayerSnapshot(int playerId, string name, int credits, PowerSnapshot power, IReadOnlyList<ProductionSnapshot> production)
+            : this(playerId, name, credits, power, production, new SupportPowerSnapshot[0])
+        {
+        }
+
+        public PlayerSnapshot(int playerId, string name, int credits, PowerSnapshot power, IReadOnlyList<ProductionSnapshot> production, IReadOnlyList<SupportPowerSnapshot> supportPowers)
         {
             PlayerId = playerId;
             Name = name;
             Credits = credits;
             Power = power;
             Production = production;
+            SupportPowers = supportPowers;
         }
     }
 
@@ -58,6 +298,31 @@ namespace ProjectAegisRTS.Snapshots
         public int NormalizedSpeed { get; private set; }
         public int TurnRateDegrees { get; private set; }
         public string MovementPhase { get; private set; }
+        public int MaxHealth { get; private set; }
+        public bool IsAlive { get; private set; }
+        public bool IsDying { get; private set; }
+        public bool IsDestroyed { get; private set; }
+        public int LastDamageTick { get; private set; }
+        public int DeathTick { get; private set; }
+        public int DestroyedByActorId { get; private set; }
+        public string ActiveWeaponId { get; private set; }
+        public int WeaponCooldownRemaining { get; private set; }
+        public bool IsAttacking { get; private set; }
+        public int AttackTargetActorId { get; private set; }
+        public Int2 AttackTargetCell { get; private set; }
+        public bool HasHarvestOrder { get; private set; }
+        public Int2 PlacementTopLeftCell { get; private set; }
+        public Int2 PlacementFootprintCells { get; private set; }
+        public int PlacementGridScale { get; private set; }
+        public Int2 RallyPoint { get; private set; }
+        public bool IsRepairing { get; private set; }
+        public int RepairProgressTicks { get; private set; }
+        public int RepairSpentCredits { get; private set; }
+        public bool IsManuallyPoweredOff { get; private set; }
+        public bool IsLoaded { get; private set; }
+        public int LoadedIntoTransportActorId { get; private set; }
+        public int TransportPassengerCount { get; private set; }
+        public int TransportCapacity { get; private set; }
 
         public ActorSnapshot(
             int actorId,
@@ -80,6 +345,97 @@ namespace ProjectAegisRTS.Snapshots
             int normalizedSpeed,
             int turnRateDegrees,
             string movementPhase)
+            : this(
+                actorId,
+                typeId,
+                ownerId,
+                cellPosition,
+                fixedWorldPosition,
+                facingDegrees,
+                health,
+                health,
+                isSelected,
+                isPowered,
+                isLowPower,
+                lightsActive,
+                machineryActive,
+                isProducing,
+                productionProgress,
+                animationStateId,
+                visualMotionProfileId,
+                desiredSpeed,
+                normalizedSpeed,
+                turnRateDegrees,
+                movementPhase,
+                health > 0,
+                false,
+                false,
+                -1,
+                -1,
+                0,
+                string.Empty,
+                0,
+                false,
+                0,
+                cellPosition,
+                false,
+                null,
+                null,
+                PlacementGridMetrics.PlacementGridScale,
+                cellPosition,
+                false,
+                0,
+                0,
+                false)
+        {
+        }
+
+        public ActorSnapshot(
+            int actorId,
+            string typeId,
+            int ownerId,
+            Int2 cellPosition,
+            Int2 fixedWorldPosition,
+            int facingDegrees,
+            int health,
+            int maxHealth,
+            bool isSelected,
+            bool isPowered,
+            bool isLowPower,
+            bool lightsActive,
+            bool machineryActive,
+            bool isProducing,
+            int productionProgress,
+            string animationStateId,
+            string visualMotionProfileId,
+            int desiredSpeed,
+            int normalizedSpeed,
+            int turnRateDegrees,
+            string movementPhase,
+            bool isAlive,
+            bool isDying,
+            bool isDestroyed,
+            int lastDamageTick,
+            int deathTick,
+            int destroyedByActorId,
+            string activeWeaponId,
+            int weaponCooldownRemaining,
+            bool isAttacking,
+            int attackTargetActorId,
+            Int2 attackTargetCell,
+            bool hasHarvestOrder = false,
+            Int2? placementTopLeftCell = null,
+            Int2? placementFootprintCells = null,
+            int placementGridScale = PlacementGridMetrics.PlacementGridScale,
+            Int2? rallyPoint = null,
+            bool isRepairing = false,
+            int repairProgressTicks = 0,
+            int repairSpentCredits = 0,
+            bool isManuallyPoweredOff = false,
+            bool isLoaded = false,
+            int loadedIntoTransportActorId = 0,
+            int transportPassengerCount = 0,
+            int transportCapacity = 0)
         {
             ActorId = actorId;
             TypeId = typeId;
@@ -101,6 +457,400 @@ namespace ProjectAegisRTS.Snapshots
             NormalizedSpeed = normalizedSpeed;
             TurnRateDegrees = turnRateDegrees;
             MovementPhase = movementPhase;
+            MaxHealth = maxHealth;
+            IsAlive = isAlive;
+            IsDying = isDying;
+            IsDestroyed = isDestroyed;
+            LastDamageTick = lastDamageTick;
+            DeathTick = deathTick;
+            DestroyedByActorId = destroyedByActorId;
+            ActiveWeaponId = activeWeaponId;
+            WeaponCooldownRemaining = weaponCooldownRemaining;
+            IsAttacking = isAttacking;
+            AttackTargetActorId = attackTargetActorId;
+            AttackTargetCell = attackTargetCell;
+            HasHarvestOrder = hasHarvestOrder;
+            PlacementTopLeftCell = placementTopLeftCell.HasValue ? placementTopLeftCell.Value : PlacementGridMetrics.CoarseCellToPlacementCell(cellPosition);
+            PlacementFootprintCells = placementFootprintCells.HasValue ? placementFootprintCells.Value : Int2.Zero;
+            PlacementGridScale = placementGridScale;
+            RallyPoint = rallyPoint.HasValue ? rallyPoint.Value : cellPosition;
+            IsRepairing = isRepairing;
+            RepairProgressTicks = repairProgressTicks;
+            RepairSpentCredits = repairSpentCredits;
+            IsManuallyPoweredOff = isManuallyPoweredOff;
+            IsLoaded = isLoaded;
+            LoadedIntoTransportActorId = loadedIntoTransportActorId;
+            TransportPassengerCount = transportPassengerCount;
+            TransportCapacity = transportCapacity;
+        }
+    }
+
+    public sealed class TransportSnapshot
+    {
+        public int ActorId { get; private set; }
+        public int OwnerId { get; private set; }
+        public string TypeId { get; private set; }
+        public int Capacity { get; private set; }
+        public IReadOnlyList<int> PassengerActorIds { get; private set; }
+        public IReadOnlyList<string> PassengerTypeIds { get; private set; }
+        public Int2 CellPosition { get; private set; }
+        public bool IsDestroyed { get; private set; }
+
+        public TransportSnapshot(int actorId, int ownerId, string typeId, int capacity, IReadOnlyList<int> passengerActorIds, IReadOnlyList<string> passengerTypeIds, Int2 cellPosition, bool isDestroyed)
+        {
+            ActorId = actorId;
+            OwnerId = ownerId;
+            TypeId = typeId;
+            Capacity = capacity;
+            PassengerActorIds = passengerActorIds ?? new int[0];
+            PassengerTypeIds = passengerTypeIds ?? new string[0];
+            CellPosition = cellPosition;
+            IsDestroyed = isDestroyed;
+        }
+    }
+
+    public sealed class FogSnapshot
+    {
+        public static readonly FogSnapshot Empty = new FogSnapshot(0, 0, 0, new CellVisibilitySnapshot[0]);
+
+        public int PlayerId { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public IReadOnlyList<CellVisibilitySnapshot> Cells { get; private set; }
+
+        public FogSnapshot(int playerId, int width, int height, IReadOnlyList<CellVisibilitySnapshot> cells)
+        {
+            PlayerId = playerId;
+            Width = width;
+            Height = height;
+            Cells = cells;
+        }
+    }
+
+    public sealed class CellVisibilitySnapshot
+    {
+        public Int2 Cell { get; private set; }
+        public CellVisibility Visibility { get; private set; }
+
+        public CellVisibilitySnapshot(Int2 cell, CellVisibility visibility)
+        {
+            Cell = cell;
+            Visibility = visibility;
+        }
+    }
+
+    public sealed class RadarSnapshot
+    {
+        public static readonly RadarSnapshot Empty = new RadarSnapshot(0, false, 0, 0);
+
+        public int PlayerId { get; private set; }
+        public bool IsActive { get; private set; }
+        public int ProviderActorId { get; private set; }
+        public int RadiusCells { get; private set; }
+
+        public RadarSnapshot(int playerId, bool isActive, int providerActorId, int radiusCells)
+        {
+            PlayerId = playerId;
+            IsActive = isActive;
+            ProviderActorId = providerActorId;
+            RadiusCells = radiusCells;
+        }
+    }
+
+    public sealed class MinimapSnapshot
+    {
+        public static readonly MinimapSnapshot Empty = new MinimapSnapshot(0, 0, 0, new MinimapActorDotSnapshot[0], new MinimapResourceDotSnapshot[0]);
+
+        public int PlayerId { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public IReadOnlyList<MinimapActorDotSnapshot> ActorDots { get; private set; }
+        public IReadOnlyList<MinimapResourceDotSnapshot> ResourceDots { get; private set; }
+
+        public MinimapSnapshot(int playerId, int width, int height, IReadOnlyList<MinimapActorDotSnapshot> actorDots, IReadOnlyList<MinimapResourceDotSnapshot> resourceDots)
+        {
+            PlayerId = playerId;
+            Width = width;
+            Height = height;
+            ActorDots = actorDots;
+            ResourceDots = resourceDots;
+        }
+    }
+
+    public sealed class MinimapActorDotSnapshot
+    {
+        public int ActorId { get; private set; }
+        public int OwnerId { get; private set; }
+        public string TypeId { get; private set; }
+        public Int2 Cell { get; private set; }
+        public bool IsEnemy { get; private set; }
+        public bool IsVisible { get; private set; }
+
+        public MinimapActorDotSnapshot(int actorId, int ownerId, string typeId, Int2 cell, bool isEnemy, bool isVisible)
+        {
+            ActorId = actorId;
+            OwnerId = ownerId;
+            TypeId = typeId;
+            Cell = cell;
+            IsEnemy = isEnemy;
+            IsVisible = isVisible;
+        }
+    }
+
+    public sealed class MinimapResourceDotSnapshot
+    {
+        public Int2 Cell { get; private set; }
+        public string Kind { get; private set; }
+        public bool IsVisible { get; private set; }
+        public bool IsDepleted { get; private set; }
+
+        public MinimapResourceDotSnapshot(Int2 cell, string kind, bool isVisible, bool isDepleted)
+        {
+            Cell = cell;
+            Kind = kind;
+            IsVisible = isVisible;
+            IsDepleted = isDepleted;
+        }
+    }
+
+    public sealed class AircraftSnapshot
+    {
+        public int ActorId { get; private set; }
+        public int OwnerId { get; private set; }
+        public string TypeId { get; private set; }
+        public int HomeAirfieldActorId { get; private set; }
+        public int DockedAirfieldActorId { get; private set; }
+        public int AssignedPadIndex { get; private set; }
+        public int AltitudeSubCells { get; private set; }
+        public int FuelTicksRemaining { get; private set; }
+        public int RearmProgressTicks { get; private set; }
+        public bool IsAirborne { get; private set; }
+
+        public AircraftSnapshot(int actorId, int ownerId, string typeId, int homeAirfieldActorId, int dockedAirfieldActorId, int assignedPadIndex, int altitudeSubCells, int fuelTicksRemaining, int rearmProgressTicks, bool isAirborne)
+        {
+            ActorId = actorId;
+            OwnerId = ownerId;
+            TypeId = typeId;
+            HomeAirfieldActorId = homeAirfieldActorId;
+            DockedAirfieldActorId = dockedAirfieldActorId;
+            AssignedPadIndex = assignedPadIndex;
+            AltitudeSubCells = altitudeSubCells;
+            FuelTicksRemaining = fuelTicksRemaining;
+            RearmProgressTicks = rearmProgressTicks;
+            IsAirborne = isAirborne;
+        }
+    }
+
+    public sealed class AirfieldPadSnapshot
+    {
+        public int PadIndex { get; private set; }
+        public Int2 Cell { get; private set; }
+        public int OccupiedAircraftActorId { get; private set; }
+
+        public AirfieldPadSnapshot(int padIndex, Int2 cell, int occupiedAircraftActorId)
+        {
+            PadIndex = padIndex;
+            Cell = cell;
+            OccupiedAircraftActorId = occupiedAircraftActorId;
+        }
+    }
+
+    public sealed class AirfieldSnapshot
+    {
+        public int ActorId { get; private set; }
+        public int OwnerId { get; private set; }
+        public string TypeId { get; private set; }
+        public IReadOnlyList<AirfieldPadSnapshot> Pads { get; private set; }
+
+        public AirfieldSnapshot(int actorId, int ownerId, string typeId, IReadOnlyList<AirfieldPadSnapshot> pads)
+        {
+            ActorId = actorId;
+            OwnerId = ownerId;
+            TypeId = typeId;
+            Pads = pads ?? new AirfieldPadSnapshot[0];
+        }
+    }
+
+    public sealed class EconomySnapshot
+    {
+        public static readonly EconomySnapshot Empty = new EconomySnapshot(new ResourceSnapshot[0], new HarvesterSnapshot[0], new RefinerySnapshot[0], new EconomyEventSnapshot[0]);
+
+        public IReadOnlyList<ResourceSnapshot> Resources { get; private set; }
+        public IReadOnlyList<HarvesterSnapshot> Harvesters { get; private set; }
+        public IReadOnlyList<RefinerySnapshot> Refineries { get; private set; }
+        public IReadOnlyList<EconomyEventSnapshot> Events { get; private set; }
+
+        public EconomySnapshot(IReadOnlyList<ResourceSnapshot> resources, IReadOnlyList<HarvesterSnapshot> harvesters, IReadOnlyList<RefinerySnapshot> refineries, IReadOnlyList<EconomyEventSnapshot> events)
+        {
+            Resources = resources;
+            Harvesters = harvesters;
+            Refineries = refineries;
+            Events = events;
+        }
+    }
+
+    public sealed class ResourceSnapshot
+    {
+        public Int2 Cell { get; private set; }
+        public string Kind { get; private set; }
+        public int Amount { get; private set; }
+        public int MaxAmount { get; private set; }
+        public bool IsDepleted { get; private set; }
+
+        public ResourceSnapshot(Int2 cell, string kind, int amount, int maxAmount, bool isDepleted)
+        {
+            Cell = cell;
+            Kind = kind;
+            Amount = amount;
+            MaxAmount = maxAmount;
+            IsDepleted = isDepleted;
+        }
+    }
+
+    public sealed class HarvesterSnapshot
+    {
+        public int ActorId { get; private set; }
+        public int CargoAmount { get; private set; }
+        public int CargoCapacity { get; private set; }
+        public string CarriedResourceKind { get; private set; }
+        public Int2 HarvestTargetCell { get; private set; }
+        public int AssignedRefineryActorId { get; private set; }
+        public string State { get; private set; }
+        public int HarvestProgressTicks { get; private set; }
+        public int UnloadProgressTicks { get; private set; }
+
+        public HarvesterSnapshot(int actorId, int cargoAmount, int cargoCapacity, string carriedResourceKind, Int2 harvestTargetCell, int assignedRefineryActorId, string state, int harvestProgressTicks, int unloadProgressTicks)
+        {
+            ActorId = actorId;
+            CargoAmount = cargoAmount;
+            CargoCapacity = cargoCapacity;
+            CarriedResourceKind = carriedResourceKind;
+            HarvestTargetCell = harvestTargetCell;
+            AssignedRefineryActorId = assignedRefineryActorId;
+            State = state;
+            HarvestProgressTicks = harvestProgressTicks;
+            UnloadProgressTicks = unloadProgressTicks;
+        }
+    }
+
+    public sealed class RefinerySnapshot
+    {
+        public int ActorId { get; private set; }
+        public Int2 DockCell { get; private set; }
+        public int ActiveHarvesterActorId { get; private set; }
+        public int UnloadRatePerTick { get; private set; }
+        public bool IsUnloading { get; private set; }
+        public int TotalResourcesReceived { get; private set; }
+
+        public RefinerySnapshot(int actorId, Int2 dockCell, int activeHarvesterActorId, int unloadRatePerTick, bool isUnloading, int totalResourcesReceived)
+        {
+            ActorId = actorId;
+            DockCell = dockCell;
+            ActiveHarvesterActorId = activeHarvesterActorId;
+            UnloadRatePerTick = unloadRatePerTick;
+            IsUnloading = isUnloading;
+            TotalResourcesReceived = totalResourcesReceived;
+        }
+    }
+
+    public sealed class EconomyEventSnapshot
+    {
+        public int EventId { get; private set; }
+        public int Tick { get; private set; }
+        public string EventType { get; private set; }
+        public int HarvesterActorId { get; private set; }
+        public int RefineryActorId { get; private set; }
+        public Int2 Cell { get; private set; }
+        public int Amount { get; private set; }
+        public int CreditsAwarded { get; private set; }
+
+        public EconomyEventSnapshot(int eventId, int tick, string eventType, int harvesterActorId, int refineryActorId, Int2 cell, int amount, int creditsAwarded)
+        {
+            EventId = eventId;
+            Tick = tick;
+            EventType = eventType;
+            HarvesterActorId = harvesterActorId;
+            RefineryActorId = refineryActorId;
+            Cell = cell;
+            Amount = amount;
+            CreditsAwarded = creditsAwarded;
+        }
+    }
+
+    public sealed class ProjectileSnapshot
+    {
+        public int ProjectileId { get; private set; }
+        public int OwnerPlayerId { get; private set; }
+        public int SourceActorId { get; private set; }
+        public int TargetActorId { get; private set; }
+        public string WeaponId { get; private set; }
+        public string ProjectileKind { get; private set; }
+        public Int2 CurrentPositionFixed { get; private set; }
+        public Int2 TargetPositionFixed { get; private set; }
+        public Int2 TargetCell { get; private set; }
+        public int SpeedSubCellsPerTick { get; private set; }
+        public int Damage { get; private set; }
+        public bool HasImpacted { get; private set; }
+        public int ImpactTick { get; private set; }
+
+        public ProjectileSnapshot(
+            int projectileId,
+            int ownerPlayerId,
+            int sourceActorId,
+            int targetActorId,
+            string weaponId,
+            string projectileKind,
+            Int2 currentPositionFixed,
+            Int2 targetPositionFixed,
+            Int2 targetCell,
+            int speedSubCellsPerTick,
+            int damage,
+            bool hasImpacted,
+            int impactTick)
+        {
+            ProjectileId = projectileId;
+            OwnerPlayerId = ownerPlayerId;
+            SourceActorId = sourceActorId;
+            TargetActorId = targetActorId;
+            WeaponId = weaponId;
+            ProjectileKind = projectileKind;
+            CurrentPositionFixed = currentPositionFixed;
+            TargetPositionFixed = targetPositionFixed;
+            TargetCell = targetCell;
+            SpeedSubCellsPerTick = speedSubCellsPerTick;
+            Damage = damage;
+            HasImpacted = hasImpacted;
+            ImpactTick = impactTick;
+        }
+    }
+
+    public sealed class CombatEventSnapshot
+    {
+        public int EventId { get; private set; }
+        public int Tick { get; private set; }
+        public string EventType { get; private set; }
+        public int SourceActorId { get; private set; }
+        public int TargetActorId { get; private set; }
+        public int ProjectileId { get; private set; }
+        public string WeaponId { get; private set; }
+        public int Damage { get; private set; }
+        public int TargetHealth { get; private set; }
+        public Int2 Cell { get; private set; }
+        public Int2 FixedWorldPosition { get; private set; }
+
+        public CombatEventSnapshot(int eventId, int tick, string eventType, int sourceActorId, int targetActorId, int projectileId, string weaponId, int damage, int targetHealth, Int2 cell, Int2 fixedWorldPosition)
+        {
+            EventId = eventId;
+            Tick = tick;
+            EventType = eventType;
+            SourceActorId = sourceActorId;
+            TargetActorId = targetActorId;
+            ProjectileId = projectileId;
+            WeaponId = weaponId;
+            Damage = damage;
+            TargetHealth = targetHealth;
+            Cell = cell;
+            FixedWorldPosition = fixedWorldPosition;
         }
     }
 
@@ -121,6 +871,44 @@ namespace ProjectAegisRTS.Snapshots
             ProgressTicks = progressTicks;
             BuildTimeTicks = buildTimeTicks;
             State = state;
+        }
+    }
+
+    public sealed class SupportPowerSnapshot
+    {
+        public string PowerId { get; private set; }
+        public string DisplayName { get; private set; }
+        public bool IsUnlocked { get; private set; }
+        public string MissingPrerequisiteTypeId { get; private set; }
+        public int CooldownRemainingTicks { get; private set; }
+        public bool IsReady { get; private set; }
+        public int ActivationCount { get; private set; }
+        public string EffectKind { get; private set; }
+        public string TargetKind { get; private set; }
+        public int RadiusCells { get; private set; }
+
+        public SupportPowerSnapshot(
+            string powerId,
+            string displayName,
+            bool isUnlocked,
+            string missingPrerequisiteTypeId,
+            int cooldownRemainingTicks,
+            bool isReady,
+            int activationCount,
+            string effectKind,
+            string targetKind,
+            int radiusCells)
+        {
+            PowerId = powerId;
+            DisplayName = displayName;
+            IsUnlocked = isUnlocked;
+            MissingPrerequisiteTypeId = missingPrerequisiteTypeId;
+            CooldownRemainingTicks = cooldownRemainingTicks;
+            IsReady = isReady;
+            ActivationCount = activationCount;
+            EffectKind = effectKind;
+            TargetKind = targetKind;
+            RadiusCells = radiusCells;
         }
     }
 
@@ -145,14 +933,23 @@ namespace ProjectAegisRTS.Snapshots
         public bool CanPlace { get; private set; }
         public string ErrorCode { get; private set; }
         public IReadOnlyList<Int2> FootprintCells { get; private set; }
+        public int PlacementGridScale { get; private set; }
+        public Int2 PlacementFootprintCells { get; private set; }
 
         public PlacementPreviewSnapshot(string typeId, Int2 topLeftCell, bool canPlace, string errorCode, IReadOnlyList<Int2> footprintCells)
+            : this(typeId, topLeftCell, canPlace, errorCode, footprintCells, PlacementGridMetrics.PlacementGridScale, Int2.Zero)
+        {
+        }
+
+        public PlacementPreviewSnapshot(string typeId, Int2 topLeftCell, bool canPlace, string errorCode, IReadOnlyList<Int2> footprintCells, int placementGridScale, Int2 placementFootprintCells)
         {
             TypeId = typeId;
             TopLeftCell = topLeftCell;
             CanPlace = canPlace;
             ErrorCode = errorCode;
             FootprintCells = footprintCells;
+            PlacementGridScale = placementGridScale;
+            PlacementFootprintCells = placementFootprintCells;
         }
     }
 }

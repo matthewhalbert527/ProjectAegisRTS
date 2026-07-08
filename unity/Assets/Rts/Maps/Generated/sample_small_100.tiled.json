@@ -1,0 +1,161 @@
+{
+  "type": "map",
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "width": 100,
+  "height": 100,
+  "tilewidth": 32,
+  "tileheight": 32,
+  "infinite": false,
+  "nextlayerid": 8,
+  "nextobjectid": 9,
+  "properties": [
+    { "name": "aegisMapId", "type": "string", "value": "sample_small_100" },
+    { "name": "displayName", "type": "string", "value": "Sample Small 100" }
+  ],
+  "tilesets": [
+    {
+      "firstgid": 1,
+      "name": "aegis_starter_tiles",
+      "tilewidth": 32,
+      "tileheight": 32,
+      "tilecount": 7,
+      "columns": 7,
+      "tiles": [
+        { "id": 0, "properties": [{ "name": "aegisTerrainId", "type": "string", "value": "clear" }] },
+        { "id": 1, "properties": [{ "name": "aegisTerrainId", "type": "string", "value": "road" }] },
+        { "id": 2, "properties": [{ "name": "aegisTerrainId", "type": "string", "value": "rough" }] },
+        { "id": 3, "properties": [{ "name": "aegisTerrainId", "type": "string", "value": "forest" }] },
+        { "id": 4, "properties": [{ "name": "aegisTerrainId", "type": "string", "value": "water" }] },
+        { "id": 5, "properties": [{ "name": "aegisTerrainId", "type": "string", "value": "cliff" }] },
+        { "id": 6, "properties": [{ "name": "aegisTerrainId", "type": "string", "value": "ore" }] }
+      ]
+    }
+  ],
+  "layers": [
+    {
+      "id": 1,
+      "name": "player_starts",
+      "type": "objectgroup",
+      "objects": [
+        {
+          "id": 1,
+          "name": "player_1",
+          "type": "player_start",
+          "x": 256,
+          "y": 256,
+          "point": true,
+          "properties": [{ "name": "playerId", "type": "int", "value": 1 }]
+        },
+        {
+          "id": 2,
+          "name": "player_2",
+          "type": "player_start",
+          "x": 2912,
+          "y": 2912,
+          "point": true,
+          "properties": [{ "name": "playerId", "type": "int", "value": 2 }]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "actor_placements",
+      "type": "objectgroup",
+      "objects": [
+        {
+          "id": 3,
+          "name": "player_hub",
+          "type": "fabrication_hub",
+          "x": 320,
+          "y": 320,
+          "point": true,
+          "properties": [
+            { "name": "ownerPlayerId", "type": "int", "value": 1 },
+            { "name": "facingDegrees", "type": "int", "value": 0 }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "enemy_hub",
+          "type": "fabrication_hub",
+          "x": 2816,
+          "y": 2816,
+          "point": true,
+          "properties": [
+            { "name": "ownerPlayerId", "type": "int", "value": 2 },
+            { "name": "facingDegrees", "type": "int", "value": 180 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "resources",
+      "type": "objectgroup",
+      "objects": [
+        {
+          "id": 5,
+          "name": "north_ore",
+          "type": "ore",
+          "x": 640,
+          "y": 512,
+          "width": 64,
+          "height": 64,
+          "properties": [
+            { "name": "resourceKind", "type": "string", "value": "ore" },
+            { "name": "amount", "type": "int", "value": 500 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "blockers",
+      "type": "objectgroup",
+      "objects": [
+        { "id": 6, "name": "ridge_blocker", "type": "blocker", "x": 1600, "y": 1600, "width": 32, "height": 32 }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "regions",
+      "type": "objectgroup",
+      "objects": [
+        {
+          "id": 7,
+          "name": "central_plateau",
+          "type": "region",
+          "x": 1344,
+          "y": 1344,
+          "width": 512,
+          "height": 512,
+          "properties": [
+            { "name": "regionId", "type": "string", "value": "central_plateau" },
+            { "name": "purpose", "type": "string", "value": "skirmish_control" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "nav_overrides",
+      "type": "objectgroup",
+      "objects": [
+        {
+          "id": 8,
+          "name": "slow_zone",
+          "type": "nav",
+          "x": 1536,
+          "y": 1472,
+          "point": true,
+          "properties": [
+            { "name": "movementClass", "type": "string", "value": "ground" },
+            { "name": "passable", "type": "bool", "value": true },
+            { "name": "cost", "type": "int", "value": 3 }
+          ]
+        }
+      ]
+    }
+  ]
+}

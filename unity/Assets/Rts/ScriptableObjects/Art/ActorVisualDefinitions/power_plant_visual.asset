@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: power_plant_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: power_plant
+  displayName: Power Plant
+  safeDisplayName: Power Plant
+  category: 0
+  productionStatus: 2
+  conceptReference: {fileID: 11400000, guid: 0437b6eb921d4e44e8345440257cbeae, type: 2}
+  icon: {fileID: 21300000, guid: e10acbc7bea3d8345b6de8a58fb88ac5, type: 3}
+  generatedBlockoutPrefab: {fileID: 5315821980287690311, guid: 27d0e3df2ea747a4aa1b64ad9021a999, type: 3}
+  productionPrefab: {fileID: 5060104963240682336, guid: 3a288b61ccbf8ce42815d3fcf7c81277, type: 3}
+  fallbackPrefab: {fileID: 5315821980287690311, guid: 27d0e3df2ea747a4aa1b64ad9021a999, type: 3}
+  preferredPrefabMode: 1
+  motionProfileId: building_static
+  buildingProfileId: power_plant_building_visual
+  selectionRadius: 1.12
+  selectionHeight: 0.08
+  footprintWidth: 2
+  footprintHeight: 2
+  visualScale: 1
+  prefabHeightOffset: 0
+  useBuildingVisualController: 1
+  useVehicleMotionController: 0
+  useInfantryMotionController: 0
+  useAircraftMotionController: 0
+  useTurretVisualController: 0
+  requiredSockets: 00000000010000000200000003000000040000000500000015000000160000001700000018000000
+  notes: 'Unity AI building slate production prefab. Textured, socketed, and rigged
+    for powered idle and production movement.
+
+    Stage 20: MVP first-pass production
+    proxy is assigned as the preferred prefab.
+
+    Stage 21: proxy is QA-ready for
+    artist model replacement; preserve sockets, pivot, footprint scale, LODGroup,
+    and fallback.'
+  ipReviewRequired: 0
+  sourceConceptOriginalLabel: Power Plant
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_42
+    PM (6).png

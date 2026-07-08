@@ -1,0 +1,30 @@
+{
+  "formatVersion": "aegismap.v1",
+  "mapId": "sample_large_400_shell",
+  "displayName": "Sample Large 400 Shell",
+  "width": 400,
+  "height": 400,
+  "tileWidth": 32,
+  "tileHeight": 32,
+  "defaultTerrainId": "clear",
+  "startingCredits": 5000,
+  "terrainBase": [],
+  "terrainOverlay": [],
+  "blockers": [],
+  "resources": [
+    { "x": 24, "y": 24, "resourceKind": "ore", "amount": 800 },
+    { "x": 375, "y": 375, "resourceKind": "ore", "amount": 800 }
+  ],
+  "playerStarts": [
+    { "playerId": 1, "x": 16, "y": 16, "name": "player_1" },
+    { "playerId": 2, "x": 383, "y": 383, "name": "player_2" }
+  ],
+  "actorPlacements": [],
+  "regions": [
+    { "regionId": "full_map_bounds", "x": 0, "y": 0, "width": 400, "height": 400, "purpose": "validation_shell" }
+  ],
+  "navOverrides": [],
+  "properties": {
+    "source": "original_project_aegis_large_shell"
+  }
+}

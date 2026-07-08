@@ -1,0 +1,135 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 248a99ac368657a46a670b32b7b9f9d6, type: 3}
+  m_Name: stage32_terrain_piece_material_library
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.Stage32TerrainPieceMaterialLibrary
+  profiles:
+  - profileId: grass_dirt
+    displayName: Grass Dirt
+    material: {fileID: 2100000, guid: 74e8abd54927a254caaa5abe48895dd5, type: 2}
+    baseColor: {r: 0.22, g: 0.33, b: 0.2, a: 1}
+    accentColor: {r: 0.44, g: 0.38, b: 0.24, a: 1}
+    notes: Mixed field base that sits below the fine grid.
+  - profileId: compact_soil
+    displayName: Compacted Soil
+    material: {fileID: 2100000, guid: e6996acd4b926d74aa557e30088212d4, type: 2}
+    baseColor: {r: 0.3, g: 0.28, b: 0.22, a: 1}
+    accentColor: {r: 0.42, g: 0.38, b: 0.29, a: 1}
+    notes: Base approach soil and worn vehicle apron.
+  - profileId: mud
+    displayName: Mud
+    material: {fileID: 2100000, guid: 3fa885d6a1a4ff9409a6760bab6a04bc, type: 2}
+    baseColor: {r: 0.19, g: 0.16, b: 0.12, a: 1}
+    accentColor: {r: 0.34, g: 0.28, b: 0.2, a: 1}
+    notes: Darker low-contrast muddy ground.
+  - profileId: scorch
+    displayName: Scorched Ground
+    material: {fileID: 2100000, guid: 8704a401c5a7ebc4f8cf8cf51aae643d, type: 2}
+    baseColor: {r: 0.08, g: 0.075, b: 0.06, a: 1}
+    accentColor: {r: 0.33, g: 0.22, b: 0.15, a: 1}
+    notes: Subtle shell/scorch coloration.
+  - profileId: concrete
+    displayName: Weathered Concrete
+    material: {fileID: 2100000, guid: 78fd265a93595494795c5f04f47bedf2, type: 2}
+    baseColor: {r: 0.43, g: 0.45, b: 0.4, a: 1}
+    accentColor: {r: 0.62, g: 0.6, b: 0.52, a: 1}
+    notes: Not pure white; keeps buildings readable.
+  - profileId: road
+    displayName: Road Path
+    material: {fileID: 2100000, guid: 7944c3ac9827edd4c922d425ca9856d4, type: 2}
+    baseColor: {r: 0.22, g: 0.21, b: 0.18, a: 1}
+    accentColor: {r: 0.44, g: 0.4, b: 0.31, a: 1}
+    notes: Worn road/path surface.
+  - profileId: resource_ground
+    displayName: Resource Ground
+    material: {fileID: 2100000, guid: 6d9de32ec749c114e8499c255f4dbc4b, type: 2}
+    baseColor: {r: 0.18, g: 0.41, b: 0.34, a: 1}
+    accentColor: {r: 0.7, g: 0.62, b: 0.25, a: 1}
+    notes: Distinct harvest-field ground.
+  - profileId: water
+    displayName: Water Placeholder
+    material: {fileID: 2100000, guid: 1e666d4cad824bc4fbe663f095c36320, type: 2}
+    baseColor: {r: 0.08, g: 0.2, b: 0.29, a: 0.92}
+    accentColor: {r: 0.24, g: 0.45, b: 0.53, a: 1}
+    notes: Quest-safe flat water/shore placeholder.
+  - profileId: rock
+    displayName: Rock
+    material: {fileID: 2100000, guid: 7e8af81806e3376459c19cca4795a056, type: 2}
+    baseColor: {r: 0.24, g: 0.23, b: 0.21, a: 1}
+    accentColor: {r: 0.46, g: 0.43, b: 0.36, a: 1}
+    notes: Darker rocky blockers and ridge pieces.
+  - profileId: foundation
+    displayName: Foundation
+    material: {fileID: 2100000, guid: e5455f37b329541429631e45cfbfd7b3, type: 2}
+    baseColor: {r: 0.36, g: 0.37, b: 0.33, a: 1}
+    accentColor: {r: 0.61, g: 0.58, b: 0.48, a: 1}
+    notes: Base pads and hardstand pieces.
+  - profileId: caution
+    displayName: Caution Paint
+    material: {fileID: 2100000, guid: db926fc428bb69046ab559bf78b645f3, type: 2}
+    baseColor: {r: 0.88, g: 0.6, b: 0.18, a: 1}
+    accentColor: {r: 0.98, g: 0.82, b: 0.36, a: 1}
+    notes: Rally/exit and industrial markings.
+  - profileId: mineral
+    displayName: Resource Mineral
+    material: {fileID: 2100000, guid: 0d4d423e4ad5794448da00254e2f2a54, type: 2}
+    baseColor: {r: 0.16, g: 0.85, b: 0.66, a: 1}
+    accentColor: {r: 0.6, g: 1, b: 0.86, a: 1}
+    notes: Harvestable resource crystals.
+  - profileId: rich_mineral
+    displayName: Rich Resource Mineral
+    material: {fileID: 2100000, guid: 4d3e425c348931f4f885dae148abcf7b, type: 2}
+    baseColor: {r: 0.2, g: 0.96, b: 0.76, a: 1}
+    accentColor: {r: 0.95, g: 0.78, b: 0.25, a: 1}
+    notes: Richer harvest-field highlights.
+  - profileId: depleted_mineral
+    displayName: Depleted Resource Mineral
+    material: {fileID: 2100000, guid: 77392447207ae74438f5010cd100cfcb, type: 2}
+    baseColor: {r: 0.23, g: 0.38, b: 0.35, a: 1}
+    accentColor: {r: 0.42, g: 0.48, b: 0.4, a: 1}
+    notes: Depleted resource hints.
+  - profileId: sandbag
+    displayName: Sandbag
+    material: {fileID: 2100000, guid: dfb4fa28c627b684ea341fb4e098d982, type: 2}
+    baseColor: {r: 0.49, g: 0.43, b: 0.31, a: 1}
+    accentColor: {r: 0.64, g: 0.56, b: 0.4, a: 1}
+    notes: Muted defensive bags.
+  - profileId: metal
+    displayName: Worn Metal
+    material: {fileID: 2100000, guid: 4d9418aee5561bb4ebb56a5d5d255440, type: 2}
+    baseColor: {r: 0.3, g: 0.32, b: 0.31, a: 1}
+    accentColor: {r: 0.48, g: 0.5, b: 0.47, a: 1}
+    notes: Crates, barriers, wrecks, and beacon hardware.
+  - profileId: dark_metal
+    displayName: Dark Metal
+    material: {fileID: 2100000, guid: 6946083d6e846ab4ca7ed1af05eb98cf, type: 2}
+    baseColor: {r: 0.1, g: 0.11, b: 0.105, a: 1}
+    accentColor: {r: 0.25, g: 0.26, b: 0.24, a: 1}
+    notes: Tank traps and destroyed-vehicle silhouettes.
+  - profileId: tire
+    displayName: Tire Track
+    material: {fileID: 2100000, guid: 7925c39c8a9a5f74ca97a23ad08eafb5, type: 2}
+    baseColor: {r: 0.055, g: 0.055, b: 0.05, a: 1}
+    accentColor: {r: 0.19, g: 0.17, b: 0.14, a: 1}
+    notes: Subtle dark track/shell marks.
+  - profileId: foliage
+    displayName: Foliage
+    material: {fileID: 2100000, guid: f18cd3a115cdba04e87aa623191b557f, type: 2}
+    baseColor: {r: 0.12, g: 0.3, b: 0.15, a: 1}
+    accentColor: {r: 0.28, g: 0.45, b: 0.22, a: 1}
+    notes: Quest-safe bush/tree clusters.
+  - profileId: beacon
+    displayName: Beacon Glow
+    material: {fileID: 2100000, guid: ecbf66e234983994db999dfcaf8f3e71, type: 2}
+    baseColor: {r: 0.16, g: 0.72, b: 0.78, a: 1}
+    accentColor: {r: 0.72, g: 0.96, b: 1, a: 1}
+    notes: Small readable beacon light.

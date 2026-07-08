@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using ProjectAegisRTS.Power;
 using ProjectAegisRTS.Production;
+using ProjectAegisRTS.Support;
 
 namespace ProjectAegisRTS.Simulation
 {
     public sealed class PlayerState
     {
         readonly List<ProductionQueueItem> productionQueue;
+        readonly Dictionary<string, SupportPowerState> supportPowers;
 
         public int PlayerId { get; private set; }
         public string Name { get; private set; }
@@ -23,6 +25,7 @@ namespace ProjectAegisRTS.Simulation
             Credits = credits;
             PowerState = PlayerPowerState.Normal;
             productionQueue = new List<ProductionQueueItem>();
+            supportPowers = new Dictionary<string, SupportPowerState>();
         }
 
         public List<ProductionQueueItem> MutableProductionQueue
@@ -33,6 +36,16 @@ namespace ProjectAegisRTS.Simulation
         public IReadOnlyList<ProductionQueueItem> ProductionQueue
         {
             get { return productionQueue; }
+        }
+
+        public Dictionary<string, SupportPowerState> MutableSupportPowers
+        {
+            get { return supportPowers; }
+        }
+
+        public IReadOnlyDictionary<string, SupportPowerState> SupportPowers
+        {
+            get { return supportPowers; }
         }
     }
 }

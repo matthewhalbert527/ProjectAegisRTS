@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
 using ProjectAegisRTS.Core;
+using ProjectAegisRTS.Terrain;
+using ProjectAegisRTS.Visibility;
 
 namespace ProjectAegisRTS.Data
 {
@@ -19,17 +22,202 @@ namespace ProjectAegisRTS.Data
         Support
     }
 
+    public enum DamageKind
+    {
+        None,
+        Kinetic,
+        Explosive,
+        Fire,
+        Energy
+    }
+
+    public enum TargetKind
+    {
+        None,
+        Ground,
+        Air,
+        Building,
+        Unit
+    }
+
+    public enum WeaponFireMode
+    {
+        InstantHit,
+        Projectile
+    }
+
+    public enum ProjectileKind
+    {
+        None,
+        Bullet,
+        Shell,
+        Rocket,
+        Beam
+    }
+
+    public sealed class DamageDefinition
+    {
+        public int Amount { get; private set; }
+        public DamageKind Kind { get; private set; }
+
+        public DamageDefinition(int amount, DamageKind kind)
+        {
+            Amount = amount;
+            Kind = kind;
+        }
+    }
+
+    public sealed class ProjectileDefinition
+    {
+        public ProjectileKind Kind { get; private set; }
+        public int SpeedSubCellsPerTick { get; private set; }
+        public int LifetimeTicks { get; private set; }
+        public bool HomesToTarget { get; private set; }
+
+        public ProjectileDefinition(ProjectileKind kind, int speedSubCellsPerTick, int lifetimeTicks, bool homesToTarget)
+        {
+            Kind = kind;
+            SpeedSubCellsPerTick = speedSubCellsPerTick;
+            LifetimeTicks = lifetimeTicks;
+            HomesToTarget = homesToTarget;
+        }
+    }
+
+    public sealed class DeathDefinition
+    {
+        public int DestroyedVisibleTicks { get; private set; }
+        public string DeathVisualId { get; private set; }
+
+        public DeathDefinition(int destroyedVisibleTicks, string deathVisualId)
+        {
+            DestroyedVisibleTicks = destroyedVisibleTicks;
+            DeathVisualId = deathVisualId;
+        }
+    }
+
     public sealed class WeaponDefinition
     {
         public string WeaponId { get; private set; }
-        public int DamagePlaceholder { get; private set; }
-        public int RangeCellsPlaceholder { get; private set; }
+        public string DisplayName { get; private set; }
+        public int Damage { get; private set; }
+        public int RangeCells { get; private set; }
+        public int MinRangeCells { get; private set; }
+        public int CooldownTicks { get; private set; }
+        public int ProjectileSpeedSubCellsPerTick { get; private set; }
+        public ProjectileKind ProjectileKind { get; private set; }
+        public WeaponFireMode FireMode { get; private set; }
+        public bool CanTargetGround { get; private set; }
+        public bool CanTargetAir { get; private set; }
+        public bool CanTargetBuildings { get; private set; }
+        public bool CanTargetUnits { get; private set; }
+        public bool RequiresLineOfSight { get; private set; }
+        public int BurstCount { get; private set; }
+        public int BurstDelayTicks { get; private set; }
+        public int AreaRadiusCells { get; private set; }
+        public string MuzzleSocketId { get; private set; }
+        public string ImpactVisualId { get; private set; }
+        public string ProjectileVisualId { get; private set; }
+        public DamageDefinition DamageDefinition { get; private set; }
+        public ProjectileDefinition ProjectileDefinition { get; private set; }
 
         public WeaponDefinition(string weaponId, int damagePlaceholder, int rangeCellsPlaceholder)
+            : this(
+                weaponId,
+                weaponId,
+                damagePlaceholder,
+                rangeCellsPlaceholder,
+                0,
+                30,
+                512,
+                ProjectileKind.Shell,
+                true,
+                false,
+                true,
+                true,
+                false,
+                1,
+                0,
+                0,
+                "MuzzlePrimary",
+                "impact_placeholder",
+                weaponId + "_projectile")
+        {
+        }
+
+        public WeaponDefinition(
+            string weaponId,
+            string displayName,
+            int damage,
+            int rangeCells,
+            int minRangeCells,
+            int cooldownTicks,
+            int projectileSpeedSubCellsPerTick,
+            ProjectileKind projectileKind,
+            bool canTargetGround,
+            bool canTargetAir,
+            bool canTargetBuildings,
+            bool canTargetUnits,
+            bool requiresLineOfSight,
+            int burstCount,
+            int burstDelayTicks,
+            int areaRadiusCells,
+            string muzzleSocketId,
+            string impactVisualId,
+            string projectileVisualId)
         {
             WeaponId = weaponId;
-            DamagePlaceholder = damagePlaceholder;
-            RangeCellsPlaceholder = rangeCellsPlaceholder;
+            DisplayName = displayName;
+            Damage = damage;
+            RangeCells = rangeCells;
+            MinRangeCells = minRangeCells;
+            CooldownTicks = cooldownTicks;
+            ProjectileSpeedSubCellsPerTick = projectileSpeedSubCellsPerTick;
+            ProjectileKind = projectileKind;
+            FireMode = projectileKind == ProjectileKind.None || projectileSpeedSubCellsPerTick <= 0 ? WeaponFireMode.InstantHit : WeaponFireMode.Projectile;
+            CanTargetGround = canTargetGround;
+            CanTargetAir = canTargetAir;
+            CanTargetBuildings = canTargetBuildings;
+            CanTargetUnits = canTargetUnits;
+            RequiresLineOfSight = requiresLineOfSight;
+            BurstCount = burstCount <= 0 ? 1 : burstCount;
+            BurstDelayTicks = burstDelayTicks;
+            AreaRadiusCells = areaRadiusCells;
+            MuzzleSocketId = string.IsNullOrEmpty(muzzleSocketId) ? "MuzzlePrimary" : muzzleSocketId;
+            ImpactVisualId = string.IsNullOrEmpty(impactVisualId) ? "impact_placeholder" : impactVisualId;
+            ProjectileVisualId = string.IsNullOrEmpty(projectileVisualId) ? weaponId + "_projectile" : projectileVisualId;
+            DamageDefinition = new DamageDefinition(damage, projectileKind == ProjectileKind.Rocket ? DamageKind.Explosive : DamageKind.Kinetic);
+            ProjectileDefinition = new ProjectileDefinition(projectileKind, projectileSpeedSubCellsPerTick, 240, false);
+        }
+
+        public int DamagePlaceholder { get { return Damage; } }
+        public int RangeCellsPlaceholder { get { return RangeCells; } }
+    }
+
+    public sealed class PrerequisiteDefinition
+    {
+        public string RequiredTypeId { get; private set; }
+
+        public PrerequisiteDefinition(string requiredTypeId)
+        {
+            RequiredTypeId = string.IsNullOrEmpty(requiredTypeId) ? string.Empty : requiredTypeId;
+        }
+    }
+
+    public sealed class TechTreeSystem
+    {
+        public static string FindMissingPrerequisiteTypeId(IReadOnlyList<string> prerequisiteTypeIds, Func<string, bool> hasPrerequisite)
+        {
+            if (prerequisiteTypeIds == null || hasPrerequisite == null)
+                return string.Empty;
+
+            for (var i = 0; i < prerequisiteTypeIds.Count; i++)
+            {
+                var prerequisite = prerequisiteTypeIds[i];
+                if (!string.IsNullOrEmpty(prerequisite) && !hasPrerequisite(prerequisite))
+                    return prerequisite;
+            }
+
+            return string.Empty;
         }
     }
 
@@ -40,14 +228,39 @@ namespace ProjectAegisRTS.Data
         public int BuildTimeTicks { get; private set; }
         public string FactoryTypeId { get; private set; }
         public bool ExemptFromLowPowerPause { get; private set; }
+        public IReadOnlyList<string> PrerequisiteTypeIds { get; private set; }
+        public IReadOnlyList<PrerequisiteDefinition> Prerequisites { get; private set; }
 
         public ProductionDefinition(ProductionKind kind, int cost, int buildTimeTicks, string factoryTypeId, bool exemptFromLowPowerPause)
+            : this(kind, cost, buildTimeTicks, factoryTypeId, exemptFromLowPowerPause, null)
+        {
+        }
+
+        public ProductionDefinition(ProductionKind kind, int cost, int buildTimeTicks, string factoryTypeId, bool exemptFromLowPowerPause, IReadOnlyList<string> prerequisiteTypeIds)
         {
             Kind = kind;
             Cost = cost;
             BuildTimeTicks = buildTimeTicks;
             FactoryTypeId = factoryTypeId;
             ExemptFromLowPowerPause = exemptFromLowPowerPause;
+
+            var prerequisites = new List<string>();
+            var prerequisiteDefinitions = new List<PrerequisiteDefinition>();
+            if (prerequisiteTypeIds != null)
+            {
+                for (var i = 0; i < prerequisiteTypeIds.Count; i++)
+                {
+                    var prerequisite = prerequisiteTypeIds[i];
+                    if (string.IsNullOrEmpty(prerequisite))
+                        continue;
+
+                    prerequisites.Add(prerequisite);
+                    prerequisiteDefinitions.Add(new PrerequisiteDefinition(prerequisite));
+                }
+            }
+
+            PrerequisiteTypeIds = prerequisites;
+            Prerequisites = prerequisiteDefinitions;
         }
     }
 
@@ -70,12 +283,97 @@ namespace ProjectAegisRTS.Data
         public int SpeedPerTick { get; private set; }
         public int TurnRateDegreesPerTick { get; private set; }
         public string VisualMotionProfileId { get; private set; }
+        public MovementClass MovementClass { get; private set; }
 
         public MovementDefinition(int speedPerTick, int turnRateDegreesPerTick, string visualMotionProfileId)
+            : this(speedPerTick, turnRateDegreesPerTick, visualMotionProfileId, MovementClass.Wheeled)
+        {
+        }
+
+        public MovementDefinition(int speedPerTick, int turnRateDegreesPerTick, string visualMotionProfileId, MovementClass movementClass)
         {
             SpeedPerTick = speedPerTick;
             TurnRateDegreesPerTick = turnRateDegreesPerTick;
             VisualMotionProfileId = visualMotionProfileId;
+            MovementClass = movementClass;
+        }
+    }
+
+    public sealed class CaptureDefinition
+    {
+        public bool CanCaptureBuildings { get; private set; }
+        public bool CanRepairBuildings { get; private set; }
+        public bool ConsumedOnCapture { get; private set; }
+        public int ActionRangeCells { get; private set; }
+        public int RepairAmount { get; private set; }
+        public int RepairCost { get; private set; }
+
+        public CaptureDefinition(bool canCaptureBuildings, bool canRepairBuildings, bool consumedOnCapture, int actionRangeCells, int repairAmount, int repairCost)
+        {
+            CanCaptureBuildings = canCaptureBuildings;
+            CanRepairBuildings = canRepairBuildings;
+            ConsumedOnCapture = consumedOnCapture;
+            ActionRangeCells = actionRangeCells <= 0 ? 1 : actionRangeCells;
+            RepairAmount = repairAmount < 0 ? 0 : repairAmount;
+            RepairCost = repairCost < 0 ? 0 : repairCost;
+        }
+    }
+
+    public sealed class CaptureableDefinition
+    {
+        public bool CanBeCaptured { get; private set; }
+
+        public CaptureableDefinition(bool canBeCaptured)
+        {
+            CanBeCaptured = canBeCaptured;
+        }
+    }
+
+    public sealed class TransportDefinition
+    {
+        public int Capacity { get; private set; }
+        public bool AllowsInfantry { get; private set; }
+        public int LoadRangeCells { get; private set; }
+        public int UnloadRadiusCells { get; private set; }
+        public bool PassengersDestroyedOnTransportDeath { get; private set; }
+
+        public TransportDefinition(int capacity, bool allowsInfantry, int loadRangeCells, int unloadRadiusCells, bool passengersDestroyedOnTransportDeath)
+        {
+            Capacity = capacity < 0 ? 0 : capacity;
+            AllowsInfantry = allowsInfantry;
+            LoadRangeCells = loadRangeCells <= 0 ? 1 : loadRangeCells;
+            UnloadRadiusCells = unloadRadiusCells <= 0 ? 1 : unloadRadiusCells;
+            PassengersDestroyedOnTransportDeath = passengersDestroyedOnTransportDeath;
+        }
+    }
+
+    public sealed class AircraftDefinition
+    {
+        public int CruiseAltitudeSubCells { get; private set; }
+        public int FuelTicks { get; private set; }
+        public int RearmTicks { get; private set; }
+        public bool RequiresAirfield { get; private set; }
+
+        public AircraftDefinition(int cruiseAltitudeSubCells, int fuelTicks, int rearmTicks, bool requiresAirfield)
+        {
+            CruiseAltitudeSubCells = cruiseAltitudeSubCells <= 0 ? 1536 : cruiseAltitudeSubCells;
+            FuelTicks = fuelTicks < 0 ? 0 : fuelTicks;
+            RearmTicks = rearmTicks < 0 ? 0 : rearmTicks;
+            RequiresAirfield = requiresAirfield;
+        }
+    }
+
+    public sealed class AirfieldDefinition
+    {
+        public int PadCount { get; private set; }
+        public IReadOnlyList<Int2> PadOffsets { get; private set; }
+        public int RearmTicks { get; private set; }
+
+        public AirfieldDefinition(int padCount, IReadOnlyList<Int2> padOffsets, int rearmTicks)
+        {
+            PadCount = padCount <= 0 ? 1 : padCount;
+            PadOffsets = padOffsets ?? new[] { Int2.Zero };
+            RearmTicks = rearmTicks < 0 ? 0 : rearmTicks;
         }
     }
 
@@ -104,8 +402,17 @@ namespace ProjectAegisRTS.Data
         public ProductionDefinition Production { get; private set; }
         public PowerDefinition Power { get; private set; }
         public AnimationStateDefinition Animation { get; private set; }
+        public WeaponDefinition Weapon { get; private set; }
+        public DeathDefinition Death { get; private set; }
+        public SightDefinition Sight { get; private set; }
+        public RadarDefinition Radar { get; private set; }
+        public CaptureDefinition Capture { get; private set; }
+        public CaptureableDefinition Captureable { get; private set; }
+        public TransportDefinition Transport { get; private set; }
+        public AircraftDefinition Aircraft { get; private set; }
+        public AirfieldDefinition Airfield { get; private set; }
 
-        protected ActorDefinition(string typeId, string displayName, ActorKind kind, int maxHealth, ProductionDefinition production, PowerDefinition power, AnimationStateDefinition animation)
+        protected ActorDefinition(string typeId, string displayName, ActorKind kind, int maxHealth, ProductionDefinition production, PowerDefinition power, AnimationStateDefinition animation, WeaponDefinition weapon, DeathDefinition death, SightDefinition sight, RadarDefinition radar, CaptureDefinition capture, CaptureableDefinition captureable, TransportDefinition transport, AircraftDefinition aircraft, AirfieldDefinition airfield)
         {
             TypeId = typeId;
             DisplayName = displayName;
@@ -114,25 +421,43 @@ namespace ProjectAegisRTS.Data
             Production = production;
             Power = power;
             Animation = animation;
+            Weapon = weapon;
+            Death = death ?? new DeathDefinition(120, "death_placeholder");
+            Sight = sight ?? new SightDefinition(kind == ActorKind.Building ? 5 : 4);
+            Radar = radar ?? new RadarDefinition(false, 0);
+            Capture = capture;
+            Captureable = captureable ?? new CaptureableDefinition(kind == ActorKind.Building);
+            Transport = transport;
+            Aircraft = aircraft;
+            Airfield = airfield;
         }
     }
 
     public sealed class UnitDefinition : ActorDefinition
     {
         public MovementDefinition Movement { get; private set; }
-        public WeaponDefinition Weapon { get; private set; }
 
-        public UnitDefinition(string typeId, string displayName, int maxHealth, ProductionDefinition production, MovementDefinition movement, WeaponDefinition weapon, AnimationStateDefinition animation)
-            : base(typeId, displayName, ActorKind.Unit, maxHealth, production, new PowerDefinition(0, 0, false), animation)
+        public UnitDefinition(string typeId, string displayName, int maxHealth, ProductionDefinition production, MovementDefinition movement, WeaponDefinition weapon, AnimationStateDefinition animation, SightDefinition sight = null, RadarDefinition radar = null)
+            : this(typeId, displayName, maxHealth, production, movement, weapon, animation, sight, radar, null, null, null)
+        {
+        }
+
+        public UnitDefinition(string typeId, string displayName, int maxHealth, ProductionDefinition production, MovementDefinition movement, WeaponDefinition weapon, AnimationStateDefinition animation, SightDefinition sight, RadarDefinition radar, CaptureDefinition capture, TransportDefinition transport)
+            : this(typeId, displayName, maxHealth, production, movement, weapon, animation, sight, radar, capture, transport, null)
+        {
+        }
+
+        public UnitDefinition(string typeId, string displayName, int maxHealth, ProductionDefinition production, MovementDefinition movement, WeaponDefinition weapon, AnimationStateDefinition animation, SightDefinition sight, RadarDefinition radar, CaptureDefinition capture, TransportDefinition transport, AircraftDefinition aircraft)
+            : base(typeId, displayName, ActorKind.Unit, maxHealth, production, new PowerDefinition(0, 0, false), animation, weapon, new DeathDefinition(120, "unit_death_placeholder"), sight, radar, capture, new CaptureableDefinition(false), transport, aircraft, null)
         {
             Movement = movement;
-            Weapon = weapon;
         }
     }
 
     public sealed class BuildingDefinition : ActorDefinition
     {
         public Int2 FootprintCells { get; private set; }
+        public Int2 PlacementFootprintCells { get; private set; }
         public bool ProvidesConstructionRadius { get; private set; }
         public int ConstructionRadiusCells { get; private set; }
         public Int2 UnitExitOffset { get; private set; }
@@ -149,10 +474,55 @@ namespace ProjectAegisRTS.Data
             bool providesConstructionRadius,
             int constructionRadiusCells,
             Int2 unitExitOffset,
-            IReadOnlyList<string> producesTypeIds)
-            : base(typeId, displayName, ActorKind.Building, maxHealth, production, power, animation)
+            IReadOnlyList<string> producesTypeIds,
+            WeaponDefinition weapon = null,
+            SightDefinition sight = null,
+            RadarDefinition radar = null)
+            : this(typeId, displayName, maxHealth, production, power, animation, footprintCells, providesConstructionRadius, constructionRadiusCells, unitExitOffset, producesTypeIds, weapon, sight, radar, new CaptureableDefinition(true))
+        {
+        }
+
+        public BuildingDefinition(
+            string typeId,
+            string displayName,
+            int maxHealth,
+            ProductionDefinition production,
+            PowerDefinition power,
+            AnimationStateDefinition animation,
+            Int2 footprintCells,
+            bool providesConstructionRadius,
+            int constructionRadiusCells,
+            Int2 unitExitOffset,
+            IReadOnlyList<string> producesTypeIds,
+            WeaponDefinition weapon,
+            SightDefinition sight,
+            RadarDefinition radar,
+            CaptureableDefinition captureable)
+            : this(typeId, displayName, maxHealth, production, power, animation, footprintCells, providesConstructionRadius, constructionRadiusCells, unitExitOffset, producesTypeIds, weapon, sight, radar, captureable, null)
+        {
+        }
+
+        public BuildingDefinition(
+            string typeId,
+            string displayName,
+            int maxHealth,
+            ProductionDefinition production,
+            PowerDefinition power,
+            AnimationStateDefinition animation,
+            Int2 footprintCells,
+            bool providesConstructionRadius,
+            int constructionRadiusCells,
+            Int2 unitExitOffset,
+            IReadOnlyList<string> producesTypeIds,
+            WeaponDefinition weapon,
+            SightDefinition sight,
+            RadarDefinition radar,
+            CaptureableDefinition captureable,
+            AirfieldDefinition airfield)
+            : base(typeId, displayName, ActorKind.Building, maxHealth, production, power, animation, weapon, new DeathDefinition(180, "building_death_placeholder"), sight, radar, null, captureable, null, null, airfield)
         {
             FootprintCells = footprintCells;
+            PlacementFootprintCells = PlacementGridMetrics.CoarseFootprintToPlacementFootprint(footprintCells);
             ProvidesConstructionRadius = providesConstructionRadius;
             ConstructionRadiusCells = constructionRadiusCells;
             UnitExitOffset = unitExitOffset;

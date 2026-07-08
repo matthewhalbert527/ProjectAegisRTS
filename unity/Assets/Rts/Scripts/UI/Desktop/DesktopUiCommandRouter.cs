@@ -1,0 +1,475 @@
+using ProjectAegisRTS.Core;
+using ProjectAegisRTS.Support;
+using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.UI.Common;
+using UnityEngine;
+
+namespace ProjectAegisRTS.UnityClient.UI.Desktop
+{
+    public sealed class DesktopUiCommandRouter : MonoBehaviour
+    {
+        public RtsSimulationDriver driver;
+        public RtsStatusLog statusLog;
+
+        public DesktopCommandMode CurrentMode { get; private set; }
+
+        public void Initialize(RtsSimulationDriver simulationDriver, RtsStatusLog log)
+        {
+            driver = simulationDriver;
+            statusLog = log;
+            CurrentMode = DesktopCommandMode.Normal;
+        }
+
+        public RtsCommandResult QueueProduction(string typeId)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryQueueProduction(typeId);
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult EnterPlacementMode()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryEnterPlacementModeForFirstPending();
+            Log(result);
+            SyncPlacementHudVisibility();
+            return result;
+        }
+
+        public RtsCommandResult CancelPlacement()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryCancelPlacement();
+            CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            SyncPlacementHudVisibility();
+            return result;
+        }
+
+        public RtsCommandResult PlaceAtHoveredCell()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+            if (!driver.HasHoveredCell)
+                return LogAndReturn(RtsCommandResult.Fail("NoHoveredCell", "Hover a board cell before placing."));
+
+            var result = driver.TryPlacePendingBuildingAtCell(driver.HoveredPlacementCell);
+            if (!result.Success)
+            {
+                var nearbyResult = driver.TryPlacePendingBuildingNearHoveredCell(6);
+                if (nearbyResult.Success)
+                    result = nearbyResult;
+            }
+
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            SyncPlacementHudVisibility();
+            return result;
+        }
+
+        public RtsCommandResult PlaceAtSuggestedCell()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryPlacePendingBuildingAtSuggestedCell();
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            SyncPlacementHudVisibility();
+            return result;
+        }
+
+        public void SetMoveMode()
+        {
+            CurrentMode = DesktopCommandMode.Move;
+            Info("Move mode: left-click a board cell or right-click to issue a move order.");
+        }
+
+        public void SetAttackPlaceholderMode()
+        {
+            CurrentMode = DesktopCommandMode.AttackPlaceholder;
+            Info("Attack mode: left-click an enemy actor to issue a deterministic attack order.");
+        }
+
+        public void SetAttackMoveMode()
+        {
+            CurrentMode = DesktopCommandMode.AttackMove;
+            Info("Attack-move mode: left-click a board cell to move while engaging enemies in range.");
+        }
+
+        public void SetPatrolMode()
+        {
+            CurrentMode = DesktopCommandMode.Patrol;
+            Info("Patrol mode: left-click a board cell to send selected units on a patrol foundation order.");
+        }
+
+        public void SetRallyMode()
+        {
+            CurrentMode = DesktopCommandMode.Rally;
+            Info("Rally mode: select one production building, then left-click a board cell for spawned units.");
+        }
+
+        public void SetCaptureMode()
+        {
+            CurrentMode = DesktopCommandMode.Capture;
+            Info("Capture mode: select one engineer, then left-click an enemy building.");
+        }
+
+        public void SetEngineerRepairMode()
+        {
+            CurrentMode = DesktopCommandMode.EngineerRepair;
+            Info("Engineer repair mode: select one engineer, then left-click a damaged owned building.");
+        }
+
+        public void SetLoadTransportMode()
+        {
+            CurrentMode = DesktopCommandMode.LoadTransport;
+            Info("Load mode: select infantry passengers, then left-click an owned transport.");
+        }
+
+        public void SetUnloadTransportMode()
+        {
+            CurrentMode = DesktopCommandMode.UnloadTransport;
+            Info("Unload mode: select one transport, then left-click an unload cell.");
+        }
+
+        public RtsCommandResult IssueMoveToCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssueMoveSelectedToCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueAttackMoveToCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssueAttackMoveSelectedToCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueAttackToCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssueAttackSelectedAtCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssuePatrolToCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssuePatrolSelectedToCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueRallyToCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TrySetRallyPointForSelectedProducer(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueCaptureAtCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryCaptureSelectedAtCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueEngineerRepairAtCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryEngineerRepairSelectedAtCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueLoadTransportAtCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryLoadSelectedIntoTransportAtCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult IssueUnloadTransportAtCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryUnloadSelectedTransportAtCell(cell);
+            if (result.Success)
+                CurrentMode = DesktopCommandMode.Normal;
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult SelectAtCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TrySelectActorAtCell(cell);
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult SelectSameTypeAtCell(Int2 cell)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TrySelectOwnedActorsOfSameTypeAtCell(cell);
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult StopSelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryStopSelected();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult GuardSelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssueGuardSelected();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult ScatterSelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssueScatterSelected();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult DeploySelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryIssueDeploySelected();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult RepairSelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryBeginRepairSelectedBuilding();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult SellSelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TrySellSelectedBuilding();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult TogglePause()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TogglePause();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult StepTick()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.StepOneTick();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult TriggerLowPowerDemo()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryForceLowPowerOrCreateLowPowerDemoCondition();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult CancelProduction(int queueItemId)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryCancelProduction(queueItemId);
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult TogglePowerSelected()
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var result = driver.TryTogglePowerSelected();
+            Log(result);
+            return result;
+        }
+
+        public RtsCommandResult ActivateSupportPowerAtHoveredCell(string powerId)
+        {
+            if (!EnsureDriver())
+                return RtsCommandResult.Fail("DriverMissing", "Simulation driver is not available.");
+
+            var targetCell = driver.HasHoveredCell ? driver.HoveredCoarseCell : Int2.Zero;
+            SupportPowerDefinition definition;
+            var needsCell = driver.Rules == null || !driver.Rules.TryGetSupportPowerDefinition(powerId, out definition) || definition.TargetKind == SupportPowerTargetKind.Cell;
+            if (needsCell && !driver.HasHoveredCell)
+                return LogAndReturn(RtsCommandResult.Fail("NoHoveredCell", "Hover a board cell before using a targeted support power."));
+
+            var result = driver.TryActivateSupportPowerAtCell(powerId, targetCell);
+            Log(result);
+            return result;
+        }
+
+        public void CancelActiveMode()
+        {
+            if (driver != null && driver.HasPlacementMode)
+            {
+                CancelPlacement();
+                return;
+            }
+
+            if (CurrentMode != DesktopCommandMode.Normal)
+            {
+                CurrentMode = DesktopCommandMode.Normal;
+                Info("Command mode cancelled.");
+                return;
+            }
+
+            if (driver != null)
+                Log(driver.ClearSelection());
+        }
+
+        public void Placeholder(string commandName)
+        {
+            Warning(commandName + " is reserved for a later stage.");
+        }
+
+        public void NoteControlGroupAssigned(int groupIndex, int actorCount)
+        {
+            Info("Control group " + groupIndex + " assigned (" + actorCount + " actors).");
+        }
+
+        public void NoteControlGroupRecalled(int groupIndex, int actorCount)
+        {
+            Info("Control group " + groupIndex + " recalled (" + actorCount + " actors).");
+        }
+
+        bool EnsureDriver()
+        {
+            return driver != null;
+        }
+
+        RtsCommandResult LogAndReturn(RtsCommandResult result)
+        {
+            Log(result);
+            return result;
+        }
+
+        void Log(RtsCommandResult result)
+        {
+            if (statusLog != null)
+                statusLog.AddResult(result);
+            else
+                Debug.Log(result.ToString());
+        }
+
+        void SyncPlacementHudVisibility()
+        {
+            var visibility = FindAnyObjectByType<DebugHudVisibilityController>();
+            if (visibility != null)
+                visibility.ApplyPlayerFacingDefaults();
+        }
+
+        void Info(string message)
+        {
+            if (statusLog != null)
+                statusLog.AddInfo(message);
+            else
+                Debug.Log(message);
+        }
+
+        void Warning(string message)
+        {
+            if (statusLog != null)
+                statusLog.AddWarning(message);
+            else
+                Debug.LogWarning(message);
+        }
+    }
+}

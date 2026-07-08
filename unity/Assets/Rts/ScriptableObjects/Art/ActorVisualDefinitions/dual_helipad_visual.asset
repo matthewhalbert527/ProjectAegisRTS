@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: dual_helipad_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: dual_helipad
+  displayName: Dual Helipad
+  safeDisplayName: Dual Helipad
+  category: 0
+  productionStatus: 6
+  conceptReference: {fileID: 11400000, guid: 54c09113188547a48ac76cb4e2fa0867, type: 2}
+  icon: {fileID: 21300000, guid: ab0ea03366c01fa4a9e1bb583c006028, type: 3}
+  generatedBlockoutPrefab: {fileID: 6465439834423868224, guid: f82ddb40a6df90f42a7e9b45965c0e41, type: 3}
+  productionPrefab: {fileID: 8349421785276347007, guid: 1531e48ba18fc944d827e3bfef596960, type: 3}
+  fallbackPrefab: {fileID: 0}
+  preferredPrefabMode: 1
+  motionProfileId: building_static
+  buildingProfileId: dual_helipad_building_visual
+  selectionRadius: 1.6800001
+  selectionHeight: 0.08
+  footprintWidth: 3
+  footprintHeight: 2
+  visualScale: 1
+  prefabHeightOffset: 0
+  useBuildingVisualController: 1
+  useVehicleMotionController: 0
+  useInfantryMotionController: 0
+  useAircraftMotionController: 0
+  useTurretVisualController: 0
+  requiredSockets: 02000000010000000300000004000000050000000f000000
+  notes: Unity AI building slate production prefab. Textured, socketed, and rigged
+    for powered idle and production movement.
+  ipReviewRequired: 0
+  sourceConceptOriginalLabel: Dual Helipad
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_15_11
+    PM (3).png

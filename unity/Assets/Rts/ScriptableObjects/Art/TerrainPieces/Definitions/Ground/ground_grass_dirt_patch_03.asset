@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66a000060d9aeb4469833873d60a3ad0, type: 3}
+  m_Name: ground_grass_dirt_patch_03
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceDefinition
+  pieceId: ground_grass_dirt_patch_03
+  displayName: Grass dirt patch 03
+  category: 0
+  sizeClass: 6
+  footprintFineWidth: 4
+  footprintFineHeight: 3
+  prefab: {fileID: 4417018906452344811, guid: 752405f91e8d290449191dbd939d68ce, type: 3}
+  materialProfileId: grass_dirt
+  passabilityVisualHint: Passable visual ground.
+  buildableVisualHint: Buildable hint; stays below fine grid.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 0
+  notes: Uses Unity Terrain Sample Asset Pack terrain layer textures and foliage/detail
+    prefabs for the player-facing ground tile replacement. Visual only; gameplay
+    authority remains in Rts.Core.
+  questBudgetTag: QuestSafeTerrainSample

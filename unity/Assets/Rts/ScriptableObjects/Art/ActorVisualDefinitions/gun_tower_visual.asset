@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: gun_tower_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: gun_tower
+  displayName: Gun Tower
+  safeDisplayName: Gun Tower
+  category: 1
+  productionStatus: 2
+  conceptReference: {fileID: 11400000, guid: b071486045ae0e449868423bcfcacabf, type: 2}
+  icon: {fileID: 21300000, guid: 71dd27bf0b3159e4d97ebfd5bbf71d7b, type: 3}
+  generatedBlockoutPrefab: {fileID: 3486866437742417028, guid: 9a32d69d95252ca479a97ea02bb312bd, type: 3}
+  productionPrefab: {fileID: 7846763928092025489, guid: 75e4177064e88c04195893b2ae77bd2e, type: 3}
+  fallbackPrefab: {fileID: 3486866437742417028, guid: 9a32d69d95252ca479a97ea02bb312bd, type: 3}
+  preferredPrefabMode: 1
+  motionProfileId: default_defense
+  buildingProfileId: gun_tower_building_visual
+  selectionRadius: 0.56
+  selectionHeight: 0.08
+  footprintWidth: 1
+  footprintHeight: 1
+  visualScale: 1
+  prefabHeightOffset: 0
+  useBuildingVisualController: 1
+  useVehicleMotionController: 0
+  useInfantryMotionController: 0
+  useAircraftMotionController: 0
+  useTurretVisualController: 1
+  requiredSockets: 0000000001000000020000000300000004000000060000000800000009000000160000001700000018000000
+  notes: 'Unity AI building slate production prefab. Textured, socketed, and rigged
+    for powered idle and production movement.
+
+    Stage 20: MVP first-pass production
+    proxy is assigned as the preferred prefab.
+
+    Stage 21: proxy is QA-ready for
+    artist model replacement; preserve sockets, pivot, footprint scale, LODGroup,
+    and fallback.'
+  ipReviewRequired: 0
+  sourceConceptOriginalLabel: Gun Tower
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_14_54
+    PM (3).png

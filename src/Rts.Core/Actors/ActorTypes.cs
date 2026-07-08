@@ -23,9 +23,29 @@ namespace ProjectAegisRTS.Actors
         Idle,
         Move,
         Attack,
+        AttackMove,
+        Guard,
+        Patrol,
+        Scatter,
+        Deploy,
+        Repair,
+        Sell,
+        Harvest,
         Stop,
         RallyPoint,
-        PowerToggle
+        PowerToggle,
+        Capture,
+        EngineerRepair,
+        LoadTransport,
+        UnloadTransport
+    }
+
+    public enum EngineerActionKind
+    {
+        None,
+        CaptureBuilding,
+        RepairBuilding,
+        LoadTransport
     }
 
     public sealed class ActorState
@@ -34,6 +54,8 @@ namespace ProjectAegisRTS.Actors
         public int OwnerPlayerId { get; private set; }
         public string TypeId { get; private set; }
         public Int2 CellPosition { get; set; }
+        public Int2 PlacementTopLeftCell { get; private set; }
+        public Int2 PlacementFootprintCells { get; private set; }
         public Int2 WorldPositionFixed { get; set; }
         public int Health { get; set; }
         public ActorOrderKind CurrentOrder { get; set; }
@@ -53,6 +75,24 @@ namespace ProjectAegisRTS.Actors
         public int NormalizedSpeed { get; set; }
         public string MovementPhase { get; set; }
         public Int2 RallyPoint { get; set; }
+        public int AttackTargetActorId { get; set; }
+        public Int2 AttackTargetCell { get; set; }
+        public int WeaponCooldownRemaining { get; set; }
+        public bool IsAttacking { get; set; }
+        public int LastDamageTick { get; set; }
+        public bool IsDying { get; set; }
+        public bool IsDestroyed { get; set; }
+        public int DeathTick { get; set; }
+        public int DestroyedByActorId { get; set; }
+        public string ActiveWeaponId { get; set; }
+        public bool HasHarvestOrder { get; set; }
+        public bool IsRepairing { get; set; }
+        public int RepairProgressTicks { get; set; }
+        public int RepairSpentCredits { get; set; }
+        public EngineerActionKind PendingEngineerAction { get; set; }
+        public int EngineerTargetActorId { get; set; }
+        public int LoadedIntoTransportActorId { get; set; }
+        public List<int> TransportPassengerActorIds { get; private set; }
 
         public ActorState(ActorId id, int ownerPlayerId, string typeId, Int2 cellPosition, int health)
         {
@@ -60,6 +100,8 @@ namespace ProjectAegisRTS.Actors
             OwnerPlayerId = ownerPlayerId;
             TypeId = typeId;
             CellPosition = cellPosition;
+            PlacementTopLeftCell = PlacementGridMetrics.CoarseCellToPlacementCell(cellPosition);
+            PlacementFootprintCells = Int2.Zero;
             WorldPositionFixed = FixedMath.CellCenter(cellPosition);
             Health = health;
             CurrentOrder = ActorOrderKind.Idle;
@@ -78,6 +120,36 @@ namespace ProjectAegisRTS.Actors
             NormalizedSpeed = 0;
             MovementPhase = "idle";
             RallyPoint = cellPosition;
+            AttackTargetActorId = 0;
+            AttackTargetCell = cellPosition;
+            WeaponCooldownRemaining = 0;
+            IsAttacking = false;
+            LastDamageTick = -1;
+            IsDying = false;
+            IsDestroyed = false;
+            DeathTick = -1;
+            DestroyedByActorId = 0;
+            ActiveWeaponId = string.Empty;
+            HasHarvestOrder = false;
+            IsRepairing = false;
+            RepairProgressTicks = 0;
+            RepairSpentCredits = 0;
+            PendingEngineerAction = EngineerActionKind.None;
+            EngineerTargetActorId = 0;
+            LoadedIntoTransportActorId = 0;
+            TransportPassengerActorIds = new List<int>();
+        }
+
+        public void SetBuildingPlacement(Int2 topLeftPlacementCell, Int2 placementFootprintCells)
+        {
+            PlacementTopLeftCell = topLeftPlacementCell;
+            PlacementFootprintCells = placementFootprintCells;
+            WorldPositionFixed = PlacementGridMetrics.PlacementFootprintCenterFixed(topLeftPlacementCell, placementFootprintCells);
+        }
+
+        public void SetOwner(int ownerPlayerId)
+        {
+            OwnerPlayerId = ownerPlayerId;
         }
     }
 }

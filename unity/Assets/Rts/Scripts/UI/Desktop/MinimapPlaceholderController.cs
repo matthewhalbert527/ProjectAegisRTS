@@ -1,0 +1,108 @@
+using System.Collections.Generic;
+using ProjectAegisRTS.Data;
+using ProjectAegisRTS.Snapshots;
+using ProjectAegisRTS.UnityClient.CoreBridge;
+using ProjectAegisRTS.UnityClient.UI.Common;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace ProjectAegisRTS.UnityClient.UI.Desktop
+{
+    public sealed class MinimapPlaceholderController : MonoBehaviour
+    {
+        readonly List<Image> dots = new List<Image>();
+        RtsSimulationDriver driver;
+        RectTransform dotRoot;
+        Text label;
+
+        public void Initialize(RtsSimulationDriver simulationDriver)
+        {
+            driver = simulationDriver;
+            BuildIfNeeded();
+        }
+
+        void Update()
+        {
+            Refresh();
+        }
+
+        void BuildIfNeeded()
+        {
+            if (dotRoot != null)
+                return;
+
+            RtsUiFactory.Stretch(gameObject, Vector2.zero, Vector2.zero);
+            RtsUiFactory.AddPanel(gameObject, new Color(0.02f, 0.03f, 0.04f, 0.92f));
+            label = RtsUiFactory.CreateText(transform, "Label", "Minimap", 12, Color.white, TextAnchor.UpperLeft);
+            label.rectTransform.offsetMin = new Vector2(6f, -22f);
+            label.rectTransform.offsetMax = new Vector2(-6f, -4f);
+
+            var root = new GameObject("Actor Dots");
+            root.transform.SetParent(transform, false);
+            dotRoot = root.AddComponent<RectTransform>();
+            dotRoot.anchorMin = Vector2.zero;
+            dotRoot.anchorMax = Vector2.one;
+            dotRoot.offsetMin = new Vector2(6f, 6f);
+            dotRoot.offsetMax = new Vector2(-6f, -24f);
+        }
+
+        void Refresh()
+        {
+            if (driver == null || driver.LatestSnapshot == null || dotRoot == null)
+                return;
+
+            var snapshot = driver.LatestSnapshot;
+            var useMinimap = snapshot.Minimap != null && snapshot.Minimap.ActorDots.Count > 0;
+            var dotCount = useMinimap ? snapshot.Minimap.ActorDots.Count : snapshot.Actors.Count;
+            while (dots.Count < dotCount)
+            {
+                var dot = new GameObject("Dot");
+                dot.transform.SetParent(dotRoot, false);
+                var image = dot.AddComponent<Image>();
+                image.color = new Color(0.32f, 0.86f, 0.44f, 1f);
+                image.rectTransform.sizeDelta = new Vector2(5f, 5f);
+                dots.Add(image);
+            }
+
+            for (var i = 0; i < dots.Count; i++)
+            {
+                if (i >= dotCount)
+                {
+                    dots[i].gameObject.SetActive(false);
+                    continue;
+                }
+
+                dots[i].gameObject.SetActive(true);
+                dots[i].rectTransform.anchorMin = Vector2.zero;
+                dots[i].rectTransform.anchorMax = Vector2.zero;
+                if (useMinimap)
+                    ApplyMinimapDot(dots[i], snapshot.Minimap.ActorDots[i], snapshot.Minimap.Width, snapshot.Minimap.Height);
+                else
+                    ApplyActorDot(dots[i], snapshot.Actors[i], snapshot.Map.Width, snapshot.Map.Height);
+            }
+        }
+
+        void ApplyMinimapDot(Image dot, MinimapActorDotSnapshot actor)
+        {
+            ApplyMinimapDot(dot, actor, 32, 32);
+        }
+
+        void ApplyMinimapDot(Image dot, MinimapActorDotSnapshot actor, int width, int height)
+        {
+            dot.color = actor.IsEnemy ? new Color(0.95f, 0.22f, 0.18f, 1f) : new Color(0.32f, 0.86f, 0.44f, 1f);
+            dot.rectTransform.sizeDelta = actor.IsEnemy ? new Vector2(5f, 5f) : new Vector2(4f, 4f);
+            dot.rectTransform.anchoredPosition = new Vector2(actor.Cell.X / (float)Mathf.Max(1, width) * dotRoot.rect.width, actor.Cell.Y / (float)Mathf.Max(1, height) * dotRoot.rect.height);
+        }
+
+        void ApplyActorDot(Image dot, ActorSnapshot actor, int width, int height)
+        {
+            ActorDefinition definition;
+            var isBuilding = driver.TryGetDefinition(actor.TypeId, out definition) && definition is BuildingDefinition;
+            dot.color = isBuilding ? new Color(0.95f, 0.74f, 0.28f, 1f) : new Color(0.36f, 0.88f, 0.50f, 1f);
+            dot.rectTransform.sizeDelta = isBuilding ? new Vector2(7f, 7f) : new Vector2(4f, 4f);
+            dot.rectTransform.anchoredPosition = new Vector2(
+                actor.CellPosition.X / (float)Mathf.Max(1, width) * dotRoot.rect.width,
+                actor.CellPosition.Y / (float)Mathf.Max(1, height) * dotRoot.rect.height);
+        }
+    }
+}

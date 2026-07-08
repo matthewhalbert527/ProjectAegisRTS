@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66a000060d9aeb4469833873d60a3ad0, type: 3}
+  m_Name: prop_shell_mark_01
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Rendering.TerrainPieces.TerrainPieceDefinition
+  pieceId: prop_shell_mark_01
+  displayName: Shell mark 01
+  category: 5
+  sizeClass: 6
+  footprintFineWidth: 2
+  footprintFineHeight: 2
+  prefab: {fileID: 1332586066939857769, guid: 91a5ea914c7e60a4da5c233d77909822, type: 3}
+  materialProfileId: tire
+  passabilityVisualHint: Shell mark visual.
+  buildableVisualHint: Passable visual-only scar.
+  supportsRotation: 1
+  supportsTint: 0
+  isGameplayBlockingVisualOnly: 0
+  notes: Stage32.6 runtime terrain assembly mapped from crater_01. Reference sheets
+    are art direction only; this prefab is visual-only and never gameplay authority.
+  questBudgetTag: QuestSafeLow

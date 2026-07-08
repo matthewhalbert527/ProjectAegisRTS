@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44b30049862eab748b66a59b97aaf855, type: 3}
+  m_Name: apc_visual
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectAegisRTS.UnityClient.Art.ActorVisualDefinition
+  actorTypeId: apc
+  displayName: APC
+  safeDisplayName: Apc
+  category: 3
+  productionStatus: 1
+  conceptReference: {fileID: 11400000, guid: e4a1d59e55d2ed641b08a9d24d19f9cf, type: 2}
+  icon: {fileID: 21300000, guid: 69f0bd2b8182e9846ae8518cf12004f5, type: 3}
+  generatedBlockoutPrefab: {fileID: 1616241705884954453, guid: dc6d4bd1d7de9a8478ff02fa7582a977, type: 3}
+  productionPrefab: {fileID: 0}
+  fallbackPrefab: {fileID: 0}
+  preferredPrefabMode: 0
+  motionProfileId: wheeled_apc
+  buildingProfileId:
+  selectionRadius: 0.6
+  selectionHeight: 0.1
+  footprintWidth: 1
+  footprintHeight: 1
+  visualScale: 1
+  prefabHeightOffset: 0
+  useBuildingVisualController: 0
+  useVehicleMotionController: 1
+  useInfantryMotionController: 0
+  useAircraftMotionController: 0
+  useTurretVisualController: 1
+  requiredSockets: 00000000010000000200000003000000040000000600000008000000090000000a0000000b0000001700000018000000
+  notes: 'APC is generic but final design should be uniquely branded.
+
+    Door/hatch,
+    passengers later, wheel/track motion, turret if equipped.'
+  ipReviewRequired: 0
+  sourceConceptOriginalLabel: APC
+  sourceConceptRelativePath: art/concepts/source/ChatGPT Image Jun 28, 2026, 02_15_02
+    PM (2).png
