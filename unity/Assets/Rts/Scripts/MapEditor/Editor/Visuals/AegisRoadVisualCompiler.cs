@@ -76,8 +76,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var dustWidth = Mathf.Clamp(run.Width * 0.88f, 1.62f, 2.85f);
             var path = BuildRoadPath(context, segmentIndex, runIndex, run, length);
 
-            CreateRoadRibbonMesh(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, path, dustWidth, 0f, 0.052f, dustMaterial, context, segmentIndex, runIndex, 7310, 0.16f, 48f);
-            CreateRoadRibbonMesh(layer, "road_body_" + segmentIndex + "_" + runIndex, path, width, 0f, 0.070f, roadMaterial, context, segmentIndex, runIndex, 7300, 0.10f, 40f);
+            CreateRoadRibbonMesh(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, path, dustWidth, 0f, 0.052f, dustMaterial, context, segmentIndex, runIndex, 7310, 0.16f, 22f);
+            CreateRoadRibbonMesh(layer, "road_body_" + segmentIndex + "_" + runIndex, path, width, 0f, 0.070f, roadMaterial, context, segmentIndex, runIndex, 7300, 0.10f, 10f);
             CreateRoadRibbonMesh(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, path, 0.30f, width * 0.58f, 0.084f, edgeMaterial, context, segmentIndex, runIndex, 7200, 0.18f, 16f);
             CreateRoadRibbonMesh(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, path, 0.30f, -width * 0.58f, 0.084f, edgeMaterial, context, segmentIndex, runIndex, 7210, 0.18f, 16f);
             summary.RoadDetailDecalCount += 4;

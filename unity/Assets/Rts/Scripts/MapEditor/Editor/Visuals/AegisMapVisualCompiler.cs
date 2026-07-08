@@ -614,7 +614,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 return;
 
             var tiling = Vector2.one;
-            if (IsTileableSurfaceRole(role))
+            if (role == "road.dirt")
+                tiling = new Vector2(1.15f, 1.65f);
+            else if (role == "road.gravel")
+                tiling = new Vector2(1.35f, 1.75f);
+            else if (IsTileableSurfaceRole(role))
                 tiling = new Vector2(3.5f, 3.5f);
 
             material.mainTextureScale = tiling;

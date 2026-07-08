@@ -8,7 +8,7 @@ The installed `ProjectAegis_MapVisualArtPack_v1` folder now contains the rebuilt
 
 ## Current Texture Baseline
 
-The terrain texture baseline now uses original procedural production-proxy maps for forest grass, dark grass, dirt paths, gravel/rough ground, and muddy banks. These textures are more detailed than the initial flat color tiles: they include multi-scale tonal variation, compacted soil grain, gravel speckles, grass blade strokes, regenerated normal maps, and roughness/AO masks. This keeps close-up previews from relying only on transparent decals to hide a flat terrain plane.
+The terrain texture baseline now uses original procedural production-proxy maps for forest grass, dark grass, dirt paths, gravel/rough ground, muddy banks, and compacted road soil. These textures are more detailed than the initial flat color tiles: they include multi-scale tonal variation, compacted soil grain, gravel speckles, grass blade strokes, regenerated normal maps, and roughness/AO masks. This keeps close-up previews from relying only on transparent decals to hide a flat terrain plane.
 
 Terrain detail decals remain a secondary layer. They add small deterministic grass, dry-grass, shadow, soil, wet-bank, and rubble marks on top of the terrain textures, but the texture set itself now carries the first layer of realism.
 
@@ -18,7 +18,7 @@ Terrain detail decals remain a secondary layer. They add small deterministic gra
 - Resources must read as fields with density and depletion state, not isolated sparkly rocks.
 - Cliffs must read as continuous height/blocker edges with straight pieces, corners, and endcaps.
 - Roads must guide movement without becoming noisy brown fog.
-- Rivers must show a merged water body, shoreline wetness, and shallow ford or bridge hints where gameplay allows crossing.
+- Rivers must show a merged water body, shoreline wetness, broken water-edge depth/ripple details, and shallow ford or bridge hints where gameplay allows crossing.
 - Scatter must support biome and topology: trees on suitable terrain, rocks near cliffs, rubble near craters, and no clutter in start/build zones.
 
 ## Biomes
@@ -34,7 +34,7 @@ Future themes should keep the same semantic roles and only change asset/material
 ## Current Limits
 
 - The compiler now has chunk/layer semantics, but terrain rendering is still a prototype scene-object implementation rather than a final shader-layer terrain.
-- Production preview now hides debug overlays by default and uses smaller/mixed terrain chunks, strip-merged water, bridge prototypes, capped resource glints, procedural terrain textures, layered surface detail, and clustered scatter.
+- Production preview now hides debug overlays by default and uses smaller/mixed terrain chunks, strip-merged water with patch-based edge detail, bridge prototypes, capped resource glints, procedural terrain textures, layered surface detail, and clustered scatter.
 - The installed v2 art pack provides semantic terrain textures, decals, and GLB meshes, but it is still production-proxy content rather than final hand-authored shipping art.
 - Cliff, river, and resource assets need final sculpted/prefab variants.
 - Camera capture is functional QA, not final promotional rendering.

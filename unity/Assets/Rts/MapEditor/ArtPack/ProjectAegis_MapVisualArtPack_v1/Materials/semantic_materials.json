@@ -85,10 +85,10 @@
   },
   {
     "semanticRole": "road.dirt",
-    "albedo": "Terrain/dirt_path_albedo.png",
-    "normal": "Terrain/dirt_path_normal.png",
-    "roughnessAo": "Terrain/dirt_path_roughness_ao.png",
-    "qualityStatus": "production_proxy_v2"
+    "albedo": "Terrain/road_compacted_albedo.png",
+    "normal": "Terrain/road_compacted_normal.png",
+    "roughnessAo": "Terrain/road_compacted_roughness_ao.png",
+    "qualityStatus": "production_proxy_v2_detail_pass"
   },
   {
     "semanticRole": "road.gravel",
@@ -145,5 +145,20 @@
     "normal": "Terrain/cliff_ground_normal.png",
     "roughnessAo": "Terrain/cliff_ground_roughness_ao.png",
     "qualityStatus": "production_proxy_v2"
+  },
+  {
+    "semanticRole": "river.depth_edge",
+    "albedo": "Decals/River/muddy_shoreline_02.png",
+    "qualityStatus": "production_proxy_v2_detail_pass"
+  },
+  {
+    "semanticRole": "river.shallow_edge",
+    "albedo": "Decals/River/water_highlight_streaks.png",
+    "qualityStatus": "production_proxy_v2_detail_pass"
+  },
+  {
+    "semanticRole": "river.ripple",
+    "albedo": "Decals/River/water_highlight_streaks.png",
+    "qualityStatus": "production_proxy_v2_detail_pass"
   }
 ]

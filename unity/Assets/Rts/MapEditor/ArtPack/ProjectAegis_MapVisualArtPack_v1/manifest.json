@@ -1918,7 +1918,55 @@
       ],
       "pivotNotes": "base_center",
       "recommendedPlacementRules": "semantic visual compiler rule"
+    },
+    {
+      "id": "road_compacted_albedo",
+      "category": "terrain_texture",
+      "path": "Terrain/road_compacted_albedo.png",
+      "unityScale": [
+        1,
+        1,
+        1
+      ],
+      "pivotNotes": "base_center",
+      "recommendedPlacementRules": "semantic visual compiler rule",
+      "semanticRole": "road.dirt",
+      "tileable": true,
+      "intendedResolution": "2048x2048",
+      "qualityStatus": "production_proxy_v2_detail_pass"
+    },
+    {
+      "id": "road_compacted_normal",
+      "category": "terrain_texture",
+      "path": "Terrain/road_compacted_normal.png",
+      "unityScale": [
+        1,
+        1,
+        1
+      ],
+      "pivotNotes": "base_center",
+      "recommendedPlacementRules": "semantic visual compiler rule",
+      "semanticRole": "road.dirt",
+      "tileable": true,
+      "intendedResolution": "2048x2048",
+      "qualityStatus": "production_proxy_v2_detail_pass"
+    },
+    {
+      "id": "road_compacted_roughness_ao",
+      "category": "terrain_texture",
+      "path": "Terrain/road_compacted_roughness_ao.png",
+      "unityScale": [
+        1,
+        1,
+        1
+      ],
+      "pivotNotes": "base_center",
+      "recommendedPlacementRules": "semantic visual compiler rule",
+      "semanticRole": "road.dirt",
+      "tileable": true,
+      "intendedResolution": "2048x2048",
+      "qualityStatus": "production_proxy_v2_detail_pass"
     }
   ],
-  "notes": "Folder name remains v1 to match current AegisMapArtPack.Root; contents are the v2 rebuilt production-proxy art packet."
+  "notes": "Folder name remains v1 to match current AegisMapArtPack.Root; contents are the v2 rebuilt production-proxy art packet with an added compacted-road texture set for road-specific visual compiler materials."
 }

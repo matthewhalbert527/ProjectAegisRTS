@@ -20,7 +20,7 @@ Run from batch mode:
 - Debug overlays are disabled by default.
 - Temporary `sample_small_100.local-export.tiled.json` is absent.
 - Art-pack manifest and `Materials/semantic_materials.json` exist.
-- Core terrain, water, river, base-pad, resource-dust, road-dust, bridge, battlefield decal, and layered terrain-detail roles have texture paths.
+- Core terrain, water, river, base-pad, resource-dust, road-dust, compacted-road, bridge, battlefield decal, and layered terrain-detail roles have texture paths.
 - Production terrain chunk size is below the old 16x16 dominant-role path.
 - The showcase sample compiles a production preview root.
 - Production output contains no debug-named overlay layer.
@@ -28,6 +28,7 @@ Run from batch mode:
 - Production terrain detail decals are present at the stricter layered-surface threshold.
 - Water cells compile into merged water strips plus at least one production water ribbon mesh.
 - Water cells compile at least one production shoreline bank mesh.
+- Water cells compile water-edge depth/shallow/ripple details so the production preview does not fall back to a hard unadorned water cutout.
 - Road-water conflicts are zero because water crossings become bridge prototype pieces.
 - Road detail decals are present when roads are present.
 - Base pads produce layered panel, trim, crack, grime, and construction-wear decals.
@@ -36,7 +37,7 @@ Run from batch mode:
 
 ## Limitations
 
-This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, missing shoreline bank meshes, fallback-only visuals, missing layered terrain detail decals, missing road/pad detail decals, missing required art-pack texture paths, or unchecked road-water conflicts.
+This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, missing shoreline bank meshes or water-edge details, fallback-only visuals, missing layered terrain detail decals, missing road/pad detail decals, missing required art-pack texture paths, or unchecked road-water conflicts.
 
 ## Required Hygiene
 

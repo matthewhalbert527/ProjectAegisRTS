@@ -28,11 +28,14 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("terrain.cliff_ground", new Color(0.34f, 0.34f, 0.31f, 1f))
                 .Add("terrain.ore_stained_soil", new Color(0.45f, 0.34f, 0.13f, 0.76f), transparent: true)
                 .Add("terrain.concrete_base_pad", new Color(0.72f, 0.74f, 0.70f, 1f))
-                .Add("road.dirt", new Color(0.42f, 0.32f, 0.22f, 0.46f), transparent: true)
+                .Add("road.dirt", new Color(0.38f, 0.29f, 0.20f, 0.36f), transparent: true)
                 .Add("road.gravel", new Color(0.45f, 0.43f, 0.37f, 0.54f), transparent: true)
                 .Add("river.water", new Color(0.07f, 0.27f, 0.34f, 0.90f), transparent: true)
                 .Add("river.shoreline", new Color(0.36f, 0.27f, 0.17f, 0.24f), transparent: true)
                 .Add("river.shoreline_feather", new Color(0.42f, 0.35f, 0.23f, 0.14f), transparent: true)
+                .Add("river.depth_edge", new Color(0.018f, 0.060f, 0.062f, 0.16f), transparent: true, albedo: "Decals/River/muddy_shoreline_02.png")
+                .Add("river.shallow_edge", new Color(0.30f, 0.52f, 0.48f, 0.012f), transparent: true, albedo: "Decals/River/water_highlight_streaks.png")
+                .Add("river.ripple", new Color(0.48f, 0.78f, 0.82f, 0.030f), transparent: true, albedo: "Decals/River/water_highlight_streaks.png")
                 .Add("cliff.edge.straight", new Color(0.36f, 0.36f, 0.34f, 1f))
                 .Add("cliff.edge.corner_inner", new Color(0.30f, 0.30f, 0.28f, 1f))
                 .Add("cliff.edge.corner_outer", new Color(0.42f, 0.42f, 0.39f, 1f))
@@ -67,8 +70,8 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("terrain.blend_gravel", new Color(0.30f, 0.28f, 0.24f, 0.28f), transparent: true, albedo: "Decals/Battlefield/rubble_scatter_01.png")
                 .Add("terrain.blend_mud", new Color(0.16f, 0.11f, 0.07f, 0.30f), transparent: true, albedo: "Decals/River/muddy_shoreline_01.png")
                 .Add("water.highlight", new Color(0.32f, 0.72f, 0.78f, 0.28f), transparent: true, albedo: "Decals/River/water_highlight_streaks.png")
-                .Add("road.soft_dust", new Color(0.50f, 0.40f, 0.29f, 0.38f), transparent: true, albedo: "Decals/Roads/soft_dust_overlay.png")
-                .Add("road.worn_edge", new Color(0.58f, 0.50f, 0.38f, 0.38f), transparent: true, albedo: "Decals/Roads/worn_path_edge_01.png")
+                .Add("road.soft_dust", new Color(0.46f, 0.37f, 0.27f, 0.34f), transparent: true, albedo: "Decals/Roads/soft_dust_overlay.png")
+                .Add("road.worn_edge", new Color(0.52f, 0.45f, 0.34f, 0.30f), transparent: true, albedo: "Decals/Roads/worn_path_edge_01.png")
                 .Add("road.mud_track", new Color(0.24f, 0.17f, 0.11f, 0.48f), transparent: true, albedo: "Decals/Roads/mud_track_01.png")
                 .Add("road.tire_left", new Color(0.18f, 0.14f, 0.10f, 0.44f), transparent: true, albedo: "Decals/Roads/tire_rut_left.png")
                 .Add("road.tire_right", new Color(0.18f, 0.14f, 0.10f, 0.44f), transparent: true, albedo: "Decals/Roads/tire_rut_right.png")
@@ -106,11 +109,14 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("terrain.cliff_ground", new Color(0.42f, 0.37f, 0.30f, 1f))
                 .Add("terrain.ore_stained_soil", new Color(0.57f, 0.39f, 0.14f, 0.76f), transparent: true)
                 .Add("terrain.concrete_base_pad", new Color(0.76f, 0.75f, 0.69f, 1f))
-                .Add("road.dirt", new Color(0.53f, 0.39f, 0.24f, 0.48f), transparent: true)
+                .Add("road.dirt", new Color(0.49f, 0.36f, 0.22f, 0.38f), transparent: true)
                 .Add("road.gravel", new Color(0.49f, 0.44f, 0.36f, 0.56f), transparent: true)
                 .Add("river.water", new Color(0.08f, 0.31f, 0.36f, 0.88f), transparent: true)
                 .Add("river.shoreline", new Color(0.45f, 0.31f, 0.18f, 0.24f), transparent: true)
                 .Add("river.shoreline_feather", new Color(0.50f, 0.39f, 0.24f, 0.14f), transparent: true)
+                .Add("river.depth_edge", new Color(0.025f, 0.070f, 0.064f, 0.16f), transparent: true, albedo: "Decals/River/muddy_shoreline_02.png")
+                .Add("river.shallow_edge", new Color(0.34f, 0.56f, 0.46f, 0.012f), transparent: true, albedo: "Decals/River/water_highlight_streaks.png")
+                .Add("river.ripple", new Color(0.52f, 0.76f, 0.76f, 0.030f), transparent: true, albedo: "Decals/River/water_highlight_streaks.png")
                 .Add("cliff.edge.straight", new Color(0.46f, 0.41f, 0.34f, 1f))
                 .Add("cliff.edge.corner_inner", new Color(0.38f, 0.34f, 0.28f, 1f))
                 .Add("cliff.edge.corner_outer", new Color(0.52f, 0.46f, 0.38f, 1f))
@@ -145,8 +151,8 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("terrain.blend_gravel", new Color(0.36f, 0.31f, 0.25f, 0.28f), transparent: true, albedo: "Decals/Battlefield/rubble_scatter_01.png")
                 .Add("terrain.blend_mud", new Color(0.22f, 0.15f, 0.09f, 0.30f), transparent: true, albedo: "Decals/River/muddy_shoreline_01.png")
                 .Add("water.highlight", new Color(0.35f, 0.70f, 0.74f, 0.26f), transparent: true, albedo: "Decals/River/water_highlight_streaks.png")
-                .Add("road.soft_dust", new Color(0.58f, 0.45f, 0.27f, 0.40f), transparent: true, albedo: "Decals/Roads/soft_dust_overlay.png")
-                .Add("road.worn_edge", new Color(0.62f, 0.50f, 0.34f, 0.40f), transparent: true, albedo: "Decals/Roads/worn_path_edge_01.png")
+                .Add("road.soft_dust", new Color(0.54f, 0.42f, 0.26f, 0.34f), transparent: true, albedo: "Decals/Roads/soft_dust_overlay.png")
+                .Add("road.worn_edge", new Color(0.56f, 0.46f, 0.32f, 0.31f), transparent: true, albedo: "Decals/Roads/worn_path_edge_01.png")
                 .Add("road.mud_track", new Color(0.28f, 0.18f, 0.10f, 0.48f), transparent: true, albedo: "Decals/Roads/mud_track_01.png")
                 .Add("road.tire_left", new Color(0.18f, 0.13f, 0.08f, 0.44f), transparent: true, albedo: "Decals/Roads/tire_rut_left.png")
                 .Add("road.tire_right", new Color(0.18f, 0.13f, 0.08f, 0.44f), transparent: true, albedo: "Decals/Roads/tire_rut_right.png")
@@ -173,7 +179,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
             SetTerrainTexture(theme, "terrain.cliff_ground", "cliff_ground");
             SetTerrainTexture(theme, "terrain.ore_stained_soil", "ore_stained_soil");
             SetTerrainTexture(theme, "terrain.concrete_base_pad", "concrete_base_pad");
-            SetTerrainTexture(theme, "road.dirt", "dirt_path");
+            SetTerrainTexture(theme, "road.dirt", "road_compacted");
             SetTerrainTexture(theme, "road.gravel", "gravel_path");
             SetTerrainTexture(theme, "river.water", "shallow_water");
             SetDecalTexture(theme, "river.shoreline", "Decals/River/muddy_shoreline_01.png");
