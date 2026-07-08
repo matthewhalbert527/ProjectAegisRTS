@@ -16,6 +16,7 @@ The Unity scripts in this folder provide editor menus and file helpers for the T
 - `Project Aegis > Map Editor > Visual Compiler` opens the compiler window for theme selection, visual seed control, preview compilation, layer summaries, debug overlay toggles, and local screenshot capture.
 - The compiler creates deterministic visual layers for base terrain chunks, transition masks, water, shorelines, roads, topology-driven cliffs, resource fields, modular base pads, and rule-based scatter.
 - The visual builder reads the original art packet at `Assets/Rts/MapEditor/ArtPack/ProjectAegis_MapVisualArtPack_v1/` directly. PNG textures and decals are used for materials immediately; `.glb` meshes are imported through Unity glTFast (`com.unity.cloud.gltfast`) and otherwise fall back to deterministic generated proxy meshes if that package is unavailable.
-- Treat `ProjectAegis_MapVisualArtPack_v1` as prototype-only until art review promotes individual assets to production status.
+- The folder `ProjectAegis_MapVisualArtPack_v1` now contains the rebuilt v2 production-proxy map art packet while preserving the compatibility folder name.
+- `Project Aegis > Map Editor > Validate Visual Art Pack` verifies the art-pack manifest, semantic material map, terrain texture paths, required GLB meshes, decals, visual theme texture mappings, and sample compiler output.
 - The showcase map `Assets/Rts/MapEditor/Samples/sample_art_pack_showcase_160_forest_river.aegismap.json` is intended for quick art-pack validation and renders through the batch method `AegisMapVisualBuilder.RenderArtPackShowcaseForBatch`.
 - SuperTiled2Unity is optional for visual authoring convenience and is not required for deterministic import tests.

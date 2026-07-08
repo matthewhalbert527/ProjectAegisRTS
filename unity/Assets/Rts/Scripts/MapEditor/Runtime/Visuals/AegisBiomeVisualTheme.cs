@@ -17,7 +17,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
 
         public static AegisMapVisualTheme DebugVisualTheme()
         {
-            return BaseTheme("debug", "Debug Visual Theme", "debug")
+            var theme = BaseTheme("debug", "Debug Visual Theme", "debug")
                 .Add("terrain.grass", new Color(0.20f, 0.48f, 0.20f, 1f))
                 .Add("terrain.dark_grass", new Color(0.10f, 0.32f, 0.13f, 1f))
                 .Add("terrain.dirt", new Color(0.47f, 0.36f, 0.24f, 1f))
@@ -51,6 +51,8 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("basepad.trim", new Color(0.70f, 0.63f, 0.42f, 1f))
                 .Add("basepad.corner", new Color(0.78f, 0.80f, 0.76f, 1f))
                 .Add("basepad.grime", new Color(0.10f, 0.09f, 0.07f, 0.42f), transparent: true);
+            ApplyProductionProxyTexturePaths(theme);
+            return theme;
         }
 
         public static AegisMapVisualTheme ForestPrototypeVisualTheme()
@@ -99,7 +101,45 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
                 .Add("basepad.trim", new Color(0.70f, 0.60f, 0.39f, 1f))
                 .Add("basepad.corner", new Color(0.78f, 0.77f, 0.72f, 1f))
                 .Add("basepad.grime", new Color(0.12f, 0.09f, 0.06f, 0.42f), transparent: true);
+            ApplyProductionProxyTexturePaths(theme);
             return theme;
+        }
+
+        static void ApplyProductionProxyTexturePaths(AegisMapVisualTheme theme)
+        {
+            SetTerrainTexture(theme, "terrain.grass", "forest_grass");
+            SetTerrainTexture(theme, "terrain.dark_grass", "forest_grass_dark_patch");
+            SetTerrainTexture(theme, "terrain.dirt", "dirt_path");
+            SetTerrainTexture(theme, "terrain.gravel", "gravel_path");
+            SetTerrainTexture(theme, "terrain.mud", "muddy_bank");
+            SetTerrainTexture(theme, "terrain.shallow_water", "shallow_water");
+            SetTerrainTexture(theme, "terrain.deep_water", "deep_water");
+            SetTerrainTexture(theme, "terrain.cliff_ground", "cliff_ground");
+            SetTerrainTexture(theme, "terrain.ore_stained_soil", "ore_stained_soil");
+            SetTerrainTexture(theme, "terrain.concrete_base_pad", "concrete_base_pad");
+            SetTerrainTexture(theme, "road.dirt", "dirt_path");
+            SetTerrainTexture(theme, "road.gravel", "gravel_path");
+            SetTerrainTexture(theme, "river.water", "shallow_water");
+            SetTerrainTexture(theme, "river.shoreline", "muddy_bank");
+            SetTerrainTexture(theme, "cliff.edge.straight", "cliff_ground");
+            SetTerrainTexture(theme, "cliff.edge.corner_inner", "cliff_ground");
+            SetTerrainTexture(theme, "cliff.edge.corner_outer", "cliff_ground");
+            SetTerrainTexture(theme, "cliff.edge.endcap", "cliff_ground");
+            SetTerrainTexture(theme, "blocker.rock", "rough_ground");
+            SetTerrainTexture(theme, "basepad.panel", "concrete_panel");
+            SetTerrainTexture(theme, "basepad.trim", "concrete_trim");
+            SetTerrainTexture(theme, "basepad.corner", "concrete_trim");
+        }
+
+        static void SetTerrainTexture(AegisMapVisualTheme theme, string role, string textureBaseName)
+        {
+            var rule = theme.RuleFor(role);
+            if (rule == null)
+                return;
+
+            rule.AlbedoPath = "Terrain/" + textureBaseName + "_albedo.png";
+            rule.NormalPath = "Terrain/" + textureBaseName + "_normal.png";
+            rule.MaskPath = "Terrain/" + textureBaseName + "_roughness_ao.png";
         }
 
         static AegisMapVisualTheme BaseTheme(string id, string displayName, string biome)

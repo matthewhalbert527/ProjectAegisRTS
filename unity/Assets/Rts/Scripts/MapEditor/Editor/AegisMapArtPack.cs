@@ -50,6 +50,26 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             "Meshes/Resources/ore_cluster_gold_02.glb"
         };
 
+        public static readonly string[] CrystalMeshes =
+        {
+            "Meshes/Resources/crystal_cluster_blue_01.glb"
+        };
+
+        public static readonly string[] SalvageMeshes =
+        {
+            "Meshes/Resources/salvage_scrap_01.glb",
+            "Meshes/Resources/salvage_scrap_02.glb"
+        };
+
+        public static readonly string[] EnergyMeshes =
+        {
+            "Meshes/Resources/energy_node_01.glb"
+        };
+
+        public const string BasePadMesh = "Meshes/BasePads/base_pad_14x14.glb";
+        public const string BasePadTrimStraightMesh = "Meshes/BasePads/base_pad_trim_straight.glb";
+        public const string BasePadTrimCornerMesh = "Meshes/BasePads/base_pad_trim_corner.glb";
+
         public static readonly string[] VegetationMeshes =
         {
             "Meshes/Vegetation/grass_tuft_01.glb",

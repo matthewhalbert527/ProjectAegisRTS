@@ -89,4 +89,4 @@ Resource visuals must be field-based:
 
 ## Current Prototype Pack
 
-`ProjectAegis_MapVisualArtPack_v1` is imported and used for prototype materials, decals, and GLB meshes. Treat it as prototype-only until promoted by art review. Its license/origin notes state it is original Project Aegis procedural art and not copied from protected RTS projects.
+`ProjectAegis_MapVisualArtPack_v1` is imported and used for production-proxy v2 materials, decals, and GLB meshes. The folder name remains `v1` for code compatibility, but `Materials/semantic_materials.json` identifies the current semantic terrain/material entries as `production_proxy_v2`. Treat these assets as production-proxy content until final art review promotes them to shipping art. Its license/origin notes state it is original Project Aegis art and not copied from protected RTS projects.

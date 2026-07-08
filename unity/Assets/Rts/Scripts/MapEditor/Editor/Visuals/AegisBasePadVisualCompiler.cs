@@ -28,7 +28,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 summary.BasePadCount++;
 
                 AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_dirt_integration", center, PadSize + 4.2f, PadSize + 4.2f, 0.058f, dirtMaterial, 0f);
-                AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_center_panel", center, PadSize - TrimWidth * 2f, PadSize - TrimWidth * 2f, 0.105f, panelMaterial, 0f);
+                var importedPadPosition = new Vector3(center.x, 0.11f, center.y);
+                if (!AegisMapArtPack.TryInstantiatePrefab(parent.transform, "basepad_imported_14x14", AegisMapArtPack.BasePadMesh, importedPadPosition, Quaternion.identity, Vector3.one, panelMaterial))
+                {
+                    AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_center_panel", center, PadSize - TrimWidth * 2f, PadSize - TrimWidth * 2f, 0.105f, panelMaterial, 0f);
+                    summary.SkippedPlacementCount++;
+                }
 
                 AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_north_trim", center + new Vector2(0f, PadSize * 0.5f - TrimWidth * 0.5f), PadSize, TrimWidth, 0.13f, trimMaterial, 0f);
                 AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_south_trim", center + new Vector2(0f, -PadSize * 0.5f + TrimWidth * 0.5f), PadSize, TrimWidth, 0.13f, trimMaterial, 0f);

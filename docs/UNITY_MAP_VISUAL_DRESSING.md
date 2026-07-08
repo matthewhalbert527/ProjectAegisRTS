@@ -54,7 +54,13 @@ Profiles currently drive terrain colors, mud banks, water tones, cliff colors, p
 
 The visual compiler reads the pack directly from this folder. It uses the original PNG terrain/material textures and transparent decals where practical and instantiates the pack's `.glb` meshes for prototype cliffs, boulders, ore clusters, vegetation, river-edge props, craters, and base-pad pieces where available.
 
-This branch uses Unity glTFast (`com.unity.cloud.gltfast`) so those `.glb` files import directly in Unity. If the package is removed or unavailable on a future machine, the compiler keeps working by falling back to deterministic generated geometry for those props. Treat the pack as prototype-only until art review promotes individual assets.
+This branch uses Unity glTFast (`com.unity.cloud.gltfast`) so those `.glb` files import directly in Unity. If the package is removed or unavailable on a future machine, the compiler keeps working by falling back to deterministic generated geometry for those props. The installed contents are the rebuilt v2 production-proxy pack inside the compatibility `ProjectAegis_MapVisualArtPack_v1` folder.
+
+Use:
+
+`Project Aegis > Map Editor > Validate Visual Art Pack`
+
+to verify the root, manifest, semantic material map, required terrain textures, GLB meshes, decals, theme texture paths, and sample compiler output.
 
 ## Roads And Base Pads
 
@@ -71,7 +77,7 @@ The logical map still stores water as deterministic terrain cells. The visual bu
 - The compiler now has layer contracts and summaries, but terrain chunks are still prototype quads rather than a final shader/material-layer terrain.
 - Roads are generated as deterministic routes between player starts and the map center. A later pass should read explicit road/region/path metadata when map documents include it.
 - Water is rendered from water-cell topology with shoreline masks. A later pass can replace this with spline meshes, animated water materials, reeds, foam, and authored shoreline decals.
-- Ore, cliff, vegetation, crater, river-edge, and base-pad props use imported prototype art-pack assets when available. A later art pass can add higher-poly sculpted meshes, LODs, collision-free prefab variants, and tuned material overrides.
+- Ore, cliff, vegetation, crater, river-edge, and base-pad props use imported production-proxy art-pack assets when available. A later art pass can add higher-poly sculpted meshes, LODs, collision-free prefab variants, and tuned material overrides.
 
 ## Asset Rules
 

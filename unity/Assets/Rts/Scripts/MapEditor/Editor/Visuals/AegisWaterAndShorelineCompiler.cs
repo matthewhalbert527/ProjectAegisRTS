@@ -16,6 +16,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var shoreLayer = AegisVisualCompilerPrimitives.CreateLayer(context, "Shoreline Mud And Wetness");
             var waterMaterial = AegisVisualCompilerPrimitives.Material(context, "river.water");
             var shoreMaterial = AegisVisualCompilerPrimitives.Material(context, "river.shoreline");
+            var riverPropMaterial = AegisVisualCompilerPrimitives.Material(context, "vegetation.grass");
 
             for (var y = 0; y < context.Height; y++)
                 for (var x = 0; x < context.Width; x++)
@@ -38,6 +39,18 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         var height = DirY[i] == 0 ? 1.18f : 0.62f;
                         AegisVisualCompilerPrimitives.CreateQuad(shoreLayer, "shoreline_" + x + "_" + y + "_" + i, center, width, height, 0.04f, shoreMaterial, 0f);
                         summary.ShorelineEdges++;
+
+                        if (context.Hash01(x + DirX[i], y + DirY[i], 4010 + i) < 0.045f)
+                        {
+                            var propPosition = new Vector3(center.x, 0.08f, center.y);
+                            var rotation = Quaternion.Euler(0f, context.Hash01(x, y, 4020 + i) * 360f, 0f);
+                            var scale = Vector3.one * Mathf.Lerp(0.45f, 0.9f, context.Hash01(x, y, 4030 + i));
+                            var prefabPath = AegisMapArtPack.Pick(AegisMapArtPack.RiverMeshes, context.Seed, x + i * 13, y);
+                            if (AegisMapArtPack.TryInstantiatePrefab(shoreLayer, "river_bank_prop_" + x + "_" + y + "_" + i, prefabPath, propPosition, rotation, scale, riverPropMaterial))
+                                summary.ScatterCount++;
+                            else
+                                summary.SkippedPlacementCount++;
+                        }
                     }
                 }
 

@@ -4,7 +4,7 @@
 
 Project Aegis maps should read like grounded tactical battlefields: clear bases, readable routes, visible resource fields, sharp movement blockers, and terrain detail that supports decisions rather than hiding them.
 
-The current art pack is prototype-only. It is useful for validating import paths, semantic mapping, and scale, but it should not be treated as final production art until an art review explicitly promotes assets out of prototype status.
+The installed `ProjectAegis_MapVisualArtPack_v1` folder now contains the rebuilt v2 production-proxy art packet. The folder name intentionally remains `ProjectAegis_MapVisualArtPack_v1` because the Unity compiler root points there. Treat these assets as production-proxy art: good enough for map readability and compiler validation, but still subject to final art review before they become final shipping art.
 
 ## Readability Priorities
 
@@ -28,7 +28,7 @@ Future themes should keep the same semantic roles and only change asset/material
 ## Current Limits
 
 - The compiler now has chunk/layer semantics, but terrain rendering is still a prototype scene-object implementation rather than a final shader-layer terrain.
-- The art pack meshes are lightweight procedural GLB assets.
+- The installed v2 art pack provides semantic terrain textures, decals, and GLB meshes, but it is still production-proxy content rather than final hand-authored shipping art.
 - Cliff, river, and resource assets need final sculpted/prefab variants.
 - Camera capture is functional QA, not final promotional rendering.
 

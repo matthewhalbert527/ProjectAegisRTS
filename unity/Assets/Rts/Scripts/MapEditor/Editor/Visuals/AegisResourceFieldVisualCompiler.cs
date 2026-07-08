@@ -89,12 +89,16 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static string PickResourcePrefab(string resourceKind, int seed, int x, int y)
         {
-            if (!string.IsNullOrEmpty(resourceKind))
-            {
-                var kind = resourceKind.ToLowerInvariant();
-                if (kind.Contains("salvage") || kind.Contains("energy") || kind.Contains("crystal"))
-                    return null;
-            }
+            if (string.IsNullOrEmpty(resourceKind))
+                return AegisMapArtPack.Pick(AegisMapArtPack.OreMeshes, seed, x, y);
+
+            var kind = resourceKind.ToLowerInvariant();
+            if (kind.Contains("crystal"))
+                return AegisMapArtPack.Pick(AegisMapArtPack.CrystalMeshes, seed, x, y);
+            if (kind.Contains("salvage"))
+                return AegisMapArtPack.Pick(AegisMapArtPack.SalvageMeshes, seed, x, y);
+            if (kind.Contains("energy"))
+                return AegisMapArtPack.Pick(AegisMapArtPack.EnergyMeshes, seed, x, y);
 
             return AegisMapArtPack.Pick(AegisMapArtPack.OreMeshes, seed, x, y);
         }
