@@ -25,7 +25,7 @@ Run from batch mode:
 - The showcase sample compiles a production preview root.
 - Production output contains no debug-named overlay layer.
 - Production terrain detail decals are present.
-- Water cells compile into merged water strips.
+- Water cells compile into merged water strips plus at least one production water ribbon mesh.
 - Road-water conflicts are zero because water crossings become bridge prototype pieces.
 - Road detail decals are present when roads are present.
 - Base pads produce layered panel, trim, crack, grime, and construction-wear decals.
@@ -34,7 +34,7 @@ Run from batch mode:
 
 ## Limitations
 
-This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, fallback-only visuals, missing terrain detail decals, missing road/pad detail decals, or unchecked road-water conflicts.
+This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, fallback-only visuals, missing terrain detail decals, missing road/pad detail decals, or unchecked road-water conflicts.
 
 ## Required Hygiene
 

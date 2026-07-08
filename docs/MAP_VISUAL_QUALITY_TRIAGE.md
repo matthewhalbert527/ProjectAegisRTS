@@ -4,7 +4,7 @@
 
 - Visible chunk blocks: `AegisTerrainLayerCompiler` used 16x16 dominant-role quads, so mixed terrain areas became large square patches. This pass changes production terrain to 4-cell chunks and breaks mixed chunks down to per-cell patches with transition masks.
 - Debug outlines in production preview: the visual compiler had UI overlay toggles, but they were not real compile settings and defaulted on in the window. This pass adds `ProductionPreview`, `DebugOverlay`, and `Hybrid` render modes with production as the default and debug overlays off by default.
-- Cell-stepped river borders: `AegisWaterAndShorelineCompiler` emitted one water quad and edge quad per water cell. This pass merges water into horizontal strips and merges shorelines into longer softened strips.
+- Cell-stepped river borders: `AegisWaterAndShorelineCompiler` emitted one water quad and edge quad per water cell. This pass hides production water cells from the base terrain layer, converts water rows into smoothed ribbon meshes, keeps water-strip metrics for validation, and uses lightly transparent shoreline masks.
 - Road segments crossing water without bridges/fords: `AegisRoadVisualCompiler` rendered each segment as a single road body over every terrain type. This pass splits road segments by sampled water crossings and emits named `bridge_prototype_*` pieces over water.
 - Flat gray base pads: `AegisBasePadVisualCompiler` could quietly fall back to flat quads. This pass keeps the v2 `base_pad_14x14.glb` path, uses textured concrete panel/trim roles, and reports a warning if the pad mesh or concrete texture path is missing.
 - Noisy ore sparkle: `AegisResourceFieldVisualCompiler` allowed many small chunks and glints per field. This pass reduces chunk count, increases chunk scale, always emits field dust, caps glints to four per field, and uses depletion-aware density.
@@ -18,7 +18,7 @@
 - Debug helper geometry is opt-in through `DebugOverlay` or `Hybrid`.
 - Production terrain chunk size is below the old 16x16 behavior.
 - Mixed terrain chunks no longer use only a single dominant role.
-- Water bodies and shorelines are strip-merged.
+- Water bodies compile to smoothed production ribbon meshes, with strip counts retained for validation.
 - Road-water crossings are represented by bridge prototype deck, rail, and shadow pieces.
 - Resource glints are capped and field density scales with amount.
 - Raw blocker fill is hidden in production.

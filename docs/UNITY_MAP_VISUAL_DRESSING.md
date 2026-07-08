@@ -70,7 +70,7 @@ Use:
 
 `Project Aegis > Map Editor > Validate Visual Quality Gate`
 
-to verify production-preview defaults, texture-role bindings, terrain detail decals, merged water strips, bridge/fording handling for road-water crossings, road/base-pad detail decals, capped resource glints, and non-fallback sample output.
+to verify production-preview defaults, texture-role bindings, terrain detail decals, merged water strips, production water ribbon meshes, bridge/fording handling for road-water crossings, road/base-pad detail decals, capped resource glints, and non-fallback sample output.
 
 The compiler reads art-pack textures and prefabs without rewriting texture importer metadata during validation. Existing embedded GLB materials are preserved when present; fallback materials are only assigned to missing material slots.
 
@@ -86,14 +86,14 @@ Base pads are also visual-only dressing on top of player start metadata. Each ge
 
 ## Water Rendering
 
-The logical map still stores water as deterministic terrain cells. The visual compiler merges water cells into wider strips and emits softened shoreline mud/wetness strips so production rivers no longer show raw cell borders. Roads crossing water are split and represented with neutral `bridge_prototype_*` deck/rail/shadow pieces until final bridge or ford art exists.
+The logical map still stores water as deterministic terrain cells. In production preview, the base terrain layer does not draw separate water cell quads; the water compiler owns the visible water surface. It converts contiguous water rows into smoothed ribbon meshes and retains strip metrics for validation. Shoreline mud/wetness remains topology-derived and lightly transparent so the current preview is less grid-bound while still matching the deterministic cell map. Roads crossing water are split and represented with neutral `bridge_prototype_*` deck/rail/shadow pieces until final bridge or ford art exists.
 
 ## Current Limits
 
 - The compiler now has layer contracts and summaries, but terrain chunks are still prototype quads rather than a final shader/material-layer terrain.
 - Terrain detail decals improve the current preview, but true realism still needs a shader-driven terrain blend, height/normal-aware terrain layers, or authored terrain meshes.
 - Roads are generated as deterministic routes between player starts and the map center. A later pass should read explicit road/region/path metadata when map documents include it.
-- Water is rendered from water-cell topology with shoreline masks. A later pass can replace this with spline meshes, animated water materials, reeds, foam, and authored shoreline decals.
+- Water is now rendered from smoothed water-cell ribbon meshes with shoreline masks. A later pass can replace this with authored river splines, animated water materials, reeds, foam, and hand-tuned shoreline decals.
 - Ore, cliff, vegetation, crater, river-edge, and base-pad props use imported production-proxy art-pack assets when available. A later art pass can add higher-poly sculpted meshes, LODs, collision-free prefab variants, and tuned material overrides.
 
 ## Asset Rules

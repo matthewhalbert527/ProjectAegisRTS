@@ -119,6 +119,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var water = FindLayer(result, "Water And Shoreline");
             if (water != null && water.WaterCells > 0 && water.WaterStrips <= 0)
                 errors.Add("Water cells were present but no merged water strips were produced.");
+            if (water != null && water.WaterCells > 0 && water.WaterMeshes <= 0)
+                errors.Add("Water cells were present but no production water ribbon mesh was produced.");
 
             var road = FindLayer(result, "Roads And Tire Tracks");
             if (road != null && road.RoadWaterConflicts > 0)

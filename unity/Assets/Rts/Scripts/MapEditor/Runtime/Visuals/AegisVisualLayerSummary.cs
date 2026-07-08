@@ -12,6 +12,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
         public int TransitionEdges;
         public int WaterCells;
         public int WaterStrips;
+        public int WaterMeshes;
         public int ShorelineEdges;
         public int RoadSegments;
         public int BridgeCrossings;
@@ -72,6 +73,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
             AppendMetric(builder, "transition edges", TransitionEdges);
             AppendMetric(builder, "water cells", WaterCells);
             AppendMetric(builder, "water strips", WaterStrips);
+            AppendMetric(builder, "water meshes", WaterMeshes);
             AppendMetric(builder, "shoreline edges", ShorelineEdges);
             AppendMetric(builder, "road segments", RoadSegments);
             AppendMetric(builder, "bridges", BridgeCrossings);

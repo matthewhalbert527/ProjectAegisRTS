@@ -46,6 +46,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static void EmitPatch(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int startX, int startY, int width, int height, string role, string prefix)
         {
+            if (!context.IsDebugOverlay && IsWaterRole(role))
+            {
+                summary.HiddenDebugFillCount++;
+                return;
+            }
+
             var material = AegisVisualCompilerPrimitives.Material(context, role);
             var center = new Vector2(startX + width * 0.5f, startY + height * 0.5f);
             var elevation = role == "terrain.shallow_water" || role == "terrain.deep_water" ? 0.015f : 0f;
@@ -61,6 +67,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 0f);
             chunk.isStatic = true;
             summary.TerrainChunks++;
+        }
+
+        static bool IsWaterRole(string role)
+        {
+            return role == "terrain.shallow_water" || role == "terrain.deep_water";
         }
 
         static bool IsMixed(AegisMapVisualCompileContext context, int startX, int startY, int width, int height)
