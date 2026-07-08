@@ -40,6 +40,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
         public int RockCount;
         public int ScatterCount;
         public int SkippedPlacementCount;
+        public int OrganicTransitionMeshCount;
         public readonly List<string> Warnings = new List<string>();
         public readonly List<string> Errors = new List<string>();
 
@@ -102,6 +103,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
             AppendMetric(builder, "rocks", RockCount);
             AppendMetric(builder, "scatter", ScatterCount);
             AppendMetric(builder, "skipped", SkippedPlacementCount);
+            AppendMetric(builder, "organic transition meshes", OrganicTransitionMeshCount);
             for (var i = 0; i < Warnings.Count; i++)
                 builder.Append("; warning: ").Append(Warnings[i]);
             for (var i = 0; i < Errors.Count; i++)

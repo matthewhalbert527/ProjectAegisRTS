@@ -71,6 +71,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static string ProductionSurfaceRole(AegisMapVisualCompileContext context, int startX, int startY, int width, int height, string role)
         {
+            if (role == "terrain.dirt" && PatchNearRoad(context, startX, startY, width, height))
+            {
+                if (PatchNearWater(context, startX, startY, width, height, 2))
+                    return "terrain.grass";
+                return context.Hash01(startX, startY, 7360) < 0.42f ? "terrain.dark_grass" : "terrain.grass";
+            }
+
             if (role == "terrain.gravel")
             {
                 if (PatchNearWater(context, startX, startY, width, height, 2))

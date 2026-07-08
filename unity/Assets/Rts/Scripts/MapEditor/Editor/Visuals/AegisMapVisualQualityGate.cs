@@ -121,6 +121,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 errors.Add("Terrain transition layer missing.");
             else if (transitions.TransitionEdges <= 0)
                 errors.Add("Terrain transition layer produced no blend edges.");
+            else if (transitions.OrganicTransitionMeshCount <= 0)
+                errors.Add("Terrain transition layer did not produce organic feather meshes.");
 
             var water = FindLayer(result, "Water And Shoreline");
             if (water != null && water.WaterCells > 0 && water.WaterStrips <= 0)

@@ -74,17 +74,17 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var angle = AegisVisualCompilerPrimitives.DirectionAngle(run.A, run.B);
             var direction = (run.B - run.A).normalized;
             var normal = new Vector2(-direction.y, direction.x);
-            var width = Mathf.Clamp(run.Width, 1.85f, 3.35f);
+            var width = Mathf.Clamp(run.Width, 1.75f, 2.82f);
 
-            AegisVisualCompilerPrimitives.CreateQuad(layer, "road_body_" + segmentIndex + "_" + runIndex, center, length, width, 0.055f, roadMaterial, angle);
-            AegisVisualCompilerPrimitives.CreateQuad(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, center, length * 0.96f, width * 1.22f, 0.071f, dustMaterial, angle);
-            AegisVisualCompilerPrimitives.CreateQuad(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, center + normal * (width * 0.48f), length * 0.94f, 0.42f, 0.082f, edgeMaterial, angle);
-            AegisVisualCompilerPrimitives.CreateQuad(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, center - normal * (width * 0.48f), length * 0.94f, 0.42f, 0.082f, edgeMaterial, angle + 180f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_body_" + segmentIndex + "_" + runIndex, center, length, width, 0.055f, roadMaterial, angle, context, segmentIndex, runIndex, 7300, width * 0.14f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, center, length * 0.94f, width * 1.26f, 0.071f, dustMaterial, angle, context, segmentIndex, runIndex, 7310, width * 0.22f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, center + normal * (width * 0.48f), length * 0.88f, 0.38f, 0.082f, edgeMaterial, angle, context, segmentIndex, runIndex, 7200, 0.08f);
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, center - normal * (width * 0.48f), length * 0.88f, 0.38f, 0.082f, edgeMaterial, angle + 180f, context, segmentIndex, runIndex, 7210, 0.08f);
             summary.RoadDetailDecalCount += 3;
             if (length > 5f)
             {
-                AegisVisualCompilerPrimitives.CreateQuad(layer, "road_tire_rut_left_" + segmentIndex + "_" + runIndex, center + normal * 0.48f, length * 0.78f, 0.18f, 0.091f, leftRutMaterial, angle);
-                AegisVisualCompilerPrimitives.CreateQuad(layer, "road_tire_rut_right_" + segmentIndex + "_" + runIndex, center - normal * 0.48f, length * 0.78f, 0.18f, 0.091f, rightRutMaterial, angle);
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_tire_rut_left_" + segmentIndex + "_" + runIndex, center + normal * 0.48f, length * 0.74f, 0.16f, 0.091f, leftRutMaterial, angle, context, segmentIndex, runIndex, 7220, 0.04f);
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_tire_rut_right_" + segmentIndex + "_" + runIndex, center - normal * 0.48f, length * 0.74f, 0.16f, 0.091f, rightRutMaterial, angle, context, segmentIndex, runIndex, 7230, 0.04f);
                 summary.RoadDetailDecalCount += 2;
             }
 
@@ -96,7 +96,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     var t = (i + 1f) / (count + 1f);
                     var p = Vector2.Lerp(run.A, run.B, t) + normal * Mathf.Lerp(-0.35f, 0.35f, context.Hash01(segmentIndex, runIndex, 7100 + i));
                     var patchLength = Mathf.Lerp(1.4f, 3.6f, context.Hash01(segmentIndex, runIndex, 7110 + i));
-                    AegisVisualCompilerPrimitives.CreateQuad(layer, "road_mud_track_" + segmentIndex + "_" + runIndex + "_" + i, p, patchLength, width * 0.72f, 0.096f, mudTrackMaterial, angle + Mathf.Lerp(-8f, 8f, context.Hash01(segmentIndex, runIndex, 7120 + i)));
+                    AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_mud_track_" + segmentIndex + "_" + runIndex + "_" + i, p, patchLength, width * 0.72f, 0.096f, mudTrackMaterial, angle + Mathf.Lerp(-8f, 8f, context.Hash01(segmentIndex, runIndex, 7120 + i)), context, segmentIndex, runIndex, 7240 + i, 0.12f);
                     summary.RoadDetailDecalCount++;
                 }
             }

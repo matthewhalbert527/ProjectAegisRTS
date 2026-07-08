@@ -43,7 +43,17 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var height = dy == 0 ? 1.18f : TransitionWidth(context, x, y, dx, dy);
             var angle = context.IsDebugOverlay ? 0f : (context.Hash01(x, y, dx == 0 ? 3310 : 3320) - 0.5f) * 7f;
             var elevation = context.IsDebugOverlay ? 0.012f : 0.066f;
-            AegisVisualCompilerPrimitives.CreateQuad(layer, "transition_" + x + "_" + y + "_" + nx + "_" + ny, center, width, height, elevation, material, angle);
+            var name = "transition_" + x + "_" + y + "_" + nx + "_" + ny;
+            if (context.IsDebugOverlay)
+            {
+                AegisVisualCompilerPrimitives.CreateQuad(layer, name, center, width, height, elevation, material, angle);
+            }
+            else
+            {
+                var jitter = Mathf.Min(width, height) * 0.24f;
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, name, center, width, height, elevation, material, angle, context, x, y, dx == 0 ? 3370 : 3380, jitter);
+                summary.OrganicTransitionMeshCount++;
+            }
             summary.TransitionEdges++;
         }
 

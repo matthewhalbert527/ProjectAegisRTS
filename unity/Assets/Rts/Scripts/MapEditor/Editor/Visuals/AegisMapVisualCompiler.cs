@@ -350,6 +350,102 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return go;
         }
 
+        public static GameObject CreateOrganicQuad(Transform parent, string name, Vector2 center, float width, float height, float elevation, Material material, float angleDegrees, AegisMapVisualCompileContext context, int x, int y, int salt, float edgeJitter)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            go.transform.position = new Vector3(center.x, elevation, center.y);
+            go.transform.rotation = Quaternion.Euler(0f, angleDegrees, 0f);
+
+            const int columns = 4;
+            const int rows = 3;
+            var vertices = new Vector3[(columns + 1) * (rows + 1)];
+            var normals = new Vector3[vertices.Length];
+            var uvs = new Vector2[vertices.Length];
+
+            var safeWidth = Mathf.Max(0.05f, width);
+            var safeHeight = Mathf.Max(0.05f, height);
+            var jitter = Mathf.Clamp(edgeJitter, 0f, Mathf.Min(safeWidth, safeHeight) * 0.45f);
+
+            for (var j = 0; j <= rows; j++)
+            {
+                for (var i = 0; i <= columns; i++)
+                {
+                    var index = OrganicVertexIndex(i, j, columns);
+                    var u = i / (float)columns;
+                    var v = j / (float)rows;
+                    var localX = (u - 0.5f) * safeWidth;
+                    var localZ = (v - 0.5f) * safeHeight;
+                    var edgeScale = OrganicEdgeScale(i, j, columns, rows);
+
+                    if (edgeScale > 0f && jitter > 0f)
+                    {
+                        var xNoise = context == null ? 0.5f : context.Hash01(x + i, y + j, salt + 11);
+                        var zNoise = context == null ? 0.5f : context.Hash01(x + i, y + j, salt + 23);
+                        var sidePush = Mathf.Lerp(0.35f, 1.0f, context == null ? 0.5f : context.Hash01(x + i, y + j, salt + 37)) * jitter * edgeScale;
+
+                        if (i == 0)
+                            localX -= sidePush * (0.55f + xNoise * 0.45f);
+                        else if (i == columns)
+                            localX += sidePush * (0.55f + xNoise * 0.45f);
+                        else
+                            localX += (xNoise - 0.5f) * jitter * 0.45f;
+
+                        if (j == 0)
+                            localZ -= sidePush * (0.55f + zNoise * 0.45f);
+                        else if (j == rows)
+                            localZ += sidePush * (0.55f + zNoise * 0.45f);
+                        else
+                            localZ += (zNoise - 0.5f) * jitter * 0.45f;
+                    }
+                    else
+                    {
+                        var centerNoiseX = context == null ? 0.5f : context.Hash01(x + i, y + j, salt + 41);
+                        var centerNoiseZ = context == null ? 0.5f : context.Hash01(x + i, y + j, salt + 43);
+                        localX += (centerNoiseX - 0.5f) * jitter * 0.18f;
+                        localZ += (centerNoiseZ - 0.5f) * jitter * 0.18f;
+                    }
+
+                    vertices[index] = new Vector3(localX, 0f, localZ);
+                    normals[index] = Vector3.up;
+                    uvs[index] = new Vector2(u, v);
+                }
+            }
+
+            var triangles = new int[columns * rows * 6];
+            var triangle = 0;
+            for (var j = 0; j < rows; j++)
+            {
+                for (var i = 0; i < columns; i++)
+                {
+                    var a = OrganicVertexIndex(i, j, columns);
+                    var b = OrganicVertexIndex(i + 1, j, columns);
+                    var c = OrganicVertexIndex(i, j + 1, columns);
+                    var d = OrganicVertexIndex(i + 1, j + 1, columns);
+                    triangles[triangle++] = a;
+                    triangles[triangle++] = c;
+                    triangles[triangle++] = b;
+                    triangles[triangle++] = b;
+                    triangles[triangle++] = c;
+                    triangles[triangle++] = d;
+                }
+            }
+
+            var mesh = new Mesh();
+            mesh.name = name + "_mesh";
+            mesh.vertices = vertices;
+            mesh.normals = normals;
+            mesh.uv = uvs;
+            mesh.triangles = triangles;
+            mesh.RecalculateBounds();
+
+            var filter = go.AddComponent<MeshFilter>();
+            filter.sharedMesh = mesh;
+            var renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            return go;
+        }
+
         public static GameObject CreateCube(Transform parent, string name, Vector3 position, Vector3 scale, Quaternion rotation, Material material)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -424,6 +520,24 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var t = Mathf.Clamp01(Vector2.Dot(point - a, ab) / length);
             return Vector2.Distance(point, a + ab * t);
+        }
+
+        static int OrganicVertexIndex(int i, int j, int columns)
+        {
+            return j * (columns + 1) + i;
+        }
+
+        static float OrganicEdgeScale(int i, int j, int columns, int rows)
+        {
+            var edgeCount = 0;
+            if (i == 0 || i == columns)
+                edgeCount++;
+            if (j == 0 || j == rows)
+                edgeCount++;
+
+            if (edgeCount == 0)
+                return 0f;
+            return edgeCount == 1 ? 1f : 0.62f;
         }
 
         static void AssignMaterialAndStripCollider(GameObject go, Material material)

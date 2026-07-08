@@ -103,7 +103,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var offsetY = (context.Hash01(x, y, salt + 3) - 0.5f) * SampleStride * 0.78f;
             var center = new Vector2(x + 0.5f + offsetX, y + 0.5f + offsetY);
             var angle = context.Hash01(x, y, salt + 4) * 180f;
-            AegisVisualCompilerPrimitives.CreateQuad(layer, prefix + "_" + x + "_" + y, center, width, width * aspect, elevation, material, angle);
+            var height = width * aspect;
+            AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, prefix + "_" + x + "_" + y, center, width, height, elevation, material, angle, context, x, y, salt + 83, Mathf.Min(width, height) * 0.16f);
             summary.TerrainDetailDecalCount++;
         }
 
