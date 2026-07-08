@@ -180,14 +180,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             for (var i = 0; i < ribbons.Count; i++)
             {
                 var spans = ribbons[i];
-                EmitBankMesh(context, shoreLayer, shoreMaterial, summary, spans, i, true, 0.30f, 0.046f, "core");
-                EmitBankMesh(context, shoreLayer, shoreMaterial, summary, spans, i, false, 0.30f, 0.046f, "core");
+                EmitBankMesh(context, shoreLayer, shoreMaterial, summary, spans, i, true, 0.48f, 0.046f, "core");
+                EmitBankMesh(context, shoreLayer, shoreMaterial, summary, spans, i, false, 0.48f, 0.046f, "core");
                 EmitBankFeatherMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, true);
                 EmitBankFeatherMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, false);
-                EmitCapMesh(context, shoreLayer, shoreMaterial, summary, spans, i, true, 0.32f, "core");
-                EmitCapMesh(context, shoreLayer, shoreMaterial, summary, spans, i, false, 0.32f, "core");
-                EmitCapMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, true, 0.90f, "feather");
-                EmitCapMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, false, 0.90f, "feather");
+                EmitCapMesh(context, shoreLayer, shoreMaterial, summary, spans, i, true, 0.50f, "core");
+                EmitCapMesh(context, shoreLayer, shoreMaterial, summary, spans, i, false, 0.50f, "core");
+                EmitCapMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, true, 1.25f, "feather");
+                EmitCapMesh(context, shoreLayer, shoreFeatherMaterial, summary, spans, i, false, 1.25f, "feather");
                 EmitRiverBankProps(context, shoreLayer, summary, riverPropMaterial, spans);
             }
         }
@@ -233,8 +233,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 var z = spans[0].Y + i;
                 var rowForNoise = Mathf.Clamp(spans[0].Y + i, 0, context.Height - 1);
                 var edge = SmoothEdge(context, spans, i, leftBank, rowForNoise) + (leftBank ? -0.08f : 0.08f);
-                var coreOuter = edge + (leftBank ? -BankWidth(context, rowForNoise, 6500) * 0.26f : BankWidth(context, rowForNoise, 6600) * 0.26f);
-                var featherOuter = edge + (leftBank ? -BankWidth(context, rowForNoise, 6510) * 0.96f : BankWidth(context, rowForNoise, 6610) * 0.96f);
+                var coreOuter = edge + (leftBank ? -BankWidth(context, rowForNoise, 6500) * 0.42f : BankWidth(context, rowForNoise, 6600) * 0.42f);
+                var featherOuter = edge + (leftBank ? -BankWidth(context, rowForNoise, 6510) * 1.35f : BankWidth(context, rowForNoise, 6610) * 1.35f);
                 var low = Mathf.Min(coreOuter, featherOuter);
                 var high = Mathf.Max(coreOuter, featherOuter);
                 var noise = (context.Hash01(rowForNoise, leftBank ? 6520 : 6620, 6525) - 0.5f) * 0.18f;

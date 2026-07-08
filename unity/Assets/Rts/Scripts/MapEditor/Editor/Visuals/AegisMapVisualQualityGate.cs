@@ -57,6 +57,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             RequireTexturedRole(theme, "river.shoreline_feather", errors);
             RequireTexturedRole(theme, "basepad.panel", errors);
             RequireTexturedRole(theme, "terrain.grass_mottle", errors);
+            RequireTexturedRole(theme, "terrain.grass_micro_mottle", errors);
+            RequireTexturedRole(theme, "terrain.dry_grass_mottle", errors);
+            RequireTexturedRole(theme, "terrain.surface_shadow_mottle", errors);
+            RequireTexturedRole(theme, "terrain.dirt_pebble_mottle", errors);
             RequireTexturedRole(theme, "road.soft_dust", errors);
             RequireTexturedRole(theme, "basepad.panel_decal", errors);
             RequireTexturedRole(theme, "resource.ore_dust", errors);
@@ -121,8 +125,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var terrainDetails = FindLayer(result, "Production Terrain Detail Decals");
             if (terrainDetails == null)
                 errors.Add("Production terrain detail decal layer missing.");
-            else if (terrainDetails.TerrainDetailDecalCount < 180)
-                errors.Add("Production terrain detail decal layer produced too few detail decals.");
+            else if (terrainDetails.TerrainDetailDecalCount < 900)
+                errors.Add("Production terrain detail decal layer produced too few layered surface decals.");
 
             var transitions = FindLayer(result, "Terrain Transition Masks");
             if (transitions == null)

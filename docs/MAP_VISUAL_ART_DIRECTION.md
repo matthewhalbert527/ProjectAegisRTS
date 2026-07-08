@@ -6,6 +6,12 @@ Project Aegis maps should read like grounded tactical battlefields: clear bases,
 
 The installed `ProjectAegis_MapVisualArtPack_v1` folder now contains the rebuilt v2 production-proxy art packet. The folder name intentionally remains `ProjectAegis_MapVisualArtPack_v1` because the Unity compiler root points there. Treat these assets as production-proxy art: good enough for map readability and compiler validation, but still subject to final art review before they become final shipping art.
 
+## Current Texture Baseline
+
+The terrain texture baseline now uses original procedural production-proxy maps for forest grass, dark grass, dirt paths, gravel/rough ground, and muddy banks. These textures are more detailed than the initial flat color tiles: they include multi-scale tonal variation, compacted soil grain, gravel speckles, grass blade strokes, regenerated normal maps, and roughness/AO masks. This keeps close-up previews from relying only on transparent decals to hide a flat terrain plane.
+
+Terrain detail decals remain a secondary layer. They add small deterministic grass, dry-grass, shadow, soil, wet-bank, and rubble marks on top of the terrain textures, but the texture set itself now carries the first layer of realism.
+
 ## Readability Priorities
 
 - Player starts must be immediately legible through modular base pads and clean surrounding construction space.
@@ -28,7 +34,7 @@ Future themes should keep the same semantic roles and only change asset/material
 ## Current Limits
 
 - The compiler now has chunk/layer semantics, but terrain rendering is still a prototype scene-object implementation rather than a final shader-layer terrain.
-- Production preview now hides debug overlays by default and uses smaller/mixed terrain chunks, strip-merged water, bridge prototypes, capped resource glints, and clustered scatter.
+- Production preview now hides debug overlays by default and uses smaller/mixed terrain chunks, strip-merged water, bridge prototypes, capped resource glints, procedural terrain textures, layered surface detail, and clustered scatter.
 - The installed v2 art pack provides semantic terrain textures, decals, and GLB meshes, but it is still production-proxy content rather than final hand-authored shipping art.
 - Cliff, river, and resource assets need final sculpted/prefab variants.
 - Camera capture is functional QA, not final promotional rendering.

@@ -9,6 +9,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
     {
         public const int ProductionChunkSize = 4;
         const int DebugChunkSize = 16;
+        const float ProductionUvWorldScale = 3f;
 
         public AegisVisualLayerSummary Compile(AegisMapVisualCompileContext context)
         {
@@ -59,7 +60,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var name = prefix + "_" + startX + "_" + startY + "_" + surfaceRole.Replace('.', '_');
             var chunk = context.IsDebugOverlay
                 ? AegisVisualCompilerPrimitives.CreateQuad(layer, name, center, width * overlap, height * overlap, elevation, material, 0f)
-                : AegisVisualCompilerPrimitives.CreateWorldUvQuad(layer, name, center, width * overlap, height * overlap, elevation, material, startX, startY, width, height, 4f);
+                : AegisVisualCompilerPrimitives.CreateWorldUvQuad(layer, name, center, width * overlap, height * overlap, elevation, material, startX, startY, width, height, ProductionUvWorldScale);
             chunk.isStatic = true;
             summary.TerrainChunks++;
         }
