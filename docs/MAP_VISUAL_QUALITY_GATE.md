@@ -8,6 +8,10 @@ Run from Unity:
 
 `Project Aegis > Map Editor > Validate Visual Quality Gate`
 
+For the curated art-directed benchmark, run:
+
+`Project Aegis > Map Editor > Validate Art-Directed Benchmark`
+
 Run from batch mode:
 
 ```powershell
@@ -40,10 +44,20 @@ Run from batch mode:
 - Resource glints stay capped relative to field count.
 - The sample instantiates imported v2 art-pack prefabs and is not fallback-only.
 
+## Art-Directed Benchmark Gate
+
+`AegisArtDirectedBenchmarkGate` is stricter for the benchmark map `sample_art_directed_forest_river_2p.aegismap.json`. It verifies that the 100x100 forest river sample uses authored road metadata, exactly one bridge/fording crossing, no generated full-map road fallback, one continuous river ribbon, detailed base pads, ore dust per field, and capped resource glints.
+
+Run from batch mode:
+
+```powershell
+& "E:\Unity\Hub\Editor\6000.5.1f1\Editor\Unity.exe" -batchmode -quit -projectPath "E:\OpenRA Mod\ProjectAegisRTS-art-directed-map-preview\unity" -logFile "E:\OpenRA Mod\ProjectAegisRTS-art-directed-map-preview\unity-compile.log" -executeMethod ProjectAegisRTS.UnityClient.EditorTools.AegisArtDirectedBenchmarkGate.ValidateForBatch
+```
+
 ## Limitations
 
-This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. It blocks regressions where production preview returns to debug overlays, per-cell water corridors, missing production water ribbon meshes, missing muddy water-surface details, missing shoreline bank meshes, missing eroded-bank or water-edge details, missing bridge texture bindings, missing bridge-bank contact dressing, missing macro terrain bindings, fallback-only visuals, missing layered terrain detail decals, missing low-profile ground litter, missing road/pad detail decals, missing road edge-breakup coverage, missing required art-pack texture paths, or unchecked road-water conflicts.
+This is a structural renderer gate, not a final art approval gate. It does not prove that every camera angle is beautiful, that bridge art is final, or that terrain shaders are final. The art-directed benchmark adds a screenshot review target because human approval is still required for the visual standard.
 
 ## Required Hygiene
 
-Do not stage generated captures, `unity-compile.log`, or `*.local-export.tiled.json`. Preview images should remain in ignored temp output such as `%TEMP%\ProjectAegisRTS\VisualCompilerPreviews\`.
+Do not stage generated captures, `unity-compile.log`, or `*.local-export.tiled.json`. Generic preview images should remain in `%TEMP%\ProjectAegisRTS\VisualCompilerPreviews\`; art-directed benchmark captures should remain in `%TEMP%\ProjectAegisRTS\ArtDirectedPreviews\`.

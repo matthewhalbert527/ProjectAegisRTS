@@ -27,6 +27,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var bridgeRubbleMaterial = AegisVisualCompilerPrimitives.Material(context, "decal.rubble");
             var bridgeGrassMaterial = AegisVisualCompilerPrimitives.Material(context, "road.edge_grass");
             var bridgeRockMaterial = AegisVisualCompilerPrimitives.Material(context, "blocker.rock");
+            summary.AuthoredRoadSegments = context.AuthoredRoadSegmentCount;
+            summary.FallbackRoadSegments = context.FallbackRoadSegmentCount;
+            summary.AuthoredCrossings = context.AuthoredCrossingCount;
+            summary.GeneratedRoadFallbacksUsed = context.UsesFallbackRoads ? 1 : 0;
 
             for (var i = 0; i < context.RoadSegments.Count; i++)
             {
@@ -42,6 +46,14 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 }
             }
 
+            summary.AddWarning("Road plan: segments=" + context.RoadSegments.Count +
+                ", authored=" + context.AuthoredRoadSegmentCount +
+                ", fallback=" + context.FallbackRoadSegmentCount +
+                ", generatedConnectivity=" + (context.GeneratedConnectivityRoadsUsed ? "yes" : "no") +
+                ", authoredCrossings=" + context.AuthoredCrossingCount +
+                ", bridges=" + summary.BridgeCrossings +
+                ", fords=" + summary.FordCrossings +
+                ", unbridgedWaterConflicts=" + summary.RoadWaterConflicts + ".");
             return summary;
         }
 

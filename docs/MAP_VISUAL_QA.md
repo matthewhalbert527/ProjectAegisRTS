@@ -71,6 +71,12 @@ Or use batch capture methods through Unity batchmode. Preview captures should wr
 
 `%TEMP%\ProjectAegisRTS\VisualCompilerPreviews\`
 
+The curated benchmark capture path is:
+
+`%TEMP%\ProjectAegisRTS\ArtDirectedPreviews\`
+
+Use `Project Aegis > Map Editor > Capture Art-Directed Preview` for the benchmark screenshot. Treat this screenshot as a human visual gate: the automated validators can prove that roads, bridge/fording, river ribbon, base-pad details, and resource dust exist, but they cannot prove the image has final terrain art direction.
+
 The batch method `AegisMapVisualBuilder.RenderProductionAndDebugPreviewsForBatch` renders production and debug-overlay captures separately. Production captures should not show debug/helper layers.
 
 Run `Project Aegis > Map Editor > Validate Visual Quality Gate` or `AegisMapVisualQualityGate.ValidateSampleForBatch` before merging renderer changes.

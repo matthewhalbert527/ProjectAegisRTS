@@ -34,16 +34,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 var center = new Vector2(start.X + 0.5f, start.Y + 0.5f);
                 summary.BasePadCount++;
 
-                AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_dirt_integration", center, PadSize + 4.2f, PadSize + 4.2f, 0.058f, dirtMaterial, 0f);
-                var importedPadPosition = new Vector3(center.x, 0.11f, center.y);
-                if (!AegisMapArtPack.TryInstantiatePrefab(parent.transform, "basepad_imported_14x14", AegisMapArtPack.BasePadMesh, importedPadPosition, Quaternion.identity, Vector3.one, panelMaterial))
-                {
-                    AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_center_panel", center, PadSize - TrimWidth * 2f, PadSize - TrimWidth * 2f, 0.105f, panelMaterial, 0f);
-                    summary.SkippedPlacementCount++;
-                    summary.AddWarning("Base pad GLB was unavailable; procedural textured pad composition was used.");
-                }
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(parent.transform, "basepad_dirt_feather", center, PadSize + 4.8f, PadSize + 4.0f, 0.058f, dirtMaterial, 0f, context, start.X, start.Y, 1110, 0.92f, 9f);
+                AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_center_panel", center, PadSize - TrimWidth * 2f, PadSize - TrimWidth * 2f, 0.105f, panelMaterial, 0f);
 
-                AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_panel_marking_center", center, PadSize - 2.4f, PadSize - 2.4f, 0.168f, panelDecalMaterial, 0f);
+                AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_panel_marking_center", center, PadSize - 5.4f, PadSize - 5.4f, 0.142f, panelDecalMaterial, 0f);
                 summary.BasePadDetailDecalCount++;
 
                 AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_north_trim", center + new Vector2(0f, PadSize * 0.5f - TrimWidth * 0.5f), PadSize, TrimWidth, 0.13f, trimMaterial, 0f);
@@ -64,8 +58,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
                 for (var seam = -2; seam <= 2; seam += 2)
                 {
-                    AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_vertical_seam_" + seam, center + new Vector2(seam, 0f), 0.08f, PadSize - 1.8f, 0.15f, grimeMaterial, 0f);
-                    AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_horizontal_seam_" + seam, center + new Vector2(0f, seam), PadSize - 1.8f, 0.08f, 0.15f, grimeMaterial, 0f);
+                    AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_vertical_seam_" + seam, center + new Vector2(seam, 0f), 0.08f, PadSize - 1.8f, 0.186f, grimeMaterial, 0f);
+                    AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_horizontal_seam_" + seam, center + new Vector2(0f, seam), PadSize - 1.8f, 0.08f, 0.186f, grimeMaterial, 0f);
                 }
 
                 for (var grime = 0; grime < 5; grime++)
@@ -73,7 +67,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     var gx = center.x + (context.Hash01(start.X, start.Y, 1200 + grime) - 0.5f) * (PadSize - 2f);
                     var gy = center.y + (context.Hash01(start.X, start.Y, 1220 + grime) - 0.5f) * (PadSize - 2f);
                     var size = Mathf.Lerp(0.8f, 2.4f, context.Hash01(start.X, start.Y, 1230 + grime));
-                    AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_grime_" + grime, new Vector2(gx, gy), size, size * 0.45f, 0.16f, grimeMaterial, context.Hash01(start.X, start.Y, 1240 + grime) * 180f);
+                    AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_grime_" + grime, new Vector2(gx, gy), size, size * 0.45f, 0.188f, grimeMaterial, context.Hash01(start.X, start.Y, 1240 + grime) * 180f);
                     summary.BasePadDetailDecalCount++;
                 }
 
@@ -82,7 +76,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     var cx = center.x + (context.Hash01(start.X, start.Y, 1270 + crack) - 0.5f) * (PadSize - 3.5f);
                     var cy = center.y + (context.Hash01(start.X, start.Y, 1280 + crack) - 0.5f) * (PadSize - 3.5f);
                     var crackLength = Mathf.Lerp(2.2f, 4.8f, context.Hash01(start.X, start.Y, 1290 + crack));
-                    AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_hairline_crack_" + crack, new Vector2(cx, cy), crackLength, 0.42f, 0.176f, crackMaterial, context.Hash01(start.X, start.Y, 1300 + crack) * 180f);
+                    AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_hairline_crack_" + crack, new Vector2(cx, cy), crackLength, 0.42f, 0.192f, crackMaterial, context.Hash01(start.X, start.Y, 1300 + crack) * 180f);
                     summary.BasePadDetailDecalCount++;
                 }
 

@@ -16,11 +16,16 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
         public bool PersistAssets;
         public AegisMapVisualTheme Theme;
         public AegisMapVisualCompileSettings Settings = AegisMapVisualCompileSettings.ProductionDefault();
+        public AegisArtDirectedVisualMetadata VisualMetadata;
         public GameObject Root;
         public readonly List<AegisVisualStartModel> Starts = new List<AegisVisualStartModel>();
         public readonly List<AegisVisualResourceFieldModel> ResourceFields = new List<AegisVisualResourceFieldModel>();
         public readonly List<AegisVisualPathSegment> RoadSegments = new List<AegisVisualPathSegment>();
         public readonly Dictionary<string, Material> MaterialCache = new Dictionary<string, Material>(StringComparer.OrdinalIgnoreCase);
+        public int AuthoredRoadSegmentCount;
+        public int AuthoredCrossingCount;
+        public int FallbackRoadSegmentCount;
+        public bool GeneratedConnectivityRoadsUsed;
 
         readonly string[] terrainRoles;
         readonly bool[] blockers;
@@ -69,6 +74,16 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
         public bool IsHybrid
         {
             get { return RenderMode == AegisMapVisualRenderMode.Hybrid; }
+        }
+
+        public bool UsesAuthoredRoads
+        {
+            get { return AuthoredRoadSegmentCount > 0; }
+        }
+
+        public bool UsesFallbackRoads
+        {
+            get { return FallbackRoadSegmentCount > 0 || GeneratedConnectivityRoadsUsed; }
         }
 
         public bool ShowOverlay(bool enabled)

@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.IO;
 using ProjectAegisRTS.UnityClient.MapEditor;
 using ProjectAegisRTS.UnityClient.MapEditor.Visuals;
 using UnityEditor;
@@ -94,6 +95,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             context.PersistAssets = persistAssets;
             context.Theme = theme;
             context.Settings = settings ?? AegisMapVisualCompileSettings.ProductionDefault();
+            context.VisualMetadata = LoadVisualMetadata(sourcePath);
             context.Root = new GameObject("Aegis Visual Map - " + safeMapId);
             context.Root.transform.position = Vector3.zero;
 
@@ -109,7 +111,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             PopulateStarts(context, document);
             PopulateBlockers(context, document);
             PopulateResources(context, document);
-            PopulateRoadSegments(context);
+            PopulateRoadSegments(context, context.VisualMetadata);
             return context;
         }
 
@@ -208,11 +210,74 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             }
         }
 
-        static void PopulateRoadSegments(AegisMapVisualCompileContext context)
+        static void PopulateRoadSegments(AegisMapVisualCompileContext context, AegisArtDirectedVisualMetadata metadata)
+        {
+            if (metadata != null && metadata.HasAuthoredRoads)
+            {
+                PopulateAuthoredRoadSegments(context, metadata);
+                return;
+            }
+
+            if (context.IsProductionPreview)
+            {
+                PopulateProductionAccessRoadSegments(context);
+                return;
+            }
+
+            PopulateGeneratedConnectivityRoadSegments(context);
+        }
+
+        static void PopulateAuthoredRoadSegments(AegisMapVisualCompileContext context, AegisArtDirectedVisualMetadata metadata)
+        {
+            metadata.Normalize();
+            context.AuthoredCrossingCount = metadata.crossings.Length;
+
+            for (var i = 0; i < metadata.roadSegments.Length; i++)
+            {
+                var segment = metadata.roadSegments[i];
+                if (segment == null)
+                    continue;
+
+                var width = Mathf.Clamp(segment.width <= 0f ? 2.6f : segment.width, 1.2f, 5.5f);
+                context.RoadSegments.Add(new AegisVisualPathSegment(
+                    ClampToMap(context, segment.A),
+                    ClampToMap(context, segment.B),
+                    width));
+                context.AuthoredRoadSegmentCount++;
+            }
+        }
+
+        static void PopulateProductionAccessRoadSegments(AegisMapVisualCompileContext context)
         {
             if (context.Starts.Count == 0)
                 return;
 
+            var center = new Vector2(context.Width * 0.5f, context.Height * 0.5f);
+            for (var i = 0; i < context.Starts.Count; i++)
+            {
+                var start = context.Starts[i];
+                var startPoint = new Vector2(start.X + 0.5f, start.Y + 0.5f);
+                var direction = center - startPoint;
+                if (direction.sqrMagnitude < 0.001f)
+                    direction = Vector2.right;
+                direction.Normalize();
+
+                var end = ClampToMap(context, startPoint + direction * 9.5f);
+                end = ShortenBeforeWater(context, startPoint, end);
+                if (Vector2.Distance(startPoint, end) < 1.5f)
+                    continue;
+
+                context.RoadSegments.Add(new AegisVisualPathSegment(startPoint, end, 2.1f));
+                context.FallbackRoadSegmentCount++;
+            }
+        }
+
+        static void PopulateGeneratedConnectivityRoadSegments(AegisMapVisualCompileContext context)
+        {
+            if (context.Starts.Count == 0)
+                return;
+
+            context.GeneratedConnectivityRoadsUsed = true;
             var center = new Vector2(context.Width * 0.5f, context.Height * 0.5f);
             for (var i = 0; i < context.Starts.Count; i++)
             {
@@ -239,6 +304,73 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         2.4f));
                 }
             }
+        }
+
+        static Vector2 ClampToMap(AegisMapVisualCompileContext context, Vector2 point)
+        {
+            return new Vector2(
+                Mathf.Clamp(point.x, 0.5f, Mathf.Max(0.5f, context.Width - 0.5f)),
+                Mathf.Clamp(point.y, 0.5f, Mathf.Max(0.5f, context.Height - 0.5f)));
+        }
+
+        static Vector2 ShortenBeforeWater(AegisMapVisualCompileContext context, Vector2 start, Vector2 end)
+        {
+            var length = Vector2.Distance(start, end);
+            if (length <= 0.01f)
+                return end;
+
+            var steps = Mathf.Max(2, Mathf.CeilToInt(length / 0.5f));
+            var lastDry = start;
+            for (var i = 1; i <= steps; i++)
+            {
+                var point = Vector2.Lerp(start, end, i / (float)steps);
+                var x = Mathf.Clamp(Mathf.FloorToInt(point.x), 0, context.Width - 1);
+                var y = Mathf.Clamp(Mathf.FloorToInt(point.y), 0, context.Height - 1);
+                if (context.IsWater(x, y))
+                    return lastDry;
+                lastDry = point;
+            }
+
+            return end;
+        }
+
+        static AegisArtDirectedVisualMetadata LoadVisualMetadata(string sourcePath)
+        {
+            var metadataAssetPath = VisualMetadataAssetPathFor(sourcePath);
+            if (string.IsNullOrEmpty(metadataAssetPath))
+                return null;
+
+            var filePath = ToFileSystemPath(metadataAssetPath);
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+                return null;
+
+            var metadata = JsonUtility.FromJson<AegisArtDirectedVisualMetadata>(File.ReadAllText(filePath));
+            if (metadata != null)
+                metadata.Normalize();
+            return metadata;
+        }
+
+        public static string VisualMetadataAssetPathFor(string sourcePath)
+        {
+            if (string.IsNullOrEmpty(sourcePath))
+                return null;
+
+            const string suffix = ".aegismap.json";
+            if (sourcePath.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                return sourcePath.Substring(0, sourcePath.Length - suffix.Length) + ".visual.json";
+
+            return null;
+        }
+
+        static string ToFileSystemPath(string assetPath)
+        {
+            if (string.IsNullOrEmpty(assetPath))
+                return null;
+
+            if (Path.IsPathRooted(assetPath))
+                return assetPath;
+
+            return Path.Combine(Directory.GetCurrentDirectory(), assetPath.Replace('/', Path.DirectorySeparatorChar));
         }
 
         static string TerrainIdToRole(string terrainId)

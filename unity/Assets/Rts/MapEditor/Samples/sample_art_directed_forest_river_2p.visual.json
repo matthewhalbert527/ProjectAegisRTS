@@ -1,0 +1,52 @@
+﻿{
+    "formatVersion":  "aegis.visual.v1",
+    "mapId":  "sample_art_directed_forest_river_2p",
+    "authoringIntent":  "Use a single authored west-east route with one intentional bridge/fording crossing. Do not generate start-to-center roads for this benchmark.",
+    "roadSegments":  [
+                         {
+                             "id":  "west_base_approach",
+                             "ax":  24.5,
+                             "ay":  54.5,
+                             "bx":  44,
+                             "by":  52.5,
+                             "width":  3,
+                             "role":  "approach",
+                             "crossingKind":  ""
+                         },
+                         {
+                             "id":  "river_bridge_01",
+                             "ax":  44,
+                             "ay":  52.5,
+                             "bx":  58,
+                             "by":  52.5,
+                             "width":  3.1,
+                             "role":  "bridge",
+                             "crossingKind":  "bridge"
+                         },
+                         {
+                             "id":  "east_base_approach",
+                             "ax":  58,
+                             "ay":  52.5,
+                             "bx":  77,
+                             "by":  47,
+                             "width":  3,
+                             "role":  "approach",
+                             "crossingKind":  ""
+                         }
+                     ],
+    "crossings":  [
+                      {
+                          "id":  "river_bridge_01",
+                          "roadSegmentId":  "river_bridge_01",
+                          "crossingKind":  "bridge",
+                          "x":  51,
+                          "y":  52.5,
+                          "note":  "The only intentional production-preview road-water crossing."
+                      }
+                  ],
+    "notes":  [
+                  "Roads are authored for composition and readability.",
+                  "The bridge segment crosses the river; approach roads stop at the banks.",
+                  "Resources, scatter, and base pads stay clear of roads and water."
+              ]
+}

@@ -17,6 +17,10 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
         public int ShorelineEdges;
         public int ShorelineMeshes;
         public int RoadSegments;
+        public int AuthoredRoadSegments;
+        public int FallbackRoadSegments;
+        public int AuthoredCrossings;
+        public int GeneratedRoadFallbacksUsed;
         public int BridgeCrossings;
         public int FordCrossings;
         public int RoadWaterConflicts;
@@ -81,6 +85,10 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
             AppendMetric(builder, "shoreline edges", ShorelineEdges);
             AppendMetric(builder, "shoreline meshes", ShorelineMeshes);
             AppendMetric(builder, "road segments", RoadSegments);
+            AppendMetric(builder, "authored road segments", AuthoredRoadSegments);
+            AppendMetric(builder, "fallback road segments", FallbackRoadSegments);
+            AppendMetric(builder, "authored crossings", AuthoredCrossings);
+            AppendMetric(builder, "generated road fallback", GeneratedRoadFallbacksUsed);
             AppendMetric(builder, "bridges", BridgeCrossings);
             AppendMetric(builder, "fords", FordCrossings);
             AppendMetric(builder, "road-water conflicts", RoadWaterConflicts);

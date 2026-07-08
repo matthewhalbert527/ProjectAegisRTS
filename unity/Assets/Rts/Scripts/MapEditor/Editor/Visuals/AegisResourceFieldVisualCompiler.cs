@@ -7,8 +7,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 {
     sealed class AegisResourceFieldVisualCompiler : IAegisVisualLayerCompiler
     {
-        const int MaxVisualsPerField = 24;
-        const int MaxGlintsPerField = 4;
+        const int MaxVisualsPerField = 10;
+        const int MaxGlintsPerField = 2;
 
         public AegisVisualLayerSummary Compile(AegisMapVisualCompileContext context)
         {
@@ -39,7 +39,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 }
 
                 var material = AegisVisualCompilerPrimitives.Material(context, ResourceRole(field.ResourceKind));
-                var visualCount = Mathf.Clamp(Mathf.RoundToInt(Mathf.Sqrt(field.Cells.Count) * Mathf.Lerp(2.4f, 5.2f, field.FillRatio)), 2, MaxVisualsPerField);
+                var visualCount = Mathf.Clamp(Mathf.RoundToInt(Mathf.Sqrt(field.Cells.Count) * Mathf.Lerp(1.4f, 2.4f, field.FillRatio)), 3, MaxVisualsPerField);
                 var glints = 0;
                 for (var j = 0; j < visualCount; j++)
                 {
@@ -56,7 +56,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     }
 
                     var centerWeight = 1f - Mathf.Clamp01(distance / Mathf.Max(0.01f, radius));
-                    var scale = Mathf.Lerp(0.52f, 1.05f, centerWeight) * Mathf.Lerp(0.72f, 1.1f, field.FillRatio);
+                    var scale = Mathf.Lerp(0.78f, 1.48f, centerWeight) * Mathf.Lerp(0.88f, 1.22f, field.FillRatio);
                     var position = new Vector3(x, 0.12f + scale * 0.12f, y);
                     var rotation = Quaternion.Euler(0f, context.Hash01(cellX, cellY, 1003 + j) * 360f, 0f);
                     var prefabPath = PickResourcePrefab(field.ResourceKind, context.Seed, cellX, cellY);
@@ -64,7 +64,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         AegisVisualCompilerPrimitives.CreateCube(layer, "resource_" + field.FieldId + "_" + j, position, new Vector3(scale, scale * 0.55f, scale), rotation, material);
                     summary.ResourceVisualInstances++;
 
-                    if (field.FillRatio > 0.75f && glints < MaxGlintsPerField && context.Hash01(cellX, cellY, 1004 + j) < 0.055f)
+                    if (field.FillRatio > 0.75f && glints < MaxGlintsPerField && context.Hash01(cellX, cellY, 1004 + j) < 0.028f)
                     {
                         AegisVisualCompilerPrimitives.CreateQuad(layer, "resource_glint_" + field.FieldId + "_" + j, new Vector2(x, y), scale * 0.86f, scale * 0.14f, 0.22f, glintMaterial, context.Hash01(cellX, cellY, 1005 + j) * 180f);
                         summary.ResourceGlintCount++;

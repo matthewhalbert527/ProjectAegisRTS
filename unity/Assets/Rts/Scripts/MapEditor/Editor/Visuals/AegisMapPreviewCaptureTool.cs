@@ -9,10 +9,17 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
     {
         public static string CapturePreview(GameObject root, AegisVisualMapDocument document, string fileName, int width, int height, float orthographicScale)
         {
+            return CapturePreview(root, document, fileName, width, height, orthographicScale, Path.Combine(Path.GetTempPath(), "ProjectAegisRTS", "VisualCompilerPreviews"));
+        }
+
+        public static string CapturePreview(GameObject root, AegisVisualMapDocument document, string fileName, int width, int height, float orthographicScale, string outputDir)
+        {
             if (root == null)
                 throw new ArgumentNullException("root");
             if (document == null)
                 throw new ArgumentNullException("document");
+            if (string.IsNullOrEmpty(outputDir))
+                outputDir = Path.Combine(Path.GetTempPath(), "ProjectAegisRTS", "VisualCompilerPreviews");
 
             RenderSettings.ambientLight = new Color(0.34f, 0.36f, 0.34f, 1f);
             var light = new GameObject("Aegis Visual Compiler Preview Sun");
@@ -46,7 +53,6 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             image.Apply(false, false);
             EnsureNonBlank(image);
 
-            var outputDir = Path.Combine(Path.GetTempPath(), "ProjectAegisRTS", "VisualCompilerPreviews");
             Directory.CreateDirectory(outputDir);
             var outputPath = Path.Combine(outputDir, string.IsNullOrEmpty(fileName) ? "aegis_visual_compiler_preview.png" : fileName);
             File.WriteAllBytes(outputPath, image.EncodeToPNG());
