@@ -17,6 +17,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var leftRutMaterial = AegisVisualCompilerPrimitives.Material(context, "road.tire_left");
             var rightRutMaterial = AegisVisualCompilerPrimitives.Material(context, "road.tire_right");
             var mudTrackMaterial = AegisVisualCompilerPrimitives.Material(context, "road.mud_track");
+            var edgeGrassMaterial = AegisVisualCompilerPrimitives.Material(context, "road.edge_grass");
+            var pebbleBreakupMaterial = AegisVisualCompilerPrimitives.Material(context, "road.pebble_breakup");
             var bridgeDeckMaterial = AegisVisualCompilerPrimitives.Material(context, "bridge.deck");
             var bridgeRailMaterial = AegisVisualCompilerPrimitives.Material(context, "bridge.rail");
             var bridgeDetailMaterial = AegisVisualCompilerPrimitives.Material(context, "bridge.grime");
@@ -32,7 +34,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     if (run.IsWater)
                         EmitBridgeRun(context, layer, summary, i, runIndex, run, bridgeDeckMaterial, bridgeRailMaterial, bridgeDetailMaterial, bridgeShadowMaterial, roadMaterial, roadDustMaterial, roadEdgeMaterial);
                     else
-                        EmitRoadRun(context, layer, summary, i, runIndex, run, roadMaterial, roadDustMaterial, roadEdgeMaterial, leftRutMaterial, rightRutMaterial, mudTrackMaterial);
+                        EmitRoadRun(context, layer, summary, i, runIndex, run, roadMaterial, roadDustMaterial, roadEdgeMaterial, leftRutMaterial, rightRutMaterial, mudTrackMaterial, edgeGrassMaterial, pebbleBreakupMaterial);
                 }
             }
 
@@ -66,20 +68,20 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             return runs;
         }
 
-        static void EmitRoadRun(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, Material roadMaterial, Material dustMaterial, Material edgeMaterial, Material leftRutMaterial, Material rightRutMaterial, Material mudTrackMaterial)
+        static void EmitRoadRun(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadRun run, Material roadMaterial, Material dustMaterial, Material edgeMaterial, Material leftRutMaterial, Material rightRutMaterial, Material mudTrackMaterial, Material edgeGrassMaterial, Material pebbleBreakupMaterial)
         {
             var length = AegisVisualCompilerPrimitives.SegmentLength(run.A, run.B);
             if (length <= 0.3f)
                 return;
 
-            var width = Mathf.Clamp(run.Width * 0.62f, 1.14f, 1.92f);
-            var dustWidth = Mathf.Clamp(run.Width * 0.88f, 1.62f, 2.85f);
+            var width = Mathf.Clamp(run.Width * 0.54f, 0.92f, 1.60f);
+            var dustWidth = Mathf.Clamp(run.Width * 0.76f, 1.25f, 2.30f);
             var path = BuildRoadPath(context, segmentIndex, runIndex, run, length);
 
             CreateRoadRibbonMesh(layer, "road_soft_dust_" + segmentIndex + "_" + runIndex, path, dustWidth, 0f, 0.052f, dustMaterial, context, segmentIndex, runIndex, 7310, 0.16f, 22f);
             CreateRoadRibbonMesh(layer, "road_body_" + segmentIndex + "_" + runIndex, path, width, 0f, 0.070f, roadMaterial, context, segmentIndex, runIndex, 7300, 0.10f, 10f);
-            CreateRoadRibbonMesh(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, path, 0.30f, width * 0.58f, 0.084f, edgeMaterial, context, segmentIndex, runIndex, 7200, 0.18f, 16f);
-            CreateRoadRibbonMesh(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, path, 0.30f, -width * 0.58f, 0.084f, edgeMaterial, context, segmentIndex, runIndex, 7210, 0.18f, 16f);
+            CreateRoadRibbonMesh(layer, "road_edge_wear_left_" + segmentIndex + "_" + runIndex, path, 0.26f, width * 0.56f, 0.084f, edgeMaterial, context, segmentIndex, runIndex, 7200, 0.18f, 16f);
+            CreateRoadRibbonMesh(layer, "road_edge_wear_right_" + segmentIndex + "_" + runIndex, path, 0.26f, -width * 0.56f, 0.084f, edgeMaterial, context, segmentIndex, runIndex, 7210, 0.18f, 16f);
             summary.RoadDetailDecalCount += 4;
             if (length > 5f)
             {
@@ -103,7 +105,60 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 }
             }
 
+            EmitRoadEdgeBreakup(context, layer, summary, segmentIndex, runIndex, path, width, length, edgeGrassMaterial, pebbleBreakupMaterial);
             summary.RoadSegments++;
+        }
+
+        static void EmitRoadEdgeBreakup(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int segmentIndex, int runIndex, RoadPath path, float roadWidth, float length, Material edgeGrassMaterial, Material pebbleBreakupMaterial)
+        {
+            if (path.Points == null || path.Points.Length < 2 || length <= 3.5f)
+                return;
+
+            var edgePatchCount = Mathf.Clamp(Mathf.FloorToInt(length / 2.8f), 2, 24);
+            for (var i = 0; i < edgePatchCount; i++)
+            {
+                var t = (i + 0.45f + context.Hash01(segmentIndex, runIndex, 7900 + i) * 0.35f) / edgePatchCount;
+                var sample = SampleRoadPath(path, t);
+                var angle = Mathf.Atan2(sample.Direction.y, sample.Direction.x) * Mathf.Rad2Deg + Mathf.Lerp(-16f, 16f, context.Hash01(segmentIndex, runIndex, 7908 + i));
+                for (var sideIndex = 0; sideIndex < 2; sideIndex++)
+                {
+                    if (context.Hash01(segmentIndex + sideIndex, runIndex, 7916 + i) < 0.18f)
+                        continue;
+
+                    var side = sideIndex == 0 ? -1f : 1f;
+                    var edgeCenter = sample.Center + sample.Normal * side * Mathf.Lerp(roadWidth * 0.38f, roadWidth * 0.72f, context.Hash01(segmentIndex + sideIndex, runIndex, 7924 + i));
+                    var patchLength = Mathf.Lerp(1.15f, 3.35f, context.Hash01(segmentIndex + sideIndex, runIndex, 7932 + i));
+                    var patchWidth = Mathf.Lerp(0.42f, 1.14f, context.Hash01(segmentIndex + sideIndex, runIndex, 7940 + i));
+
+                    AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_grass_intrusion_" + segmentIndex + "_" + runIndex + "_" + i + "_" + sideIndex, edgeCenter, patchLength, patchWidth, 0.101f, edgeGrassMaterial, angle, context, segmentIndex + sideIndex, runIndex, 7950 + i, 0.20f, 5.5f);
+                    summary.RoadDetailDecalCount++;
+                }
+
+                if (context.Hash01(segmentIndex, runIndex, 7960 + i) > 0.58f)
+                {
+                    var pebbleSide = context.Hash01(segmentIndex, runIndex, 7964 + i) < 0.5f ? -1f : 1f;
+                    var smallCenter = sample.Center + sample.Normal * pebbleSide * Mathf.Lerp(roadWidth * 0.34f, roadWidth * 0.56f, context.Hash01(segmentIndex, runIndex, 7968 + i));
+                    var smallLength = Mathf.Lerp(0.60f, 1.55f, context.Hash01(segmentIndex, runIndex, 7976 + i));
+                    var smallWidth = Mathf.Lerp(0.22f, 0.54f, context.Hash01(segmentIndex, runIndex, 7984 + i));
+                    AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_edge_bare_pebble_" + segmentIndex + "_" + runIndex + "_" + i, smallCenter, smallLength, smallWidth, 0.102f, pebbleBreakupMaterial, angle + Mathf.Lerp(-22f, 22f, context.Hash01(segmentIndex, runIndex, 7992 + i)), context, segmentIndex, runIndex, 8000 + i, 0.14f, 4.5f);
+                    summary.RoadDetailDecalCount++;
+                }
+            }
+
+            var centerPatchCount = Mathf.Clamp(Mathf.FloorToInt(length / 6.5f), 1, 9);
+            for (var i = 0; i < centerPatchCount; i++)
+            {
+                var t = (i + 1f) / (centerPatchCount + 1f);
+                var sample = SampleRoadPath(path, t);
+                var lateral = Mathf.Lerp(-roadWidth * 0.24f, roadWidth * 0.24f, context.Hash01(segmentIndex, runIndex, 8020 + i));
+                var center = sample.Center + sample.Normal * lateral;
+                var angle = Mathf.Atan2(sample.Direction.y, sample.Direction.x) * Mathf.Rad2Deg + Mathf.Lerp(-10f, 10f, context.Hash01(segmentIndex, runIndex, 8030 + i));
+                var patchLength = Mathf.Lerp(0.75f, 2.15f, context.Hash01(segmentIndex, runIndex, 8040 + i));
+                var patchWidth = Mathf.Lerp(0.34f, 0.76f, context.Hash01(segmentIndex, runIndex, 8050 + i));
+
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(layer, "road_surface_pebble_breakup_" + segmentIndex + "_" + runIndex + "_" + i, center, patchLength, patchWidth, 0.103f, pebbleBreakupMaterial, angle, context, segmentIndex, runIndex, 8060 + i, 0.16f, 4.0f);
+                summary.RoadDetailDecalCount++;
+            }
         }
 
         static RoadPath BuildRoadPath(AegisMapVisualCompileContext context, int segmentIndex, int runIndex, RoadRun run, float length)

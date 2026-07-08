@@ -75,6 +75,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             RequireTexturedRole(theme, "terrain.macro_dirt_variation", errors);
             RequireTexturedRole(theme, "terrain.macro_wet_lowland", errors);
             RequireTexturedRole(theme, "road.soft_dust", errors);
+            RequireTexturedRole(theme, "road.edge_grass", errors);
+            RequireTexturedRole(theme, "road.pebble_breakup", errors);
             RequireTexturedRole(theme, "basepad.panel_decal", errors);
             RequireTexturedRole(theme, "resource.ore_dust", errors);
             RequireTexturedRole(theme, "bridge.deck", errors);
@@ -168,6 +170,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 errors.Add("Road-water conflicts were reported in production preview.");
             if (road != null && road.RoadSegments > 0 && road.RoadDetailDecalCount <= 0)
                 errors.Add("Roads were present but no road detail decals were produced.");
+            if (road != null && road.RoadSegments > 0 && road.RoadDetailDecalCount < road.RoadSegments * 8)
+                errors.Add("Roads were present but road edge/detail coverage is below the production-preview threshold.");
             if (road != null && road.BridgeCrossings == 0 && water != null && water.WaterCells > 0)
                 warnings.Add("Sample has water but no bridge crossing was needed; bridge rule remains covered by compiler logic, not this sample layout.");
 

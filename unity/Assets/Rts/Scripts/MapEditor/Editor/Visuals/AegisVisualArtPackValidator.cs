@@ -95,7 +95,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             "basepad.corner",
             "bridge.deck",
             "bridge.rail",
-            "bridge.grime"
+            "bridge.grime",
+            "road.edge_grass",
+            "road.pebble_breakup"
         };
 
         [MenuItem("Project Aegis/Map Editor/Validate Visual Art Pack")]
