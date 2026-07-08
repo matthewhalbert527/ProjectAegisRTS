@@ -18,6 +18,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var cornerMaterial = AegisVisualCompilerPrimitives.Material(context, "basepad.corner");
             var grimeMaterial = AegisVisualCompilerPrimitives.Material(context, "basepad.grime");
             var dirtMaterial = AegisVisualCompilerPrimitives.Material(context, "terrain.dirt");
+            var panelRule = context.Theme == null ? null : context.Theme.RuleFor("basepad.panel");
+            if (panelRule == null || string.IsNullOrEmpty(panelRule.AlbedoPath))
+                summary.AddWarning("basepad.panel is missing a concrete texture path; production preview would fall back toward flat gray.");
 
             for (var i = 0; i < context.Starts.Count; i++)
             {
@@ -33,6 +36,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 {
                     AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_center_panel", center, PadSize - TrimWidth * 2f, PadSize - TrimWidth * 2f, 0.105f, panelMaterial, 0f);
                     summary.SkippedPlacementCount++;
+                    summary.AddWarning("Base pad GLB was unavailable; procedural textured pad composition was used.");
                 }
 
                 AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_north_trim", center + new Vector2(0f, PadSize * 0.5f - TrimWidth * 0.5f), PadSize, TrimWidth, 0.13f, trimMaterial, 0f);

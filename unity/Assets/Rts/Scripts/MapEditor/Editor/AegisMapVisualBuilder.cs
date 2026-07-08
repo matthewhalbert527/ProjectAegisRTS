@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using ProjectAegisRTS.UnityClient.MapEditor;
+using ProjectAegisRTS.UnityClient.MapEditor.Visuals;
 using UnityEditor;
 using UnityEngine;
 
@@ -72,22 +73,29 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         public static void RenderSamplePreviewForBatch()
         {
             var samplePath = AegisMapEditorPaths.SamplesFolder + "/sample_ai_medium_forest_2p_river_chokepoint.aegismap.json";
-            RenderPreviewForBatch(samplePath, "aegis_visual_builder_sample.png", 0.17f, 0.38f, 0.48f, 1400, 1000);
+            RenderPreviewForBatch(samplePath, "aegis_visual_builder_sample.png", 0.17f, 0.38f, 0.48f, 1400, 1000, AegisMapVisualCompileSettings.ProductionDefault());
         }
 
         public static void RenderArtPackShowcaseForBatch()
         {
             var samplePath = AegisMapEditorPaths.SamplesFolder + "/sample_art_pack_showcase_160_forest_river.aegismap.json";
-            RenderPreviewForBatch(samplePath, "aegis_art_pack_showcase.png", 0.24f, 0.50f, 0.50f, 1600, 1100);
+            RenderPreviewForBatch(samplePath, "aegis_art_pack_showcase.png", 0.24f, 0.50f, 0.50f, 1600, 1100, AegisMapVisualCompileSettings.ProductionDefault());
         }
 
-        static void RenderPreviewForBatch(string samplePath, string outputFileName, float orthographicScale, float centerXScale, float centerZScale, int outputWidth, int outputHeight)
+        public static void RenderProductionAndDebugPreviewsForBatch()
+        {
+            var samplePath = AegisMapEditorPaths.SamplesFolder + "/sample_art_pack_showcase_160_forest_river.aegismap.json";
+            RenderPreviewForBatch(samplePath, "aegis_visual_quality_production.png", 0.24f, 0.50f, 0.50f, 1600, 1100, AegisMapVisualCompileSettings.ProductionDefault());
+            RenderPreviewForBatch(samplePath, "aegis_visual_quality_debug.png", 0.24f, 0.50f, 0.50f, 1600, 1100, AegisMapVisualCompileSettings.DebugDefault());
+        }
+
+        static void RenderPreviewForBatch(string samplePath, string outputFileName, float orthographicScale, float centerXScale, float centerZScale, int outputWidth, int outputHeight, AegisMapVisualCompileSettings settings)
         {
             var document = AegisVisualMapDocument.Load(samplePath);
             if (document == null)
                 throw new InvalidOperationException("Visual builder render could not load " + samplePath + ".");
 
-            var root = BuildScene(document, samplePath, false);
+            var root = BuildScene(document, samplePath, false, settings);
             RenderSettings.ambientLight = new Color(0.34f, 0.36f, 0.34f, 1f);
 
             var light = new GameObject("Aegis Visual Preview Sun");
@@ -165,7 +173,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         static GameObject BuildScene(AegisVisualMapDocument document, string sourcePath, bool persistAssets)
         {
-            var result = AegisMapVisualCompiler.CompileDocument(document, sourcePath, persistAssets);
+            return BuildScene(document, sourcePath, persistAssets, AegisMapVisualCompileSettings.ProductionDefault());
+        }
+
+        static GameObject BuildScene(AegisVisualMapDocument document, string sourcePath, bool persistAssets, AegisMapVisualCompileSettings settings)
+        {
+            var result = AegisMapVisualCompiler.CompileDocument(document, sourcePath, persistAssets, settings);
             return result.Root;
         }
 

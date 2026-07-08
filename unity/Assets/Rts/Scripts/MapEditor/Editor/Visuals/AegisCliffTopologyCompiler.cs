@@ -89,7 +89,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     }
                     else if (!context.IsStartProtected(x, y) && context.Hash01(x, y, 707) < 0.08f)
                     {
-                        AegisVisualCompilerPrimitives.CreateCube(layer, "cliff_blocker_core_" + x + "_" + y, context.CellCenter(x, y, 0.35f), new Vector3(0.55f, 0.70f, 0.55f), Quaternion.Euler(0f, context.Hash01(x, y, 708) * 360f, 0f), blockerMaterial);
+                        if (context.ShowCliffOverlay || context.ShowBlockerOverlay)
+                            AegisVisualCompilerPrimitives.CreateCube(layer, "debug_cliff_blocker_core_" + x + "_" + y, context.CellCenter(x, y, 0.35f), new Vector3(0.55f, 0.70f, 0.55f), Quaternion.Euler(0f, context.Hash01(x, y, 708) * 360f, 0f), blockerMaterial);
+                        else
+                            summary.HiddenDebugFillCount++;
                     }
                 }
             }

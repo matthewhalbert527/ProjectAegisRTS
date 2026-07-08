@@ -47,7 +47,9 @@ The previous preview communicated that the map generator worked, but close-up qu
 
 - Roads should have a body, direction, and tire tracks.
 - Road scuffs should be sparse and aligned to route direction.
+- Road-water crossings must render as bridge/ford segments or fail/report a warning; road material must not paint directly through river material.
 - Rivers should have water body and shoreline wetness.
+- Production rivers should be merged/softened enough that raw cell edges are hidden.
 - Fords should be shallow/crossing hints only.
 - Block merge if roads/rivers look like uniform soft stains with no structure.
 
@@ -69,6 +71,10 @@ Or use batch capture methods through Unity batchmode. Preview captures should wr
 
 `%TEMP%\ProjectAegisRTS\VisualCompilerPreviews\`
 
+The batch method `AegisMapVisualBuilder.RenderProductionAndDebugPreviewsForBatch` renders production and debug-overlay captures separately. Production captures should not show debug/helper layers.
+
+Run `Project Aegis > Map Editor > Validate Visual Quality Gate` or `AegisMapVisualQualityGate.ValidateSampleForBatch` before merging renderer changes.
+
 Do not stage broad screenshot output.
 
 ## Merge Blockers
@@ -80,3 +86,6 @@ Do not stage broad screenshot output.
 - Protected IP names/assets/code are introduced.
 - Preview layers compile without summaries or warnings/errors.
 - Topology-driven cliffs, resource fields, or modular base pads regress into random stamp placement.
+- Production preview defaults back to debug overlays.
+- Roads cross water without bridge/ford handling.
+- Resource glints exceed capped field density.

@@ -2,9 +2,7 @@
 
 ## Summary
 
-The previous Unity map preview improved on the first debug pass, but it still behaved like a flat stamp compositor. `AegisMapVisualBuilder` loaded a `.aegismap.json`, baked most terrain detail into one generated texture on one large quad, then scattered road, river, ore, rock, cliff, crater, vegetation, and base-pad objects over that surface.
-
-That is useful for proving the deterministic generator can be seen in Unity. It is not enough for a production RTS battlefield because the visual system has no durable layer contracts, no topology model, weak asset semantics, and only limited QA evidence about which layer produced which detail.
+The Unity map preview has moved from a debug/topology visualization toward a production-preview renderer. `AegisMapVisualBuilder` remains the compatibility entry point, but it delegates to `AegisMapVisualCompiler`, which now supports `ProductionPreview`, `DebugOverlay`, and `Hybrid` modes. Production preview is the default and hides helper/debug geometry.
 
 ## Why The Screenshot Looked Flat
 
@@ -14,6 +12,7 @@ That is useful for proving the deterministic generator can be seen in Unity. It 
 - Ore was rendered as clusters around resource cells, but the field itself did not own center/radius/fill/depletion visual behavior.
 - Base pads were improved with panels and grime, but they were still generated inside the monolithic builder rather than as a modular pad system with explicit panel/trim/corner/wear roles.
 - Scatter was deterministic, but the rules lived inline with unrelated terrain and mesh code.
+- A later screenshot still looked bad because the compiler used 16x16 dominant terrain chunks, per-cell water quads, straight road quads over water, raw blocker fill, dense ore glints, and overlay controls that did not change compile output.
 
 ## Current Builder Behavior
 
@@ -39,11 +38,11 @@ The code works as a prototype, but it mixes data extraction, layer compilation, 
 
 A single quad texture cannot express durable terrain layers, material weights, terrain chunk metadata, or shader-swappable surfaces. It also hides the reason behind each visual decision. A production compiler needs explicit terrain chunks, semantic roles, transition edges, water bodies, shorelines, road segments, cliff edges, resource fields, and scatter placement summaries.
 
-The new compiler starts that move by creating a base terrain chunk layer plus explicit transition masks. It remains prototype-rendered, but the data and scene hierarchy now match a future shader/material-layer terrain system.
+The compiler now creates smaller production terrain chunks, breaks mixed chunks into per-cell semantic patches, and reports mixed chunk counts. It remains prototype-rendered, but the data and scene hierarchy now match a future shader/material-layer terrain system.
 
 ## Why Road/Rut/Scuff Quads Are Insufficient Alone
 
-Road quads are useful only after a road system has chosen segments, widths, edge wear, and forbidden zones. Randomly adding more ruts would still look noisy. The visual compiler now treats roads as a layer derived from path segments with body and tire-track summaries.
+Road quads are useful only after a road system has chosen segments, widths, edge wear, and forbidden zones. The visual compiler now samples each road segment against water and emits prototype bridge deck/rail/shadow geometry for water crossings instead of painting roads directly over river material.
 
 ## Why Resource Clusters Need Field-Level Composition
 

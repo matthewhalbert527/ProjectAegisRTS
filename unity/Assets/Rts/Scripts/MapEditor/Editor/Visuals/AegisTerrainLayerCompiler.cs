@@ -7,29 +7,70 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 {
     sealed class AegisTerrainLayerCompiler : IAegisVisualLayerCompiler
     {
-        const int ChunkSize = 16;
+        public const int ProductionChunkSize = 4;
+        const int DebugChunkSize = 16;
 
         public AegisVisualLayerSummary Compile(AegisMapVisualCompileContext context)
         {
-            var summary = new AegisVisualLayerSummary("Base Terrain Surface");
-            var layer = AegisVisualCompilerPrimitives.CreateLayer(context, "Base Terrain Surface");
+            var summary = new AegisVisualLayerSummary(context.IsDebugOverlay ? "Debug Terrain Role Chunks" : "Production Terrain Surface");
+            var layer = AegisVisualCompilerPrimitives.CreateLayer(context, context.IsDebugOverlay ? "Debug Terrain Role Chunks" : "Production Terrain Surface");
+            var chunkSize = context.IsDebugOverlay ? DebugChunkSize : ProductionChunkSize;
 
-            for (var y = 0; y < context.Height; y += ChunkSize)
+            for (var y = 0; y < context.Height; y += chunkSize)
             {
-                for (var x = 0; x < context.Width; x += ChunkSize)
+                for (var x = 0; x < context.Width; x += chunkSize)
                 {
-                    var width = Mathf.Min(ChunkSize, context.Width - x);
-                    var height = Mathf.Min(ChunkSize, context.Height - y);
-                    var role = DominantRole(context, x, y, width, height);
-                    var material = AegisVisualCompilerPrimitives.Material(context, role);
-                    var center = new Vector2(x + width * 0.5f, y + height * 0.5f);
-                    var chunk = AegisVisualCompilerPrimitives.CreateQuad(layer, "terrain_chunk_" + x + "_" + y + "_" + role.Replace('.', '_'), center, width, height, 0f, material, 0f);
-                    chunk.isStatic = true;
-                    summary.TerrainChunks++;
+                    var width = Mathf.Min(chunkSize, context.Width - x);
+                    var height = Mathf.Min(chunkSize, context.Height - y);
+                    if (!context.IsDebugOverlay && IsMixed(context, x, y, width, height))
+                    {
+                        summary.MixedTerrainChunks++;
+                        EmitMixedChunk(context, layer, summary, x, y, width, height);
+                    }
+                    else
+                    {
+                        EmitPatch(context, layer, summary, x, y, width, height, DominantRole(context, x, y, width, height), "terrain_chunk");
+                    }
                 }
             }
 
             return summary;
+        }
+
+        static void EmitMixedChunk(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int startX, int startY, int width, int height)
+        {
+            for (var y = startY; y < startY + height; y++)
+                for (var x = startX; x < startX + width; x++)
+                    EmitPatch(context, layer, summary, x, y, 1, 1, context.TerrainRoleAt(x, y), "terrain_cell");
+        }
+
+        static void EmitPatch(AegisMapVisualCompileContext context, Transform layer, AegisVisualLayerSummary summary, int startX, int startY, int width, int height, string role, string prefix)
+        {
+            var material = AegisVisualCompilerPrimitives.Material(context, role);
+            var center = new Vector2(startX + width * 0.5f, startY + height * 0.5f);
+            var elevation = role == "terrain.shallow_water" || role == "terrain.deep_water" ? 0.015f : 0f;
+            var overlap = context.IsDebugOverlay ? 1f : 1.035f;
+            var chunk = AegisVisualCompilerPrimitives.CreateQuad(
+                layer,
+                prefix + "_" + startX + "_" + startY + "_" + role.Replace('.', '_'),
+                center,
+                width * overlap,
+                height * overlap,
+                elevation,
+                material,
+                0f);
+            chunk.isStatic = true;
+            summary.TerrainChunks++;
+        }
+
+        static bool IsMixed(AegisMapVisualCompileContext context, int startX, int startY, int width, int height)
+        {
+            var first = context.TerrainRoleAt(startX, startY);
+            for (var y = startY; y < startY + height; y++)
+                for (var x = startX; x < startX + width; x++)
+                    if (context.TerrainRoleAt(x, y) != first)
+                        return true;
+            return false;
         }
 
         static string DominantRole(AegisMapVisualCompileContext context, int startX, int startY, int width, int height)

@@ -14,12 +14,13 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
         string lastCapturePath = string.Empty;
         int visualSeed;
         ThemeChoice themeChoice = ThemeChoice.ForestPrototype;
+        AegisMapVisualRenderMode visualMode = AegisMapVisualRenderMode.ProductionPreview;
         Vector2 scroll;
-        bool showTerrainOverlay = true;
-        bool showBlockerOverlay = true;
-        bool showResourceOverlay = true;
-        bool showBuildPadOverlay = true;
-        bool showCliffOverlay = true;
+        bool showTerrainOverlay;
+        bool showBlockerOverlay;
+        bool showResourceOverlay;
+        bool showBuildPadOverlay;
+        bool showCliffOverlay;
         bool showPathabilityOverlay;
 
         enum ThemeChoice
@@ -49,10 +50,12 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             EditorGUILayout.LabelField("Map Visual Compiler", EditorStyles.boldLabel);
             selectedMap = EditorGUILayout.ObjectField("Aegis Map", selectedMap, typeof(Object), false);
             themeChoice = (ThemeChoice)EditorGUILayout.EnumPopup("Visual Theme", themeChoice);
+            visualMode = (AegisMapVisualRenderMode)EditorGUILayout.EnumPopup("Visual Mode", visualMode);
             visualSeed = EditorGUILayout.IntField("Visual Seed", visualSeed);
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Debug Overlays", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Debug overlays are not production output. ProductionPreview hides helper geometry unless Hybrid mode enables selected overlays.", MessageType.Info);
             showTerrainOverlay = EditorGUILayout.ToggleLeft("Terrain", showTerrainOverlay);
             showBlockerOverlay = EditorGUILayout.ToggleLeft("Blockers", showBlockerOverlay);
             showResourceOverlay = EditorGUILayout.ToggleLeft("Resources", showResourceOverlay);
@@ -107,7 +110,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             ClearPreview();
             var seed = visualSeed == 0 ? document.ReadSeed() : visualSeed;
-            lastResult = AegisMapVisualCompiler.CompileDocument(document, path, true, CreateTheme(), seed);
+            lastResult = AegisMapVisualCompiler.CompileDocument(document, path, true, CreateTheme(), seed, CreateSettings());
             currentRoot = lastResult.Root;
             lastSummary = AddOverlaySummary(lastResult.ToSummaryText());
             UnityEditor.Selection.activeObject = currentRoot;
@@ -153,10 +156,28 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             }
         }
 
+        AegisMapVisualCompileSettings CreateSettings()
+        {
+            return new AegisMapVisualCompileSettings
+            {
+                RenderMode = visualMode,
+                Overlays = new AegisMapVisualOverlaySettings
+                {
+                    Terrain = showTerrainOverlay,
+                    Blockers = showBlockerOverlay,
+                    Resources = showResourceOverlay,
+                    BuildPads = showBuildPadOverlay,
+                    Cliffs = showCliffOverlay,
+                    Pathability = showPathabilityOverlay
+                }
+            };
+        }
+
         string AddOverlaySummary(string summary)
         {
             return summary +
-                "\n\nDebug overlay toggles:" +
+                "\n\nVisual mode: " + visualMode +
+                "\nDebug overlay toggles:" +
                 "\n- Terrain: " + showTerrainOverlay +
                 "\n- Blockers: " + showBlockerOverlay +
                 "\n- Resources: " + showResourceOverlay +

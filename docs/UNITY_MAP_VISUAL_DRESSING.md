@@ -24,6 +24,8 @@ Workflow:
 4. The generated scene includes compiler layers for base terrain chunks, terrain transition masks, water surfaces, shoreline mud/wetness, roads and tire tracks, topology-driven cliffs, resource fields, modular base pads, and rule-based scatter.
 5. The compiler window can capture a local screenshot to `%TEMP%\ProjectAegisRTS\VisualCompilerPreviews\`.
 
+Production preview is the default visual mode. Debug overlays are available through `DebugOverlay` or `Hybrid` mode, but they are not production output.
+
 The visual seed is derived from the map identity and dimensions unless overridden in the compiler window, so the same map and seed produce the same dressing layout.
 
 The batch preview validation uses `sample_ai_medium_forest_2p_river_chokepoint.aegismap.json`, a checked-in deterministic sample with river water, cliff/blocker bands, ore clusters, and two connected player starts. This gives the render check a map that exercises the terrain detail layers visible when zoomed in without overcrowding the preview with route lines.
@@ -62,15 +64,21 @@ Use:
 
 to verify the root, manifest, semantic material map, required terrain textures, GLB meshes, decals, theme texture paths, and sample compiler output.
 
+Use:
+
+`Project Aegis > Map Editor > Validate Visual Quality Gate`
+
+to verify production-preview defaults, texture-role bindings, merged water strips, bridge/fording handling for road-water crossings, capped resource glints, and non-fallback sample output.
+
 ## Roads And Base Pads
 
 The logical map does not store Unity-only road meshes. The visual builder derives deterministic soft road decals from the same generated start-to-center route segments used for the terrain path texture. These overlays add dust, paired rut strips, and occasional gravel scuffs without changing pathability.
 
-Base pads are also visual-only dressing on top of player start metadata. Each generated pad receives concrete panels, thin seam decals, trim strips, a dusty approach apron facing the map center, and deterministic grime marks so start areas read less like flat placeholder slabs.
+Base pads are also visual-only dressing on top of player start metadata. Each generated pad uses the imported `base_pad_14x14.glb` when available, then receives concrete panels, thin seam decals, trim strips, a dusty approach apron facing the map center, and deterministic grime marks so start areas read less like flat placeholder slabs. Missing pad mesh or missing concrete texture paths produce validation warnings.
 
 ## Water Rendering
 
-The logical map still stores water as deterministic terrain cells. The visual builder now derives a smooth river centerline from those cells and renders water/bank influence from that line instead of drawing each water cell as a visible square. Short gaps in the logical watercourse can receive a shallow muddy ford connector so gameplay crossings remain readable without turning the runtime map into a Unity-only source of truth.
+The logical map still stores water as deterministic terrain cells. The visual compiler merges water cells into wider strips and emits softened shoreline mud/wetness strips so production rivers no longer show raw cell borders. Roads crossing water are split and represented with neutral `bridge_prototype_*` deck/rail/shadow pieces until final bridge or ford art exists.
 
 ## Current Limits
 

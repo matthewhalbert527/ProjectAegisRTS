@@ -6,7 +6,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 {
     sealed class AegisScatterVisualCompiler : IAegisVisualLayerCompiler
     {
-        const int MaxScatter = 1250;
+        const int MaxScatter = 900;
 
         public AegisVisualLayerSummary Compile(AegisMapVisualCompileContext context)
         {
@@ -20,9 +20,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var rubbleMaterial = AegisVisualCompilerPrimitives.Material(context, "decal.rubble");
             var placed = 0;
 
-            for (var y = 1; y < context.Height - 1; y += 2)
+            for (var y = 2; y < context.Height - 2; y += 4)
             {
-                for (var x = 1; x < context.Width - 1; x += 2)
+                for (var x = 2; x < context.Width - 2; x += 4)
                 {
                     if (placed >= MaxScatter)
                     {
@@ -30,7 +30,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         continue;
                     }
 
-                    if (context.IsStartProtected(x, y) || context.IsWater(x, y) || context.HasResource(x, y))
+                    if (!CanPlaceScatter(context, x, y))
                     {
                         summary.SkippedPlacementCount++;
                         continue;
@@ -53,35 +53,31 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
                     var role = context.TerrainRoleAt(x, y);
                     var cliffNear = IsNearCliff(context, x, y);
-                    if (cliffNear && context.Hash01(x, y, 1510) < 0.16f)
+                    if (cliffNear && context.Hash01(x, y, 1510) < 0.24f)
                     {
                         var prefab = AegisMapArtPack.Pick(AegisMapArtPack.BoulderMeshes, context.Seed, x, y);
                         var position = context.CellCenter(x, y, 0.22f);
-                        var scale = Vector3.one * Mathf.Lerp(0.38f, 0.95f, context.Hash01(x, y, 1511));
+                        var scale = Vector3.one * Mathf.Lerp(0.62f, 1.25f, context.Hash01(x, y, 1511));
                         if (!AegisMapArtPack.TryInstantiatePrefab(layer, "cliff_edge_rock_" + x + "_" + y, prefab, position, Quaternion.Euler(0f, context.Hash01(x, y, 1512) * 360f, 0f), scale, rockMaterial))
                             CreateScatterCube(layer, context, x, y, "cliff_edge_rock", rockMaterial, 0.36f, 0.84f, 1513);
                         placed++;
                         summary.ScatterCount++;
+                        summary.RockCount++;
                         continue;
                     }
 
-                    if ((role == "terrain.dark_grass" || role == "terrain.grass") && context.Hash01(x, y, 1520) < 0.055f)
+                    if ((role == "terrain.dark_grass" || role == "terrain.grass") && context.Hash01(x, y, 1520) < 0.20f)
                     {
-                        var material = role == "terrain.dark_grass" ? treeMaterial : bushMaterial;
-                        var prefab = AegisMapArtPack.Pick(AegisMapArtPack.VegetationMeshes, context.Seed, x, y);
-                        var scale = Vector3.one * Mathf.Lerp(0.42f, 1.05f, context.Hash01(x, y, 1521));
-                        if (!AegisMapArtPack.TryInstantiatePrefab(layer, "vegetation_" + x + "_" + y, prefab, context.CellCenter(x, y, 0.05f), Quaternion.Euler(0f, context.Hash01(x, y, 1522) * 360f, 0f), scale, material))
-                            AegisVisualCompilerPrimitives.CreateCylinder(layer, "vegetation_" + x + "_" + y, context.CellCenter(x, y, 0.32f), new Vector3(scale.x * 0.35f, scale.y * 0.62f, scale.z * 0.35f), material);
-                        placed++;
-                        summary.ScatterCount++;
+                        placed += CreateVegetationCluster(layer, context, summary, x, y, role == "terrain.dark_grass", treeMaterial, bushMaterial);
                         continue;
                     }
 
-                    if (role == "terrain.grass" && context.Hash01(x, y, 1530) < 0.036f)
+                    if (role == "terrain.grass" && context.Hash01(x, y, 1530) < 0.10f)
                     {
-                        AegisVisualCompilerPrimitives.CreateCylinder(layer, "grass_tuft_" + x + "_" + y, context.CellCenter(x, y, 0.08f), new Vector3(0.18f, 0.16f, 0.18f), grassMaterial);
+                        AegisVisualCompilerPrimitives.CreateCylinder(layer, "grass_tuft_" + x + "_" + y, context.CellCenter(x, y, 0.08f), new Vector3(0.32f, 0.22f, 0.32f), grassMaterial);
                         placed++;
                         summary.ScatterCount++;
+                        summary.GrassCount++;
                         continue;
                     }
 
@@ -107,6 +103,50 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                     if (context.IsCliffLike(x + dx, y + dy))
                         return true;
             return false;
+        }
+
+        static bool CanPlaceScatter(AegisMapVisualCompileContext context, int x, int y)
+        {
+            return !context.IsStartProtected(x, y) &&
+                !context.IsWater(x, y) &&
+                !context.HasResource(x, y) &&
+                !AegisVisualCompilerPrimitives.IsRoadNear(context, x, y, 1.8f);
+        }
+
+        static int CreateVegetationCluster(Transform layer, AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, int x, int y, bool preferTrees, Material treeMaterial, Material bushMaterial)
+        {
+            var placed = 0;
+            var count = preferTrees ? 2 + context.HashRange(x, y, 1524, 3) : 2 + context.HashRange(x, y, 1525, 2);
+            for (var i = 0; i < count; i++)
+            {
+                var angle = context.Hash01(x, y, 1530 + i) * Mathf.PI * 2f;
+                var distance = Mathf.Lerp(0.2f, 1.75f, context.Hash01(x, y, 1540 + i));
+                var px = x + Mathf.Cos(angle) * distance;
+                var py = y + Mathf.Sin(angle) * distance;
+                var cellX = Mathf.Clamp(Mathf.FloorToInt(px), 0, context.Width - 1);
+                var cellY = Mathf.Clamp(Mathf.FloorToInt(py), 0, context.Height - 1);
+                if (!CanPlaceScatter(context, cellX, cellY))
+                {
+                    summary.SkippedPlacementCount++;
+                    continue;
+                }
+
+                var material = preferTrees || i == 0 ? treeMaterial : bushMaterial;
+                var prefab = AegisMapArtPack.Pick(AegisMapArtPack.VegetationMeshes, context.Seed, cellX, cellY);
+                var scale = Vector3.one * Mathf.Lerp(preferTrees ? 0.82f : 0.55f, preferTrees ? 1.35f : 0.95f, context.Hash01(cellX, cellY, 1521 + i));
+                var position = new Vector3(px, 0.05f, py);
+                if (!AegisMapArtPack.TryInstantiatePrefab(layer, "vegetation_cluster_" + x + "_" + y + "_" + i, prefab, position, Quaternion.Euler(0f, context.Hash01(cellX, cellY, 1522 + i) * 360f, 0f), scale, material))
+                    AegisVisualCompilerPrimitives.CreateCylinder(layer, "vegetation_cluster_" + x + "_" + y + "_" + i, new Vector3(px, 0.32f, py), new Vector3(scale.x * 0.35f, scale.y * 0.62f, scale.z * 0.35f), material);
+
+                placed++;
+                summary.ScatterCount++;
+                if (preferTrees || i == 0)
+                    summary.TreeCount++;
+                else
+                    summary.BushCount++;
+            }
+
+            return placed;
         }
 
         static void CreateScatterCube(Transform layer, AegisMapVisualCompileContext context, int x, int y, string prefix, Material material, float minScale, float maxScale, int salt)

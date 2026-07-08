@@ -26,6 +26,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         public AegisMapVisualCompileResult Compile(AegisVisualMapDocument document, string sourcePath, bool persistAssets, AegisMapVisualTheme theme, int visualSeed)
         {
+            return Compile(document, sourcePath, persistAssets, theme, visualSeed, AegisMapVisualCompileSettings.ProductionDefault());
+        }
+
+        public AegisMapVisualCompileResult Compile(AegisVisualMapDocument document, string sourcePath, bool persistAssets, AegisMapVisualTheme theme, int visualSeed, AegisMapVisualCompileSettings settings)
+        {
             if (document == null)
                 throw new ArgumentNullException("document");
 
@@ -33,7 +38,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             if (theme == null)
                 theme = AegisBiomeVisualTheme.Create(FindBiome(document));
 
-            var context = CreateContext(document, sourcePath, persistAssets, theme, visualSeed);
+            var context = CreateContext(document, sourcePath, persistAssets, theme, visualSeed, settings);
             var result = new AegisMapVisualCompileResult();
             result.Root = context.Root;
 
@@ -57,17 +62,27 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
         public static AegisMapVisualCompileResult CompileDocument(AegisVisualMapDocument document, string sourcePath, bool persistAssets)
         {
+            return CompileDocument(document, sourcePath, persistAssets, AegisMapVisualCompileSettings.ProductionDefault());
+        }
+
+        public static AegisMapVisualCompileResult CompileDocument(AegisVisualMapDocument document, string sourcePath, bool persistAssets, AegisMapVisualCompileSettings settings)
+        {
             var seed = document == null ? 0 : document.ReadSeed();
             var theme = AegisBiomeVisualTheme.Create(FindBiome(document));
-            return new AegisMapVisualCompiler().Compile(document, sourcePath, persistAssets, theme, seed);
+            return new AegisMapVisualCompiler().Compile(document, sourcePath, persistAssets, theme, seed, settings);
         }
 
         public static AegisMapVisualCompileResult CompileDocument(AegisVisualMapDocument document, string sourcePath, bool persistAssets, AegisMapVisualTheme theme, int visualSeed)
         {
-            return new AegisMapVisualCompiler().Compile(document, sourcePath, persistAssets, theme, visualSeed);
+            return new AegisMapVisualCompiler().Compile(document, sourcePath, persistAssets, theme, visualSeed, AegisMapVisualCompileSettings.ProductionDefault());
         }
 
-        static AegisMapVisualCompileContext CreateContext(AegisVisualMapDocument document, string sourcePath, bool persistAssets, AegisMapVisualTheme theme, int visualSeed)
+        public static AegisMapVisualCompileResult CompileDocument(AegisVisualMapDocument document, string sourcePath, bool persistAssets, AegisMapVisualTheme theme, int visualSeed, AegisMapVisualCompileSettings settings)
+        {
+            return new AegisMapVisualCompiler().Compile(document, sourcePath, persistAssets, theme, visualSeed, settings);
+        }
+
+        static AegisMapVisualCompileContext CreateContext(AegisVisualMapDocument document, string sourcePath, bool persistAssets, AegisMapVisualTheme theme, int visualSeed, AegisMapVisualCompileSettings settings)
         {
             var safeMapId = AegisVisualCompilerPrimitives.Sanitize(document.mapId);
             var seed = visualSeed == 0 ? document.ReadSeed() : visualSeed;
@@ -77,6 +92,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             context.Seed = seed;
             context.PersistAssets = persistAssets;
             context.Theme = theme;
+            context.Settings = settings ?? AegisMapVisualCompileSettings.ProductionDefault();
             context.Root = new GameObject("Aegis Visual Map - " + safeMapId);
             context.Root.transform.position = Vector3.zero;
 
@@ -305,7 +321,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var color = rule == null ? Color.white : rule.Color;
             // Prototype compiler layers use opaque materials to avoid stacked transparent
             // URP sorting artifacts while the final shader/material-layer path is pending.
-            var transparent = false;
+            var transparent = rule != null && rule.Transparent;
             var fileName = "aegis_visual_compiler_" + Sanitize(role) + ".mat";
             material = AegisMapArtPack.Material(
                 fileName,
@@ -316,6 +332,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 rule == null ? null : rule.AlbedoPath,
                 rule == null ? null : rule.NormalPath,
                 rule == null ? null : rule.MaskPath);
+            ApplyTextureTiling(material, role);
             context.MaterialCache[role] = material;
             return material;
         }
@@ -417,6 +434,22 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var collider = go.GetComponent<Collider>();
             if (collider != null)
                 UnityEngine.Object.DestroyImmediate(collider);
+        }
+
+        static void ApplyTextureTiling(Material material, string role)
+        {
+            if (material == null || material.mainTexture == null)
+                return;
+
+            var tiling = Vector2.one;
+            if (!string.IsNullOrEmpty(role) && (role.StartsWith("terrain.", StringComparison.OrdinalIgnoreCase) || role.StartsWith("road.", StringComparison.OrdinalIgnoreCase) || role.StartsWith("river.", StringComparison.OrdinalIgnoreCase)))
+                tiling = new Vector2(3.5f, 3.5f);
+
+            material.mainTextureScale = tiling;
+            if (material.HasProperty("_BaseMap"))
+                material.SetTextureScale("_BaseMap", tiling);
+            if (material.HasProperty("_MainTex"))
+                material.SetTextureScale("_MainTex", tiling);
         }
     }
 }

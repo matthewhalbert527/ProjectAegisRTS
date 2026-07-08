@@ -12,7 +12,7 @@ The installed `ProjectAegis_MapVisualArtPack_v1` folder now contains the rebuilt
 - Resources must read as fields with density and depletion state, not isolated sparkly rocks.
 - Cliffs must read as continuous height/blocker edges with straight pieces, corners, and endcaps.
 - Roads must guide movement without becoming noisy brown fog.
-- Rivers must show water body, shoreline wetness, and shallow ford hints where gameplay allows crossing.
+- Rivers must show a merged water body, shoreline wetness, and shallow ford or bridge hints where gameplay allows crossing.
 - Scatter must support biome and topology: trees on suitable terrain, rocks near cliffs, rubble near craters, and no clutter in start/build zones.
 
 ## Biomes
@@ -28,6 +28,7 @@ Future themes should keep the same semantic roles and only change asset/material
 ## Current Limits
 
 - The compiler now has chunk/layer semantics, but terrain rendering is still a prototype scene-object implementation rather than a final shader-layer terrain.
+- Production preview now hides debug overlays by default and uses smaller/mixed terrain chunks, strip-merged water, bridge prototypes, capped resource glints, and clustered scatter.
 - The installed v2 art pack provides semantic terrain textures, decals, and GLB meshes, but it is still production-proxy content rather than final hand-authored shipping art.
 - Cliff, river, and resource assets need final sculpted/prefab variants.
 - Camera capture is functional QA, not final promotional rendering.

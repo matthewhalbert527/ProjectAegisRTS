@@ -55,6 +55,9 @@ Every visual asset entry should provide:
 - `basepad.trim`
 - `basepad.corner`
 - `basepad.grime`
+- `bridge.prototype.deck`
+- `bridge.prototype.rail`
+- `bridge.prototype.shadow`
 
 ## Example Entry
 
@@ -86,6 +89,11 @@ Resource visuals must be field-based:
 - Hide or reduce chunks for depleted fields.
 - Reserve glints for high-fill/high-value fields.
 - Keep resources out of start cleanup zones and base pads.
+- Cap sparkle/glint decals so fields read as ore/resource deposits rather than visual noise.
+
+## Road Crossing Contract
+
+Road visuals must not paint directly through water cells. If a deterministic road segment crosses water, the visual compiler must either emit a bridge/ford representation or report a warning/error. The current bridge representation is a neutral Project Aegis prototype named with `bridge_prototype_*` scene objects; it is not final art.
 
 ## Current Prototype Pack
 

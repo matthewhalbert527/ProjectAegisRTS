@@ -15,6 +15,7 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
         public int Seed;
         public bool PersistAssets;
         public AegisMapVisualTheme Theme;
+        public AegisMapVisualCompileSettings Settings = AegisMapVisualCompileSettings.ProductionDefault();
         public GameObject Root;
         public readonly List<AegisVisualStartModel> Starts = new List<AegisVisualStartModel>();
         public readonly List<AegisVisualResourceFieldModel> ResourceFields = new List<AegisVisualResourceFieldModel>();
@@ -48,6 +49,61 @@ namespace ProjectAegisRTS.UnityClient.MapEditor.Visuals
         public bool InBounds(int x, int y)
         {
             return x >= 0 && y >= 0 && x < Width && y < Height;
+        }
+
+        public AegisMapVisualRenderMode RenderMode
+        {
+            get { return Settings == null ? AegisMapVisualRenderMode.ProductionPreview : Settings.RenderMode; }
+        }
+
+        public bool IsProductionPreview
+        {
+            get { return RenderMode == AegisMapVisualRenderMode.ProductionPreview; }
+        }
+
+        public bool IsDebugOverlay
+        {
+            get { return RenderMode == AegisMapVisualRenderMode.DebugOverlay; }
+        }
+
+        public bool IsHybrid
+        {
+            get { return RenderMode == AegisMapVisualRenderMode.Hybrid; }
+        }
+
+        public bool ShowOverlay(bool enabled)
+        {
+            return IsDebugOverlay || (IsHybrid && enabled);
+        }
+
+        public bool ShowTerrainOverlay
+        {
+            get { return ShowOverlay(Settings != null && Settings.Overlays != null && Settings.Overlays.Terrain); }
+        }
+
+        public bool ShowBlockerOverlay
+        {
+            get { return ShowOverlay(Settings != null && Settings.Overlays != null && Settings.Overlays.Blockers); }
+        }
+
+        public bool ShowResourceOverlay
+        {
+            get { return ShowOverlay(Settings != null && Settings.Overlays != null && Settings.Overlays.Resources); }
+        }
+
+        public bool ShowBuildPadOverlay
+        {
+            get { return ShowOverlay(Settings != null && Settings.Overlays != null && Settings.Overlays.BuildPads); }
+        }
+
+        public bool ShowCliffOverlay
+        {
+            get { return ShowOverlay(Settings != null && Settings.Overlays != null && Settings.Overlays.Cliffs); }
+        }
+
+        public bool ShowPathabilityOverlay
+        {
+            get { return ShowOverlay(Settings != null && Settings.Overlays != null && Settings.Overlays.Pathability); }
         }
 
         public int Index(int x, int y)
