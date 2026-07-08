@@ -61,7 +61,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         var position = context.CellCenter(x, y, 0.22f);
                         var scale = Vector3.one * Mathf.Lerp(0.62f, 1.25f, context.Hash01(x, y, 1511));
                         if (!AegisMapArtPack.TryInstantiatePrefab(layer, "cliff_edge_rock_" + x + "_" + y, prefab, position, Quaternion.Euler(0f, context.Hash01(x, y, 1512) * 360f, 0f), scale, rockMaterial))
+                        {
                             CreateScatterCube(layer, context, x, y, "cliff_edge_rock", rockMaterial, 0.36f, 0.84f, 1513);
+                            summary.GenericFallbackInstanceCount++;
+                        }
                         placed++;
                         summary.ScatterCount++;
                         summary.RockCount++;
@@ -236,7 +239,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 var scale = Vector3.one * Mathf.Lerp(preferTrees ? 0.82f : 0.55f, preferTrees ? 1.35f : 0.95f, context.Hash01(cellX, cellY, 1521 + i));
                 var position = new Vector3(px, 0.05f, py);
                 if (!AegisMapArtPack.TryInstantiatePrefab(layer, "vegetation_cluster_" + x + "_" + y + "_" + i, prefab, position, Quaternion.Euler(0f, context.Hash01(cellX, cellY, 1522 + i) * 360f, 0f), scale, material))
+                {
                     AegisVisualCompilerPrimitives.CreateCylinder(layer, "vegetation_cluster_" + x + "_" + y + "_" + i, new Vector3(px, 0.32f, py), new Vector3(scale.x * 0.35f, scale.y * 0.62f, scale.z * 0.35f), material);
+                    summary.GenericFallbackInstanceCount++;
+                }
 
                 placed++;
                 summary.ScatterCount++;
@@ -268,6 +274,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             }
 
             EmitGroundDecal(layer, context, summary, x, y, "crater_decal", material, 1.15f, 2.25f, 0.72f, 1.12f, 1554);
+            summary.GenericFallbackInstanceCount++;
         }
 
         static void EmitGroundDecal(Transform layer, AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, int x, int y, string prefix, Material material, float minWidth, float maxWidth, float minAspect, float maxAspect, int salt)

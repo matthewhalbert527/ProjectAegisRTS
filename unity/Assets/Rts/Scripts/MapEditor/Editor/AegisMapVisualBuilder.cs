@@ -70,6 +70,11 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             Debug.Log("Aegis map visual compiler sample validation passed.");
         }
 
+        public static void ValidateVisualArtPackForBatch()
+        {
+            AegisVisualArtPackValidator.ValidateVisualArtPackForBatch();
+        }
+
         public static void RenderSamplePreviewForBatch()
         {
             var samplePath = AegisMapEditorPaths.SamplesFolder + "/sample_ai_medium_forest_2p_river_chokepoint.aegismap.json";

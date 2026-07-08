@@ -9,6 +9,36 @@ using UnityEngine;
 
 namespace ProjectAegisRTS.UnityClient.EditorTools
 {
+    public sealed class AegisArtPackValidationReport
+    {
+        public bool ArtPackRootExists;
+        public bool ManifestExists;
+        public bool SemanticMaterialsExists;
+        public int RequiredFilesChecked;
+        public int RequiredMeshFilesChecked;
+        public int ImportedModelRootsFound;
+        public int GeneratedProxyAssetsFoundOrCreated;
+        public int ImportedArtPackInstanceCount;
+        public int ArtPackDerivedProxyInstanceCount;
+        public int GenericFallbackGeometryCount;
+        public int ArtPackTexturedMaterialCount;
+
+        public string ToDisplayString()
+        {
+            return "Root exists: " + ArtPackRootExists +
+                "\nManifest exists: " + ManifestExists +
+                "\nSemantic materials exists: " + SemanticMaterialsExists +
+                "\nRequired files checked: " + RequiredFilesChecked +
+                "\nRequired mesh files checked: " + RequiredMeshFilesChecked +
+                "\nImported model roots found: " + ImportedModelRootsFound +
+                "\nGenerated art-pack proxy assets found/created: " + GeneratedProxyAssetsFoundOrCreated +
+                "\nImported art-pack mesh instances in sample compile: " + ImportedArtPackInstanceCount +
+                "\nArt-pack-derived proxy instances in sample compile: " + ArtPackDerivedProxyInstanceCount +
+                "\nGeneric fallback geometry instances in sample compile: " + GenericFallbackGeometryCount +
+                "\nArt-pack textured materials in sample compile: " + ArtPackTexturedMaterialCount;
+        }
+    }
+
     public static class AegisVisualArtPackValidator
     {
         static readonly string[] RequiredFiles =
@@ -125,78 +155,91 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             AssetDatabase.Refresh();
             var errors = new List<string>();
             var warnings = new List<string>();
+            var report = new AegisArtPackValidationReport();
 
-            if (!AssetDatabase.IsValidFolder(AegisMapArtPack.Root))
+            report.ArtPackRootExists = AssetDatabase.IsValidFolder(AegisMapArtPack.Root);
+            if (!report.ArtPackRootExists)
                 errors.Add("Missing art-pack root: " + AegisMapArtPack.Root);
 
             for (var i = 0; i < RequiredFiles.Length; i++)
-                RequireFile(RequiredFiles[i], errors);
+            {
+                report.RequiredFilesChecked++;
+                var exists = RequireFile(RequiredFiles[i], errors);
+                if (RequiredFiles[i] == "manifest.json")
+                    report.ManifestExists = exists;
+                if (RequiredFiles[i] == "Materials/semantic_materials.json")
+                    report.SemanticMaterialsExists = exists;
+            }
 
-            RequireMeshes(AegisMapArtPack.CliffMeshes, errors);
-            RequireMeshes(AegisMapArtPack.BoulderMeshes, errors);
-            RequireMeshes(AegisMapArtPack.PebbleMeshes, errors);
-            RequireMeshes(AegisMapArtPack.OreMeshes, errors);
-            RequireMeshes(AegisMapArtPack.CrystalMeshes, errors);
-            RequireMeshes(AegisMapArtPack.SalvageMeshes, errors);
-            RequireMeshes(AegisMapArtPack.EnergyMeshes, errors);
-            RequireMeshes(AegisMapArtPack.VegetationMeshes, errors);
-            RequireMeshes(AegisMapArtPack.RiverMeshes, errors);
-            RequireMeshes(AegisMapArtPack.CraterMeshes, errors);
+            RequireMeshes(AegisMapArtPack.CliffMeshes, errors, warnings, report);
+            RequireMeshes(AegisMapArtPack.BoulderMeshes, errors, warnings, report);
+            RequireMeshes(AegisMapArtPack.PebbleMeshes, errors, warnings, report);
+            RequireMeshes(AegisMapArtPack.OreMeshes, errors, warnings, report);
+            RequireMeshes(AegisMapArtPack.CrystalMeshes, errors, warnings, report);
+            RequireMeshes(AegisMapArtPack.SalvageMeshes, errors, warnings, report);
+            RequireMeshes(AegisMapArtPack.EnergyMeshes, errors, warnings, report);
+            RequireMeshes(new[] { AegisMapArtPack.BasePadMesh, AegisMapArtPack.BasePadTrimStraightMesh, AegisMapArtPack.BasePadTrimCornerMesh }, errors, warnings, report);
+            RequireMeshes(AegisMapArtPack.VegetationMeshes, errors, warnings, report);
+            RequireMeshes(AegisMapArtPack.RiverMeshes, errors, warnings, report);
+            RequireMeshes(AegisMapArtPack.CraterMeshes, errors, warnings, report);
 
             ValidateTheme(AegisBiomeVisualTheme.ForestPrototypeVisualTheme(), "forest", errors);
             ValidateTheme(AegisBiomeVisualTheme.DesertPrototypeVisualTheme(), "desert", errors);
 
-            var importedPrefabInstances = ValidateCompilerSample(errors, warnings);
+            ValidateCompilerSample(errors, warnings, report);
 
             if (errors.Count > 0)
-                throw new InvalidOperationException("Aegis visual art-pack validation failed:\n- " + string.Join("\n- ", errors.ToArray()));
+                throw new InvalidOperationException("Aegis visual art-pack validation failed:\n- " + string.Join("\n- ", errors.ToArray()) + "\n\n" + report.ToDisplayString());
 
-            var report = "Aegis visual art-pack validation passed." +
+            var message = "Aegis visual art-pack validation passed." +
                 "\nRoot: " + AegisMapArtPack.Root +
-                "\nRequired files checked: " + RequiredFiles.Length +
                 "\nTheme roles checked: " + RequiredThemeRoles.Length +
-                "\nImported art-pack prefab instances in sample compile: " + importedPrefabInstances;
+                "\n" + report.ToDisplayString();
             if (warnings.Count > 0)
-                report += "\nWarnings:\n- " + string.Join("\n- ", warnings.ToArray());
-            return report;
+                message += "\nWarnings:\n- " + string.Join("\n- ", warnings.ToArray());
+            return message;
         }
 
-        static int ValidateCompilerSample(List<string> errors, List<string> warnings)
+        static void ValidateCompilerSample(List<string> errors, List<string> warnings, AegisArtPackValidationReport report)
         {
             var samplePath = AegisMapEditorPaths.SamplesFolder + "/sample_art_pack_showcase_160_forest_river.aegismap.json";
             var document = AegisVisualMapDocument.Load(samplePath);
             if (document == null)
             {
                 errors.Add("Could not load compiler sample: " + samplePath);
-                return 0;
+                return;
             }
 
             var result = AegisMapVisualCompiler.CompileDocument(document, samplePath, false);
-            var importedPrefabInstances = CountArtPackPrefabInstances(result.Root);
-            if (importedPrefabInstances <= 0)
-                errors.Add("Visual compiler sample did not instantiate any imported art-pack prefabs; it appears to be fallback-only.");
+            int importedPrefabInstances;
+            int artPackDerivedProxyInstances;
+            AegisMapArtPack.CountInstances(result.Root, out importedPrefabInstances, out artPackDerivedProxyInstances);
+            report.ImportedArtPackInstanceCount = importedPrefabInstances;
+            report.ArtPackDerivedProxyInstanceCount = artPackDerivedProxyInstances;
+            report.GenericFallbackGeometryCount = CountGenericFallbackInstances(result);
+            report.ArtPackTexturedMaterialCount = AegisMapArtPack.CountArtPackTexturedMaterials(result.Root);
+
+            if (importedPrefabInstances + artPackDerivedProxyInstances <= 0)
+                errors.Add("Visual compiler sample did not instantiate imported art-pack prefabs or art-pack-derived proxy prefabs; it appears to be fallback-only.");
+
+            if (report.ArtPackTexturedMaterialCount <= 0)
+                errors.Add("Visual compiler sample did not resolve any art-pack terrain/material textures.");
 
             if (result.TotalScatterCount <= 0)
                 warnings.Add("Visual compiler sample produced no scatter count.");
 
             UnityEngine.Object.DestroyImmediate(result.Root);
-            return importedPrefabInstances;
         }
 
-        static int CountArtPackPrefabInstances(GameObject root)
+        static int CountGenericFallbackInstances(AegisMapVisualCompileResult result)
         {
-            if (root == null)
+            if (result == null)
                 return 0;
 
             var count = 0;
-            var transforms = root.GetComponentsInChildren<Transform>(true);
-            for (var i = 0; i < transforms.Length; i++)
-            {
-                var path = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(transforms[i].gameObject);
-                if (!string.IsNullOrEmpty(path) && path.StartsWith(AegisMapArtPack.Root, StringComparison.OrdinalIgnoreCase))
-                    count++;
-            }
-
+            for (var i = 0; i < result.Layers.Count; i++)
+                if (result.Layers[i] != null)
+                    count += result.Layers[i].GenericFallbackInstanceCount;
             return count;
         }
 
@@ -249,23 +292,43 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 role.EndsWith("_detail", StringComparison.OrdinalIgnoreCase);
         }
 
-        static void RequireMeshes(string[] relativePaths, List<string> errors)
+        static void RequireMeshes(string[] relativePaths, List<string> errors, List<string> warnings, AegisArtPackValidationReport report)
         {
             for (var i = 0; i < relativePaths.Length; i++)
             {
-                RequireFile(relativePaths[i], errors);
+                report.RequiredMeshFilesChecked++;
+                if (!RequireFile(relativePaths[i], errors))
+                    continue;
+
                 var assetPath = AegisMapArtPack.Root + "/" + relativePaths[i];
-                if (AssetDatabase.LoadAssetAtPath<GameObject>(assetPath) == null)
-                    errors.Add("Mesh did not import as a GameObject: " + assetPath);
+                if (AssetDatabase.LoadAssetAtPath<GameObject>(assetPath) != null)
+                {
+                    report.ImportedModelRootsFound++;
+                    continue;
+                }
+
+                var proxy = AegisMapArtPack.EnsureGeneratedProxy(relativePaths[i], null);
+                if (proxy != null)
+                {
+                    report.GeneratedProxyAssetsFoundOrCreated++;
+                    warnings.Add("Mesh did not import as a GameObject and will use an art-pack-derived proxy: " + assetPath);
+                    continue;
+                }
+
+                errors.Add("Mesh did not import as a GameObject and no art-pack proxy could be generated: " + assetPath);
             }
         }
 
-        static void RequireFile(string relativePath, List<string> errors)
+        static bool RequireFile(string relativePath, List<string> errors)
         {
             var assetPath = AegisMapArtPack.Root + "/" + relativePath.Replace('\\', '/');
             var diskPath = Path.Combine(Directory.GetCurrentDirectory(), assetPath);
-            if (!File.Exists(diskPath))
+            if (File.Exists(diskPath))
+                return true;
+
+            if (errors != null)
                 errors.Add("Missing file: " + assetPath);
+            return false;
         }
     }
 }

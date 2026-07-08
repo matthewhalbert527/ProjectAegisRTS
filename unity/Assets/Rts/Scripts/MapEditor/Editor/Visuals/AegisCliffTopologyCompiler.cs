@@ -59,7 +59,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         var rotation = Quaternion.Euler(0f, DirAngle[d], 0f);
                         var prefabPath = AegisMapArtPack.Pick(AegisMapArtPack.CliffMeshes, context.Seed, x + d * 11, y);
                         if (!AegisMapArtPack.TryInstantiatePrefab(layer, "cliff_straight_" + x + "_" + y + "_" + d, prefabPath, center, rotation, new Vector3(0.9f, 0.75f, 0.9f), straightMaterial))
+                        {
                             AegisVisualCompilerPrimitives.CreateCube(layer, "cliff_straight_" + x + "_" + y + "_" + d, center, new Vector3(0.88f, 1.08f, 0.30f), rotation, straightMaterial);
+                            summary.GenericFallbackInstanceCount++;
+                        }
                         summary.CliffStraightSegments++;
                         placed++;
 
@@ -76,7 +79,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         var center = new Vector3(x + 0.5f, 0.68f, y + 0.5f);
                         var rotation = Quaternion.Euler(0f, DirAngle[direction], 0f);
                         if (!AegisMapArtPack.TryInstantiatePrefab(layer, "cliff_endcap_" + x + "_" + y, "Meshes/Cliffs/cliff_endcap_01.glb", center, rotation, Vector3.one, endcapMaterial))
+                        {
                             AegisVisualCompilerPrimitives.CreateCube(layer, "cliff_endcap_" + x + "_" + y, center, new Vector3(0.78f, 0.86f, 0.78f), rotation, endcapMaterial);
+                            summary.GenericFallbackInstanceCount++;
+                        }
                         summary.CliffEndcaps++;
                         placed++;
                     }
@@ -87,7 +93,10 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                         var rotation = Quaternion.Euler(0f, CornerAngle(exposedMask), 0f);
                         var prefabPath = exposedCount >= 3 ? "Meshes/Cliffs/cliff_corner_outer_01.glb" : "Meshes/Cliffs/cliff_corner_inner_01.glb";
                         if (!AegisMapArtPack.TryInstantiatePrefab(layer, "cliff_corner_" + x + "_" + y, prefabPath, center, rotation, Vector3.one, roleMaterial))
+                        {
                             AegisVisualCompilerPrimitives.CreateCube(layer, "cliff_corner_" + x + "_" + y, center, new Vector3(0.92f, 0.96f, 0.92f), rotation, roleMaterial);
+                            summary.GenericFallbackInstanceCount++;
+                        }
                         summary.CliffCorners++;
                         placed++;
                     }

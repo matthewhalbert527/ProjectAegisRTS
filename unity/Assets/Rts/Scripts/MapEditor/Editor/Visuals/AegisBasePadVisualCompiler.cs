@@ -35,6 +35,9 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 summary.BasePadCount++;
 
                 AegisVisualCompilerPrimitives.CreateOrganicQuad(parent.transform, "basepad_dirt_feather", center, PadSize + 4.8f, PadSize + 4.0f, 0.058f, dirtMaterial, 0f, context, start.X, start.Y, 1110, 0.92f, 9f);
+                if (!AegisMapArtPack.TryInstantiatePrefab(parent.transform, "basepad_artpack_mesh", AegisMapArtPack.BasePadMesh, new Vector3(center.x, 0.108f, center.y), Quaternion.identity, Vector3.one, panelMaterial))
+                    summary.GenericFallbackInstanceCount++;
+
                 AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_center_panel", center, PadSize - TrimWidth * 2f, PadSize - TrimWidth * 2f, 0.105f, panelMaterial, 0f);
 
                 AegisVisualCompilerPrimitives.CreateQuad(parent.transform, "basepad_panel_marking_center", center, PadSize - 5.4f, PadSize - 5.4f, 0.142f, panelDecalMaterial, 0f);
