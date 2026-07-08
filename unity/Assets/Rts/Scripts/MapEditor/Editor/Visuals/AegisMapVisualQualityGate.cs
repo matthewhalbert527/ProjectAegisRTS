@@ -56,6 +56,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             RequireTexturedRole(theme, "river.water", errors);
             RequireTexturedRole(theme, "river.shoreline", errors);
             RequireTexturedRole(theme, "river.shoreline_feather", errors);
+            RequireTexturedRole(theme, "river.deep_pool", errors);
+            RequireTexturedRole(theme, "river.silt_flow", errors);
             RequireTexturedRole(theme, "river.depth_edge", errors);
             RequireTexturedRole(theme, "river.shallow_edge", errors);
             RequireTexturedRole(theme, "river.ripple", errors);
@@ -147,6 +149,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
                 errors.Add("Water cells were present but no production water ribbon mesh was produced.");
             if (water != null && water.WaterCells > 0 && water.ShorelineMeshes <= 0)
                 errors.Add("Water cells were present but no production shoreline bank mesh was produced.");
+            if (water != null && water.WaterCells > 0 && water.WaterSurfaceDetailDecalCount <= 0)
+                errors.Add("Water cells were present but no muddy deep-pool, silt-flow, or midstream ripple details were produced.");
             if (water != null && water.WaterCells > 0 && water.ShorelineDetailDecalCount <= 0)
                 errors.Add("Water cells were present but no water-edge depth, shallow, or ripple details were produced.");
 

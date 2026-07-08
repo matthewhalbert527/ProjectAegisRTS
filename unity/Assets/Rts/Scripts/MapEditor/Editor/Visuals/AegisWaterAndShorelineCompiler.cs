@@ -15,6 +15,8 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             var waterMaterial = AegisVisualCompilerPrimitives.Material(context, "river.water");
             var shoreMaterial = AegisVisualCompilerPrimitives.Material(context, "river.shoreline");
             var shoreFeatherMaterial = AegisVisualCompilerPrimitives.Material(context, "river.shoreline_feather");
+            var deepPoolMaterial = AegisVisualCompilerPrimitives.Material(context, "river.deep_pool");
+            var siltFlowMaterial = AegisVisualCompilerPrimitives.Material(context, "river.silt_flow");
             var depthEdgeMaterial = AegisVisualCompilerPrimitives.Material(context, "river.depth_edge");
             var shallowEdgeMaterial = AegisVisualCompilerPrimitives.Material(context, "river.shallow_edge");
             var rippleMaterial = AegisVisualCompilerPrimitives.Material(context, "river.ripple");
@@ -22,6 +24,7 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
 
             var ribbons = CollectWaterRibbons(context, summary);
             EmitWaterRibbonMeshes(context, summary, waterLayer, waterMaterial, ribbons);
+            EmitWaterSurfaceDetails(context, summary, waterLayer, deepPoolMaterial, siltFlowMaterial, rippleMaterial, ribbons);
             EmitWaterEdgeDetails(context, summary, waterLayer, depthEdgeMaterial, shallowEdgeMaterial, rippleMaterial, ribbons);
             EmitMergedShoreline(context, summary, shoreLayer, shoreMaterial, shoreFeatherMaterial, riverPropMaterial, ribbons);
             return summary;
@@ -159,6 +162,107 @@ namespace ProjectAegisRTS.UnityClient.EditorTools
             renderer.sharedMaterial = waterMaterial;
             summary.WaterMeshes++;
             summary.WaterStrips += spans.Count;
+        }
+
+        static void EmitWaterSurfaceDetails(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform waterLayer, Material deepPoolMaterial, Material siltFlowMaterial, Material rippleMaterial, List<List<RowSpan>> ribbons)
+        {
+            for (var i = 0; i < ribbons.Count; i++)
+            {
+                var spans = ribbons[i];
+                EmitDeepPoolPatches(context, summary, waterLayer, deepPoolMaterial, spans, i);
+                EmitSiltFlowPatches(context, summary, waterLayer, siltFlowMaterial, spans, i);
+                EmitMidstreamRipples(context, summary, waterLayer, rippleMaterial, spans, i);
+            }
+        }
+
+        static void EmitDeepPoolPatches(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform waterLayer, Material material, List<RowSpan> spans, int ribbonIndex)
+        {
+            if (spans.Count <= 2)
+                return;
+
+            var stride = Mathf.Max(5, Mathf.RoundToInt(spans.Count / 10f));
+            for (var i = 2; i < spans.Count - 1; i += stride)
+            {
+                var span = spans[i];
+                var width = span.Right - span.Left;
+                if (width < 4)
+                    continue;
+
+                if (context.Hash01(ribbonIndex, span.Y, 7010) > 0.76f)
+                    continue;
+
+                var left = SmoothEdge(context, spans, i, true, span.Y) + 0.85f;
+                var right = SmoothEdge(context, spans, i, false, span.Y) - 0.85f;
+                if (right <= left)
+                    continue;
+
+                var center = new Vector2(Mathf.Lerp(left, right, context.Hash01(ribbonIndex + i, span.Y, 7011)), span.Y + 0.5f + Mathf.Lerp(-0.45f, 0.45f, context.Hash01(ribbonIndex + i, span.Y, 7012)));
+                var patchWidth = Mathf.Min(right - left, Mathf.Lerp(1.0f, 2.7f, context.Hash01(ribbonIndex + i, span.Y, 7013)));
+                var patchLength = Mathf.Lerp(2.6f, 6.8f, context.Hash01(ribbonIndex + i, span.Y, 7014));
+                var angle = Mathf.Lerp(-8f, 8f, context.Hash01(ribbonIndex + i, span.Y, 7015));
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(waterLayer, "water_deep_pool_" + ribbonIndex + "_" + span.Y, center, patchWidth, patchLength, 0.071f, material, angle, context, ribbonIndex + i, span.Y, 7016, Mathf.Min(patchWidth, patchLength) * 0.20f, 5.5f);
+                summary.WaterSurfaceDetailDecalCount++;
+            }
+        }
+
+        static void EmitSiltFlowPatches(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform waterLayer, Material material, List<RowSpan> spans, int ribbonIndex)
+        {
+            if (spans.Count <= 2)
+                return;
+
+            var stride = Mathf.Max(4, Mathf.RoundToInt(spans.Count / 14f));
+            for (var i = 1; i < spans.Count - 1; i += stride)
+            {
+                var span = spans[i];
+                var width = span.Right - span.Left;
+                if (width < 3)
+                    continue;
+
+                if (context.Hash01(ribbonIndex, span.Y, 7040) > 0.68f)
+                    continue;
+
+                var left = SmoothEdge(context, spans, i, true, span.Y) + 0.55f;
+                var right = SmoothEdge(context, spans, i, false, span.Y) - 0.55f;
+                if (right <= left)
+                    continue;
+
+                var center = new Vector2(Mathf.Lerp(left, right, context.Hash01(ribbonIndex + i, span.Y, 7041)), span.Y + 0.5f + Mathf.Lerp(-0.35f, 0.35f, context.Hash01(ribbonIndex + i, span.Y, 7042)));
+                var patchWidth = Mathf.Min(right - left, Mathf.Lerp(0.35f, 0.95f, context.Hash01(ribbonIndex + i, span.Y, 7043)));
+                var patchLength = Mathf.Lerp(4.2f, 10.5f, context.Hash01(ribbonIndex + i, span.Y, 7044));
+                var angle = Mathf.Lerp(-5f, 5f, context.Hash01(ribbonIndex + i, span.Y, 7045));
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(waterLayer, "water_silt_flow_" + ribbonIndex + "_" + span.Y, center, patchWidth, patchLength, 0.073f, material, angle, context, ribbonIndex + i, span.Y, 7046, Mathf.Min(patchWidth, patchLength) * 0.18f, 4.5f);
+                summary.WaterSurfaceDetailDecalCount++;
+            }
+        }
+
+        static void EmitMidstreamRipples(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform waterLayer, Material material, List<RowSpan> spans, int ribbonIndex)
+        {
+            if (spans.Count <= 2)
+                return;
+
+            var stride = Mathf.Max(6, Mathf.RoundToInt(spans.Count / 18f));
+            for (var i = 2; i < spans.Count - 1; i += stride)
+            {
+                var span = spans[i];
+                var width = span.Right - span.Left;
+                if (width < 4)
+                    continue;
+
+                if (context.Hash01(ribbonIndex, span.Y, 7070) > 0.54f)
+                    continue;
+
+                var left = SmoothEdge(context, spans, i, true, span.Y) + 0.9f;
+                var right = SmoothEdge(context, spans, i, false, span.Y) - 0.9f;
+                if (right <= left)
+                    continue;
+
+                var center = new Vector2(Mathf.Lerp(left, right, context.Hash01(ribbonIndex + i, span.Y, 7071)), span.Y + 0.5f + Mathf.Lerp(-0.42f, 0.42f, context.Hash01(ribbonIndex + i, span.Y, 7072)));
+                var patchWidth = Mathf.Min(right - left, Mathf.Lerp(1.6f, 5.2f, context.Hash01(ribbonIndex + i, span.Y, 7073)));
+                var patchLength = Mathf.Lerp(0.07f, 0.18f, context.Hash01(ribbonIndex + i, span.Y, 7074));
+                var angle = Mathf.Lerp(-5f, 5f, context.Hash01(ribbonIndex + i, span.Y, 7075));
+                AegisVisualCompilerPrimitives.CreateOrganicQuad(waterLayer, "water_midstream_ripple_" + ribbonIndex + "_" + span.Y, center, patchWidth, patchLength, 0.078f, material, angle, context, ribbonIndex + i, span.Y, 7076, patchLength * 0.4f);
+                summary.WaterSurfaceDetailDecalCount++;
+            }
         }
 
         static void EmitWaterEdgeDetails(AegisMapVisualCompileContext context, AegisVisualLayerSummary summary, Transform waterLayer, Material depthEdgeMaterial, Material shallowEdgeMaterial, Material rippleMaterial, List<List<RowSpan>> ribbons)
