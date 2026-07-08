@@ -12,9 +12,11 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
         public Renderer[] teamColorRenderers;
         public float trackScrollSpeed = 2.4f;
         public float recoilDistanceMeters = 0.08f;
+        [Range(0f, 1f)] public float teamTintStrength = 0.45f;
 
         Vector3 barrelRestLocalPosition;
         float trackPhase;
+        MaterialPropertyBlock teamTintBlock;
 
         void Awake()
         {
@@ -27,18 +29,7 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
             if (teamColorRenderers == null)
                 return;
 
-            for (var i = 0; i < teamColorRenderers.Length; i++)
-            {
-                var renderer = teamColorRenderers[i];
-                if (renderer == null)
-                    continue;
-
-                var block = new MaterialPropertyBlock();
-                renderer.GetPropertyBlock(block);
-                block.SetColor("_BaseColor", color);
-                block.SetColor("_Color", color);
-                renderer.SetPropertyBlock(block);
-            }
+            ProjectAegisTeamColorMaterialUtility.ApplyTeamTint(teamColorRenderers, color, ref teamTintBlock, teamTintStrength);
         }
 
         public void SetTurretYaw(float yawDegrees)

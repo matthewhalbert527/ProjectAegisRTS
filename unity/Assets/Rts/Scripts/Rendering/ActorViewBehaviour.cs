@@ -417,7 +417,7 @@ namespace ProjectAegisRTS.UnityClient.Rendering
             if (body == null)
                 return;
 
-            if (definition is BuildingDefinition)
+            if (definition is BuildingDefinition && !UsesResolvedPrefab)
                 SetMaterial(body, snapshot.LightsActive && snapshot.MachineryActive ? materials.Building : materials.BuildingLowPower);
 
             var teamColor = TeamColorForOwner(snapshot.OwnerId);

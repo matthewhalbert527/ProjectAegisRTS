@@ -7,6 +7,7 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
     {
         public Renderer[] teamColorRenderers;
         public Color fallbackTeamColor = new Color(0.16f, 0.72f, 0.82f, 1f);
+        [Range(0f, 1f)] public float teamTintStrength = 0.45f;
 
         MaterialPropertyBlock block;
         Color appliedColor;
@@ -30,17 +31,7 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
             if (block == null)
                 block = new MaterialPropertyBlock();
 
-            for (var i = 0; i < teamColorRenderers.Length; i++)
-            {
-                var renderer = teamColorRenderers[i];
-                if (renderer == null)
-                    continue;
-
-                renderer.GetPropertyBlock(block);
-                block.SetColor("_BaseColor", color);
-                block.SetColor("_Color", color);
-                renderer.SetPropertyBlock(block);
-            }
+            ProjectAegisTeamColorMaterialUtility.ApplyTeamTint(teamColorRenderers, color, ref block, teamTintStrength);
         }
     }
 }

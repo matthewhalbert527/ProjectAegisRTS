@@ -8,6 +8,7 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
         [Header("Team Color")]
         public Color teamColor = Color.white;
         public Renderer[] teamRenderers;
+        [Range(0f, 1f)] public float teamTintStrength = 0.45f;
 
         [Header("Animation Hooks")]
         public Transform cutterDrumRoot;
@@ -41,17 +42,7 @@ namespace ProjectAegisRTS.UnityClient.Art.Production
             hasAppliedTeamColor = true;
             block ??= new MaterialPropertyBlock();
 
-            for (var i = 0; i < teamRenderers.Length; i++)
-            {
-                var renderer = teamRenderers[i];
-                if (renderer == null)
-                    continue;
-
-                renderer.GetPropertyBlock(block);
-                block.SetColor("_BaseColor", color);
-                block.SetColor("_Color", color);
-                renderer.SetPropertyBlock(block);
-            }
+            ProjectAegisTeamColorMaterialUtility.ApplyTeamTint(teamRenderers, color, ref block, teamTintStrength);
         }
 
         public void SetCargoFill(float fill01)
